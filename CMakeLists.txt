@@ -18,9 +18,8 @@ include(DuneMacros)
 # start a dune project with information from dune.module
 dune_project()
 dune_enable_all_packages()
-add_subdirectory("dune")
-add_subdirectory("tutorial00")
-add_subdirectory("cmake/modules")
+
+add_subdirectory(tutorial00)
 
 # finalize the dune project, e.g. generating config.h etc.
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
