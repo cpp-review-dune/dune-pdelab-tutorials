@@ -1,31 +1,25 @@
 // -*- tab-width: 4; indent-tabs-mode: nil -*-
 /** \file
-
-    \brief Solve elliptic problem in unconstrained spaces with conforming finite elements
+    \brief Solve Poisson equation with P1 conforming finite elements
 */
+// always include the config file
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+// C++ includes
 #include<math.h>
 #include<iostream>
-#include<vector>
-#include<map>
-#include<string>
-
+// dune-common includes
 #include<dune/common/parallel/mpihelper.hh>
 #include<dune/common/parametertreeparser.hh>
-#include<dune/common/exceptions.hh>
-#include<dune/common/fvector.hh>
-#include<dune/common/static_assert.hh>
 #include<dune/common/timer.hh>
-#include<dune/grid/io/file/vtk/subsamplingvtkwriter.hh>
-#include<dune/grid/io/file/gmshreader.hh>
-#include<dune/grid/yaspgrid.hh>
+// dune-geometry includes
+#include<dune/geometry/referenceelements.hh>
+#include<dune/geometry/quadraturerules.hh>
+// dune-grid includes
 #include<dune/grid/onedgrid.hh>
-#if HAVE_ALBERTA
-#include<dune/grid/albertagrid.hh>
-#include <dune/grid/albertagrid/dgfparser.hh>
-#endif
+#include<dune/grid/io/file/vtk/vtkwriter.hh>
+#include<dune/grid/io/file/gmshreader.hh>
 #if HAVE_UG
 #include<dune/grid/uggrid.hh>
 #endif
@@ -34,48 +28,35 @@
 #include<dune/grid/io/file/dgfparser/dgfalu.hh>
 #include<dune/grid/io/file/dgfparser/dgfparser.hh>
 #endif
-#include<dune/istl/bvector.hh>
-#include<dune/istl/operators.hh>
-#include<dune/istl/solvers.hh>
-#include<dune/istl/preconditioners.hh>
-#include<dune/istl/io.hh>
-#include<dune/istl/superlu.hh>
-#include<dune/pdelab/newton/newton.hh>
-#include<dune/pdelab/finiteelementmap/p0fem.hh>
+// dune-istl included by pdelab
+// dune-pdelab includes
+#include<dune/pdelab/common/function.hh>
+#include<dune/pdelab/common/vtkexport.hh>
 #include<dune/pdelab/finiteelementmap/pkfem.hh>
-#include<dune/pdelab/finiteelementmap/qkfem.hh>
-#include<dune/pdelab/finiteelementmap/rannacherturekfem.hh>
 #include<dune/pdelab/constraints/common/constraints.hh>
 #include<dune/pdelab/constraints/common/constraintsparameters.hh>
 #include<dune/pdelab/constraints/conforming.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspace.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspaceutilities.hh>
-#include<dune/pdelab/gridfunctionspace/genericdatahandle.hh>
 #include<dune/pdelab/gridfunctionspace/interpolate.hh>
 #include<dune/pdelab/gridfunctionspace/vtk.hh>
-#include<dune/pdelab/common/function.hh>
-#include<dune/pdelab/common/vtkexport.hh>
-#include<dune/pdelab/backend/istl.hh>
-#include<dune/pdelab/stationary/linearproblem.hh>
 #include<dune/pdelab/gridoperator/gridoperator.hh>
-#include<dune/geometry/referenceelements.hh>
-#include<dune/geometry/quadraturerules.hh>
-#include<dune/pdelab/common/geometrywrapper.hh>
 #include<dune/pdelab/localoperator/defaultimp.hh>
 #include<dune/pdelab/localoperator/pattern.hh>
 #include<dune/pdelab/localoperator/flags.hh>
+#include<dune/pdelab/backend/istl.hh>
+#include<dune/pdelab/stationary/linearproblem.hh>
 
 /******************************************************/
 /** \brief Class defining the right hand side
  */
 /******************************************************/
-template<typename GV, typename RF>
+template<typename GV, typename RF> /*@\label{cc:bla}@*/
 class FFunction
   : public Dune::PDELab::GridFunctionBase<Dune::PDELab::
            GridFunctionTraits<GV,RF,1,Dune::FieldVector<RF,1> >, FFunction<GV,RF> >
 {
   const GV& gv;
-  RF time;
 public:
   typedef Dune::PDELab::GridFunctionTraits<GV,RF,1,Dune::FieldVector<RF,1> > Traits;
 
@@ -108,7 +89,6 @@ class GFunction
            GridFunctionTraits<GV,RF,1,Dune::FieldVector<RF,1> >, GFunction<GV,RF> >
 {
   const GV& gv;
-  RF time;
 public:
   typedef Dune::PDELab::GridFunctionTraits<GV,RF,1,Dune::FieldVector<RF,1> > Traits;
 
@@ -149,7 +129,6 @@ public:
   }
 };
 
-
 /******************************************************/
 /** a local operator for solving the linear convection-diffusion equation with standard FEM
  *
@@ -185,9 +164,9 @@ private:
   const F& f;
   enum {dim=LocalBasisType::Traits::dimDomain}; 
   enum {n=dim+1};
-  DomainType qp;
-  double weight;  // quadrature weight on reference element
-  double phihat[n]; // basis functions at qp
+  DomainType qp;          // center of mass of refelem
+  double weight;          // quadrature weight on refelem
+  double phihat[n];       // basis functions at qp
   double gradhat[dim][n]; // coordinate x #basisfct 
   
 public:
@@ -198,6 +177,7 @@ public:
   enum { doAlphaVolume = true };
   enum { doLambdaVolume = true };
 
+  // Constructor precomputes element independent data
   PoissonP1 (const G& g_, const F& f_, const FiniteElementType& fel)
     : g(g_), f(f_)
   {
@@ -211,8 +191,11 @@ public:
     // loop over quadrature points 
     int q=0;
     for (const auto& ip : rule) {
-      if (q>0) break; // there should only be one quadrature point !
-
+      if (q>0) {
+        std::cout << "This is the wrong quadrature rule!" << std::endl;
+        exit(1);
+      }
+      
       // position and weight of the quadrature point
       weight = ip.weight();
       qp = ip.position();
@@ -222,12 +205,12 @@ public:
       ++q;
     }
 
-    // evaluate basis functions
+    // evaluate basis functions on refelem
     std::vector<RangeType> phi(n);
     fel.localBasis().evaluateFunction(qp,phi);
     for (int i=0; i<n; i++) phihat[i] = phi[i];
 
-    // evaluate gradients of basis functions
+    // evaluate gradients of basis functions on refelem
     std::vector<JacobianType> js(n);
     fel.localBasis().evaluateJacobian(qp,js);
     for (int i=0; i<n; i++)
@@ -381,8 +364,10 @@ int driver (GV& gv, Dune::ParameterTree& ptree)
   std::cout << jac.patternStatistics() << std::endl;
 
   // Select a linear solver backend
-  typedef Dune::PDELab::ISTLBackend_SEQ_CG_SSOR LS;
-  LS ls(5000,true);
+  typedef Dune::PDELab::ISTLBackend_SEQ_CG_AMG_SSOR<GO> LS;
+  LS ls(100,true);
+  // typedef Dune::PDELab::ISTLBackend_SEQ_CG_SSOR LS;
+  // LS ls(5000,true);
 
   // Assemble and solve linear problem
   typedef Dune::PDELab::StationaryLinearProblemSolver<GO,LS,U> SLP;
@@ -448,11 +433,16 @@ int main(int argc, char** argv)
         GV gv = grid.leafGridView();
         driver(gv,ptree);
       }
-#if HAVE_UG
     if (dim==2)
       {
         std::string filename = ptree.get("grid.twod.filename","unitsquare.msh");
+#if HAVE_DUNE_ALUGRID
+        typedef Dune::ALUGrid<2,2,Dune::simplex,Dune::nonconforming> Grid;
+#elif HAVE_UG
         typedef Dune::UGGrid<2> Grid;
+#else  // ! (HAVE_UG || HAVE_DUNE_ALUGRID)
+        std::cout << "This example requires a simplex grid!" << std::endl;
+#endif
         Dune::GridFactory<Grid> factory;
         Dune::GmshReader<Grid>::read(factory,filename,true,true);
         std::shared_ptr<Grid> gridp = std::shared_ptr<Grid>(factory.createGrid());
@@ -466,7 +456,13 @@ int main(int argc, char** argv)
     if (dim==3)
       {
         std::string filename = ptree.get("grid.threed.filename","unitcube.msh");
+#if HAVE_DUNE_ALUGRID
+        typedef Dune::ALUGrid<3,3,Dune::simplex,Dune::nonconforming> Grid;
+#elif HAVE_UG
         typedef Dune::UGGrid<3> Grid;
+#else  // ! (HAVE_UG || HAVE_DUNE_ALUGRID)
+        std::cout << "This example requires a simplex grid!" << std::endl;
+#endif
         Dune::GridFactory<Grid> factory;
         Dune::GmshReader<Grid>::read(factory,filename,true,true);
         std::shared_ptr<Grid> gridp = std::shared_ptr<Grid>(factory.createGrid());
@@ -477,10 +473,6 @@ int main(int argc, char** argv)
         GV gv = gridp->leafGridView();
         driver(gv,ptree);
       }
-#else
-      std::cout << "This example requires UG!" << std::endl;
-#endif
-
   }
   catch (Dune::Exception &e){
     std::cerr << "Dune reported error: " << e << std::endl;

@@ -40,11 +40,11 @@
 \usepackage{tikz} 
 \usepackage{eurosym} 
 \usepackage{graphicx}
-\usepackage{psfrag}
+\usepackage{color}
 \usepackage{listings}
 \lstset{language=C++, basicstyle=\ttfamily, 
   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-  commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
+  commentstyle=\itshape, extendedchars=true, escapeinside={/*@}{@*/}}
 \usepackage{paralist}
 \usepackage{curves}
 \usepackage{calc}
@@ -59,7 +59,10 @@
 \usepackage{textcase}
 \usepackage{nicefrac}
 
-\title{DUNE PDELab Tutorial 00 \\ Piecewise Linear Finite Elements for the Poisson Equation on Simplices}
+\definecolor{listingbg}{gray}{0.95}
+
+\title{DUNE PDELab Tutorial 00 \\ 
+Piecewise Linear Finite Elements for the Poisson Equation on Simplices}
 \author{\textsc{Peter Bastian}\\
   Universität Heidelberg, \\
   Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
@@ -693,6 +696,14 @@ provides a generic assembler class carrying out steps (1), (2) and (4)
 while the element-local computations are supplied by a parameter class.
 
 \section{Realization in PDELab}
+
+\lstinputlisting[linerange={3-11},basicstyle=\ttfamily,
+%numbers=left,numberstyle=\tiny, numbersep=5pt,
+frame=single,backgroundcolor=\color{listingbg}]{../src/tutorial00.ini}
+
+This is line \ref{ini:bla1}
+
+This is line \ref{ini:bla2}
 
 \section{Excercises}
 
