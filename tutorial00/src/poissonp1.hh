@@ -2,19 +2,13 @@
 /** a local operator for solving the linear convection-diffusion equation with standard FEM
  *
  * \f{align*}{
- *   \nabla\cdot(-A(x) \nabla u + b(x) u) + c(x)u &=& f \mbox{ in } \Omega,  \\
- *                                              u &=& g \mbox{ on } \partial\Omega_D \\
- *                (b(x,u) - A(x)\nabla u) \cdot n &=& j \mbox{ on } \partial\Omega_N \\
- *                        -(A(x)\nabla u) \cdot n &=& j \mbox{ on } \partial\Omega_O
+ *   \Delta u &=& f \mbox{ in } \Omega,  \\
+ *          u &=& g \mbox{ on } \partial\Omega \\
  * \f}
  * Note:
- *  - This formulation is valid for velocity fields which are non-divergence free.
- *  - Outflow boundary conditions should only be set on the outflow boundary
- *
- * \tparam T model of ConvectionDiffusionParameterInterface
  */
 /******************************************************/
-template<typename G, typename F, typename FiniteElementMap>
+template<typename F, typename FiniteElementMap>
 class PoissonP1 :
   public Dune::PDELab::FullVolumePattern,
   public Dune::PDELab::LocalOperatorDefaultFlags
@@ -29,8 +23,7 @@ private:
   typedef typename LocalBasisType::Traits::RangeFieldType RF;
 
   // data members
-  const G& g;
-  const F& f;
+  const F f;
   enum {dim=LocalBasisType::Traits::dimDomain}; 
   enum {n=dim+1};
   DomainType qp;          // center of mass of refelem
@@ -47,8 +40,8 @@ public:
   enum { doLambdaVolume = true };
 
   // Constructor precomputes element independent data
-  PoissonP1 (const G& g_, const F& f_, const FiniteElementType& fel)
-    : g(g_), f(f_)
+  PoissonP1 (const F& f_, const FiniteElementType& fel)
+    : f(f_)
   {
     // determine the single quadrature point
     // and evaluate basis functions on the reference element

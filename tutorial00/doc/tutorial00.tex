@@ -1,37 +1,8 @@
-\documentclass[a4paper,
-		     11pt,
-		     DIV12,
-		     DIVcalc,
-		     headings=normal,
-		     oneside,
-		     bibliography=totoc,
-		     headsepline=false,
-		     headinclude]{scrartcl}
+\documentclass[a4paper,11pt]{article}
 
-% font
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\setkomafont{title}{\normalfont\itshape\huge}
-\setkomafont{section}{\normalfont\itshape\Large}
-\setkomafont{sectioning}{\normalfont}
-\setkomafont{subsection}{\normalfont\itshape\large}
-\setkomafont{subsubsection}{\normalfont\itshape}
-\setkomafont{paragraph}{\normalfont\itshape}
-\setkomafont{pagehead}{\rmfamily\scshape}
-%\usepackage[automark,komastyle]{scrpage2}
-
-% german; comment out if not needed
-%\usepackage[ngerman]{babel}
-%\usepackage[german]{varioref} 
-%\usepackage{bibgerm}
-
-% enlarge page size
-%\usepackage[automark,komastyle]{scrpage2}
-%\pagestyle{useheadings}
-%\usepackage[cm,headings]{fullpage}
 \usepackage[a4paper,total={150mm,240mm}]{geometry}
-
-% often used packages
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amsthm}
@@ -51,8 +22,6 @@
 \usepackage{picinpar}
 \usepackage{enumerate}
 \usepackage{algpseudocode}
-%\usepackage{algorithmic}
-%\usepackage{algorithm}
 \usepackage{bm}
 \usepackage{multibib}
 \usepackage{hyperref}
@@ -62,8 +31,9 @@
 \definecolor{listingbg}{gray}{0.95}
 
 \title{DUNE PDELab Tutorial 00 \\ 
-Piecewise Linear Finite Elements for the Poisson Equation on Simplices}
-\author{\textsc{Peter Bastian}\\
+Piecewise Linear Finite Elements for the\\
+Poisson Equation on Simplices}
+\author{Peter Bastian\\
   Universität Heidelberg, \\
   Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
   Im Neuenheimer Feld 368, D-69120 Heidelberg\\
@@ -74,6 +44,9 @@ Piecewise Linear Finite Elements for the Poisson Equation on Simplices}
 \begin{document}
 
 \maketitle
+\begin{center}
+\includegraphics[width=0.7\textwidth]{error}
+\end{center}
 \tableofcontents
 \clearpage
 
@@ -520,7 +493,7 @@ the right hand side functional $l(\phi_i)$.
 of $a(u_h,\phi_i)$ for all test functions $\phi_i$ and a given function $u_h$.
 \end{enumerate}
 
-\subsection{Implementation of the Solution Steps}
+\subsection{Implementation of the Solution Steps}\label{subs:impl}
 
 We now consider the three operations outlined in the previous section
 in more detail. The efficient implementation of these operations involves
@@ -697,13 +670,373 @@ while the element-local computations are supplied by a parameter class.
 
 \section{Realization in PDELab}
 
-\lstinputlisting[linerange={3-11},basicstyle=\ttfamily,
-%numbers=left,numberstyle=\tiny, numbersep=5pt,
-frame=single,backgroundcolor=\color{listingbg}]{../src/tutorial00.ini}
+The solution of Poisson's equation with piecewise linear
+finite elements in dimension 1, 2 and 3 is realized by the file
+\lstinline{tutorial00.cc} which includes several other files containing different
+solution components:
+\begin{enumerate}[1)]
+\item Files \lstinline{ffunction.hh} and \lstinline{gfunction.hh} 
+contain the classes \lstinline{FFunction} and \lstinline{GFunction} 
+implementing the functions $f$ and $g$ in the PDE definition.
+\item File \lstinline{bctype.hh} contains the class \lstinline{BCType}
+describing where Dirichlet conditions are to be applied.
+\item File \lstinline{poissonp1.hh} contains the class \lstinline{PoissonP1} 
+realizing the element-local computations
+comprising the piecewise linear finite element method as described
+in Subsection \ref{subs:impl}.
+\item File \lstinline{driver.hh} contains the function
+\lstinline{driver} setting up and solving the finite element problem
+on a particular grid.
+\item And finally the file \lstinline{tutorial00.cc} 
+includes all the other files and contains the \lstinline{main} function which reads the user
+parameters, creates a finite element mesh and calls the \lstinline{driver}
+function to solve the problem on the given mesh.
+\end{enumerate}
+We discuss these functions and classes in detail in a top down manner.
 
-This is line \ref{ini:bla1}
+\subsection{Function \lstinline{main}}
 
-This is line \ref{ini:bla2}
+The file \lstinline{tutorial00.cc} contains the \lstinline{main} function
+which is the starting point of every C++ program. All the DUNE code should
+be within a try block in order to catch any exceptions DUNE might throw
+and to print meaningful error messages:
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+  try{
+    ...
+  }
+  catch (Dune::Exception &e){
+    std::cerr << "Dune reported error: " << e << std::endl;
+	return 1;
+  }
+\end{lstlisting}
+
+The function starts by instantiating the \lstinline{MPIHelper}
+singleton:
+\lstinputlisting[linerange={65-70},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
+In case of a parallel code it initializes the MPI (message passing interface)
+library. Even if there is no MPI library to initialize there is a default version,
+so you can always use this code.
+
+The next block of four lines uses the parameter tree parser to
+read the user data from an input file and store it in a parameter tree object
+named \lstinline{ptree}:
+\lstinputlisting[linerange={73-76},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
+It is customary that the input file has the same name as the 
+main file of the application with the extension \lstinline{.ini}.
+Here is the contents of the file \lstinline{tutorial00.ini}:
+\lstinputlisting[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial00.ini}
+The parameter file is structured hierarchically into 
+sections beginning with the section name in square brackets.
+Within each section names can be associated with strings which
+can be interpreted in various ways. 
+E.g. the following two lines from the \lstinline{main} function read the grids
+dimension and number of global refinements from the block \lstinline{[grid]}:
+\lstinputlisting[linerange={79-80},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
+
+The rest of the main function creates meshes in 1, 2 and 3 dimensions
+and calls the function \lstinline{driver}. Since the grid dimension is a template
+parameter but we want to select the dimension at run-time all three variants
+need to be compiled. 
+
+For the one-dimensional case we use the \lstinline{OneDGrid} implementation
+of the DUNE grid interface and construct the initial grid from the user data
+provided in the ini file.
+
+For the two- and three-dimensional case either \lstinline{ALUGrid} or
+\lstinline{UGGrid} are used. If neither is present the code cannot be run.
+Both grid managers can read two- and three-dimensional simplicial
+grids generated by the program \lstinline{gmsh} \cite{NME:NME2579}.
+In the following we just explain the 2d section here as all sections are similar.
+
+First we define the type \lstinline{Grid} to be either
+\lstinline{ALUGrid} or \lstinline{UGGrid} using some
+preprocessor magic. An error message is printed if neither
+grid manager is installed:
+\lstinputlisting[linerange={105-111},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
+
+Now we can create a DUNE grid initialized with the coarse mesh
+from the gmsh input file:
+\lstinputlisting[linerange={113-117},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
+Here the method \lstinline{get} is provided with the name of
+the entry in the parameter file and a default value in case the
+entry is not present in the file.
+
+The next few lines refine the mesh globally the specified number of times
+and report the time spent:
+\lstinputlisting[linerange={118-121},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
+
+Voilà, we can call the function \lstinline{driver} to solve the finite
+element problem on the given mesh:
+\lstinputlisting[linerange={122-122},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
+
+\subsection{Function \lstinline{driver}}
+
+The generic \lstinline{driver} function contains all the PDELab code that
+sets up and solves the finite element problem. The solution of
+complicated problems such as nonlinear problems, instationary problems or
+systems of partial differential equations follows the same pattern with
+some of the components exchanged.
+
+The function \lstinline{driver} has the following interface:
+\lstinputlisting[linerange={5-6},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+The first argument is supposed to provide a leaf grid view of a conforming simplicial
+grid in any space dimension. A grid view is a subset of a hierarchical finite element
+mesh as it is provided by the DUNE grid interface. A leaf grid view provides the
+finest mesh defined in the hierarchy and here it represents the mesh $\mathcal{T}_h$
+on which we want to solve the finite element problem.
+The second argument provides a 
+parameter tree containing user data. Currently only the output file name is
+taken from the parameter tree.
+
+The function starts by extracting the dimension of the grid (we assume
+that grid and world dimension coincide) and the type used by the grid
+to represent coordinates. Then the type to be used for the entries
+of the vectors and matrices is defined:
+\lstinputlisting[linerange={9-11},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+The next step is to instantiate objects representing the
+data of the partial differential equation to be solved:
+\lstinputlisting[linerange={14-18},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+Instances of the classes \lstinline{FFunction} and \lstinline{GFunction}
+provide the right hand side function $f$ and the Dirichlet boundary
+data $g$ respectively. Actually, $g$ is not only defined on $\partial\Omega$
+but on the whole domain $\overline{\Omega}$. Thus it can be used 
+to provide e.g. the exact solution of the problem for testing purposes
+or an initial guess for the iterative solvers.
+The instance of the class \lstinline{BCType} provides
+{\em where} Dirichlet boundary conditions are to be applied. In our example,
+Dirichlet boundary conditions are applied on all of $\partial\Omega$ but
+in general one may apply also other boundary conditions.
+
+The purpose of the next block of lines
+\lstinputlisting[linerange={21-27},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+is to set up a grid function space represented by the type \lstinline{GFS}.
+It can be considered to represent the finite element space $V_h$, i.e.
+it knows about the dimension of the space, the basis functions as well
+as the local to global map. 
+
+The first two lines set up a finite element map of the type
+\lstinline{PkLocalFiniteElementMap}. A finite element map associates
+finite element basis functions, defined on the corresponding reference element, 
+with each element of the mesh. In our
+simple case every element of the mesh is supposed to have
+the same basis functions but in general, e.g. in $hp$ finite element methods,
+every element could have a different set of basis functions. In addition,
+information is provided how the global finite element space $V_h$
+is to be constructed from its local, element-wise pieces. This involves
+the identification of global degrees of freedom via the local to global map.
+
+The next line defines the type \lstinline{CON}, a so-called constraints class,
+which provides a way how to assemble constraints on a function space.
+In our case it is used to identify degrees of freedom constrained by
+Dirichlet boundary conditions.
+
+The following line defines the type \lstinline{VBE} which provides a
+vector backend. PDELab is designed in such a way that different iterative
+solver libraries can be used. Such libraries also provide their own data types
+for vectors and (sparse) matrices and we would like PDELab to be able to directly fill
+the data into these data structures without a copy step. In this case here we use
+the ISTL vector backend using DUNE's own iterative solver library ISTL.
+
+Now all template parameters are in place to define the type \lstinline{GFS}
+from the class template \lstinline{GridFunctionSpace}. This class template
+combines all the given information to construct the global finite element
+space $V_h$ on a given grid view. Finally an object of this class is
+instantiated and the space is given a name.
+
+The grid function space actually corresponds to the unconstrained
+function space $V_h$. The \lstinline{CON} class does not provide
+the constraints themselves but rather {\em a way how to determine the constraints}.
+The determination of the constraints for a given mesh from an
+instance of the \lstinline{BCType} class ist done by the following lines:
+\lstinputlisting[linerange={30-34},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+The \lstinline{constraints} function assembles the constraints, in our case
+the index set $\mathcal{I}_h^{\partial\Omega}$, into the constraints container
+\lstinline{cc} of type \lstinline{CC}. The separation of the function space
+$V_h$ and the constraints set $\mathcal{I}_h^{\partial\Omega}$ allows
+one to reuse the function space together with different constraints, e.g.
+for a system of partial differential equations.
+
+The next step is to declare a variable that will later on contain
+the solution vector $z$:
+\lstinputlisting[linerange={37-38},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+The type \lstinline{Z} representing the $\mathbb{R}^N$ is extracted from
+the vector backend of the grid function space while we are still
+able to specify the type \lstinline{RF} for each component of the 
+solution vector.
+
+The finite element isomorphism $\text{FE}_h : \mathbb{R}^N \to V_h$,
+$$\text{FE}_h(z) = \sum_{j=1}^N (z)_j \phi_j$$ provides
+a one-to-one correspondence between coefficient vectors and
+finite element functions. The following lines produce
+a finite element function from a coefficient vector:
+\lstinputlisting[linerange={41-42},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+You should be aware that the object \lstinline{zdgf} stores a {\em reference}
+to the object \lstinline{z} which means that when you change entries of the
+coefficient vector then also the function changes.
+
+Often one wants to fill a coefficient vector such that $\text{FE}_h(z)$ approximates
+a given function, say $w$. In general, $w$ is not a finite element function, but if it
+is, then $w=\text{FE}(z)$ should hold. So what we seek is $z=FE_h^{-1}(P(w))$ where $P$ is 
+a projection into the finite element space. This is provided by the following line:
+\lstinputlisting[linerange={45-45},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+In this case the projection $P$ provided by the function \lstinline{interpolate} is
+the Lagrange interpolation of the function $g$: 
+$$P(g) = \sum_{j=1}^N g(x_j) \phi_j,$$ i.e. $(z)_j = g(x_j)$ where $x_j$
+are the mesh vertices.
+The projection to  be used depends on the finite element space and is
+part of the definition of the grid function space. For example in the case
+of discontinuous finite element functions it might be an $L^2$-projection.
+
+The line
+\lstinputlisting[linerange={46-46},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+then sets all interior degrees of freedom to zero.
+
+As pointed out in Subsection \ref{subs:impl} the assembly of the 
+right hand side $b$ and the matrix $A$ as well as matrix-free computation of $Az$
+can be seperated into a generic part looping over the finite element mesh 
+and doing element-local computations. This seperation is represented in the code 
+by first setting up a {\em local operator}, here of the type \lstinline{LOP}
+\lstinputlisting[linerange={49-50},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+providing the element-wise computations.
+The class template \lstinline{PoissonP1}
+implementing the piecewise linear finite element method for Poisson's equation
+is described in detail below. The constructor
+requires the right hand side function as the first argument and the first element
+of the mesh as the second argument. The first element of the mesh is used to
+precompute the basis functions on the reference element as well as the gradients.
+
+Now the local operator is used as one of the template arguments in the
+global assembler or {grid operator};
+\lstinputlisting[linerange={53-62},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+The grid operator implemented by the type \lstinline{GO} provides
+the generic part of the assembly procedure. It requires the types for ansatz
+and test space, which may be different in general, the local operator type,
+a matrix backend, the types to be used for components of coefficients vectors of the
+ansatz and test space as well as the entries of the Matrix $A$ and last but not least the
+types of the constraints containers of ansatz and test space.
+The constructor then takes the corresponding objects as arguments.
+Note that here an object \lstinline{mbe} of the matrix backend type is needed.
+It is constructed with a guess of the average number of nonzeros per row.
+
+As the next step we need to select a solver that will be used to solve
+the linear system $Az=b$. This is done by the following two lines:
+\lstinputlisting[linerange={65-66},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+Since we used the ISTL backends for vectors and matrices we need to
+select a solver from the ISTL library. Complete solvers are packaged
+by PDELab for sequential and parallel computations. Here we select
+the conjugate gradient method with algebraic multigrid as preconditioner 
+and symmetric successive overrelaxation as smoother in multigrid in
+its sequential implementation. The linear solver object \lstinline{ls} is initialized
+with the maximum number of iterations and a verbose parameter.
+
+So far, {\em no} finite element computations have actually been performed,
+only the necessary components have been configured to now do the real work
+together. We can now set up the matrix $A$ as well as the right hand side $b$ and
+then solve the system. Since this is required often, there is a class in PDELab
+for this:
+\lstinputlisting[linerange={69-70},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+The object \lstinline{slp} of type \lstinline{StationaryLinearProblemSolver} receives
+the grid operator, the selected linear solver backend and a coefficient
+vector with the initial guess and the correct Dirichlet boundary data
+and solves the problem up to a given accuracy upon a call of the apply method:
+\lstinputlisting[linerange={71-71},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+In the given example a problem with a known exact solution,
+which is given by the function $g$, is solved.
+In order to compare the computed solution with the exact solution
+we initialize another coefficient vector with the Lagrange interpolation
+and provide a grid function:
+\lstinputlisting[linerange={74-76},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+Finally it is time to write the results to disk for postprocessing with
+VTK/ParaView. This is done with DUNE's \lstinline{VTKWriter} class:
+\lstinputlisting[linerange={77-84},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+The VTK writer is not part of PDELab and uses a different interface
+to represent functions on a grid. Therefore we need to use
+the adapter class \lstinline{VTKF} to pass PDELab grid functions
+to the VTK writer. Moreover, objects of this adapter class should
+be passed via a \lstinline{std::shared_ptr} to the VTK writer object
+since this takes care about the memory management.
+The output file is written when the \lstinline{write} method is called.
+
+\subsection{Local Operator \lstinline{PoissonP1}}
+
+\subsection{Classes \lstinline{FFunction} and \lstinline{GFunction}}
+
 
 \section{Excercises}
 
