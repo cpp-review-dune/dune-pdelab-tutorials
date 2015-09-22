@@ -1,4 +1,4 @@
-\documentclass[a4paper,11pt]{article}
+\documentclass[a4paper,12pt]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -44,9 +44,6 @@ Poisson Equation on Simplices}
 \begin{document}
 
 \maketitle
-\begin{center}
-\includegraphics[width=0.7\textwidth]{error}
-\end{center}
 \tableofcontents
 \clearpage
 
@@ -174,7 +171,7 @@ of points in $\mathbb{R}^d$ called {\em vertices} and an ordered set
 of $d$-simplices called {\em elements}.
 The elements form a partition of the polygonal domain $\Omega$
 \begin{equation}
-\bigcup_{T\in \mathcal{T}_h} T = \bar\Omega, \quad 
+\bigcup_{T\in \mathcal{T}_h} T = \overline{\Omega}, \quad 
 \forall T, T' \in \mathcal{T}_h, T\neq T' : \mathring{T} \cap \mathring{T}' = \emptyset,
 \end{equation}
 and where each of the vertices $x_{T,0},\ldots,x_{T,d}$  of a $d$-simplex $T\in\mathcal{T}_h$
@@ -563,9 +560,10 @@ function $f$ as $\phi_i$ is linear. From now on we ignore this quadrature error
 The computations for all components $i\in\mathcal{I}_h$ are now arranged
 in such a way that all computations involving element $T$ are carried out together.
 These computations at element $T$ are:
-\begin{equation*}
+\begin{equation}
 (b_T)_m =  f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) \det B_T w_d \quad \forall m=0,\ldots,d .
-\end{equation*}
+\label{eq:lambda_volume}
+\end{equation}
 Then define the restriction matrix 
 $R_T : \mathbb{R}^N \to \mathbb{R}^{d+1}$ as
 \begin{equation}
@@ -613,9 +611,10 @@ particular element.
 With the matrix of transformed gradients $G=B_T^{-T} \hat G$
 all computations at element $T$ are 
 combined in the so-called {\em local stiffness matrix} given by
-\begin{equation*}
+\begin{equation}
 A_T = G^T G \det B_T w_d .
-\end{equation*}
+\label{eq:jacobian_volume}
+\end{equation}
 and the system matrix $A$ can be computed as
 \begin{equation}
 A =  \sum_{T\in\mathcal{T}_h} R_T^T A_T R_T .
@@ -640,9 +639,14 @@ evaluation \eqref{eq:opeval}:
 \cdot (B_T^{-T} \hat\nabla\phi_m) \det B_T w_d . &&\text{(quadrature)}
 \end{align*}
 Again, computations for all indices can be arranged in an element-wise fashion
-which reads now
+which now computes per element
 \begin{equation}
-Az =  \sum_{T\in\mathcal{T}_h} R_T^T G^T G R_T z.
+a_T = G^T G R_T z
+\label{eq:alpha_volume}
+\end{equation}
+and then accumulates
+\begin{equation}
+Az =  \sum_{T\in\mathcal{T}_h} R_T^T a_T.
 \label{eq:matrixfreeeval}
 \end{equation}
 
@@ -671,11 +675,12 @@ while the element-local computations are supplied by a parameter class.
 \section{Realization in PDELab}
 
 The solution of Poisson's equation with piecewise linear
-finite elements in dimension 1, 2 and 3 is realized by the file
-\lstinline{tutorial00.cc} which includes several other files containing different
+finite elements in dimension 1, 2 and 3. The dimension-independent
+implementation is an important aspect of this example.
+The main file is \lstinline{tutorial00.cc} which includes several other files containing different
 solution components:
 \begin{enumerate}[1)]
-\item Files \lstinline{ffunction.hh} and \lstinline{gfunction.hh} 
+\item The files \lstinline{ffunction.hh} and \lstinline{gfunction.hh} 
 contain the classes \lstinline{FFunction} and \lstinline{GFunction} 
 implementing the functions $f$ and $g$ in the PDE definition.
 \item File \lstinline{bctype.hh} contains the class \lstinline{BCType}
@@ -714,7 +719,7 @@ backgroundcolor=\color{listingbg}]
 
 The function starts by instantiating the \lstinline{MPIHelper}
 singleton:
-\lstinputlisting[linerange={65-70},
+\lstinputlisting[linerange={65-71},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
@@ -725,7 +730,7 @@ so you can always use this code.
 The next block of four lines uses the parameter tree parser to
 read the user data from an input file and store it in a parameter tree object
 named \lstinline{ptree}:
-\lstinputlisting[linerange={73-76},
+\lstinputlisting[linerange={74-77},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
@@ -741,7 +746,7 @@ Within each section names can be associated with strings which
 can be interpreted in various ways. 
 E.g. the following two lines from the \lstinline{main} function read the grids
 dimension and number of global refinements from the block \lstinline{[grid]}:
-\lstinputlisting[linerange={79-80},
+\lstinputlisting[linerange={80-81},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
@@ -765,14 +770,14 @@ First we define the type \lstinline{Grid} to be either
 \lstinline{ALUGrid} or \lstinline{UGGrid} using some
 preprocessor magic. An error message is printed if neither
 grid manager is installed:
-\lstinputlisting[linerange={105-111},
+\lstinputlisting[linerange={106-113},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
 
 Now we can create a DUNE grid initialized with the coarse mesh
 from the gmsh input file:
-\lstinputlisting[linerange={113-117},
+\lstinputlisting[linerange={114-118},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
@@ -782,14 +787,14 @@ entry is not present in the file.
 
 The next few lines refine the mesh globally the specified number of times
 and report the time spent:
-\lstinputlisting[linerange={118-121},
+\lstinputlisting[linerange={120-123},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
 
 Voilà, we can call the function \lstinline{driver} to solve the finite
 element problem on the given mesh:
-\lstinputlisting[linerange={122-122},
+\lstinputlisting[linerange={124-124},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
@@ -852,7 +857,7 @@ It can be considered to represent the finite element space $V_h$, i.e.
 it knows about the dimension of the space, the basis functions as well
 as the local to global map. 
 
-The first two lines set up a finite element map of the type
+The first two lines set up a finite element map of type
 \lstinline{PkLocalFiniteElementMap}. A finite element map associates
 finite element basis functions, defined on the corresponding reference element, 
 with each element of the mesh. In our
@@ -886,7 +891,7 @@ function space $V_h$. The \lstinline{CON} class does not provide
 the constraints themselves but rather {\em a way how to determine the constraints}.
 The determination of the constraints for a given mesh from an
 instance of the \lstinline{BCType} class ist done by the following lines:
-\lstinputlisting[linerange={30-34},
+\lstinputlisting[linerange={30-35},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -899,7 +904,7 @@ for a system of partial differential equations.
 
 The next step is to declare a variable that will later on contain
 the solution vector $z$:
-\lstinputlisting[linerange={37-38},
+\lstinputlisting[linerange={38-39},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -913,7 +918,7 @@ $$\text{FE}_h(z) = \sum_{j=1}^N (z)_j \phi_j$$ provides
 a one-to-one correspondence between coefficient vectors and
 finite element functions. The following lines produce
 a finite element function from a coefficient vector:
-\lstinputlisting[linerange={41-42},
+\lstinputlisting[linerange={42-43},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -925,7 +930,7 @@ Often one wants to fill a coefficient vector such that $\text{FE}_h(z)$ approxim
 a given function, say $w$. In general, $w$ is not a finite element function, but if it
 is, then $w=\text{FE}(z)$ should hold. So what we seek is $z=FE_h^{-1}(P(w))$ where $P$ is 
 a projection into the finite element space. This is provided by the following line:
-\lstinputlisting[linerange={45-45},
+\lstinputlisting[linerange={46-46},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -938,7 +943,7 @@ part of the definition of the grid function space. For example in the case
 of discontinuous finite element functions it might be an $L^2$-projection.
 
 The line
-\lstinputlisting[linerange={46-46},
+\lstinputlisting[linerange={47-47},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -949,7 +954,7 @@ right hand side $b$ and the matrix $A$ as well as matrix-free computation of $Az
 can be seperated into a generic part looping over the finite element mesh 
 and doing element-local computations. This seperation is represented in the code 
 by first setting up a {\em local operator}, here of the type \lstinline{LOP}
-\lstinputlisting[linerange={49-50},
+\lstinputlisting[linerange={50-51},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -963,7 +968,7 @@ precompute the basis functions on the reference element as well as the gradients
 
 Now the local operator is used as one of the template arguments in the
 global assembler or {grid operator};
-\lstinputlisting[linerange={53-62},
+\lstinputlisting[linerange={54-63},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -979,7 +984,7 @@ It is constructed with a guess of the average number of nonzeros per row.
 
 As the next step we need to select a solver that will be used to solve
 the linear system $Az=b$. This is done by the following two lines:
-\lstinputlisting[linerange={65-66},
+\lstinputlisting[linerange={66-67},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -996,7 +1001,7 @@ only the necessary components have been configured to now do the real work
 together. We can now set up the matrix $A$ as well as the right hand side $b$ and
 then solve the system. Since this is required often, there is a class in PDELab
 for this:
-\lstinputlisting[linerange={69-70},
+\lstinputlisting[linerange={70-72},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -1004,7 +1009,7 @@ The object \lstinline{slp} of type \lstinline{StationaryLinearProblemSolver} rec
 the grid operator, the selected linear solver backend and a coefficient
 vector with the initial guess and the correct Dirichlet boundary data
 and solves the problem up to a given accuracy upon a call of the apply method:
-\lstinputlisting[linerange={71-71},
+\lstinputlisting[linerange={73-73},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -1014,14 +1019,14 @@ which is given by the function $g$, is solved.
 In order to compare the computed solution with the exact solution
 we initialize another coefficient vector with the Lagrange interpolation
 and provide a grid function:
-\lstinputlisting[linerange={74-76},
+\lstinputlisting[linerange={76-78},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 Finally it is time to write the results to disk for postprocessing with
 VTK/ParaView. This is done with DUNE's \lstinline{VTKWriter} class:
-\lstinputlisting[linerange={77-84},
+\lstinputlisting[linerange={79-86},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -1035,10 +1040,553 @@ The output file is written when the \lstinline{write} method is called.
 
 \subsection{Local Operator \lstinline{PoissonP1}}
 
-\subsection{Classes \lstinline{FFunction} and \lstinline{GFunction}}
+The finite element method itself is implemented in the 
+so-called {\em local operator} realized by the class template \lstinline{PoissonP1}
+in file \lstinline{poissonp1.hh}. It provides all the necessary
+element-local computations as described in Subsection \ref{subs:impl}
+and is declared as follows:
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+template<typename F, typename FiniteElementMap>
+class PoissonP1;
+\end{lstlisting}
+The first template parameter provides the right hand side function of
+the PDE and the second parameter provides a finite element
+map giving access to the finite element basis functions on the
+reference element. The class derives from the PDELab classes
+\lstinline{FullVolumePattern} and \lstinline{LocalOperatorDefaultFlags}
+which provide some default constants and methods.
 
+The basic assumption of this implementation of the finite element
+method is that all elements of the mesh are simplices of dimension $d$
+which use the same polynomial degree 1.
+In order to make the code faster it is a good idea to do
+the evaluation of the basis functions and their gradients
+on the reference element {\em once} before the computations start.
+This will be done in the constructor, but before we can do so
+we need to do some preparations.
 
-\section{Excercises}
+\subsubsection*{Type Definitions and Data Members}
+
+The class begins by extracting important types. The finite element
+map provides a finite element for each element of the map. Its type is
+\lstinputlisting[linerange={19-20},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+
+Among other things the finite element contains the basis functions
+on the reference element which can be accessed via the following type:
+\lstinputlisting[linerange={21-22},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+
+DUNE thinks of basis functions on the reference element to be of
+the most general form 
+$$\hat\phi : \mathbb{A}^d \to \mathbb{B}^k, \quad 
+\nabla\hat\phi : \mathbb{A}^d \to \mathbb{B}^{k\times d},$$
+i.e. they may be vector-valued. The following type definitions
+\lstinputlisting[linerange={23-30},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+provide types to represent arguments and results of basis function
+evaluations. \lstinline{DomainType} represents $\mathbb{A}^d$,
+\lstinline{RF} represents $\mathbb{B}$, \lstinline{RangeType}
+represents $\mathbb{R}^k$ and finally \lstinline{JacobianType}
+represents $\mathbb{B}^{k\times d}$.
+
+Next, we extract some important constants, the dimension 
+of the grid and the number of basis functions:
+\lstinputlisting[linerange={33-34},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+
+As private date members the class stores an instance of the right
+hand side function \lstinline{f}
+\lstinputlisting[linerange={35-35},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+the midpoint quadrature rule
+\lstinputlisting[linerange={36-37},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+where \lstinline{qp} is $\hat S_d$ and \lstinline{weight} is
+$w_d$ and the values of the basis functions at the quadrature
+point and its gradients:
+\lstinputlisting[linerange={38-39},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+
+Then, already in the public part, we need to define some constants that
+control the operation of the grid operator doing the global assembly:
+\lstinputlisting[linerange={43-45},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+These constants are evaluated at {\em compile time} and tell
+the grid operator class which methods have been implemented
+in the local operator by the user. Actually, the base class 
+\lstinline{LocalOperatorDefaultFlags} provides all possible flags
+with the value \lstinline{false} and we just need to overwrite the
+ones that are needed.
+The constant \lstinline{doPatternVolume}
+tells the global assembler to determine the sparsity pattern of the
+matrix $A$ from a method \lstinline{pattern_volume} which
+is inherited from the base class \lstinline{FullVolumePattern}.
+This default implementation inserts nonzeros between all degrees
+of freedom of an element. The constants \lstinline{doAlphaVolume}
+and \lstinline{doLambdaVolume} determine that
+our finite element method contains a volume integral involving the
+finite element solution $u_h$ and a right hand side integral which
+does not involve the finite element solution.
+
+Setting \lstinline{doAlphaVolume} to true implies that the local operator
+class implements the methods \lstinline{alpha_volume}, 
+\lstinline{jacobian_apply_volume} and \lstinline{jacobian_volume}.
+Setting \lstinline{doLambdaVolume} to true implies that 
+the method \lstinline{lambda_volume} must be implemented.
+
+\subsubsection*{Constructor}
+
+The constructor of the class has the following signature:
+\lstinputlisting[linerange={48-48},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+It takes the right hand side function \lstinline{f} and
+a finite element \lstinline{fel} as argument. The finite element is
+obtained from the finite element map and the first element of the grid
+in the function \lstinline{driver}.
+
+First thing to do is to get the lowest order quadrature rule for
+simplices from DUNE:
+\lstinputlisting[linerange={52-54},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+
+Then we check that this is actually the midpoint rule
+\lstinputlisting[linerange={55-58},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+and store the first quadrature point in the local data members:
+\lstinputlisting[linerange={61-62},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+It is also a good idea to check that the basis given by the user
+has at least the correct size:
+\lstinputlisting[linerange={65-68},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+Now the basis functions can be evaluated at the quadrature
+point in the reference element and the results are stored in the 
+data members of the class:
+\lstinputlisting[linerange={71-73},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+And the same now for the gradients:
+\lstinputlisting[linerange={76-80},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+Note that the last index loops over the number of basis
+functions. 
+
+\subsubsection*{Method \lstinline{lambda_volume}}
+
+This method computes the contributions $b_T$ to the right hand side 
+vector for a given element as given in Eq.\eqref{eq:lambda_volume}.
+It has the follwowing signature:
+\lstinputlisting[linerange={84-86},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+Argument \lstinline{eg} provides the element $T$ in
+a wrapped form such that PDELab need not operate directly on a DUNE grid.
+With \lstinline{eg.geometry()} the geometry of the element can be accessed
+in the form of a \lstinline{Dune:Geometry}. With \lstinline{eg.entity()} one can
+access the underlying codim 0 entity of the DUNE grid.
+The second argument \lstinline{lfsv} provides the test functions on the reference
+element and \lstinline{r} provides a container where the result should be stored.
+
+First thing to do is to evaluate the right hand side function at the quadrature
+point:
+\lstinputlisting[linerange={88-89},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+
+Next, we compute the factor that is common to all entries of $b_T$:
+\lstinputlisting[linerange={90-90},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+Note that the method \lstinline{integrationElement} on the geometry
+provides the value of $\det B_T$.
+
+Finally, we can compute the entries and store them in the results container:
+\lstinputlisting[linerange={91-92},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+Here it is important to note the minus sign because PDELab
+actually solves the weak formulation as 
+$$r(u_h,v) = a(u_h,v)-l(v) = 0 \quad \forall v\in V$$
+since this is more appropriate in the case of nonlinear partial
+differential equations.
+
+\subsubsection*{Method \lstinline{jacobian_volume}}
+
+Next we need to compute the element contributions to the 
+stiffness matrix as described in Eq.\eqref{eq:jacobian_volume}.
+This is done by the method \lstinline{jacobian_volume} with
+the following interface:
+\lstinputlisting[linerange={96-100},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+Its arguments are: \lstinline{eg} providing the wrapped codim 0 entity $T$,
+\lstinline{lfsu} providing the basis functions of the ansatz space,
+\lstinline{x} providing the coefficients of the current iterate 
+of the finite element solution, \lstinline{lfsv} providing the test functions
+and \lstinline{mat} a container to store the result.
+
+The \lstinline{jacobian_volume} method works in the same way also for nonlinear
+problems. Nonlinear problems are solved iteratively, e.g. using Newton's method
+or a fixed-point iteration, where the method should provide a linearization
+at the current iterate given by the combination of \lstinline{lfsu} and \lstinline{x}.
+In our case of a linear problem the result {\em does not depend} on the current iterate.
+Moreover, the basis functions for the test space are precomputed so we need
+not access them via \lstinline{lfsv}. Note also that in general the ansatz and
+test space might be different.
+
+First thing we need is to get $B_T^{-T}$ and store it into \lstinline{S}:
+\lstinputlisting[linerange={104-105},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+
+Next, $\det B_T$ is retrieved from the geometry and
+the factor that is common to all entries of the local stiffness matrix is computed:
+\lstinputlisting[linerange={106-106},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+
+Now form the matrix of transformed gradients $G=B_T^{-T} \hat G$ 
+and store it in \lstinline{grad}:
+\lstinputlisting[linerange={109-113},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+The computations are arranged in such a way that the innermost loop
+has the dimension number of basis functions. In 3d there are four basis functions
+and the loop has a chance to get vectorized.
+
+Now the local stiffnes matrix $A_T = G^T G$ (up to the factor $\det B_T w_d$) is formed
+\lstinputlisting[linerange={116-120},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+and stored in the results container (now multiplying with the common factor):
+\lstinputlisting[linerange={123-125},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+
+\subsubsection*{Method \lstinline{alpha_volume}}
+
+The method \lstinline{alpha_volume} provides the element-local computations
+for the matrix-free evaluation of $a(u_h,\phi_i)$ for all test functions $\phi_i$
+as given by Eq.\eqref{eq:alpha_volume}. It has the interface:
+\lstinputlisting[linerange={129-133},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+Its arguments are: \lstinline{eg} providing the wrapped codim 0 entity $T$,
+\lstinline{lfsu} providing the basis functions of the ansatz space,
+\lstinline{x} providing the coefficients of the current iterate 
+of the finite element solution, \lstinline{lfsv} providing the test functions
+and \lstinline{r} a container to store the result.
+
+The computations are actually quite similar to those in \lstinline{jacobian_volume}.
+In particular, the computation of $B_T^{-T}$, $\det B_T$ and $G = B_T^{-T} \hat G$
+are the same.
+
+Extracting the element local coefficients $z_T = R_T z$ is done by:
+\lstinputlisting[linerange={149-150},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+Now we may compute $\nabla u_h$ via $G z_T$:
+\lstinputlisting[linerange={153-156},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+Finally, the result $a_T = G^T \nabla u_h$ is formed:
+\lstinputlisting[linerange={159-162},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+and stored in the results container (while being multiplied with the common factor):
+\lstinputlisting[linerange={165-166},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+
+\subsubsection*{Method \lstinline{jacobian_apply_volume}}
+
+In the case of a {\em nonlinear} partial differential equation
+the finite element method results in a weak form 
+$$u_h \in V_h \ : \quad r(u_h,v) = \alpha(u_h,v) - \lambda(v) = 0 \quad \forall v\in V_h$$
+which is {\em nonlinear} in its {\em first} argument. Inserting
+the finite element basis results in a nonlinear algebraic problem
+$$R(z) = 0$$
+with $(R(z))_i = r(\text{FE}_h(z),\phi_i)$ which is typically solved by Newton's iteration
+or some other iterative method. In case of Newton's method, each step
+involves the solution of a {\em linear} system of the form
+$$J(z)\, w = R(z)$$
+where $(J(z))_{i,j} = \frac{(\partial R(z))_i}{\partial z_j} = 
+\frac{\partial \alpha(\text{FE}_h(z),\phi_i)}{\partial z_j}$ is the Jacobian of 
+the nonlinear map $R$.
+
+Naturally, the nonlinear case also includes the linear case described in this tutorial
+by setting $r(u,v) = a(u,v)-l(v)$. Then, due to the linearity of $a$ in its first
+argument, one can show that $J(z) = A$ and 
+$$(J(z)\, w)_i = (Aw)_i = a(\text{FE}_h(w),\phi_i).$$
+This is {\em not} true in the nonlinear case. There, the evaluation 
+of the form $\alpha(\text{FE}_h(w),\phi_i)$ and the application of the Jacobian $J w$
+are different operations. Therefore, PDELab provides two functions with
+the application of the Jacobian implemented in \lstinline{jacobian_apply_volume}
+with the interface:
+\lstinputlisting[linerange={170-174},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+Note, this is the same interface as for \lstinline{alpha_volume}.
+Since our problem is linear, Jacobian application is identical to bilinear form
+evaluation and therefore we may just forward the call to the
+function \lstinline{alpha_volume}:
+\lstinputlisting[linerange={176-176},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
+
+\subsection{Classes \lstinline{GFunction} and \lstinline{FFunction}}
+
+Functions are an ubiquitous concept in a software for a solution of
+PDEs. There are coefficient functions in the PDE, there boundary conditions,
+basis functions and the finite element solution is a function. Therefore,
+PDELab has a general concept for representing functions which includes the following
+features:
+\begin{enumerate}[1)]
+\item Functions $f : \mathbb{A}^m \to \mathbb{B}^n$ map from a domain, here $\mathbb{A}^m$
+to a range, here $\mathbb{B}^n$. Typically $m=d$ would be the dimension of the grid
+and $n$ may be one for a scalar function and $d$ for a vector field.
+\item Functions in the context of a PDE solver are often only piecewise smooth.
+Typically, they may be discontinuous at element boundaries or non-differentiable
+at element boundaries. This must be taken into account when integrating or
+differentiating functions.
+Therefore it is advantageous to define functions
+with respect to the finite element mesh, i.e. $$f(x) = f_T(x) \quad x\in\mathring{T}.$$
+In the case of discontinuous functions appropriate measures then have to be taken 
+at the intersection of two elements.
+\item As illustrated above, functions on an element are often defined via element
+transformation: $$f_T(\mu_T(\hat x)) = \hat f_T(\hat x) .$$
+\end{enumerate}
+The class \lstinline{Dune::PDELab::GridFunctionBase} in PDELab provides a
+general interface to functions with these features where the 
+mesh $\mathcal{T}_h$, the size $n$ as well as the
+types for $\mathbb{B}$ and $\mathbb{B}^n$ can be given as template parameters.
+
+The classes \lstinline{GFunction} and \lstinline{FFunction} used in the
+tutorial to define the parameters of the PDE are both derived from this base class.
+
+In the following we restrict ourselves to the implementation of \lstinline{GFunction}.
+It has the following signature:
+\lstinputlisting[linerange={6-10},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/gfunction.hh}
+
+Grid functions are defined on a grid view. A reference to the
+grid view is stored as a local data member
+\lstinputlisting[linerange={12-12},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/gfunction.hh}
+which is initialized by the constructor of the class
+\lstinputlisting[linerange={18-18},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/gfunction.hh}
+and can be accessed via the method
+\lstinputlisting[linerange={21-21},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/gfunction.hh}
+
+The function itself is supposed to be defined element-wise on the 
+corresponding reference element. The evaluation is performed by the
+method \lstinline{evaluate} with the following interface:
+\lstinputlisting[linerange={24-26},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/gfunction.hh}
+Here, \lstinline{e} is the element given as a DUNE codim 0 grid entity,
+\lstinline{xl} is a point in the reference element and the output parameter
+\lstinline{y} should hold the result in the end.
+Now within the method evaluate we may access the dimension
+\lstinputlisting[linerange={28-28},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/gfunction.hh}
+and evaluate the map $\mu_T$ to compute the evaluation point
+in the transformed element:
+\lstinputlisting[linerange={29-29},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/gfunction.hh}
+In this example we want the function to be $$g(x) = \sum_{i=1}^d (x)_i^2$$
+which is implemented by
+\lstinputlisting[linerange={30-31},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/gfunction.hh}
+
+\subsection{Running the Example}
+
+Now we can run the tutorial and look at the results.
+One may check that $u(x) = \sum_{i=1}^d (x)_i^2$ is
+solves the PDE $-\Delta u = -2d$ in $d$ dimensions
+(in $d=1$ this is not a PDE but a two-point boundary value problem).
+So we provide the exact solution as Dirichlet boundary data and set $f=-2d$. 
+
+The program can be run by typing
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+./tutorial00
+\end{lstlisting}
+on the command line. It then produces some output on the console
+and a VTK file with the extension \lstinline{.vtp} on one space
+dimension and \lstinline{.vtu} in two and three space dimensions.
+
+First, the program reports that it is run on one processor:
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+Parallel code run on 1 process(es)
+\end{lstlisting}
+Then the mesh file is read and some statistics about it are reported:
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+Reading 2d Gmsh grid...
+version 2.2 Gmsh file detected
+file contains 133 nodes
+file contains 268 elements
+number of real vertices = 133
+number of boundary elements = 36
+number of elements = 228
+\end{lstlisting}
+Now an instance of a DUNE grid is created and refined the required number of times:
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+Created serial ALUGrid<2,2,simplex,nonconforming>.
+Time for mesh refinement 0.011566 seconds
+\end{lstlisting}
+Next, Dirichlet boundary constraints are evaluated and statistics are reported:
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+constrained dofs=288 of 7441
+\end{lstlisting}
+Now the matrix and right hand side are set up:
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+=== matrix setup (max) 0.013918 s
+=== matrix assembly (max) 0.012634 s
+=== residual assembly (max) 0.009034 s
+\end{lstlisting}
+The solver is started, in this case using the conjugate gradient method 
+with an algebraic multigrid preconditioner. This preconditioner needs
+a set up phase which produces the following output:
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+=== solving (reduction: 1e-10) 
+Using a direct coarse solver (UMFPACK)
+Building hierarchy of 2 levels (inclusive coarse solver) took 
+0.022688 seconds.
+\end{lstlisting}
+Finally, the solver prints some statistics about the convergence:
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+=== CGSolver
+   12       1.9016e-09
+=== rate=0.144679, T=0.021999, TIT=0.00183325, IT=12
+0.044764 s
+\end{lstlisting}
+
+Figure \ref{fig:solution} shows the finite element solution $u_h$
+as well as the absolute error $|u-u_h|$ for the $2d$ problem with
+the exact solution $u(x,y)=x^2+y^2$. The largest error is obtained in the
+vertices of the coarse mesh.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.49\textwidth]{solution}\hfill
+\includegraphics[width=0.49\textwidth]{error}
+\end{center}
+\caption{Finite element solution $u_h$ (left)
+and absolute error $|u-u_h|$ (right) visualized as surface for a 
+two-dimensional simulation.}
+\label{fig:solution}
+\end{figure}
+
+\section{Outlook}
+
+The interested reader can proceed in different directions from here.
+The more obvious things are:
+\begin{itemize}
+\item Run the problem on various levels of refinement and determine
+the maximum error. The maximum error should behave like $O(h^2)$
+with the mesh size.
+\item Try a different solution, like $u(x,y)=x^3+y^3$, change the program
+accordingly and study the error with respect to mesh refinement.
+\item Replace the algebraic multigrid preconditioner with a different one,
+e.g. the BiCGStab method with SSOR preconditioner:
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+  typedef Dune::PDELab::ISTLBackend_SEQ_BCGS_SSOR LS;
+  LS ls(5000,true);
+\end{lstlisting}
+\end{itemize}
+Other, more involved options which will be covered in further tutorials are:
+\begin{itemize}
+\item Implementation of Neumann type boundary conditions involving
+boundary integrals.
+\item Extension of the finite element method to cube elements using 
+multi-linear basis functions.
+\item Extension of the finite element method to higher order polynomials.
+\end{itemize}
 
 % bibtex bibliography
 \bibliographystyle{plain}
