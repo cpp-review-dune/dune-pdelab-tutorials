@@ -2,7 +2,7 @@
 /** \brief Class defining the right hand side
  */
 /******************************************************/
-template<typename GV, typename RF> /*@\label{cc:bla}@*/
+template<typename GV, typename RF>
 class FFunction
  : public Dune::PDELab::GridFunctionBase<Dune::PDELab::
           GridFunctionTraits<GV,RF,1,Dune::FieldVector<RF,1> >,
@@ -22,8 +22,7 @@ public:
                         typename Traits::RangeType& y) const
   {  
     const int dim = Traits::GridViewType::Grid::dimension;
-    typedef typename Traits::GridViewType::Grid::ctype ctype;
-    Dune::FieldVector<ctype,dim> xg = e.geometry().global(xl);
+    typename Traits::DomainType xg = e.geometry().global(xl);
     for (int i=0; i<dim; i++) y -= 2.0;
     return;
   }

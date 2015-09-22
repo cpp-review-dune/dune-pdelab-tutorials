@@ -27,7 +27,8 @@ int driver (const GV& gv, Dune::ParameterTree& ptree)
   gfs.name("P1");
 
   // Assemble constraints
-  typedef typename GFS::template ConstraintsContainer<RF>::Type CC;
+  typedef typename GFS::template
+    ConstraintsContainer<RF>::Type CC;
   CC cc;
   Dune::PDELab::constraints(bct,gfs,cc); // assemble constraints
   std::cout << "constrained dofs=" << cc.size() << " of "
@@ -66,7 +67,8 @@ int driver (const GV& gv, Dune::ParameterTree& ptree)
   LS ls(100,true);
 
   // Assemble and solve linear problem
-  typedef Dune::PDELab::StationaryLinearProblemSolver<GO,LS,Z> SLP;
+  typedef Dune::PDELab::
+    StationaryLinearProblemSolver<GO,LS,Z> SLP;
   SLP slp(go,ls,z,1e-10);
   slp.apply(); // here all the work is done!
 
@@ -77,9 +79,9 @@ int driver (const GV& gv, Dune::ParameterTree& ptree)
   Dune::VTKWriter<GV> vtkwriter(gv,Dune::VTK::conforming);
   typedef Dune::PDELab::VTKGridFunctionAdapter<ZDGF> VTKF;
   vtkwriter.addVertexData(std::shared_ptr<VTKF>(new
-                                               VTKF(zdgf,"fesol")));
+                                         VTKF(zdgf,"fesol")));
   vtkwriter.addVertexData(std::shared_ptr<VTKF>(new
-                                               VTKF(wdgf,"exact")));
+                                         VTKF(wdgf,"exact")));
   vtkwriter.write(ptree.get("output.filename","output"),
                   Dune::VTK::appendedraw);
 }

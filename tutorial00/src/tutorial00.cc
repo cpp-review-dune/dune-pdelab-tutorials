@@ -62,7 +62,8 @@ int main(int argc, char** argv)
 {
   try{
     // Maybe initialize Mpi
-    Dune::MPIHelper& helper = Dune::MPIHelper::instance(argc, argv);
+    Dune::MPIHelper&
+      helper = Dune::MPIHelper::instance(argc, argv);
     if(Dune::MPIHelper::isFake)
       std::cout<< "This is a sequential program." << std::endl;
     else
@@ -103,11 +104,12 @@ int main(int argc, char** argv)
     if (dim==2)
       {
 #if HAVE_DUNE_ALUGRID
-  typedef Dune::ALUGrid<2,2,Dune::simplex,Dune::nonconforming> Grid;
+  typedef Dune::ALUGrid<2,2,Dune::simplex,
+                        Dune::nonconforming> Grid;
 #elif HAVE_UG
   typedef Dune::UGGrid<2> Grid;
 #else  // ! (HAVE_UG || HAVE_DUNE_ALUGRID)
-  std::cout << "This example requires a simplex grid!" << std::endl;
+  std::cout << "Example requires a simplex grid!" << std::endl;
 #endif
 #if (HAVE_UG || HAVE_DUNE_ALUGRID)
   std::string filename = ptree.get("grid.twod.filename",
