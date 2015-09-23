@@ -322,12 +322,12 @@ has the form
 \end{equation*}
 for given $d\times d$ matrices $B_T$ and $d$-vectors $a_T$.
 Consistency of the local vertex numbering is ensured by the condition
-$$\forall i\in\{0,\ldots,d\} : \mu_T(\hat x_i) = x_{T,i}$$.
+$$\forall i\in\{0,\ldots,d\} : \mu_T(\hat x_i) = x_{T,i}.$$
 
 \subsection{Piecewise Linear Finite Element Functions}
 
 Given a conforming, simplicial and affine finite element mesh in $d$ dimensions we
-now can define the space of piecewise linear finite element functions $V_h^1$.
+now can define the space of piecewise linear finite element functions $V_h$.
 It is given by
 \begin{equation}
 V_h(\mathcal{T}_h) = \{ v\in C^0(\overline{\Omega}) \,:\, 
@@ -380,7 +380,7 @@ We are now in a position to define and solve the finite element problem.
 As pointed out above, the idea is to solve the weak formulation in appropriate
 finite-dimensional spaces, i.e.:
 \begin{equation*}
-u_h\in V_{h,g} : \quad a(u_h,v) = l(v) \quad \forall v\in V_0 .
+u_h\in V_{h,g} : \quad a(u_h,v) = l(v) \quad \forall v\in V_{h,0} .
 \label{eq:discrete_weak}
 \end{equation*}
 Using the Lagrange basis defined above we may expand $u_h\in V_h$ as
@@ -390,7 +390,7 @@ u_h = \sum_{j=1}^N (z)_j \phi_j
 with coefficient vector $z\in\mathbb{R}^N$. Inserting into the
 discrete weak formulation \eqref{eq:discrete_weak} yields:
 \begin{align}
-a(u_h,v) &= l(v) \quad \forall v\in V_0 &&\text{(discrete weak problem)},\nonumber \\
+a(u_h,v) &= l(v) \quad \forall v\in V_{h,0} &&\text{(discrete weak problem)},\nonumber \\
 \Leftrightarrow 
 a\left(\sum_{j=1}^N (z)_j \phi_j,\phi_i\right) &= l(\phi_i) \quad \forall i\in \mathcal{I}_h^{int} 
 &&\text{(insert basis, linearity)}, \nonumber \\
@@ -587,7 +587,7 @@ are involved due to the locality of the Lagrange basis functions:
 \begin{align*}
 (A)_{i,j} &= a(\phi_j,\phi_i) = \int_\Omega \nabla \phi_j \cdot \nabla \phi_i \,dx 
 &&\text{(definition)}\\
-&= \sum_{T\in\mathcal{T}_h} = \int_T \nabla \phi_j \cdot \nabla \phi_i \,dx
+&= \sum_{T\in\mathcal{T}_h} \int_T \nabla \phi_j \cdot \nabla \phi_i \,dx
 &&\text{(use mesh)}\\
 &= \sum_{(T,m,n)\in C(i,j)}
 \int_{\hat T} (B_T^{-T} \hat\nabla\phi_n(\hat x))\cdot (B_T^{-T} \hat\nabla\phi_m(\hat x))
@@ -641,12 +641,12 @@ evaluation \eqref{eq:opeval}:
 Again, computations for all indices can be arranged in an element-wise fashion
 which now computes per element
 \begin{equation}
-a_T = G^T G R_T z
+y_T = G^T G R_T z
 \label{eq:alpha_volume}
 \end{equation}
 and then accumulates
 \begin{equation}
-Az =  \sum_{T\in\mathcal{T}_h} R_T^T a_T.
+Az =  \sum_{T\in\mathcal{T}_h} R_T^T y_T.
 \label{eq:matrixfreeeval}
 \end{equation}
 
