@@ -1,5 +1,5 @@
 // mesh width associated with points
-lc = 0.1;
+lc = 0.3;
 
 // vertices of the cube
 Point(1) = {0, 0, 0, lc};
