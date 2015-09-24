@@ -23,6 +23,7 @@ public:
   {  
     const int dim = Traits::GridViewType::Grid::dimension;
     typename Traits::DomainType xg = e.geometry().global(xl);
+    y = 0.0;
     for (int i=0; i<dim; i++) y -= 2.0;
     return;
   }
