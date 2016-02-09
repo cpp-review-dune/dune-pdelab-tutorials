@@ -2,20 +2,28 @@
 // Beware of line number changes, they may corrupt docu!
 //! \brief Driver function to set up and solve the problem
 /********************************************************/
+
 template<class GV>
-int driver (const GV& gv, Dune::ParameterTree& ptree)
+void driver (const GV& gv, Dune::ParameterTree& ptree)
 {
   // dimension and important types
   const int dim = GV::dimension;
   typedef typename GV::Grid::ctype DF; // type for ccordinates
   typedef double RF;                   // type for computations
 
-  // make an object of all user defined classes
-  typedef FFunction<GV,RF> F;
-  F f(gv);
-  BCType bct;
-  typedef GFunction<GV,RF> G;
-  G g(gv);
+  // make user functions
+  auto flambda = [](const auto& x){
+    return Dune::FieldVector<RF,1>(-2.0*x.size());};
+  auto f = Dune::PDELab::
+    makeGridFunctionFromGlobalLambda(gv,flambda);
+  auto glambda = [](const auto& x){
+    RF s=0.0; for (int i=0; i<x.size(); i++) s+=x[i]*x[i];
+    return s;};
+  auto g = Dune::PDELab::
+    makeGridFunctionFromGlobalLambda(gv,glambda);
+  auto blambda = [](const auto& x){return true;};
+  auto b = Dune::PDELab::
+    makeBoundaryConditionFromGlobalLambda(blambda);
 
   // Make grid function space
   typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,RF,1> FEM;
@@ -30,9 +38,9 @@ int driver (const GV& gv, Dune::ParameterTree& ptree)
   typedef typename GFS::template
     ConstraintsContainer<RF>::Type CC;
   CC cc;
-  Dune::PDELab::constraints(bct,gfs,cc); // assemble constraints
+  Dune::PDELab::constraints(b,gfs,cc); // assemble constraints
   std::cout << "constrained dofs=" << cc.size() << " of "
-	    << gfs.globalSize() << std::endl;
+            << gfs.globalSize() << std::endl;
 
   // A coefficient vector
   using Z = Dune::PDELab::Backend::Vector<GFS,RF>;
@@ -47,7 +55,7 @@ int driver (const GV& gv, Dune::ParameterTree& ptree)
   Dune::PDELab::set_nonconstrained_dofs(cc,0.0,z);
 
   // Make a local operator
-  typedef PoissonP1<F,FEM> LOP;
+  typedef PoissonP1<decltype(f),FEM> LOP;
   LOP lop(f,fem.find(*gv.template begin<0>()));
 
   // Make a global operator
@@ -64,7 +72,7 @@ int driver (const GV& gv, Dune::ParameterTree& ptree)
 
   // Select a linear solver backend
   typedef Dune::PDELab::ISTLBackend_SEQ_CG_AMG_SSOR<GO> LS;
-  LS ls(100,true);
+  LS ls(100,3);
 
   // Assemble and solve linear problem
   typedef Dune::PDELab::

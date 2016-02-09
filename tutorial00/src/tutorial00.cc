@@ -37,6 +37,7 @@
 #include<dune/pdelab/constraints/common/constraints.hh>
 #include<dune/pdelab/constraints/common/constraintsparameters.hh>
 #include<dune/pdelab/constraints/conforming.hh>
+#include<dune/pdelab/function/lambdaadapter.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspace.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspaceutilities.hh>
 #include<dune/pdelab/gridfunctionspace/interpolate.hh>
@@ -49,12 +50,10 @@
 #include<dune/pdelab/stationary/linearproblem.hh>
 
 // include all components making up this tutorial
-#include"ffunction.hh"
-#include"gfunction.hh"
-#include"bctype.hh"
 #include"poissonp1.hh"
 #include"driver.hh"
 
+#undef HAVE_DUNE_ALUGRID
 //===============================================================
 // Main program with grid setup
 //===============================================================
@@ -77,7 +76,7 @@ int main(int argc, char** argv)
     ptreeparser.readOptions(argc,argv,ptree);
 
     // make grid
-    const int dim = ptree.get<int>("grid.dim");
+    const int dim = ptree.get("grid.dim",(int)2);
     const int refinement = ptree.get<int>("grid.refinement");
     if (dim==1)
       {
@@ -92,7 +91,7 @@ int main(int argc, char** argv)
         Intervals intervals(N+1);
         for(unsigned int i=0; i<N+1; ++i)
           intervals[i] = a + ctype(i)*(b-a)/ctype(N);
-        
+
         // Construct grid
         typedef Dune::OneDGrid Grid;
         Grid grid(intervals);
@@ -147,10 +146,10 @@ int main(int argc, char** argv)
   }
   catch (Dune::Exception &e){
     std::cerr << "Dune reported error: " << e << std::endl;
-	return 1;
+    return 1;
   }
   catch (...){
     std::cerr << "Unknown exception thrown!" << std::endl;
-	return 1;
+    return 1;
   }
 }

@@ -30,14 +30,14 @@ private:
      JacobianType;
 
   // data members
-  enum {dim=LocalBasisType::Traits::dimDomain}; 
+  enum {dim=LocalBasisType::Traits::dimDomain};
   enum {n=dim+1};
   const F f;              // right hand side function
   DomainType qp;          // center of mass of refelem
   double weight;          // quadrature weight on refelem
   double phihat[n];       // basis functions at qp
-  double gradhat[dim][n]; // coordinate x #basisfct 
-  
+  double gradhat[dim][n]; // coordinate x #basisfct
+
 public:
   // define flags controlling global assembler
   enum { doPatternVolume = true };
@@ -56,7 +56,7 @@ public:
       std::cout << "Wrong quadrature rule!" << std::endl;
       exit(1);
     }
-    
+
     // position and weight of the quadrature point
     weight = rule[0].weight();
     qp = rule[0].position();
@@ -66,7 +66,7 @@ public:
       std::cout << "Wrong basis!" << std::endl;
       exit(1);
     }
-      
+
     // evaluate basis functions on refelem
     std::vector<RangeType> phi(n);
     fel.localBasis().evaluateFunction(qp,phi);
@@ -79,11 +79,11 @@ public:
       for (int j=0; j<dim; j++)
         gradhat[j][i] = js[i][0][j];
   }
-  
+
   // volume integral depending only on test functions
   template<typename EG, typename LFSV, typename R>
   void lambda_volume (const EG& eg, const LFSV& lfsv,
-		      R& r) const
+                      R& r) const
   {
     typename F::Traits::RangeType fval;
     f.evaluate(eg.entity(),qp,fval);
@@ -118,7 +118,7 @@ public:
       for (int k=0; k<dim; k++)
         for (int j=0; j<n; j++)
           A[i][j] += grad[k][i]*grad[k][j];
-    
+
     // store in result
     for (int i=0; i<n; i++)
       for (int j=0; j<n; j++)
@@ -149,7 +149,7 @@ public:
     double z_T[n];
     for (int j=0; j<n; j++) z_T[j] = x(lfsu,j); // read coeffs
 
-    // compute gradient u_h 
+    // compute gradient u_h
     double graduh[dim] = {0.0};
     for (int k=0; k<dim; k++) // rows of grad
       for (int j=0; j<n; j++) // columns of grad
@@ -158,11 +158,11 @@ public:
     // scalar products
     double a_T[n] = {0.0};
     for (int k=0; k<dim; k++) // rows of grad
-      for (int j=0; j<n; j++) 
+      for (int j=0; j<n; j++)
         a_T[j] += grad[k][j]*graduh[k];
 
     // store in result
-    for (int i=0; i<n; i++) 
+    for (int i=0; i<n; i++)
       r.accumulate(lfsv,i,a_T[i]*factor);
   }
 
@@ -170,9 +170,19 @@ public:
   template<typename EG, typename LFSU, typename X,
            typename LFSV, typename R>
   void jacobian_apply_volume (const EG& eg, const LFSU& lfsu,
-                              const X& x, const LFSV& lfsv,
+                              const X& z, const LFSV& lfsv,
                               R& r) const
   {
-    alpha_volume(eg,lfsu,x,lfsv,r);
+    alpha_volume(eg,lfsu,z,lfsv,r);
+  }
+
+  //! apply local jacobian of the volume term
+  template<typename EG, typename LFSU, typename X,
+           typename LFSV, typename R>
+  void jacobian_apply_volume (const EG& eg, const LFSU& lfsu,
+                              const X& x, const X& z, const LFSV& lfsv,
+                              R& r) const
+  {
+    alpha_volume(eg,lfsu,z,lfsv,r);
   }
 };
