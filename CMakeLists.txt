@@ -20,6 +20,12 @@ dune_project()
 dune_enable_all_packages()
 
 add_subdirectory(tutorial00)
+add_subdirectory(tutorial01)
+add_subdirectory(tutorial02)
+add_subdirectory(tutorial03)
+add_subdirectory(tutorial04)
+add_subdirectory(tutorial05)
+add_subdirectory(tutorial06)
 
 # finalize the dune project, e.g. generating config.h etc.
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
