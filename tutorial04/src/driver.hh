@@ -34,7 +34,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   // define the initial condition
   auto ulambda = [dim](const auto& x){
     Dune::FieldVector<RF,2> rv(0.0);
-    for (int i=0; i<dim; i++) rv[1] += (x[i]-1.25)*(x[i]-1.25);
+    for (int i=0; i<dim; i++) rv[1] += (x[i]-0.375)*(x[i]-0.375);
     rv[1] = std::max(0.0,1.0-8.0*sqrt(rv[1]));
     return rv;
   };
