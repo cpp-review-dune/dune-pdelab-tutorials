@@ -67,7 +67,7 @@ public:
   {
     // types & dimension
     const int dim = EG::Entity::dimension;
-    typedef decltype(getZeroBasisFieldValue(lfsu)) RF;
+    typedef decltype(makeZeroBasisFieldValue(lfsu)) RF;
 
     // select quadrature rule
     auto geo = eg.geometry();
@@ -98,7 +98,7 @@ public:
   {
     // types & dimension
     const int dim = EG::Entity::dimension;
-    typedef decltype(getZeroBasisFieldValue(lfsu)) RF;
+    typedef decltype(makeZeroBasisFieldValue(lfsu)) RF;
 
     // select quadrature rule
     auto geo = eg.geometry();

@@ -49,7 +49,7 @@
 #include<dune/pdelab/localoperator/defaultimp.hh>
 #include<dune/pdelab/localoperator/pattern.hh>
 #include<dune/pdelab/localoperator/flags.hh>
-#include<dune/pdelab/localoperator/typehelper.hh>
+#include<dune/pdelab/localoperator/variable_factories.hh>
 #include<dune/pdelab/backend/istl.hh>
 #include<dune/pdelab/stationary/linearproblem.hh>
 #include<dune/pdelab/newton/newton.hh>

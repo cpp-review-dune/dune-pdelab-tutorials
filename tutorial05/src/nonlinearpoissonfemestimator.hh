@@ -80,7 +80,7 @@ public:
   {
     // types & dimension
     const int dim = EG::Entity::dimension;
-    typedef decltype(getZeroBasisFieldValue(lfsu)) RF;
+    typedef decltype(makeZeroBasisFieldValue(lfsu)) RF;
 
     // select quadrature rule
     auto geo = eg.geometry();
@@ -143,7 +143,7 @@ public:
     auto rule = Dune::PDELab::quadratureRule(globalgeo,order);
 
     // loop over quadrature points and integrate normal flux
-    typedef decltype(getZeroBasisFieldValue(lfsu_s)) RF;
+    typedef decltype(makeZeroBasisFieldValue(lfsu_s)) RF;
     RF sum(0.0);
     for (const auto& ip : rule)
       {
@@ -213,7 +213,7 @@ public:
     auto rule = Dune::PDELab::quadratureRule(globalgeo,order);
 
     // loop over quadrature points and integrate normal flux
-    typedef decltype(getZeroBasisFieldValue(lfsu_s)) RF;
+    typedef decltype(makeZeroBasisFieldValue(lfsu_s)) RF;
     RF sum(0.0);
     for (const auto& ip : rule)
       {
