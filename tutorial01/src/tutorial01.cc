@@ -41,7 +41,7 @@
 #include<dune/pdelab/constraints/common/constraints.hh>
 #include<dune/pdelab/constraints/common/constraintsparameters.hh>
 #include<dune/pdelab/constraints/conforming.hh>
-#include<dune/pdelab/function/lambdaadapter.hh>
+#include<dune/pdelab/function/callableadapter.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspace.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspaceutilities.hh>
 #include<dune/pdelab/gridfunctionspace/interpolate.hh>
@@ -50,7 +50,7 @@
 #include<dune/pdelab/localoperator/defaultimp.hh>
 #include<dune/pdelab/localoperator/pattern.hh>
 #include<dune/pdelab/localoperator/flags.hh>
-#include<dune/pdelab/localoperator/variable_factories.hh>
+#include<dune/pdelab/localoperator/variablefactories.hh>
 #include<dune/pdelab/backend/istl.hh>
 #include<dune/pdelab/stationary/linearproblem.hh>
 #include<dune/pdelab/newton/newton.hh>

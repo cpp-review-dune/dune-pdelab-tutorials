@@ -15,9 +15,9 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   RF eta = ptree.get("problem.eta",(RF)1.0);
   Problem<RF> problem(eta);
   auto glambda = [&](const auto& e, const auto& x){return problem.g(e,x);};
-  auto g = Dune::PDELab::makeInstationaryGridFunctionFromLocalLambda(gv,glambda,problem);
+  auto g = Dune::PDELab::makeInstationaryGridFunctionFromCallable(gv,glambda,problem);
   auto blambda = [&](const auto& i, const auto& x){return problem.b(i,x);};
-  auto b = Dune::PDELab::makeBoundaryConditionFromLocalLambda(blambda);
+  auto b = Dune::PDELab::makeBoundaryConditionFromCallable(gv,blambda);
 
   // Make grid function space
   typedef Dune::PDELab::ConformingDirichletConstraints CON;
