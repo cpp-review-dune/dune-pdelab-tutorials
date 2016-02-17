@@ -15,15 +15,15 @@ void driver (const GV& gv, Dune::ParameterTree& ptree)
   auto flambda = [](const auto& x){
     return Dune::FieldVector<RF,1>(-2.0*x.size());};
   auto f = Dune::PDELab::
-    makeGridFunctionFromGlobalLambda(gv,flambda);
+    makeGridFunctionFromCallable(gv,flambda);
   auto glambda = [](const auto& x){
     RF s=0.0; for (int i=0; i<x.size(); i++) s+=x[i]*x[i];
     return s;};
   auto g = Dune::PDELab::
-    makeGridFunctionFromGlobalLambda(gv,glambda);
+    makeGridFunctionFromCallable(gv,glambda);
   auto blambda = [](const auto& x){return true;};
   auto b = Dune::PDELab::
-    makeBoundaryConditionFromGlobalLambda(blambda);
+    makeBoundaryConditionFromCallable(gv,blambda);
 
   // Make grid function space
   typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,RF,1> FEM;

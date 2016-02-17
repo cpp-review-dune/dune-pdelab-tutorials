@@ -38,7 +38,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
     rv[1] = std::max(0.0,1.0-8.0*sqrt(rv[1]));
     return rv;
   };
-  auto u = Dune::PDELab::makeGridFunctionFromGlobalLambda(gv,ulambda);
+  auto u = Dune::PDELab::makeGridFunctionFromCallable(gv,ulambda);
 
   // set up coefficient vector filled with initial condition
   using Z = Dune::PDELab::Backend::Vector<GFS,RF>;
@@ -54,10 +54,10 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   // assemble constraints
   auto b0lambda = [](const auto& x){return false;};
   auto b0 = Dune::PDELab::
-    makeBoundaryConditionFromGlobalLambda(b0lambda);
+    makeBoundaryConditionFromCallable(gv,b0lambda);
   auto b1lambda = [](const auto& x){return true;};
   auto b1 = Dune::PDELab::
-    makeBoundaryConditionFromGlobalLambda(b1lambda);
+    makeBoundaryConditionFromCallable(gv,b1lambda);
   typedef Dune::PDELab::CompositeConstraintsParameters<decltype(b0),decltype(b1)> BTrial;
   BTrial btrial(b0,b1);
   typedef typename GFS::template ConstraintsContainer<RF>::Type CC;

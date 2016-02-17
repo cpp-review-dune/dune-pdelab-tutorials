@@ -80,7 +80,7 @@ public:
 
         // transform gradients of shape functions to real element
         const auto S = geo.jacobianInverseTransposed(ip.position());
-        auto gradphi = getJacobianContainer(lfsu0);
+        auto gradphi = makeJacobianContainer(lfsu0);
         for (size_t i=0; i<lfsu0.size(); i++)
           S.mv(gradphihat[i][0],gradphi[i][0]);
 
@@ -123,7 +123,7 @@ public:
 
         // transform gradients of shape functions to real element
         const auto S = geo.jacobianInverseTransposed(ip.position());
-        auto gradphi = getJacobianContainer(lfsu0);
+        auto gradphi = makeJacobianContainer(lfsu0);
         for (size_t i=0; i<lfsu0.size(); i++)
           S.mv(gradphihat[i][0],gradphi[i][0]);
 

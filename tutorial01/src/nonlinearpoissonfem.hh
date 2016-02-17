@@ -114,7 +114,7 @@ public:
   {
     // types & dimension
     const int dim = EG::Entity::dimension;
-    typedef decltype(getZeroBasisFieldValue(lfsu)) RF;
+    typedef decltype(makeZeroBasisFieldValue(lfsu)) RF;
 
     // select quadrature rule
     auto geo = eg.geometry();
@@ -136,7 +136,7 @@ public:
 
         // transform gradients of shape functions to real element
         const auto S = geo.jacobianInverseTransposed(ip.position());
-        auto gradphi = getJacobianContainer(lfsu);
+        auto gradphi = makeJacobianContainer(lfsu);
         for (size_t i=0; i<lfsu.size(); i++)
           S.mv(gradphihat[i][0],gradphi[i][0]);
 
