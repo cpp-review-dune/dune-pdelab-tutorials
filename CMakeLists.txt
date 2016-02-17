@@ -17,6 +17,10 @@ include(DuneMacros)
 
 # start a dune project with information from dune.module
 dune_project()
+
+# make sure we have C++14 available
+dune_require_cxx_standard(MODULE "dune-pdelab-tutorials" VERSION 14)
+
 dune_enable_all_packages()
 
 add_subdirectory(tutorial00)
