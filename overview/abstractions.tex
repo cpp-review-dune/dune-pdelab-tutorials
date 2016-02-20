@@ -57,10 +57,34 @@ differential equations. It ends with a short discussion of two fundamental
 approaches to parallel solution techniques.
 \end{abstract}
 
+\section{Introduction}
+
+State-of-the-art numerical solvers for partial differential equations (PDEs)
+have a variety of aspects, among them:
+\begin{enumerate}[1)]
+\item Stationary and instationary solvers.
+\item Linear and nonlinear solvers.
+\item Various types of meshes in $d$ space dimensions.
+\item Error control and adaptive mesh refinement.
+\item Sequential and parallel solvers (overlapping and nonoverlapping).
+\item Matrix-based and matrix-free computations.
+\item Low- and high-order methods.
+\end{enumerate}
+DUNE/PDELab was designed to allow the implementation of a large variety
+of methods for problems from different application areas with the orthogonality
+of concepts in mind. This means that the different aspects listed above
+can be combined in an arbitrary way allowing huge flexibility.
+Flexibility, however, comes at a price: it requires the problem to
+be stated in its most abstract way to identify commonalities and differences. 
+This little note describes
+these mathematical abstractions seperate from implementation
+aspects to highlight their interplay without cluttering the description
+with unnecessary detail.
+
 \section{Stationary Nonlinear Problems}\label{Sec:BasicBuildingBlock}
 
 The basic building block in PDELab is the solution of 
-a stationary, nonlinear partial differential equation (PDE).
+a stationary, nonlinear partial differential equation.
 The idea is to write the discretization scheme in a weighted residual formulation:
 \begin{equation}
 \text{Find $u_h\in U_h$ s.t.:} \quad r_h(u_h,v)=0 \quad \forall v\in V_h.
@@ -83,11 +107,12 @@ u &= g &&\text{on $\Gamma_D\subseteq\partial\Omega$},\\
 -\nabla u\cdot \nu &= j &&\text{on $\Gamma_N=\partial\Omega\setminus\Gamma_D$}.
 \end{align*}
 $\Omega\subset\mathbb{R}^d$ is a domain, $q:\mathbb{R}\to\mathbb{R}$ is a given, possibly
-nonlinear function and $f: \Omega\to\mathbb{R}$ is the source term.
+nonlinear function and $f: \Omega\to\mathbb{R}$ is the source term and
+$\nu$ denotes the unit outer normal to the domain
 
 The weak formulation of this problem reads
 \begin{equation*}
-\text{Find $u\in U$ s.t.:} \quad r(u,v)=0 \quad \forall v\in V,
+\text{Find $u\in U$ s.t.:} \quad r^{\text{NLP}}(u,v)=0 \quad \forall v\in V,
 \end{equation*}
 with the continuous residual form
 \begin{equation*}
@@ -395,43 +420,43 @@ in the following example.
 \begin{exm} \label{Exm:WaveEquation}
 As an example for a system we consider the wave equation with reflective boundary conditions:
 \begin{align*}
-\partial_{tt} u-\Delta u  &= 0 &&\text{in $\Omega\times\Sigma$},\\
+\partial_{tt} u-c^2\Delta u  &= 0 &&\text{in $\Omega\times\Sigma$},\\
 u &= 0 &&\text{on $\partial\Omega$},\\
-u &= u_0 &&\text{at $t=0$},\\
-\partial_t u &= w_0 &&\text{at $t=0$}.
+u &= q &&\text{at $t=0$},\\
+\partial_t u &= w &&\text{at $t=0$}.
 \end{align*}
-Introducing the function $w=\partial_t u$ we can write the wave equation 
+Renaming $u_1=u$ and introducing $u_2=\partial_t u_1 =\partial_t u$ we can write the wave equation 
 as a system of two equations:
 \begin{align*}
 %\partial_t \left(\begin{array}{c} u \\ w \end{array} \right)
 %- \left(\begin{array}{cc} 0 & 1 \\ \Delta & 0\end{array} \right)
 %\left(\begin{array}{c} u \\ w \end{array} \right) &= 0
-\partial_t u -w &=0 &&\text{in $\Omega\times\Sigma$},\\
-\partial_t w -\Delta u &=0 &&\text{in $\Omega\times\Sigma$},\\
-u &= 0 &&\text{on $\partial\Omega$},\\
-u &= u_0 &&\text{at $t=0$},\\
-w &= w_0 &&\text{at $t=0$}.
+\partial_t u_0 - u_1 &=0 &&\text{in $\Omega\times\Sigma$},\\
+\partial_t u_1 - c^2\Delta u_0 &=0 &&\text{in $\Omega\times\Sigma$},\\
+u_0 &= 0 &&\text{on $\partial\Omega$},\\
+u_0 &= q &&\text{at $t=0$},\\
+u_1 &= w &&\text{at $t=0$}.
 \end{align*}
-Note that there are no constraints on the function space for $w$
-and neither are there boundary conditions for the equation $w=\partial_t u$.
+Note that there are no constraints on the function space for $u_2$
+and neither are there boundary conditions for the equation $u_2=\partial_t u_1$.
 We note that different formulations of the wave equation as a system are
-possible. \cite{Eriksson} uses $\Delta w = \Delta \partial_t u$ as 
-an equation to define $w$ and the formulation as a first order hyperbolic
+possible. \cite{Eriksson} uses $\Delta u_2 = \Delta \partial_t u_1$ as 
+an equation to define $u_2$ and the formulation as a first order hyperbolic
 system in the equations of linear acoustics allows the use of appropriate
 upwinding techniques \cite{LeVeque}. 
 
 Multiplying the first equation with test function $v$ and the second with test function $q$
-and using integration by parts we arrive at the weak formulation: Find $(u(t),w(t))\in
-U\times W$ s.t.
+and using integration by parts we arrive at the weak formulation: Find $(u_0(t),u_1(t))\in
+U_0\times U_1$ s.t.
 \begin{equation*}
-d_t \left[ (u,v)_{0,\Omega} + (w,q)_{0,\Omega}\right]
-- \left[ (w,v)_{0,\Omega} + (\nabla u,\nabla q)_{0,\Omega}\right] = 0 
-\qquad \forall (v,q)\in W\times U
+d_t \left[ (u_0,v_1)_{0,\Omega} + (u_1,v_0)_{0,\Omega}\right]
++ \left[ c^2 (\nabla u_0,\nabla v_0)_{0,\Omega} -(u_1,v_1)_{0,\Omega} \right] = 0 
+\quad \forall (v_0,v_1)\in U_0\times U_1
 \end{equation*}
 where we readily identify the temporal and spatial residual forms:
 \begin{align*}
-m^{\text{WAVE}}((u,w),(v,q)) &= (u,v)_{0,\Omega} + (w,q)_{0,\Omega},\\
-r^{\text{WAVE}}((u,w),(v,q)) &= -(w,v)_{0,\Omega} - (\nabla u,\nabla q)_{0,\Omega}.
+m^{\text{WAVE}}((u_0,u_1),(v_0,v_1)) &= (u_0,v_1)_{0,\Omega} + (u_1,v_0)_{0,\Omega},\\
+r^{\text{WAVE}}((u_0,u_1),(v_0,v_1)) &= c^2 (\nabla u_0,\nabla v_0)_{0,\Omega} - (u_1,v_1)_{0,\Omega} .
 \end{align*}
 Here we used the notation of the $L^2$ inner product $(u,v)_{0,\Omega} = \int_\Omega
 u v \, dx$.
