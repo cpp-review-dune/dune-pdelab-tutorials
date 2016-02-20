@@ -34,8 +34,8 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   // define the initial condition
   auto ulambda = [dim](const auto& x){
     Dune::FieldVector<RF,2> rv(0.0);
-    for (int i=0; i<dim; i++) rv[1] += (x[i]-0.375)*(x[i]-0.375);
-    rv[1] = std::max(0.0,1.0-8.0*sqrt(rv[1]));
+    for (int i=0; i<dim; i++) rv[0] += (x[i]-0.375)*(x[i]-0.375);
+    rv[0] = std::max(0.0,1.0-8.0*sqrt(rv[0]));
     return rv;
   };
   auto u = Dune::PDELab::makeGridFunctionFromCallable(gv,ulambda);
@@ -52,24 +52,20 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   U1DGF u1dgf(u1sub,z);
 
   // assemble constraints
-  auto b0lambda = [](const auto& x){return false;};
+  auto b0lambda = [](const auto& x){return true;};
   auto b0 = Dune::PDELab::
     makeBoundaryConditionFromCallable(gv,b0lambda);
-  auto b1lambda = [](const auto& x){return true;};
+  auto b1lambda = [](const auto& x){return false;};
   auto b1 = Dune::PDELab::
-    makeBoundaryConditionFromCallable(gv,b1lambda);
-  typedef Dune::PDELab::CompositeConstraintsParameters<decltype(b0),decltype(b1)> BTrial;
-  BTrial btrial(b0,b1);
+    makeBoundaryConditionFromCallable(b1lambda);
+  typedef Dune::PDELab::CompositeConstraintsParameters<decltype(b0),decltype(b1)> B;
+  B b(b0,b1);
   typedef typename GFS::template ConstraintsContainer<RF>::Type CC;
-  CC cctrial;
-  Dune::PDELab::constraints(btrial,gfs,cctrial); // assemble constraints on trial space
-  std::cout << "constrained dofs=" << cctrial.size() << " of "
+  CC cc;
+  Dune::PDELab::constraints(b,gfs,cc);
+  std::cout << "constrained dofs=" << cc.size() << " of "
             << gfs.globalSize() << std::endl;
-  set_constrained_dofs(cctrial,0.0,z); // set zero Dirichlet boundary conditions
-  typedef Dune::PDELab::CompositeConstraintsParameters<decltype(b1),decltype(b0)> BTest;
-  BTest btest(b1,b0);
-  CC cctest;
-  Dune::PDELab::constraints(btest,gfs,cctest); // assemble constraints
+  set_constrained_dofs(cc,0.0,z); // set zero Dirichlet boundary conditions
 
   // prepare VTK writer and write first file
   typedef Dune::SubsamplingVTKSequenceWriter<GV> VTKWRITER;
@@ -95,15 +91,15 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   double speedofsound=ptree.get("problem.speedofsound",(double)1.0);
   typedef WaveFEM<FEM> LOP;
   LOP lop(speedofsound);
-  typedef PowerL2<FEM> TLOP;
+  typedef WaveL2<FEM> TLOP;
   TLOP tlop;
   typedef Dune::PDELab::istl::BCRSMatrixBackend<> MBE;
   int degree = ptree.get("fem.degree",(int)1);
   MBE mbe((int)pow(1+2*degree,dim));
   typedef Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,RF,RF,RF,CC,CC> GO0;
-  GO0 go0(gfs,cctrial,gfs,cctest,lop,mbe);
+  GO0 go0(gfs,cc,gfs,cc,lop,mbe);
   typedef Dune::PDELab::GridOperator<GFS,GFS,TLOP,MBE,RF,RF,RF,CC,CC> GO1;
-  GO1 go1(gfs,cctrial,gfs,cctest,tlop,mbe);
+  GO1 go1(gfs,cc,gfs,cc,tlop,mbe);
   typedef Dune::PDELab::OneStepGridOperator<GO0,GO1> IGO;
   IGO igo(go0,go1);
 
