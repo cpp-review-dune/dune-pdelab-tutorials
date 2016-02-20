@@ -272,10 +272,10 @@ PDEs
 \node at (10,0) {$%
 \scriptsize
 \begin{array}{lll} 
-g(T_1,0) = 2, & g(T_1,1) = 3, & g(T_1,2) = 1, \\
-g(T_2,0) = 2, & g(T_2,1) = 1, & g(T_2,2) = 4, \\
-g(T_3,0) = 1, & g(T_3,1) = 3, & g(T_3,2) = 5, \\
-g(T_4,0) = 1, & g(T_4,1) = 5, & g(T_4,2) = 4.
+g_{T_1}(0) = 2, & g_{T_1}(1) = 3, & g_{T_1}(2) = 1, \\
+g_{T_2}(0) = 2, & g_{T_2}(1) = 1, & g_{T_2}(2) = 4, \\
+g_{T_3}(0) = 1, & g_{T_3}(1) = 3, & g_{T_3}(2) = 5, \\
+g_{T_4}(0) = 1, & g_{T_4}(1) = 5, & g_{T_4}(2) = 4.
 \end{array}$};
 \node at (11,2) {$\mathcal{I}_h^{int}=\{1\}, \mathcal{I}_h^{\partial\Omega}=\{2,3,4,5\}$};
 \end{tikzpicture}
@@ -288,9 +288,9 @@ g(T_4,0) = 1, & g(T_4,1) = 5, & g(T_4,2) = 4.
 \mathcal{T}_h = \{T_1, \ldots, T_M\}
 \end{equation*}
 \item {\em Simplicial element}: $T=\text{convex\_hull}(x_{T,0},\ldots,x_{T,d})$
-\item {\em Local to global map} : $g:\mathcal{T}_h\times\{0,\ldots,d\}\to\mathcal{N}$
+\item {\em Local to global map} : $g_T : \{0,\ldots,d\}\to\mathcal{N}$
 \begin{equation*}
-\forall T\in\mathcal{T}_h, 0\leq i \leq d: g(T,l) = j \Leftrightarrow x_{T,l} = x_{j} .
+\forall T\in\mathcal{T}_h, 0\leq i \leq d: g_T(l) = j \Leftrightarrow x_{T,l} = x_{j} .
 \end{equation*}
 \item {\em Interior and boundary vertex index sets}:
 $\mathcal{I}_h = \mathcal{I}_h^{int}\cup\mathcal{I}_h^{\partial\Omega}$,\\
@@ -483,7 +483,7 @@ B_T^T \nabla w(\mu_T(\hat x)) = \hat\nabla \hat w(\hat x) \quad\Leftrightarrow\q
 \begin{frame}
 \frametitle{Assembly of Right Hand Side I}
 In computing $(b)_i$ only the following elements are involved:
-$$C(i) = \{(T,m)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g(T,m)=i\}$$
+$$C(i) = \{(T,m)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g_T(m)=i\}$$
 Then
 \begin{align*}
 (b)_i &= l(\phi_i) = \int_\Omega f \phi_i\,dx &&\text{(definition)} \\
@@ -505,7 +505,7 @@ f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) \det B_T w_d \, + \text{err}. &&\text{(q
 \end{equation*}
 \item Define {destriction matrix} $R_T : \mathbb{R}^N \to \mathbb{R}^{d+1}$ with
 \begin{equation*}
-(R_T x)_m = (x)_i \quad \forall \,0\leq m \leq d, \,g(T,m)=i,
+(R_T x)_m = (x)_i \quad \forall \,0\leq m \leq d, \,g_T(m)=i,
 \end{equation*}
 \item Then
 \begin{equation*}
@@ -517,7 +517,7 @@ b = \sum_{T\in\mathcal{T}_h} R_T^T b_T .
 \begin{frame}
 \frametitle{Assembly of Global Stiffness Matrix I}
 In computing $(A)_{i,j}$ only the following elements are involved:
-$$C(i,j) = \{(T,m,n)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g(T,m)=i \wedge g(T,n)=j\}$$
+$$C(i,j) = \{(T,m,n)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g_T(m)=i \wedge g_T(n)=j\}$$
 Then
 {\small\begin{align*}
 (A)_{i,j} &= a(\phi_j,\phi_i) = \int_\Omega \nabla \phi_j \cdot \nabla \phi_i \,dx 

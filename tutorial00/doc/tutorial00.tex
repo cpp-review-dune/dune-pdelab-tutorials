@@ -33,12 +33,7 @@
 \title{DUNE PDELab Tutorial 00 \\ 
 Piecewise Linear Finite Elements for the\\
 Poisson Equation on Simplices}
-\author{Peter Bastian\\
-  Universität Heidelberg, \\
-  Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
-  Im Neuenheimer Feld 368, D-69120 Heidelberg\\
-  \url{Peter.Bastian@iwr.uni-heidelberg.de}
-}
+\author{DUNE/PDELab Team}
 \date{\today}
 
 \begin{document}
@@ -186,9 +181,9 @@ The association of the local numbering of vertices within each element
 and the global numbering of vertices in the vertex set is facilitated
 via the {\em local to global map} defined by:
 \begin{equation}
-\forall T\in\mathcal{T}_h, 0\leq i \leq d: g(T,l) = j \Leftrightarrow x_{T,l} = x_{j} .
+\forall T\in\mathcal{T}_h, 0\leq i \leq d: g_T(l) = j \Leftrightarrow x_{T,l} = x_{j} .
 \end{equation}
-The map $g:\mathcal{T}_h\times\{0,\ldots,d\}\to\mathbb{N}$ 
+The map $g_T : \{0,\ldots,d\}\to\mathbb{N}$ 
 plays also a very important role in the implementation of the finite element method.
 Note also that the symbol $g$ is used for the local to global map and the Dirichlet
 boundary conditions but it should always be clear from the context which function is meant.
@@ -243,10 +238,10 @@ we denote the {\em mesh size}.
 \node at (4.5,3.5) {$2$};
 \node at (10,0) {$%
 \begin{array}{lll} 
-g(T_1,0) = 2, & g(T_1,1) = 3, & g(T_1,2) = 1, \\
-g(T_2,0) = 2, & g(T_2,1) = 1, & g(T_2,2) = 4, \\
-g(T_3,0) = 1, & g(T_3,1) = 3, & g(T_3,2) = 5, \\
-g(T_4,0) = 1, & g(T_4,1) = 5, & g(T_4,2) = 4.
+g_{T_1}(0) = 2, & g_{T_1}(1) = 3, & g_{T_1}(2) = 1, \\
+g_{T_2}(0) = 2, & g_{T_2}(1) = 1, & g_{T_2}(2) = 4, \\
+g_{T_3}(0) = 1, & g_{T_3}(1) = 3, & g_{T_3}(2) = 5, \\
+g_{T_4}(0) = 1, & g_{T_4}(1) = 5, & g_{T_4}(2) = 4.
 \end{array}$};
 \node at (11,2) {$\mathcal{I}_h^{int}=\{1\}, \mathcal{I}_h^{\partial\Omega}=\{2,3,4,5\}$};
 \end{tikzpicture}
@@ -543,7 +538,7 @@ interior vertices than boundary vertices we may first compute $(b)_i = l(\phi_i)
 for {\em all} $i\in\mathcal{I}_h$ and then overwrite the entries on the boundary
 with $(b)_i = g(x_i)$. Moreover, when considering the global index $i$
 only the pairs in the set
-$$C(i) = \{(T,m)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g(T,m)=i\}$$
+$$C(i) = \{(T,m)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g_T(m)=i\}$$
 contribute to the computation which can carried out in the following way:
 \begin{align*}
 (b)_i &= l(\phi_i) = \int_\Omega f \phi_i\,dx &&\text{(definition)} \\
@@ -567,7 +562,7 @@ These computations at element $T$ are:
 Then define the restriction matrix 
 $R_T : \mathbb{R}^N \to \mathbb{R}^{d+1}$ as
 \begin{equation}
-(R_T x)_m = (x)_i \quad \forall \,0\leq m \leq d, \,g(T,m)=i,
+(R_T x)_m = (x)_i \quad \forall \,0\leq m \leq d, \,g_T(m)=i,
 \end{equation}
 extracting all components involved with element $T$. Then
 the assembly of the right hand side can be written in compact form as
@@ -582,7 +577,7 @@ The assembly of the matrix $A$ defined in \eqref{eq:systemdetail} can be carried
 out in a similar way. We assemble first the entries as $(A)_{i,j}=a(\phi_j,\phi_i)$
 for all $i,j\in\mathcal{I}_h$ and the modify the matrix to respect the Dirichlet
 boundary conditions. In the computation of $(A)_{i,j}$ only the triples
-$$C(i,j) = \{(T,m,n)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g(T,m)=i \wedge g(T,n)=j\}$$
+$$C(i,j) = \{(T,m,n)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g_T(m)=i \wedge g_T(n)=j\}$$
 are involved due to the locality of the Lagrange basis functions:
 \begin{align*}
 (A)_{i,j} &= a(\phi_j,\phi_i) = \int_\Omega \nabla \phi_j \cdot \nabla \phi_i \,dx 
@@ -632,10 +627,10 @@ evaluation \eqref{eq:opeval}:
 &&\text{(use mesh)}\\
 &= \sum_{(T,m)\in C(i)}
 \int_{\hat T} 
-\left(\sum_{n=0}^d (z)_{g(T,n)} B_T^{-T} \hat\nabla\phi_n\right)
+\left(\sum_{n=0}^d (z)_{g_T(n)} B_T^{-T} \hat\nabla\phi_n\right)
 \cdot (B_T^{-T} \hat\nabla\phi_m) \det B_T \,d\hat x &&\text{(localize)}\\
 &= \sum_{(T,m)\in C(i)}
-\left(\sum_{n=0}^d (z)_{g(T,n)} B_T^{-T} \hat\nabla\phi_n\right)
+\left(\sum_{n=0}^d (z)_{g_T(n)} B_T^{-T} \hat\nabla\phi_n\right)
 \cdot (B_T^{-T} \hat\nabla\phi_m) \det B_T w_d . &&\text{(quadrature)}
 \end{align*}
 Again, computations for all indices can be arranged in an element-wise fashion
