@@ -32,12 +32,7 @@
 
 \title{DUNE PDELab Tutorial 01 \\ 
 Conforming Finite Element Method for a Nonlinear Poisson Equation}
-\author{Peter Bastian\\
-  Universität Heidelberg, \\
-  Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
-  Im Neuenheimer Feld 368, D-69120 Heidelberg\\
-  \url{Peter.Bastian@iwr.uni-heidelberg.de}
-}
+\author{DUNE/PDELab Team}
 \date{\today}
 
 \begin{document}
@@ -48,15 +43,17 @@ Conforming Finite Element Method for a Nonlinear Poisson Equation}
 
 \section{Introduction}
 
-In this tutorial we extend tutorial 00 in various ways:
+In this tutorial we extend tutorial 00 in the following ways:
 \begin{enumerate}[1)]
-\item Solve a nonlinear stationary partial PDE.
+\item Solve a nonlinear stationary partial differential equation (PDE).
 \item Use conforming finite element spaces of arbitrary order.
 \item Use different types of (conforming) meshes (simplical, cubed and mixed).
+\item Use multiple types of boundary conditions.
 \end{enumerate}
 Combined with the fact that the implementation works in any dimension
-(note: it is not claimed to be efficient in high dimension) this comprises
-already a relatively large space of different methods. Moreover, the 
+(note: it is not claimed to be efficient in high dimension ($d>3$) this comprises
+already a relatively large space of different methods, so the example illustrates
+the flexibility of PDELab. Moreover, the 
 finite element method developed in this tutorial will serve as a 
 building block for instationary problems, adaptive mesh refinement and
 parallel solution in subsequent tutorials.
@@ -97,16 +94,17 @@ We assume that $q$ is such that this problem has a unique solution.
 
 \section{Finite Element Method}
 
-The finite element method replaces the function spaces $U$ and $V$ by
+The finite element method \cite{WHElliptisch,Brenner,Eriksson,Ciarlet,Braess,Ern,Elman2005} 
+replaces the function spaces $U$ and $V$ by
 finite dimensional approximations defined on a finite element mesh.
 Before describing exactly how these spaces are constructed let us
 explore the consequences of this.
 
 \subsection{Algebraic Problem}
 
-A finite-dimensional function space is spanned by a basis. So, assume that
+Any finite-dimensional function space is spanned by a basis. So, assume that
 \begin{equation*}
-U_h=\text{span}\{\phi_1,\ldots,\phi_n\}, \quad V_h=\text{span}\{\psi_1,\ldots,\psi_n\}
+U_h=\text{span}\{\phi_1,\ldots,\phi_n\}, \quad V_h=\text{span}\{\psi_1,\ldots,\psi_m\}
 \end{equation*}
 are corresponding sets of basis functions for $U_h$ and $V_h$.
 Expanding the solution $u_h=\sum_{j=1}^n (z)_j\phi_j$ in the basis and
@@ -126,7 +124,7 @@ in an iterative fashion using e.g. a fixed-point iteration of the form
 z^{(k+1)} = G(z^{(k)}) = z^{(k)} - \lambda^{k} W(z^{(k)}) R(z^{(k)}) .
 \end{equation}
 Here $\lambda^{k}$ is a damping factor
-and $W(z^{(k)})$ is a preconditioner matrix, e.g. in Newton's method one
+and $W(z^{(k)})$ is a preconditioner matrix, e.g. in Newton's method (see e.g. \cite{Braess}) one
 has 
 \begin{equation*}
 W(z^{(k)}) = (J(z^{(k)}))^{-1} \quad \text{where $(J(z^{(k)}))_{i,j} = \frac{\partial R_i}{\partial z_j}
@@ -144,6 +142,43 @@ algorithmic building blocks:
 \end{enumerate}
 Only one of the methods i) and ii) is required depending on the chosen
 solution procedure.
+
+\subsubsection*{A Note on Matrix-free Evaluation}
+
+The matrix-free multiplication of the Jacobian $J(z)$ with a vector $w$ is with
+the definitions above:
+\begin{equation*}
+(J(z) w)_i = \sum_{j=1}^n (J(z))_{i,j} (w)_j = \sum_{j=1}^n 
+\frac{\partial}{\partial z_j} r_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j .
+\end{equation*}
+At this point one may exploit the local support of basis functions in order
+to compute only the partial derivatives that are nonzero.
+
+In the linear case, for comparison, one has $r_h(u,v) = a_h(u,v) - l_h(v)$ where
+$a_h$ is a bilinear form and $l_h$ is a linear form. Then, the application
+of the Jacobian can be simplified as
+\begin{equation*}
+\begin{split}
+(J(z) w)_i &= \sum_{j=1}^n 
+\frac{\partial}{\partial z_j} r_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j \\
+&= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left( 
+a_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) - l_h(\psi_i)\right) (w)_j \\
+&= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left( 
+\sum_{l=1}^n (z)_l a_h(\phi_l,\psi_i) \right)  (w)_j \\
+&= \sum_{j=1}^n a_h(\phi_j,\psi_i) (w)_j =
+a_h\left( \sum_{j=1}^n (w)_j \phi_j,\psi_i\right) =
+(A w)_i 
+\end{split}
+\end{equation*}
+where $(A)_{i,j} = a_h(\phi_j,\psi_i)$ is the stiffness matrix which is independent of $z$.
+For this reason there exist two different functions for matrix-free operator application,
+one for the linear case providing only the argument $w$ and one for the nonlinear
+case providing two arguments $z$ and $w$. 
+
+Note also that it is advantageous to seperate in the
+implementation of the residual form the part that depends on trial and test functions,
+and which consequently contributes to the Jacobian, and the part that only depends
+on the test functions and which does not contribute to the Jacobian.
 
 \subsection{Finite Element Space}
 
@@ -172,7 +207,7 @@ Jacobian as well as consistent in the sense
 $\forall i\in\{0,\ldots,n_T-1\} : \mu_T(\hat x_i) = x_{g_T(i)}$.
 \end{enumerate}
 
-The finite element space of degree $k$ in dimension $d$ on the mesh
+The conforming finite element space of degree $k$ in dimension $d$ on the mesh
 $\mathcal{T}_h$ is given by
 \begin{equation}
 V_h^{k,d}(\mathcal{T}_h) = \left\{ v\in C^0(\overline{\Omega}) \,:\, 
@@ -218,34 +253,114 @@ and Lagrange polynomials
 $$P_{\hat T} = \left\{ p^{\hat T}_0,\ldots,p^{\hat T}_{n_{\hat T}^{k,d}-1}\right\}$$
 such that $$p^{\hat T}_i(\hat x^{\hat T}_j) = \delta_{i,j}.$$
 Global continuity is then ensured by carefully placing $n_{\hat T}^{k,d-c}$ of these
-points on each face of codimension $c$ in the reference element. 
+points on each subentity of codimension $c$ in the reference element. 
 
 \subsubsection*{Global Lagrange Basis}
 
-The local-to-global map $g_T$ is now
-extended (note that the corners of the reference element
-are the Lagrange points for degree $k=1$) to the full set of Lagrange points
-such that
-$$ g_T(i) = g_{T'}(i')\quad\Leftrightarrow\quad 
-\mu_{T}(x^{\hat T}_i)=\mu_{T'}(x^{\hat T'}_{i'}) .$$
-Conversely, the set
-$$C(i) = \{(T,m)\in\mathcal{T}_h\times\mathbb{N} \,:\, g(T,m)=i\}$$
-gives all element and local number pairs that are mapped to the global
-degree of freedom number $i$.
-
+The local-to-global map $g_T$ is extended to map indices of 
+local basis functions to indices of global basis functions of the finite element space.
+Let
+\begin{equation*}
+g_T : \{0,\ldots,n_{\hat T}^{k,d}-1\} \to \mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right) =
+\left\{0,\ldots,\text{dim} V_h^{k,d}(\mathcal{T}_h)-1\right\}
+\end{equation*}
+be this extension and
+\begin{equation*}
+C(i) = \{(T,m)\in\mathcal{T}_h\times\mathbb{N} \,:\, g_T(m)=i\}
+\end{equation*}
+its inversion. Then
+\begin{enumerate}[i)]
+\item $C(i)$ is nonempty for all $i\in\mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right)$ and
+\item for all $(T,m), (T',m') \in C(i)$ it holds $\mu_{T}(x^{\hat T}_m)=\mu_{T'}(x^{\hat T'}_{m'})$.
+\end{enumerate}
 The global Lagrange basis functions spanning $V_h^{k,d}(\mathcal{T}_h)$ are then defined by
 \begin{equation*}
 \phi_i(x) = \left\{\begin{array}{ll}
 p^{\hat T}_m(\mu_T^{-1}(x)) & x\in T \wedge (T,m)\in C(i) \\
 0 & \text{else}
-\end{array}\right. \quad 0\leq i < N_h^{k,d} = \text{dim} V_h^{k,d}(\mathcal{T}_h) .
+\end{array}\right. , \quad i\in\mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right) .
+\end{equation*}
+Each global basis function $\phi_i$ corresponds to a Lagrange
+point $x_i$ from the ordered set
+\begin{equation*}
+\mathcal{X}_h^{k,d} = \left\{ x_i\in\overline{\Omega} \,:\,
+x_i=\mu_T(\hat x^{\hat T}_{m})  \wedge (T,m)\in C(i) \right\}.
+\end{equation*}
+Note that for
+degree $k=1$ one has $\mathcal{I}\left(V_h^{1,d}(\mathcal{T}_h)\right) = \mathcal{I}_h$, i.e. 
+one basis function is associated with each vertex of the mesh.
+
+\subsection{Incorporation of Dirichlet Boundary Conditions}
+
+The standard way to handle Dirichlet boundary conditions in the conforming
+finite element method is to incorporate them directly into the function space. 
+To that define the indices of Lagrange points on the Dirichlet boundary
+\begin{equation*}
+\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right) = 
+\left\{ i\in\mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right)  \,:\,
+x_i\in\mathcal{X}_h^{k,d} \wedge x_i\in\Gamma_D  
+\right\} .
 \end{equation*}
 
-\subsection{Incorporation of Boundary Conditions}
+For the test space one defines the space of finite element
+functions that are zero on the Dirchlet boundary:
+\begin{equation*}
+V_{h,0}^{k,d}(\mathcal{T}_{h}) = \left\{ 
+v\in V_{h}^{k,d}(\mathcal{T}_{h}) \,:\, v(x_i) = 0 
+\quad \forall i\in\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right)
+ \right\}
+\end{equation*}
+For the trial space set
+\begin{equation*}
+u_{h,g} = \sum_{i\in \mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right)}
+g(x_i) \phi_i
+\end{equation*}
+with the Dirichlet boundary condition function $g$. In fact one may want to
+use
+\begin{equation*}
+u_{h,g} = \sum_{i\in \mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right)}
+u_g(x_i) \phi_i \qquad \text{with $u_g(x_i)=g(x_i)$ for all $i\in 
+\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right)$}
+\end{equation*}
+which incorporates the Dirichlet boundary conditions on $\Gamma_D$
+and provides an initial guess for the nonlinear iterative solver in the
+interior of the domain. Then the trial space is
+\begin{equation*}
+U_{h}^{k,d}(\mathcal{T}_{h}) = \left\{ u\in V_h^{k,d}(\mathcal{T}_h)
+\,:\, u = u_{h,g} + w \wedge w\in V_{h,0}^{k,d}(\mathcal{T}_{h})\right\} .
+\end{equation*}
+Finally, the finite element problem in its precise form reads
+\begin{equation}
+\text{Find $u\in U_{h}^{k,d}(\mathcal{T}_{h})$ s.t.:} 
+\quad r^{\text{NLP}}(u,v)=0 \quad \forall v\in V_{h,0}^{k,d}(\mathcal{T}_{h}) .
+\label{eq:PreciseFEProblem}
+\end{equation}
+
+\subsubsection*{General Constraints}
+
+PDELab provides a more general approach to construct subspaces of
+finite element spaces. Given a
+finite-dimensional space $U_h = \text{span}\left\{\phi_j \,:\, j\in J_h=\{1,\ldots,n\}\right\}$
+a subspace $\tilde{U}_h$ is constructed by 
+\begin{enumerate}[i)]
+\item selecting a subset of indices $\tilde{J}_h\subset J_h$
+\item and settting $\tilde{U}_h = \text{span}\left\{\tilde\phi_j \,:\, j\in \tilde{J}_h\right\}$,
+where the new basis functions have the form 
+\begin{equation*}
+\tilde\phi_j = \phi_j + \sum_{l\in J_h\setminus\tilde{J}_h} (B)_{j,l} \phi_l \quad \forall j\in \tilde{J}_h.
+\end{equation*}
+\end{enumerate}
+Thus, any subspace of $U_h$ is characterized by $C=(\tilde{J}_h,B)$.
+This abstractions allows to represent Dirichlet conditions ($J_h\setminus\tilde{J}_h$
+are the indices of the Dirichlet nodes and $B=0$), hanging nodes
+($J_h\setminus\tilde{J}_h$ are the indices of hanging nodes and $B$ represents
+the interpolation conditions) or even rigid body modes.
 
 
 \subsection{Element-wise Computations}
+\label{Sec:ElementComputations}
 
+We now turn to how the residual can be evaluated in practice.
 The residual form \eqref{eq:ResidualForm} can be readily decomposed into
 elementwise contributions:
 \begin{equation*}
@@ -271,7 +386,7 @@ and integrals depending only on test functions ($\lambda$-terms). Here we need
 three of these six possible combinations.
 
 The three terms can now be evaluated using the techniques introduced in 
-turorial 00 with the small extension that for general maps $\mu_T$ we
+tutorial 00 with the small extension that for general maps $\mu_T$ we
 have 
 $$\nabla w(\mu_T(\hat x)) = J_{\mu,T}^{-1}(\hat x) \hat\nabla \hat w (\hat x)$$
 with $J_{\mu,T}(\hat x)$ the Jacobian of $\mu_T$ at point $\hat x$.
@@ -355,7 +470,7 @@ R(z) =
 The Jacobian of the residual is
 \begin{equation*}
 (J(z))_{i,j} = \frac{\partial R_i}{\partial z_j} (z) =
-\sum_{(T,m,n) : (T,m)\in C(i) \wedge (T,n)\in C(j)} \frac{\partial (\mathcal{A}_T^V)_m}{\partial z_n} .
+\sum_{(T,m,n) : (T,m)\in C(i) \wedge (T,n)\in C(j)} \frac{\partial (\mathcal{A}_T^V)_m}{\partial z_n}
 (R_T z)
 \end{equation*}
 Note that:
@@ -370,7 +485,33 @@ additional base class.
 
 \section{Realization in PDELab}
 
-Need to explain the parameter class
+The structure of the code is very similar to that of tutorial 00. It consists of the following
+files:
+\begin{enumerate}[1)]
+\item The main file \lstinline{tutorial01.cc} includes the necessary C++,
+DUNE and PDELab header files
+and contains the \lstinline{main} function where the execution starts. The ini-file
+\lstinline{tutorial01.ini} holds parameters read by various parts of the code
+which control the execution. The purpose of the \lstinline{main} function is
+to instantiate DUNE grid objects and call the \lstinline{driver} function.
+\item File \lstinline{driver.hh} instantiates the necessary PDELab classes 
+for solving a nonlinear stationary problem and finally solves the problem.
+\item File \lstinline{nonlinearpoissonfem.hh} contains the class
+\lstinline{NonlinearPoissonFEM} realizing a PDELab local operator implementing
+the conforming finite element method for arbitrary order and on arbitrary meshes.
+\item File \lstinline{problem.hh} contains a so-called parameter class which
+encapsulates the user-definable part of the PDE problem such as right hand
+side and boundary conditions.
+\item Finally, the tutorial provides some mesh files.
+\end{enumerate}
+
+\subsection{Function \lstinline{main}}
+
+\subsection{Function \lstinline{driver}}
+
+\subsection{Local Operator \lstinline{NonlinearPoissonFEM}}
+
+\subsection{Running the Example}
 
 % bibtex bibliography
 \bibliographystyle{plain}
