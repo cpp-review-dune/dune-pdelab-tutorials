@@ -67,11 +67,13 @@ elements. It is assumed that you have worked through tutorial 00 before.
 
 Here we consider the following nonlinear Poisson equation with
 Dirichlet and Neumann boundary conditions:
-\begin{align*}
+\begin{subequations} \label{eq:ProblemStrong}
+\begin{align}
 -\Delta u + q(u) &= f &&\text{in $\Omega$},\\
 u &= g &&\text{on $\Gamma_D\subseteq\partial\Omega$},\\
 -\nabla u\cdot \nu &= j &&\text{on $\Gamma_N=\partial\Omega\setminus\Gamma_D$}.
-\end{align*}
+\end{align}
+\end{subequations}
 $\Omega\subset\mathbb{R}^d$ is a domain, $q:\mathbb{R}\to\mathbb{R}$ is a given, possibly
 nonlinear function and $f: \Omega\to\mathbb{R}$ is the source term and
 $\nu$ denotes the unit outer normal to the domain.
@@ -488,11 +490,13 @@ additional base class.
 The structure of the code is very similar to that of tutorial 00. It consists of the following
 files:
 \begin{enumerate}[1)]
+\item The ini-file
+\lstinline{tutorial01.ini} holds parameters read by various parts of the code
+which control the execution. 
 \item The main file \lstinline{tutorial01.cc} includes the necessary C++,
 DUNE and PDELab header files
-and contains the \lstinline{main} function where the execution starts. The ini-file
-\lstinline{tutorial01.ini} holds parameters read by various parts of the code
-which control the execution. The purpose of the \lstinline{main} function is
+and contains the \lstinline{main} function where the execution starts. 
+The purpose of the \lstinline{main} function is
 to instantiate DUNE grid objects and call the \lstinline{driver} function.
 \item File \lstinline{driver.hh} instantiates the necessary PDELab classes 
 for solving a nonlinear stationary problem and finally solves the problem.
@@ -505,7 +509,128 @@ side and boundary conditions.
 \item Finally, the tutorial provides some mesh files.
 \end{enumerate}
 
+\subsection{Ini-File}
+
+The ini-file allows the user to set various parameters for the
+execution of the program. Here we skim briefly through the sections.
+
+\lstinputlisting[linerange={1-4},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
+The \lstinline{grid} section allows to set the space dimension to $1$, $2$ or $3$.
+In one dimension the grid manager \lstinline{OneDGrid} is used.
+In dimension $2$ or $3$ \lstinline{UGGrid} or \lstinline{ALUGrid} 
+using simplex grids or \lstinline{YaspGrid} using cube grids can be selected.
+The refinement parameter can be used to refine the initial coarse
+mesh the specified number of times.
+
+\lstinputlisting[linerange={6-9},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
+The \lstinline{grid.oned} subsection is active when the dimension
+of the grid set to one. Then the domain is the interval from \lstinline{a}
+to \lstinline{b} and \lstinline{elements} gives the number of elements
+sed to subdivide the interval.
+
+\lstinputlisting[linerange={11-17},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
+The \lstinline{grid.structured} subsection is active when \lstinline{yasp}
+is selected as a grid manager and allows to set the length of the domain
+in every direction (always starting at zero) and the number of elements
+to be used per direction. 
+
+\lstinputlisting[linerange={19-20},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
+The \lstinline{grid.twod} subsection is active when \lstinline{ug}
+or \lstinline{alu} are selected as grid managers in two space dimensions.
+The the gmsh-file with the given name is read as coarse grid.
+
+\lstinputlisting[linerange={22-23},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
+The \lstinline{grid.threed} subsection is active when \lstinline{ug}
+or \lstinline{alu} are selected as grid managers in three space dimensions.
+The the gmsh-file with the given name is read as coarse grid.
+
+\lstinputlisting[linerange={25-26},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
+The \lstinline{fem} section provides the parameters for the finite
+element method. The only parameter in this tutorial is the polynomial
+degree for the finite element space. Note that different degrees
+are possible depending on the grid manager used.
+
+\lstinputlisting[linerange={28-29},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
+The \lstinline{problem} section provides parameters for the
+specific problem to be solved. The tutorial solves problem \eqref{eq:ProblemStrong}
+with $$q(u)=\eta u^2, \quad f(x) = -2d, \quad \Gamma_D=\partial\Omega,
+\quad g(x)=\|x\|^2 .$$
+The parameter $\eta$ in the nonlinear term is read from the ini-file.
+
+\lstinputlisting[linerange={31-33},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
+The \lstinline{output} section controls the output of the solution
+to a \lstinline{vtk}-file using DUNE's \lstinline{SubsamplingVTKWriter}.
+The user can give the name of the output file and specify the subsampling depth.
+
 \subsection{Function \lstinline{main}}
+
+The \lstinline{main} function  in \lstinline{tutorial01.cc} is very simular to the one
+in \lstinline{tutorial00.cc}. It starts by getting a reference to the
+\lstinline{Dune::MPIHelper} singleton and opens and reads in the ini-file. 
+This is not repeated here.
+
+Then there are several sections where \lstinline{Dune::Grid} objects are instantiated
+and the \lstinline{driver} function is called. Since the grid manager, the space
+dimension and the polynomial degree are template parameters of various classes
+but the user should be able to select these during run-time in the ini-file all 
+the different cases are selected with \lstinline{if}-statements within which
+the appropriate classes are instantiated. As an example we just
+present the section for dimension $1$ using \lstinline{OneDGrid} here.
+
+In one space dimension we start with reading the grid parameters 
+from the ini-file:
+\lstinputlisting[linerange={91-97},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.cc}
+
+Then we create a \lstinline{std::vector} with an equidistant
+subdivision of the given interval. Note that \lstinline{OneDGrid}
+could handle arbitrary subdivisions.
+\lstinputlisting[linerange={99-102},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.cc}
+
+Now an instance of \lstinline{OneDGrid} can be created and
+refined uniformly:
+\lstinputlisting[linerange={104-107},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.cc}
+
+Finally, for polynomial degrees one through four a finite element
+map of the appropriate order is created and the \lstinline{driver} function
+is called. The \lstinline{driver} function gets a grid view, the finite element map
+and the parameter tree as parameters and is covered in the next section: 
+\lstinputlisting[linerange={109-135},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.cc}
 
 \subsection{Function \lstinline{driver}}
 
