@@ -293,6 +293,7 @@ degree $k=1$ one has $\mathcal{I}\left(V_h^{1,d}(\mathcal{T}_h)\right) = \mathca
 one basis function is associated with each vertex of the mesh.
 
 \subsection{Incorporation of Dirichlet Boundary Conditions}
+\label{Sec:Dirichlet}
 
 The standard way to handle Dirichlet boundary conditions in the conforming
 finite element method is to incorporate them directly into the function space. 
@@ -390,8 +391,8 @@ three of these six possible combinations.
 The three terms can now be evaluated using the techniques introduced in 
 tutorial 00 with the small extension that for general maps $\mu_T$ we
 have 
-$$\nabla w(\mu_T(\hat x)) = J_{\mu,T}^{-1}(\hat x) \hat\nabla \hat w (\hat x)$$
-with $J_{\mu,T}(\hat x)$ the Jacobian of $\mu_T$ at point $\hat x$.
+$$\nabla w(\mu_T(\hat x)) = J_{\mu_T}^{-1}(\hat x) \hat\nabla \hat w (\hat x)$$
+with $J_{\mu_T}(\hat x)$ the Jacobian of $\mu_T$ at point $\hat x$.
 
 \subsubsection*{$\lambda$ Volume Term}
 
@@ -399,7 +400,7 @@ For any $(T,m)\in C(i)$ we obtain
 \begin{equation*}
 \begin{split}
 \lambda_T^V(\phi_i) &= - \int_T f \phi_i \,dx = 
-- \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x) |\text{det} J_{\mu,T}(\hat x)|\, d\hat x .
+- \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x) |\text{det} J_{\mu_T}(\hat x)|\, d\hat x .
 \end{split}
 \end{equation*}
 This integral on the reference element is then computed by employing
@@ -408,7 +409,7 @@ The evaluation for all test functions with support on element $T$ may be collect
 a vector 
 \begin{equation*}
 (\mathcal{L}_T^V)_m = - \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x) 
-|\text{det} J_{\mu,T}(\hat x)|\, d\hat x.
+|\text{det} J_{\mu_T}(\hat x)|\, d\hat x.
 \end{equation*}
 
 \subsubsection*{$\lambda$ Boundary Term}
@@ -419,7 +420,7 @@ and $(T_F^-,m)\in C(i)$ we obtain
 \begin{split}
 \lambda_T^B(\phi_i) &= \int_{F} j v\,ds = 
 \int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x)) 
-\sqrt{|\text{det} J^T_{\mu,T}(\hat x)J_{\mu,T}(\hat x)|} \,ds
+\sqrt{|\text{det} J^T_{\mu_T}(\hat x)J_{\mu_T}(\hat x)|} \,ds
 \end{split}
 \end{equation*}
 Because integration is over a face of codimension 1 now, two mappings are
@@ -428,9 +429,9 @@ global coordinates while the map $\eta_F$ maps $\hat F$ into the referece
 element $\hat T$ of $T$. Also the integration element has to redefined accordingly.
 Again, all contributions of the face $F$ can e collected in a vector:
 \begin{equation*}
-(\mathcal{L}_T^V)_m = 
+(\mathcal{L}_T^B)_m = 
 \int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x)) 
-\sqrt{|\text{det} J^T_{\mu,T}(\hat x)J_{\mu,T}(\hat x)|} \,ds .
+\sqrt{|\text{det} J^T_{\mu_T}(\hat x)J_{\mu_T}(\hat x)|} \,ds .
 \end{equation*}
 
 \subsubsection*{$\alpha$ Volume Term}
@@ -441,20 +442,20 @@ For any $(T,m)\in C(i)$ we get
 \alpha_T^V(u_h,\phi_i) &= \int_T \nabla u \cdot \nabla \phi_i + q(u) \phi_i \,dx,
 = \int_T \sum_j (z)_j \left(\nabla \phi_j \cdot \nabla \phi_i \right) 
 + q\left( \sum_j (z)_j \phi_j \right) \phi_i \,dx,\\
-&= \int_{\hat T} \sum_{n} (z)_{g_T(n)} (J_{\mu,T}^{-1}(\hat x) \hat\nabla p_n^{\hat T}(\hat x) )
-\cdot (J_{\mu,T}^{-1}(\hat x) \hat\nabla p_m^{\hat T}(\hat x) ) \\
+&= \int_{\hat T} \sum_{n} (z)_{g_T(n)} (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_n^{\hat T}(\hat x) )
+\cdot (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_m^{\hat T}(\hat x) ) \\
 &\hspace{40mm}+ q\left( \sum_n (z)_{g_T(n)} p_n^{\hat T}(\hat x) \right) p_m^{\hat T}(\hat x) 
-|\text{det} J_{\mu,T}(\hat x)| \,dx
+|\text{det} J_{\mu_T}(\hat x)| \,dx
 \end{split}
 \end{equation*}
 Again contributions for all test functions can be collected in a vector
 \begin{equation*}
 \begin{split}
 (\mathcal{A}_T^V(R_T z))_m &=
-\sum_{n} (z)_{g_T(n)} \int_{\hat T} (J_{\mu,T}^{-1}(\hat x) \hat\nabla p_n^{\hat T}(\hat x) )
-\cdot (J_{\mu,T}^{-1}(\hat x) \hat\nabla p_m^{\hat T}(\hat x) ) |\text{det} J_{\mu,T}(\hat x)| \,dx\\
+\sum_{n} (z)_{g_T(n)} \int_{\hat T} (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_n^{\hat T}(\hat x) )
+\cdot (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_m^{\hat T}(\hat x) ) |\text{det} J_{\mu_T}(\hat x)| \,dx\\
 &\hspace{30mm}+ \int_{\hat T} q\left( \sum_n (z)_{g_T(n)} p_n^{\hat T}(\hat x) \right) p_m^{\hat T}(\hat x) 
-|\text{det} J_{\mu,T}(\hat x)| \,dx
+|\text{det} J_{\mu_T}(\hat x)| \,dx
 \end{split}
 \end{equation*}
 
@@ -462,12 +463,13 @@ Again contributions for all test functions can be collected in a vector
 \subsubsection*{Putting it all together}
 
 Now with these definitions in place the evaluation of the algebraic residual is
-\begin{equation*}
+\begin{equation}
 R(z) = 
 \sum_{T\in\mathcal{T}_h} R_T^T \mathcal{A}_T^V(R_T z)
   + \sum_{T\in\mathcal{T}_h} R_T^T \mathcal{L}_T^V
  + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_N} R_T^T \mathcal{L}_F^B
-\end{equation*}
+\label{eq:FinalResidualEvaluation}
+\end{equation}
 
 The Jacobian of the residual is
 \begin{equation*}
@@ -634,9 +636,457 @@ backgroundcolor=\color{listingbg}]{../src/tutorial01.cc}
 
 \subsection{Function \lstinline{driver}}
 
+The function \lstinline{driver} solves the problem on a given mesh 
+with a particular finite element method given by its local basis functions
+on the reference element. It has the following interface:
+\lstinputlisting[linerange={6-8},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+The \lstinline{driver} function is very similar to the one in
+tutorial 00. Therefore we mainly focus on the differences.
+It starts by extracting the dimension of the grid and some 
+important types:
+\lstinputlisting[linerange={10-13},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+An important difference to tutorial 00 is that all parameters 
+of the PDE to be solved are encapsulated in a seperate class with
+a prescribed interface. This class is then given to the local operator
+as a template parameter. This makes sense here because problem \eqref{eq:ProblemStrong}
+has five parameters: the functions $q$, $f$, $g$ and $j$ as well as
+the partitioning of the domain boundary in Dirchlet and Neumann
+part. This is a general pattern followed by many PDELab local operators.
+
+The interface of the parameter class is defined by the implementor of the
+local operator and is not part of PDELab. As shown in tutorial 00 it is
+perfectly possible to have a local operator without a parameter class.
+The following code segment instantiates the problem class which 
+is called \lstinline{Problem} here (it is explained in detail below):
+\lstinputlisting[linerange={15-17},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+Now there are two places where information from the PDE is used
+in PDELab. First of all we need to have an object that can be used to
+as an argument to \lstinline{Dune::PDELab::interpolate} to
+initialize a vector which represents the initial guess and the Dirichlet boundary conditions.
+The class \lstinline{Problem} defines a method which we need to use
+to define a class with the interface of \lstinline{Dune::PDELab::GridFunction}.
+This is accomplished by the follwing code using C++-14 generic lambdas:
+\lstinputlisting[linerange={18-21},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+Similarly, we need an object that can be passed to 
+\lstinline{Dune::PDELab::constraints} to fill a constraints container which
+is used to build a subspace of a function space. Again, the
+class \lstinline{Problem} defines such a method which is extracted with
+a lambda function:
+\lstinputlisting[linerange={22-25},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+The next step is to define the grid function space. This is
+exactly the same code as in tutorial 00 except that the finite element
+map is passed as an argument to the \lstinline{driver} function from outside:
+\lstinputlisting[linerange={27-32},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+Now comes unchanged code to assemble the constraints,
+instantiate a coefficient vector, making a discrete grid function that can be
+used for visualization and interpolating the initial guess and Dirichlet boundary 
+conditions:
+\lstinputlisting[linerange={34-51},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+The next step is to instantiate a local operator, called \lstinline{NonlinearPoissonFEM},
+containing the implementation of the element-wise computations of the finite element
+method. As explained above the local operator is parametrized by the class 
+\lstinline{Problem}. In addition, also the finite element map is passed as a template
+parameter for reasons that will become clear below:
+\lstinputlisting[linerange={53-55},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+Now the grid function space, local operator, matrix backend and
+constraints container are used to set up a grid operator facilitating
+the global residual assembly, Jacobian assembly and matrix-free Jacobian application.
+The matrix backend is initialized with a guess of the approximate number
+of nonzero matrix entries per row.
+\lstinputlisting[linerange={57-68},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+In order to prepare for the solution process an appropriate 
+linear solver needs to be selected:
+\lstinputlisting[linerange={70-72},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+Since the problem is nonlinear we use the implementation of
+Newton's method in PDELab. It provides the inexact Newton method
+in the sense that the iterative solution of the linear subproblems is
+stopped early and uses line search as globalization strategy:
+\lstinputlisting[linerange={74-81},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+Now, finally do all the work and solve the problem:
+\lstinputlisting[linerange={83-84},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+At the end we can write the VTK file with subsampling:
+\lstinputlisting[linerange={86-93},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+\subsection{The \lstinline{Problem} Class}
+
+The class \lstinline{Problem} contained in the file \lstinline{problem.hh}
+provides all parameter functions for the PDE problem. It is parameterized
+with the floating point type to be used:
+\lstinputlisting[linerange={1-2},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/problem.hh}
+Its constructor takes a the parameter $\eta$ as a parameter:
+\lstinputlisting[linerange={11-12},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/problem.hh}
+Now come the five parameter functions defining the PDE problem.
+First is the nonlinearity $q(u)$:
+\lstinputlisting[linerange={14-18},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/problem.hh}
+Second is the right hand side function $f$ which gets 
+an element \lstinline{e} and a local coordinate \lstinline{x} within
+the corresponding reference element as a parameter:
+\lstinputlisting[linerange={20-25},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/problem.hh}
+The argument \lstinline{x} can be expected to be an instance
+of \lstinline{Dune::FieldVector} which has a method \lstinline{size}
+giving the number of components of the vector, i.e. the space dimension.
+
+The next method simply called \lstinline{b} is the boundary condition
+type function. It should return true if the position given
+by intersection \lstinline{i} and a local coordinate \lstinline{x} within
+the reference element of the intersection is on the Dirichlet boundary.
+In the particular instance here we set $\Gamma_D=\partial\Omega$:
+\lstinputlisting[linerange={27-32},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/problem.hh}
+
+The value of the Dirichlet boundary condition is now defined by the
+method \lstinline{g}. As explained above in Section \ref{Sec:Dirichlet} it
+is more appropriate to provide a function $u_g$ that can be evaluated
+on $\overline{\Omega}$ and gives the value of $g$ on the Dirichlet boundary
+and the initial guess for the nonlinear solver on all other points:
+\lstinputlisting[linerange={34-42},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/problem.hh}
+As the function \lstinline{f} above its arguments are an element and a local coordinate
+in its reference element. Here we evaluate it as $u_g(e,x) = \|\mu_e(x)\|^2$.
+
+Finally, there is a method defining the value of the Neumann boundary condition.
+Although there is no Neumann boundary here, the method has to be provided but is
+never called. The arguments of the method are the same as for the boundary
+condition type function \lstinline{b}:
+\lstinputlisting[linerange={44-49},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/problem.hh}
+
+
 \subsection{Local Operator \lstinline{NonlinearPoissonFEM}}
 
+The class \lstinline{NonlinearPoissonFEM} implements the
+element-wise computations of the finite element method
+introduced in Section \ref{Sec:ElementComputations} above.
+Evaluation of the residual $R(z)$ is accomplished
+by the three types of contributions shown in equation \eqref{eq:FinalResidualEvaluation}.
+In order to make things as simple as possible we chose to implement
+the evaluation of the Jacobian and the matrix-free Jacobian application
+with finite differences. 
+
+The definition of class \lstinline{NonlinearPoissonFEM} starts as follows:
+\lstinputlisting[linerange={23-30},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+The class is parametrized by a parameter class and a finite element map.
+Implementation of element-wise constributions to the Jacobian and matrix-free
+Jacobian evaluation is achieved through inheriting from the
+classes \lstinline{NumericalJacobianVolume} and \lstinline{NumericalJacobianApplyVolume}.
+Using the \textit{curiously recurring template pattern} these classes provide 
+the corresponding methods without any additional coding effort
+based on the \lstinline{alpha_volume} method explained below.
+The other tow base classes are the same as in tutorial 00.
+
+The private data members are a cache for evaluation of the basis functions
+on the reference element:
+\lstinputlisting[linerange={32-34},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+a reference to the parameter object
+\lstinputlisting[linerange={35-35},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+and an integer value controlling the order of the formulas used for numerical quadrature:
+\lstinputlisting[linerange={36-36},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+
+The public part of the class starts with the definition of the flags controlling
+the generic assembly process. The \lstinline{doPatternVolume} flag
+specifies that the sparsity pattern of the Jacobian is determined by couplings
+between degrees of freedom associated with single elements. The correspond
+default pattern assembly method is inherited from the class \lstinline{FullVolumePattern}:
+\lstinputlisting[linerange={39-40},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+
+The residual assembly flags indicate that in this local operator we will provide
+the methods \lstinline{lambda_volume}, \lstinline{lambda_boundary}
+and \lstinline{alpha_volume}:
+\lstinputlisting[linerange={42-45},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+
+Next comes the constructor taking as an argument a reference to a
+parameter object and the optional increment of the quadrature order:
+\lstinputlisting[linerange={47-50},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+
+\subsubsection*{Method \lstinline{lambda_volume}}
+
+This method was also present in the local operator \lstinline{PoissonP1}
+in tutorial 00. It implements the term $\mathcal{L}_T^V$ and has the interface:
+\lstinputlisting[linerange={52-55},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+
+The implementation here uses numerical quadrature of sufficiently high order
+which is selected at the beginning of the method:
+\lstinputlisting[linerange={57-61},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+
+The DUNE quadrature rules provide a container of quadrature points that
+can be iterated over:
+\lstinputlisting[linerange={63-76},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+At each quadrature point all basis functions are evaluated. The local
+function space argument \lstinline{lfsv} provides all the basis functions on the
+reference element. Evaluations are cached for each point as the evaluation
+may be quite costly, especially for high order. In addition, copying of data is
+avoided as the cache returns only a reference to the data stored in the cache.
+The integration factor is the product of the weight of the quadrature point
+and the value of $|\text{det} J_{\mu_T}(\hat x)|$. The implementation works also
+for non-affine element transformation. The quadrature order should be increased
+by providing a value for \lstinline{incrementorder} in the constructor.
+Then the parameter function can be evaluated and finally the
+residual contributions for each test function are stored in the result object \lstinline{r}.
+
+\subsubsection*{Method \lstinline{lambda_boundary}}
+
+The \lstinline{lambda_boundary} implements the residual
+contributions due to Neumann boundary conditions. 
+It implements the term $\mathcal{L}_T^B$ and has the following interface:
+\lstinputlisting[linerange={79-82},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+The difference to \lstinline{lambda_volume} is that now an intersection is
+provided as first argument.
+
+The method begins by evaluating the type of the boundary condition at the
+midpoint of the edge:
+\lstinputlisting[linerange={84-88},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+To that end the center of the reference element of the intersection
+is computed in the variable \lstinline{facecenterlocal} before the parameter function
+can be called.
+
+If the boundary condition type evaluated at the face center is Dirichlet
+then the complete face is assumed to be part of the Dirichlet boundary:
+\lstinputlisting[linerange={90-91},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+It is thus assumed that the mesh resolves all positions where the boundary type
+changes.
+
+Now that we are on a Neumann boundary an appropriate quadrature rule
+is selected for integration:
+\lstinputlisting[linerange={93-97},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+
+And here is the integral over the face:
+\lstinputlisting[linerange={99-115},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+Every quadrature point on the face needs to be mapped to the reference
+of the volume element for evaluation of the basis functions.
+The evaluation uses the basis function cache. Then the integration
+factor is computed and the contributions for all the test functions
+are accumulated.
+
+\subsubsection*{Method \lstinline{alpha_volume}}
+
+This method was already present in tutorial 00. 
+It implements the term $\mathcal{A}_T^V(R_T z)$ and its interface is
+\lstinputlisting[linerange={118-122},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+
+The method starts by extracting the space dimension and
+the floating point type to be used for computations:
+\lstinputlisting[linerange={124-127},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+
+Then a quadrature rule is selected
+\lstinputlisting[linerange={129-133},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+and the quadrature loop is started
+\lstinputlisting[linerange={135-137},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+
+Within the quadrature loop the basis functions are evaluated
+\lstinputlisting[linerange={138-140},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+and the value of $u_h$ at the quadrature point is computed.
+\lstinputlisting[linerange={142-145},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+Then the gradients of the basis functions on the reference element is evaluated
+via the evaluation cache:
+\lstinputlisting[linerange={147-149},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+Now the gradients need to be transformed from the reference element
+to the transformed element by multiplication with $J_{\mu_T}^{-1}(\hat x)$:
+\lstinputlisting[linerange={151-155},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+Note that, as explained in tutorial 00, DUNE allows basis functions
+in general to be vector valued. Therefore \lstinline{gradphi[i][0]} contains
+the gradient (with $d$ components) of the component 0 of basis function number $i$.
+
+Now $\nabla u_h$ can be computed
+\lstinputlisting[linerange={157-160},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+and we are in the position to finally compute the residual contributions:
+\lstinputlisting[linerange={162-168},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
+
 \subsection{Running the Example}
+
+Running tutorial 01 by typing
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+./tutorial01
+\end{lstlisting}
+yields an ouput simular to the following:
+\begin{lstlisting}[basicstyle=\ttfamily\tiny,
+frame=single,
+backgroundcolor=\color{listingbg}]
+Parallel code run on 1 process(es)
+constrained dofs=128 of 1089
+  Initial defect:   5.2962e-02
+  Newton iteration  1.  New defect:   1.2256e-04.  Reduction (this):   2.3142e-03.  Reduction (total):   2.3142e-03
+  Newton iteration  2.  New defect:   2.2284e-09.  Reduction (this):   1.8182e-05.  Reduction (total):   4.2076e-08
+  Newton iteration  3.  New defect:   5.4824e-15.  Reduction (this):   2.4602e-06.  Reduction (total):   1.0351e-13
+\end{lstlisting}
+The program reports the number of constrained degrees of freedom
+(i.e. Lagrange points on the Dirichlet boundary) as well as the total number of degrees of freedom.
+Then the initial nonlinear residual and the reduction within each Newton iteration is reported.
+
+\subsection{Outlook}
+
+Here are some suggestions how to test and modify this example:
+\begin{itemize}
+\item Play with other nonlinearites, e.g. $q(u)=\exp(au)$.
+\item Compare cost and accuracy of different polynomial degrees and
+simplicial meshes vs. cube meshes.
+\item Implement Nitsche's method to incorporate Dirichlet boundary conditions 
+in a weak sense. This method is based on the following residual form:
+\begin{equation*}
+\begin{split}
+r^{\text{Nitsche}}(u,v) &= \int_\Omega \nabla u \cdot \nabla v + (q(u)-f)v\,dx + \int_{\Gamma_N} jv\,ds \\
+&\quad - \int_{\Gamma_D} \nabla u \cdot\nu v\,ds - \int_{\Gamma_D} (u-g)\nabla v \cdot\nu\,ds 
++ \eta \int_{\Gamma_D} (u-g)v\,ds
+\end{split}
+\end{equation*}
+and requires an additional method \lstinline{alpha_boundary} with the following interface:
+\begin{lstlisting}[basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]
+template<typename IG, typename LFSU, typename X, 
+         typename LFSV, typename R>
+void alpha_boundary (const IG& ig,
+                     const LFSU& lfsu_s, const X& x_s, 
+                     const LFSV& lfsv_s, R& r_s) const
+\end{lstlisting}
+
+\item Implement the streamline diffusion method for a convection term, see \cite{Elman2005} for details.
+\end{itemize}
 
 % bibtex bibliography
 \bibliographystyle{plain}
