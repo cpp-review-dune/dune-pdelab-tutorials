@@ -60,10 +60,6 @@
 #include"problem.hh"
 #include"driver.hh"
 
-#if ! (HAVE_UG || HAVE_DUNE_ALUGRID)
-  std::cout << "Example requires an unstructured grid!" << std::endl;
-#endif
-
 //===============================================================
 // Main program with grid setup
 //===============================================================
@@ -96,13 +92,12 @@ int main(int argc, char** argv)
       {
         // read grid parameters from input file
         typedef Dune::OneDGrid::ctype DF;
-        const DF a = ptree.get<DF>("grid.oned.a");
-        const DF b = ptree.get<DF>("grid.oned.b");
-        const unsigned int N = ptree.get<int>("grid.oned.elements");
+        DF a = ptree.get<DF>("grid.oned.a");
+        DF b = ptree.get<DF>("grid.oned.b");
+        unsigned int N = ptree.get<int>("grid.oned.elements");
 
         // create equidistant intervals
-        typedef std::vector<DF> Intervals;
-        Intervals intervals(N+1);
+        std::vector<DF> intervals(N+1);
         for(unsigned int i=0; i<N+1; ++i)
           intervals[i] = a + DF(i)*(b-a)/DF(N);
 
@@ -111,35 +106,39 @@ int main(int argc, char** argv)
         Grid grid(intervals);
         grid.globalRefine(refinement);
 
-        // call generic function
+        // call generic driver function
         typedef Dune::OneDGrid::LeafGridView GV;
         GV gv=grid.leafGridView();
         if (degree==1) {
-          typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,1> FEM;
+          typedef Dune::PDELab::
+            PkLocalFiniteElementMap<GV,DF,double,1> FEM;
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
         if (degree==2) {
-          typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,2> FEM;
+          typedef Dune::PDELab::
+            PkLocalFiniteElementMap<GV,DF,double,2> FEM;
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
         if (degree==3) {
-          typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,3> FEM;
+          typedef Dune::PDELab::
+            PkLocalFiniteElementMap<GV,DF,double,3> FEM;
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
         if (degree==4) {
-          typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,4> FEM;
+          typedef Dune::PDELab::
+            PkLocalFiniteElementMap<GV,DF,double,4> FEM;
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
       }
 
     // use UG grid if available and selected
-#if HAVE_UG
     if (dim==2 && gridmanager=="ug")
       {
+#if HAVE_UG
         typedef Dune::UGGrid<2> Grid;
         std::string filename = ptree.get("grid.twod.filename",
                                          "unitsquare.msh");
@@ -163,9 +162,18 @@ int main(int argc, char** argv)
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
+        if (degree==3) {
+          typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,3> FEM;
+          FEM fem(gv);
+          driver(gv,fem,ptree);
+        }
+#else
+        std::cout << "You selected ug as grid manager but ug was not found during installation" << std::endl;
+#endif
       }
     if (dim==3 && gridmanager=="ug")
       {
+#if HAVE_UG
         typedef Dune::UGGrid<3> Grid;
         std::string filename = ptree.get("grid.threed.filename","unitcube.msh");
         Dune::GridFactory<Grid> factory;
@@ -187,12 +195,19 @@ int main(int argc, char** argv)
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
-      }
+        if (degree==3) {
+          typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,3> FEM;
+          FEM fem(gv);
+          driver(gv,fem,ptree);
+        }
+#else
+        std::cout << "You selected ug as grid manager but ug was not found during installation" << std::endl;
 #endif
+      }
 
-#if HAVE_DUNE_ALUGRID
     if (dim==2 && gridmanager=="alu")
       {
+#if HAVE_DUNE_ALUGRID
         typedef Dune::ALUGrid<2,2,Dune::simplex,
                               Dune::nonconforming> Grid;
         std::string filename = ptree.get("grid.twod.filename",
@@ -217,9 +232,18 @@ int main(int argc, char** argv)
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
+        if (degree==3) {
+          typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,3> FEM;
+          FEM fem(gv);
+          driver(gv,fem,ptree);
+        }
+#else
+        std::cout << "You selected alugrid as grid manager but ug was not found during installation" << std::endl;
+#endif
       }
     if (dim==3 && gridmanager=="alu")
       {
+#if HAVE_DUNE_ALUGRID
         typedef Dune::ALUGrid<3,3,Dune::simplex,
                               Dune::nonconforming> Grid;
         std::string filename = ptree.get("grid.threed.filename","unitcube.msh");
@@ -242,8 +266,15 @@ int main(int argc, char** argv)
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
-      }
+        if (degree==3) {
+          typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,3> FEM;
+          FEM fem(gv);
+          driver(gv,fem,ptree);
+        }
+#else
+        std::cout << "You selected alugrid as grid manager but ug was not found during installation" << std::endl;
 #endif
+      }
 
     // YaspGrid section
     if (dim==2 && gridmanager=="yasp")
