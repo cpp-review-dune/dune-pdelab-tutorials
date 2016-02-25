@@ -8,7 +8,6 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
 {
   // dimension and important types
   const int dim = GV::dimension;
-  typedef typename GV::Grid::ctype DF; // type for ccordinates
   typedef double RF;                   // type for computations
 
   // make user functions
@@ -93,8 +92,9 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
 
   // prepare VTK writer and write first file
   std::cout<<"Setting up VTK output"<<std::endl;
-  typedef Dune::SubsamplingVTKSequenceWriter<GV> VTKWRITER;
   int subsampling=ptree.get("output.subsampling",(int)0);
+  typedef Dune::SubsamplingVTKWriter<GV> VTKWRITER;
+  VTKWRITER vtkwriter(gv,subsampling);
   std::string filename=ptree.get("output.filename","output");
   struct stat st;
   if( stat( filename.c_str(), &st ) != 0 )
@@ -105,11 +105,13 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
         std::cout << "Error: Cannot create directory "
                   << filename << std::endl;
     }
-  VTKWRITER vtkwriter(gv,subsampling,filename,filename,"");
+  typedef Dune::VTKSequenceWriter<GV> VTKSEQUENCEWRITER;
+  VTKSEQUENCEWRITER vtkSequenceWriter(
+    std::make_shared<VTKWRITER>(vtkwriter),filename,filename,"");
   typedef Dune::PDELab::VTKGridFunctionAdapter<ZDGF> VTKF;
-  vtkwriter.addVertexData(std::shared_ptr<VTKF>(new
-                                         VTKF(zdgf,"solution")));
-  vtkwriter.write(time,Dune::VTK::appendedraw);
+  vtkSequenceWriter.addVertexData(std::shared_ptr<VTKF>(
+                                          new VTKF(zdgf,"solution")));
+  vtkSequenceWriter.write(time,Dune::VTK::appendedraw);
 
   // time loop
   std::cout<<"Entering time loop"<<std::endl;
@@ -130,6 +132,6 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
       time+=dt;
 
       // output to VTK file
-      vtkwriter.write(time,Dune::VTK::appendedraw);
+      vtkSequenceWriter.write(time,Dune::VTK::appendedraw);
     }
 }

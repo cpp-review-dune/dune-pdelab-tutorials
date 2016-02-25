@@ -47,7 +47,7 @@ public:
     auto global = e.geometry().global(x);
     if (t<1e-8) return 0.0;
     Number s=sin(2.0*M_PI*t);
-    for (int i=1; i<global.size(); i++) s*=sin(global[i]*M_PI)*sin(global[i]*M_PI);
+    for (std::size_t i=1; i<global.size(); i++) s*=sin(global[i]*M_PI)*sin(global[i]*M_PI);
     return s;
   }
 

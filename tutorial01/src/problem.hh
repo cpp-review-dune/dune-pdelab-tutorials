@@ -43,7 +43,7 @@ public:
   {
     auto global = e.geometry().global(x);
     Number s=0.0;
-    for (int i=0; i<global.size(); i++) s+=global[i]*global[i];
+    for (std::size_t i=0; i<global.size(); i++) s+=global[i]*global[i];
     return s;
   }
 

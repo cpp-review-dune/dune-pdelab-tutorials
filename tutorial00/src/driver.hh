@@ -17,7 +17,7 @@ void driver (const GV& gv, Dune::ParameterTree& ptree)
   auto f = Dune::PDELab::
     makeGridFunctionFromCallable(gv,flambda);
   auto glambda = [](const auto& x){
-    RF s=0.0; for (int i=0; i<x.size(); i++) s+=x[i]*x[i];
+    RF s=0.0; for (std::size_t i=0; i<x.size(); i++) s+=x[i]*x[i];
     return s;};
   auto g = Dune::PDELab::
     makeGridFunctionFromCallable(gv,glambda);

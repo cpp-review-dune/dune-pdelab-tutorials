@@ -8,7 +8,6 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
 {
   // dimension and important types
   const int dim = GV::dimension;
-  typedef typename GV::Grid::ctype DF; // type for ccordinates
   typedef double RF;                   // type for computations
 
   // Make grid function space used per component
@@ -57,7 +56,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
     makeBoundaryConditionFromCallable(gv,b0lambda);
   auto b1lambda = [](const auto& x){return false;};
   auto b1 = Dune::PDELab::
-    makeBoundaryConditionFromCallable(b1lambda);
+    makeBoundaryConditionFromCallable(gv,b1lambda);
   typedef Dune::PDELab::CompositeConstraintsParameters<decltype(b0),decltype(b1)> B;
   B b(b0,b1);
   typedef typename GFS::template ConstraintsContainer<RF>::Type CC;
@@ -68,8 +67,9 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   set_constrained_dofs(cc,0.0,z); // set zero Dirichlet boundary conditions
 
   // prepare VTK writer and write first file
-  typedef Dune::SubsamplingVTKSequenceWriter<GV> VTKWRITER;
   int subsampling=ptree.get("output.subsampling",(int)0);
+  typedef Dune::SubsamplingVTKWriter<GV> VTKWRITER;
+  VTKWRITER vtkwriter(gv,subsampling);
   std::string filename=ptree.get("output.filename","output");
   struct stat st;
   if( stat( filename.c_str(), &st ) != 0 )
@@ -80,12 +80,14 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
         std::cout << "Error: Cannot create directory "
                   << filename << std::endl;
     }
-  VTKWRITER vtkwriter(gv,subsampling,filename,filename,"");
+  typedef Dune::VTKSequenceWriter<GV> VTKSEQUENCEWRITER;
+  VTKSEQUENCEWRITER vtkSequenceWriter(
+    std::make_shared<VTKWRITER>(vtkwriter),filename,filename,"");
   typedef Dune::PDELab::VTKGridFunctionAdapter<U0DGF> VTKF0;
-  vtkwriter.addVertexData(std::shared_ptr<VTKF0>(new VTKF0(u0dgf,"u0")));
+  vtkSequenceWriter.addVertexData(std::shared_ptr<VTKF0>(new VTKF0(u0dgf,"u0")));
   typedef Dune::PDELab::VTKGridFunctionAdapter<U1DGF> VTKF1;
-  vtkwriter.addVertexData(std::shared_ptr<VTKF1>(new VTKF1(u1dgf,"u1")));
-  vtkwriter.write(0.0,Dune::VTK::appendedraw);
+  vtkSequenceWriter.addVertexData(std::shared_ptr<VTKF1>(new VTKF1(u1dgf,"u1")));
+  vtkSequenceWriter.write(0.0,Dune::VTK::appendedraw);
 
   // Make instationary grid operator
   double speedofsound=ptree.get("problem.speedofsound",(double)1.0);
@@ -140,6 +142,6 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
       time+=dt;
 
       // output to VTK file
-      vtkwriter.write(time,Dune::VTK::appendedraw);
+      vtkSequenceWriter.write(time,Dune::VTK::appendedraw);
     }
 }
