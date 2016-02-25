@@ -106,14 +106,14 @@ public:
     RF factor = weight*geo.integrationElement(qp);
 
     // compute gradients of basis functions in transformed element
-    double grad[dim][n] = {0.0}; // coordinate x #basisfct
+    double grad[dim][n] = {{0.0}}; // coordinate x #basisfct
     for (int i=0; i<dim; i++) // rows of S
       for (int k=0; k<dim; k++) // columns of S
         for (int j=0; j<n; j++) // columns of gradhat
           grad[i][j] += S[i][k] * gradhat[k][j];
 
     // compute grad^T * grad
-    double A[n][n] = {0.0};
+    double A[n][n] = {{0.0}};
     for (int i=0; i<n; i++)
       for (int k=0; k<dim; k++)
         for (int j=0; j<n; j++)
@@ -139,7 +139,7 @@ public:
     RF factor = weight*geo.integrationElement(qp);
 
     // compute gradients of basis functions in transformed element
-    double grad[dim][n] = {0.0};  // coordinate x #basisfct
+    double grad[dim][n] = {{0.0}};  // coordinate x #basisfct
     for (int i=0; i<dim; i++) // rows of S
       for (int k=0; k<dim; k++) // columns of S
         for (int j=0; j<n; j++) // columns of gradhat

@@ -21,7 +21,6 @@ public:
   template<typename E, typename X>
   Number f (const E& e, const X& x) const
   {
-    auto global = e.geometry().global(x);
     return -2.0*x.size();
   }
 
@@ -29,7 +28,6 @@ public:
   template<typename I, typename X>
   bool b (const I& i, const X& x) const
   {
-    auto global = i.geometry().global(x);
     return true;
   }
 
@@ -39,7 +37,7 @@ public:
   {
     auto global = e.geometry().global(x);
     Number s=0.0;
-    for (int i=0; i<global.size(); i++) s+=global[i]*global[i];
+    for (std::size_t i=0; i<global.size(); i++) s+=global[i]*global[i];
     return s;
   }
 

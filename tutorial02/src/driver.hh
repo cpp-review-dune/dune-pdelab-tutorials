@@ -16,8 +16,6 @@ void driver (const GV& gv, Dune::ParameterTree& ptree)
   Problem<RF> problem(eta);
   auto glambda = [&](const auto& e, const auto& x){return problem.g(e,x);};
   auto g = Dune::PDELab::makeGridFunctionFromCallable(gv,glambda);
-  auto blambda = [&](const auto& i, const auto& x){return problem.b(i,x);};
-  auto b = Dune::PDELab::makeBoundaryConditionFromCallable(gv,blambda);
 
   // Make grid function space
   typedef Dune::PDELab::P0LocalFiniteElementMap<DF,RF,dim> FEM;
