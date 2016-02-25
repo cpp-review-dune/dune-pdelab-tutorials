@@ -121,14 +121,12 @@ public:
   {
     // get cell value
     auto u = x(lfsu,0);
-    decltype(u) du = 1.0E-7 + std::abs(u)*1.0E-7;
 
     // evaluate derivative reaction term
-    auto qup = param.q(u+du);
-    auto qdo = param.q(u-du);
+    auto qprime = param.qprime(u);
 
     // and accumulate
-    mat.accumulate(lfsv,0,lfsv,0,(qup-qdo)/(2.0*du)*eg.geometry().volume());
+    mat.accumulate(lfsv,0,lfsv,0,qprime*eg.geometry().volume());
   }
 
   //! apply local jacobian of the volume term
@@ -138,16 +136,14 @@ public:
                               const X& x, const X& z, const LFSV& lfsv,
                               R& r) const
   {
-    // get linearization point
+    // get cell value
     auto u = x(lfsu,0);
-    decltype(u) du = 1.0E-7 + std::abs(u)*1.0E-7;
 
     // evaluate derivative reaction term
-    auto qup = param.q(u+du);
-    auto qdo = param.q(u-du);
+    auto qprime = param.qprime(u);
 
     // and accumulate
-    r.accumulate(lfsv,0,(qup-qdo)/(2.0*du)*z(lfsu,0)*eg.geometry().volume());
+    r.accumulate(lfsv,0,qprime*z(lfsu,0)*eg.geometry().volume());
   }
 
   //! residual contribution from skeleton terms
