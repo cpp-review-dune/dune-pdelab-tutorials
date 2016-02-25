@@ -19,6 +19,12 @@ public:
     return eta*u*u;
   }
 
+  //! derivative of nonlinearity
+  Number qprime (Number u) const
+  {
+    return 2*eta*u;
+  }
+
   //! right hand side
   template<typename E, typename X>
   Number f (const E& e, const X& x) const
