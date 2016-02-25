@@ -1,8 +1,10 @@
-dune_symlink_to_source_files(FILES ../src/tutorial02.cc)
+dune_symlink_to_source_files(FILES ../src/tutorial02.cc
+                             ../src/driver.hh
+                             ../src/nonlinearpoissonfv.hh)
 
-#add_latex_document(tutorial02.tex
-#                   BIBFILES tutorial02.bib
-#                   IMAGE_DIRS .
-#                   DEFAULT_PDF
-#                   MANGLE_TARGET_NAMES
-#                  )
+add_latex_document(tutorial02.tex
+                   BIBFILES tutorial02.bib
+                   IMAGE_DIRS .
+                   DEFAULT_PDF
+                   MANGLE_TARGET_NAMES
+                  )
