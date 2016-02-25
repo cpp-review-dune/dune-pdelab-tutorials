@@ -69,12 +69,12 @@ void driver (const GV& gv, const FEM& fem,
 
   // Select a linear solver backend
   typedef Dune::PDELab::ISTLBackend_SEQ_CG_AMG_SSOR<GO> LS;
-  LS ls(100,0);
+  LS ls(100,2);
 
   // set up nonlinear solver
   Dune::PDELab::Newton<GO,LS,Z> newton(go,z,ls);
   newton.setReassembleThreshold(0.0); // always reassemble J
-  newton.setVerbosityLevel(2);        // be verbose
+  newton.setVerbosityLevel(3);        // be verbose
   newton.setReduction(1e-10);         // total reduction
   newton.setMinLinearReduction(1e-4); // min. red. in lin. solve
   newton.setMaxIterations(25);        // limit number of its
