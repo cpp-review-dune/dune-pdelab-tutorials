@@ -66,7 +66,6 @@ public:
   void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
   {
     // types & dimension
-    const int dim = EG::Entity::dimension;
     typedef decltype(makeZeroBasisFieldValue(lfsu)) RF;
 
     // select quadrature rule
@@ -97,7 +96,6 @@ public:
                         M& mat) const
   {
     // types & dimension
-    const int dim = EG::Entity::dimension;
     typedef decltype(makeZeroBasisFieldValue(lfsu)) RF;
 
     // select quadrature rule

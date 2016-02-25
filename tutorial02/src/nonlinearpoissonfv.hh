@@ -255,12 +255,6 @@ public:
     insidecenterglobal -= facecenterglobal;
     auto distance = insidecenterglobal.two_norm();
 
-    // face center in local coordinates of the element
-    auto facecenterinelement = ig.geometryInInside().center();
-
-    // evaluate Dirichlet condition
-    auto g = param.g(ig.inside(),facecenterinelement);
-
     // face volume for integration
     auto face_volume = facegeo.volume();
 
