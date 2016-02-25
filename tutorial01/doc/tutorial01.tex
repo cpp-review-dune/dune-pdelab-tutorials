@@ -772,16 +772,25 @@ Its constructor takes a the parameter $\eta$ as a parameter:
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/problem.hh}
-Now come the five parameter functions defining the PDE problem.
+Now come the parameter functions defining the PDE problem.
 First is the nonlinearity $q(u)$:
 \lstinputlisting[linerange={14-18},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/problem.hh}
-Second is the right hand side function $f$ which gets 
+We also provide the derivative of the function $q$ as a seperate method:
+\lstinputlisting[linerange={20-24},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/problem.hh}
+This allows the implementation of an exact Jacobian later (illustrated
+in tutorial 02) and is actually not needed here as we will use a
+numerical Jacobian.
+
+Next is the right hand side function $f$ which gets 
 an element \lstinline{e} and a local coordinate \lstinline{x} within
 the corresponding reference element as a parameter:
-\lstinputlisting[linerange={20-25},
+\lstinputlisting[linerange={26-31},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/problem.hh}
@@ -794,7 +803,7 @@ type function. It should return true if the position given
 by intersection \lstinline{i} and a local coordinate \lstinline{x} within
 the reference element of the intersection is on the Dirichlet boundary.
 In the particular instance here we set $\Gamma_D=\partial\Omega$:
-\lstinputlisting[linerange={27-32},
+\lstinputlisting[linerange={33-38},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/problem.hh}
@@ -804,7 +813,7 @@ method \lstinline{g}. As explained above in Section \ref{Sec:Dirichlet} it
 is more appropriate to provide a function $u_g$ that can be evaluated
 on $\overline{\Omega}$ and gives the value of $g$ on the Dirichlet boundary
 and the initial guess for the nonlinear solver on all other points:
-\lstinputlisting[linerange={34-42},
+\lstinputlisting[linerange={40-48},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/problem.hh}
@@ -815,7 +824,7 @@ Finally, there is a method defining the value of the Neumann boundary condition.
 Although there is no Neumann boundary here, the method has to be provided but is
 never called. The arguments of the method are the same as for the boundary
 condition type function \lstinline{b}:
-\lstinputlisting[linerange={44-49},
+\lstinputlisting[linerange={50-55},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/problem.hh}
@@ -1057,6 +1066,20 @@ constrained dofs=128 of 1089
 The program reports the number of constrained degrees of freedom
 (i.e. Lagrange points on the Dirichlet boundary) as well as the total number of degrees of freedom.
 Then the initial nonlinear residual and the reduction within each Newton iteration is reported.
+
+An illustration of the influence of the nonlinearity $q$ on the solution is given in 
+Figure \ref{fig:1}.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.32\textwidth]{eta0}\hfill
+\includegraphics[width=0.32\textwidth]{eta10}\hfill
+\includegraphics[width=0.32\textwidth]{eta100}
+\end{center}
+\caption{Illustration of the influence of the parameter $\eta$
+in nonlinearity on the solution. $\eta=0$ (left), $\eta=10$ (middle), $\eta=100$ (right).}
+\label{fig:1}
+\end{figure}
 
 \subsection{Outlook}
 
