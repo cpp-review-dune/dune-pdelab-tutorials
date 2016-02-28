@@ -26,7 +26,7 @@ class NonlinearPoissonFV :
   public Dune::PDELab::FullSkeletonPattern,
   public Dune::PDELab::LocalOperatorDefaultFlags
 {
-  Param param;        // parameter functions
+  Param& param;        // parameter functions
 
 public:
   // pattern assembly flags
@@ -52,27 +52,32 @@ public:
   {
     // center of reference element
     auto cellgeo = eg.geometry();
-    auto cellcenterlocal = Dune::PDELab::referenceElement(cellgeo).position(0,0);
+    auto cellcenterlocal = Dune::PDELab::
+      referenceElement(cellgeo).position(0,0);
 
     // accumulate residual
-    r.accumulate(lfsv,0,-param.f(eg.entity(),cellcenterlocal)*cellgeo.volume());
+    auto f = param.f(eg.entity(),cellcenterlocal);
+    r.accumulate(lfsv,0,-f*cellgeo.volume());
   }
 
   //! residual contribution of boundary integral (Neumann boundary condition)
   template<typename IG, typename LFSV, typename R>
-  void lambda_boundary (const IG& ig, const LFSV& lfsv_s, R& r_s) const
+  void lambda_boundary (const IG& ig, const LFSV& lfsv_i,
+                        R& r_i) const
   {
     // face volume for integration
     auto facegeo = ig.geometry();
-    auto facecenterlocal = Dune::PDELab::referenceElement(facegeo).position(0,0);
+    auto facecenterlocal =
+      Dune::PDELab::referenceElement(facegeo).position(0,0);
 
     // evaluate boundary condition and quit on Dirichlet
-    bool isdirichlet = param.b(ig.intersection(),facecenterlocal);
+    bool isdirichlet =
+      param.b(ig.intersection(),facecenterlocal);
 
     if (isdirichlet)
       {
         // inside cell center
-        auto insidecenterglobal = ig.inside().geometry().center();
+        auto insidecenterglobal=ig.inside().geometry().center();
 
         // face center in global coordinates
         auto facecenterglobal = facegeo.center();
@@ -82,7 +87,7 @@ public:
         auto distance = insidecenterglobal.two_norm();
 
         // face center in local coordinates of the element
-        auto facecenterinelement = ig.geometryInInside().center();
+        auto facecenterinelement=ig.geometryInInside().center();
 
         // evaluate Dirichlet condition
         auto g = param.g(ig.inside(),facecenterinelement);
@@ -91,18 +96,21 @@ public:
         auto face_volume = facegeo.volume();
 
         // contribution to residual
-        r_s.accumulate(lfsv_s,0,-g/distance*face_volume);
+        r_i.accumulate(lfsv_i,0,-g/distance*face_volume);
       }
     else
       {
         // contribution to residual from Neumann boundary
-        r_s.accumulate(lfsv_s,0,param.j(ig.intersection(),facecenterlocal)*facegeo.volume());
+        auto j = param.j(ig.intersection(),facecenterlocal);
+        r_i.accumulate(lfsv_i,0,j*facegeo.volume());
       }
   }
 
   //! residual contribution of volume integral (reaction term)
-  template<typename EG, typename LFSU, typename X, typename LFSV, typename R>
-  void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
+  template<typename EG, typename LFSU, typename X,
+           typename LFSV, typename R>
+  void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x,
+                     const LFSV& lfsv, R& r) const
   {
     // get cell value
     auto u = x(lfsu,0);
@@ -115,31 +123,28 @@ public:
   }
 
   //! jacobian contribution of volume term (reaction term)
-  template<typename EG, typename LFSU, typename X, typename LFSV, typename M>
-  void jacobian_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv,
-                        M& mat) const
+  template<typename EG, typename LFSU, typename X,
+           typename LFSV, typename M>
+  void jacobian_volume (const EG& eg, const LFSU& lfsu, const X& x,
+                        const LFSV& lfsv, M& mat) const
   {
-    // get cell value
-    auto u = x(lfsu,0);
-
     // evaluate derivative reaction term
+    auto u = x(lfsu,0);
     auto qprime = param.qprime(u);
 
     // and accumulate
-    mat.accumulate(lfsv,0,lfsv,0,qprime*eg.geometry().volume());
+    mat.accumulate(lfsv,0,lfsu,0,qprime*eg.geometry().volume());
   }
 
   //! apply local jacobian of the volume term
   template<typename EG, typename LFSU, typename X,
            typename LFSV, typename R>
   void jacobian_apply_volume (const EG& eg, const LFSU& lfsu,
-                              const X& x, const X& z, const LFSV& lfsv,
-                              R& r) const
+                              const X& x, const X& z,
+                              const LFSV& lfsv, R& r) const
   {
-    // get cell value
-    auto u = x(lfsu,0);
-
     // evaluate derivative reaction term
+    auto u = x(lfsu,0);
     auto qprime = param.qprime(u);
 
     // and accumulate
@@ -147,11 +152,12 @@ public:
   }
 
   //! residual contribution from skeleton terms
-  template<typename IG, typename LFSU, typename X, typename LFSV, typename R>
+  template<typename IG, typename LFSU, typename X,
+           typename LFSV, typename R>
   void alpha_skeleton (const IG& ig,
-                       const LFSU& lfsu_s, const X& x_s, const LFSV& lfsv_s,
-                       const LFSU& lfsu_n, const X& x_n, const LFSV& lfsv_n,
-                       R& r_s, R& r_n) const
+         const LFSU& lfsu_i, const X& x_i, const LFSV& lfsv_i,
+         const LFSU& lfsu_o, const X& x_o, const LFSV& lfsv_o,
+         R& r_i, R& r_o) const
   {
     // inside and outside cells
     auto cell_inside = ig.inside();
@@ -174,17 +180,19 @@ public:
     auto face_volume = facegeo.volume();
 
     // contribution to residual on inside and outside elements
-    r_s.accumulate(lfsv_s,0,-(x_n(lfsu_s,0)-x_s(lfsu_n,0))/distance*face_volume);
-    r_n.accumulate(lfsv_n,0,+(x_n(lfsu_s,0)-x_s(lfsu_n,0))/distance*face_volume);
+    auto dudn = (x_o(lfsu_i,0)-x_i(lfsu_o,0))/distance;
+    r_i.accumulate(lfsv_i,0,-dudn*face_volume);
+    r_o.accumulate(lfsv_o,0, dudn*face_volume);
   }
 
   //! Jacobian contribution from skeleton terms
-  template<typename IG, typename LFSU, typename X, typename LFSV, typename M>
+  template<typename IG, typename LFSU, typename X,
+           typename LFSV, typename M>
   void jacobian_skeleton (const IG& ig,
-                          const LFSU& lfsu_s, const X& x_s, const LFSV& lfsv_s,
-                          const LFSU& lfsu_n, const X& x_n, const LFSV& lfsv_n,
-                          M& mat_ss, M& mat_sn,
-                          M& mat_ns, M& mat_nn) const
+         const LFSU& lfsu_i, const X& x_i, const LFSV& lfsv_i,
+         const LFSU& lfsu_o, const X& x_o, const LFSV& lfsv_o,
+         M& mat_ii, M& mat_io,
+         M& mat_oi, M& mat_oo) const
   {
     // inside and outside cells
     auto cell_inside = ig.inside();
@@ -207,10 +215,10 @@ public:
     auto face_volume = facegeo.volume();
 
     // contribution to jacobian entries
-    mat_ss.accumulate(lfsv_s,0,lfsv_s,0, face_volume/distance );
-    mat_ns.accumulate(lfsv_n,0,lfsv_s,0,-face_volume/distance );
-    mat_sn.accumulate(lfsv_s,0,lfsv_n,0,-face_volume/distance );
-    mat_nn.accumulate(lfsv_n,0,lfsv_n,0, face_volume/distance );
+    mat_ii.accumulate(lfsv_i,0,lfsv_i,0, face_volume/distance);
+    mat_io.accumulate(lfsv_i,0,lfsv_o,0,-face_volume/distance);
+    mat_oi.accumulate(lfsv_o,0,lfsv_i,0,-face_volume/distance);
+    mat_oo.accumulate(lfsv_o,0,lfsv_o,0, face_volume/distance);
   }
 
   //! apply local jacobian of the skeleton term
@@ -218,26 +226,26 @@ public:
            typename Y>
   void jacobian_apply_skeleton
   ( const IG& ig,
-    const LFSU& lfsu_s, const X& x_s, const X& z_s, const LFSV& lfsv_s,
-    const LFSU& lfsu_n, const X& x_n, const X& z_n, const LFSV& lfsv_n,
-    Y& y_s, Y& y_n) const
+    const LFSU& lfsu_i, const X& x_i, const X& z_i, const LFSV& lfsv_i,
+    const LFSU& lfsu_o, const X& x_o, const X& z_o, const LFSV& lfsv_o,
+    Y& y_i, Y& y_o) const
   {
     // reuse alpha_boundary because it is linear
-    alpha_skeleton(ig,lfsu_s,z_s,lfsv_s,lfsu_n,z_n,lfsv_n,y_s,y_n);
+    alpha_skeleton(ig,lfsu_i,z_i,lfsv_i,lfsu_o,z_o,lfsv_o,y_i,y_o);
   }
 
   //! residual contribution of boundary integral (Dirichlet condition)
   // We put the Dirchlet evaluation also in the alpha term to save some geometry evaluations
-  template<typename IG, typename LFSU, typename X, typename LFSV, typename R>
+  template<typename IG, typename LFSU, typename X,
+           typename LFSV, typename R>
   void alpha_boundary (const IG& ig,
-                       const LFSU& lfsu_s, const X& x_s, const LFSV& lfsv_s,
-                       R& r_s) const
+                       const LFSU& lfsu_i, const X& x_i,
+                       const LFSV& lfsv_i, R& r_i) const
   {
-    // face volume for integration
+    // check for Dirichlet boundary condition
     auto facegeo = ig.geometry();
-    auto facecenterlocal = Dune::PDELab::referenceElement(facegeo).position(0,0);
-
-    // evaluate boundary condition and quit on NOT Dirichlet
+    auto facecenterlocal = Dune::PDELab::
+      referenceElement(facegeo).position(0,0);
     bool isdirichlet = param.b(ig.intersection(),facecenterlocal);
     if (!isdirichlet) return;
 
@@ -255,14 +263,15 @@ public:
     auto face_volume = facegeo.volume();
 
     // contribution to residual
-    r_s.accumulate(lfsv_s,0,x_s(lfsu_s,0)/distance*face_volume);
+    r_i.accumulate(lfsv_i,0,x_i(lfsu_i,0)/distance*face_volume);
   }
 
   //! Jacobian contribution from boundary integral (Dirichlet condition)
-  template<typename IG, typename LFSU, typename X, typename LFSV, typename M>
+  template<typename IG, typename LFSU, typename X,
+           typename LFSV, typename M>
   void jacobian_boundary (const IG& ig,
-                          const LFSU& lfsu_s, const X& x_s, const LFSV& lfsv_s,
-                          M& mat_ss) const
+                          const LFSU& lfsu_i, const X& x_i,
+                          const LFSV& lfsv_i, M& mat_ii) const
   {
     // face volume for integration
     auto facegeo = ig.geometry();
@@ -286,18 +295,18 @@ public:
     auto face_volume = facegeo.volume();
 
     // contribution to matrix
-    mat_ss.accumulate(lfsv_s,0,lfsv_s,0,face_volume/distance);
+    mat_ii.accumulate(lfsv_i,0,lfsv_i,0,face_volume/distance);
   }
 
   //! apply local jacobian of the boundaryterm
-  template<typename IG, typename LFSU, typename X, typename LFSV,
-           typename Y>
+  template<typename IG, typename LFSU, typename X,
+           typename LFSV, typename Y>
   void jacobian_apply_boundary
   ( const IG& ig,
-    const LFSU& lfsu_s, const X& x_s, const X& z_s, const LFSV& lfsv_s,
-    Y& y_s) const
+    const LFSU& lfsu_i, const X& x_i, const X& z_i,
+    const LFSV& lfsv_i, Y& y_i) const
   {
     // reuse alpha_boundary because it is linear
-    alpha_boundary(ig,lfsu_s,z_s,lfsv_s,y_s);
+    alpha_boundary(ig,lfsu_i,z_i,lfsv_i,y_i);
   }
 };
