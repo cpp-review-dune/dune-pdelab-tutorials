@@ -8,12 +8,12 @@
 \usepackage{amsthm}
 \usepackage{amscd}
 \usepackage{grffile}
-\usepackage{tikz}
-\usepackage{eurosym}
+\usepackage{tikz} 
+\usepackage{eurosym} 
 \usepackage{graphicx}
 \usepackage{color}
 \usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily,
+\lstset{language=C++, basicstyle=\ttfamily, 
   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
   commentstyle=\itshape, extendedchars=true, escapeinside={/*@}{@*/}}
 \usepackage{paralist}
@@ -30,7 +30,7 @@
 
 \definecolor{listingbg}{gray}{0.95}
 
-\title{DUNE PDELab Tutorial 01 \\
+\title{DUNE PDELab Tutorial 01 \\ 
 Conforming Finite Element Method for a Nonlinear Poisson Equation}
 \author{DUNE/PDELab Team}
 \date{\today}
@@ -53,12 +53,12 @@ In this tutorial we extend tutorial 00 in the following ways:
 Combined with the fact that the implementation works in any dimension
 (note: it is not claimed to be efficient in high dimension ($d>3$) this comprises
 already a relatively large space of different methods, so the example illustrates
-the flexibility of PDELab. Moreover, the
-finite element method developed in this tutorial will serve as a
+the flexibility of PDELab. Moreover, the 
+finite element method developed in this tutorial will serve as a 
 building block for instationary problems, adaptive mesh refinement and
 parallel solution in subsequent tutorials.
 
-\subsection*{Depends On}
+\subsection*{Depends On} 
 
 This tutorial depends on tutorial 00 which discusses piecewise linear elements on simplicial
 elements. It is assumed that you have worked through tutorial 00 before.
@@ -89,14 +89,14 @@ with the continuous residual form
 r^{\text{NLP}}(u,v) = \int_\Omega \nabla u \cdot \nabla v + (q(u)-f)v\,dx + \int_{\Gamma_N} jv\,ds
 \label{eq:ResidualForm}
 \end{equation*}
-and the function spaces
+and the function spaces 
 $U= \{v\in H^1(\Omega) \,:\, \text{``$v=g$'' on $\Gamma_D$}\}$
-and $V= \{v\in H^1(\Omega) \,:\, \text{``$v=0$'' on $\Gamma_D$}\}$.
+and $V= \{v\in H^1(\Omega) \,:\, \text{``$v=0$'' on $\Gamma_D$}\}$. 
 We assume that $q$ is such that this problem has a unique solution.
 
 \section{Finite Element Method}
 
-The finite element method \cite{WHElliptisch,Brenner,Eriksson,Ciarlet,Braess,Ern,Elman2005}
+The finite element method \cite{WHElliptisch,Brenner,Eriksson,Ciarlet,Braess,Ern,Elman2005} 
 replaces the function spaces $U$ and $V$ by
 finite dimensional approximations defined on a finite element mesh.
 Before describing exactly how these spaces are constructed let us
@@ -117,7 +117,7 @@ reformulate the problem as
 \Leftrightarrow{} && r\left(\sum_{j=1}^n (z)_j\phi_j,\psi_i\right) &= 0 &&\forall i=1,\ldots,m\\
 \Leftrightarrow{} && R(z) = 0,
 \end{align*}
-where $R: \mathbb{R}^n \to \mathbb{R}^m$ given by
+where $R: \mathbb{R}^n \to \mathbb{R}^m$ given by 
 $R_i(z) = r_h\left(\sum_{j=1}^n (z)_j\phi_j,\psi_i\right)$ is a nonlinear, vector-valued function.
 
 The solution of the nonlinear algebraic equation $R(z)=0$ is typically computed
@@ -127,7 +127,7 @@ z^{(k+1)} = G(z^{(k)}) = z^{(k)} - \lambda^{k} W(z^{(k)}) R(z^{(k)}) .
 \end{equation}
 Here $\lambda^{k}$ is a damping factor
 and $W(z^{(k)})$ is a preconditioner matrix, e.g. in Newton's method (see e.g. \cite{Braess}) one
-has
+has 
 \begin{equation*}
 W(z^{(k)}) = (J(z^{(k)}))^{-1} \quad \text{where $(J(z^{(k)}))_{i,j} = \frac{\partial R_i}{\partial z_j}
 (z^{(k)})$}
@@ -150,7 +150,7 @@ solution procedure.
 The matrix-free multiplication of the Jacobian $J(z)$ with a vector $w$ is with
 the definitions above:
 \begin{equation*}
-(J(z) w)_i = \sum_{j=1}^n (J(z))_{i,j} (w)_j = \sum_{j=1}^n
+(J(z) w)_i = \sum_{j=1}^n (J(z))_{i,j} (w)_j = \sum_{j=1}^n 
 \frac{\partial}{\partial z_j} r_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j .
 \end{equation*}
 At this point one may exploit the local support of basis functions in order
@@ -161,21 +161,21 @@ $a_h$ is a bilinear form and $l_h$ is a linear form. Then, the application
 of the Jacobian can be simplified as
 \begin{equation*}
 \begin{split}
-(J(z) w)_i &= \sum_{j=1}^n
+(J(z) w)_i &= \sum_{j=1}^n 
 \frac{\partial}{\partial z_j} r_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j \\
-&= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left(
+&= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left( 
 a_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) - l_h(\psi_i)\right) (w)_j \\
-&= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left(
+&= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left( 
 \sum_{l=1}^n (z)_l a_h(\phi_l,\psi_i) \right)  (w)_j \\
 &= \sum_{j=1}^n a_h(\phi_j,\psi_i) (w)_j =
 a_h\left( \sum_{j=1}^n (w)_j \phi_j,\psi_i\right) =
-(A w)_i
+(A w)_i 
 \end{split}
 \end{equation*}
 where $(A)_{i,j} = a_h(\phi_j,\psi_i)$ is the stiffness matrix which is independent of $z$.
 For this reason there exist two different functions for matrix-free operator application,
 one for the linear case providing only the argument $w$ and one for the nonlinear
-case providing two arguments $z$ and $w$.
+case providing two arguments $z$ and $w$. 
 
 Note also that it is advantageous to seperate in the
 implementation of the residual form the part that depends on trial and test functions,
@@ -197,22 +197,22 @@ into indices of interior and boundary vertices
 \quad \mathcal{I}_h^{int} = \{i\in \mathcal{I}_h\,:\, x_i\in\Omega\},
 \quad \mathcal{I}_h^{\partial\Omega} = \{i\in \mathcal{I}_h\,:\, x_i\in\partial\Omega\}.
 \end{equation*}
-\item For every element $T\in\mathcal{T}_h$ a local-to-global map
-$$g_T:\{0,\ldots,n_T-1\}\to\mathcal{I}_h$$
+\item For every element $T\in\mathcal{T}_h$ a local-to-global map 
+$$g_T:\{0,\ldots,n_T-1\}\to\mathcal{I}_h$$ 
 associating a local number of a corner of element $T$ with a global vertex number.
 $n_T$ is the number of corners of element $T$.
 \item For every element $T\in\mathcal{T}_h$ an element transformation map
 $$\mu_T : \hat T \to T$$
 mapping the corresponding reference element to $T$. The element transformation
 map need not be affine but is assumed to be suffiently differentiable with invertible
-Jacobian as well as consistent in the sense
+Jacobian as well as consistent in the sense 
 $\forall i\in\{0,\ldots,n_T-1\} : \mu_T(\hat x_i) = x_{g_T(i)}$.
 \end{enumerate}
 
 The conforming finite element space of degree $k$ in dimension $d$ on the mesh
 $\mathcal{T}_h$ is given by
 \begin{equation}
-V_h^{k,d}(\mathcal{T}_h) = \left\{ v\in C^0(\overline{\Omega}) \,:\,
+V_h^{k,d}(\mathcal{T}_h) = \left\{ v\in C^0(\overline{\Omega}) \,:\, 
 \forall T\in\mathcal{T}_h : v|_T = \mu_T \circ p_T \wedge p_T\in\mathbb{P}_T^{k,d}\right\}
 \label{eq:Vh}
 \end{equation}
@@ -227,7 +227,7 @@ x_1^{\alpha_1}\cdot\ldots\cdot x_d^{\alpha_d}\right\} & \text{$\hat T = \hat C$ 
 \end{array}\right .
 \end{equation}
 Note that in dimension $1$ there is no difference between cube and simplex.
-In dimension $2$ triangular and quadrilateral elements may be mixed. In
+In dimension $2$ triangular and quadrilateral elements may be mixed. In 
 dimension $3$, however, tetrahedral and hexahedral elements may not be mixed
 without introducing additional elements such as prisms.
 The dimension of  $\mathbb{P}_T^{k,d}$ is
@@ -248,18 +248,18 @@ in the case of a simplex reference element.
 \eqref{eq:Vh} defines the finite element space without reference to a basis.
 For the implementation in the computer a basis is needed. We now generalize
 the construction of the Lagrange basis functions to the general space $V_h^{k,d}(\mathcal{T}_h)$.
-To that end, the reference element $\hat T$ is equipped with Lagrange
-points
+To that end, the reference element $\hat T$ is equipped with Lagrange  
+points 
 $$L_{\hat T} = \left\{ \hat x^{\hat T}_0,\ldots,\hat x^{\hat T}_{n_{\hat T}^{k,d}-1} \right\}$$
-and Lagrange polynomials
+and Lagrange polynomials 
 $$P_{\hat T} = \left\{ p^{\hat T}_0,\ldots,p^{\hat T}_{n_{\hat T}^{k,d}-1}\right\}$$
 such that $$p^{\hat T}_i(\hat x^{\hat T}_j) = \delta_{i,j}.$$
 Global continuity is then ensured by carefully placing $n_{\hat T}^{k,d-c}$ of these
-points on each subentity of codimension $c$ in the reference element.
+points on each subentity of codimension $c$ in the reference element. 
 
 \subsubsection*{Global Lagrange Basis}
 
-The local-to-global map $g_T$ is extended to map indices of
+The local-to-global map $g_T$ is extended to map indices of 
 local basis functions to indices of global basis functions of the finite element space.
 Let
 \begin{equation*}
@@ -289,27 +289,27 @@ point $x_i$ from the ordered set
 x_i=\mu_T(\hat x^{\hat T}_{m})  \wedge (T,m)\in C(i) \right\}.
 \end{equation*}
 Note that for
-degree $k=1$ one has $\mathcal{I}\left(V_h^{1,d}(\mathcal{T}_h)\right) = \mathcal{I}_h$, i.e.
+degree $k=1$ one has $\mathcal{I}\left(V_h^{1,d}(\mathcal{T}_h)\right) = \mathcal{I}_h$, i.e. 
 one basis function is associated with each vertex of the mesh.
 
 \subsection{Incorporation of Dirichlet Boundary Conditions}
 \label{Sec:Dirichlet}
 
 The standard way to handle Dirichlet boundary conditions in the conforming
-finite element method is to incorporate them directly into the function space.
+finite element method is to incorporate them directly into the function space. 
 To that define the indices of Lagrange points on the Dirichlet boundary
 \begin{equation*}
-\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right) =
+\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right) = 
 \left\{ i\in\mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right)  \,:\,
-x_i\in\mathcal{X}_h^{k,d} \wedge x_i\in\Gamma_D
+x_i\in\mathcal{X}_h^{k,d} \wedge x_i\in\Gamma_D  
 \right\} .
 \end{equation*}
 
 For the test space one defines the space of finite element
 functions that are zero on the Dirchlet boundary:
 \begin{equation*}
-V_{h,0}^{k,d}(\mathcal{T}_{h}) = \left\{
-v\in V_{h}^{k,d}(\mathcal{T}_{h}) \,:\, v(x_i) = 0
+V_{h,0}^{k,d}(\mathcal{T}_{h}) = \left\{ 
+v\in V_{h}^{k,d}(\mathcal{T}_{h}) \,:\, v(x_i) = 0 
 \quad \forall i\in\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right)
  \right\}
 \end{equation*}
@@ -322,7 +322,7 @@ with the Dirichlet boundary condition function $g$. In fact one may want to
 use
 \begin{equation*}
 u_{h,g} = \sum_{i\in \mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right)}
-u_g(x_i) \phi_i \qquad \text{with $u_g(x_i)=g(x_i)$ for all $i\in
+u_g(x_i) \phi_i \qquad \text{with $u_g(x_i)=g(x_i)$ for all $i\in 
 \mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right)$}
 \end{equation*}
 which incorporates the Dirichlet boundary conditions on $\Gamma_D$
@@ -334,7 +334,7 @@ U_{h}^{k,d}(\mathcal{T}_{h}) = \left\{ u\in V_h^{k,d}(\mathcal{T}_h)
 \end{equation*}
 Finally, the finite element problem in its precise form reads
 \begin{equation}
-\text{Find $u\in U_{h}^{k,d}(\mathcal{T}_{h})$ s.t.:}
+\text{Find $u\in U_{h}^{k,d}(\mathcal{T}_{h})$ s.t.:} 
 \quad r^{\text{NLP}}(u,v)=0 \quad \forall v\in V_{h,0}^{k,d}(\mathcal{T}_{h}) .
 \label{eq:PreciseFEProblem}
 \end{equation}
@@ -344,11 +344,11 @@ Finally, the finite element problem in its precise form reads
 PDELab provides a more general approach to construct subspaces of
 finite element spaces. Given a
 finite-dimensional space $U_h = \text{span}\left\{\phi_j \,:\, j\in J_h=\{1,\ldots,n\}\right\}$
-a subspace $\tilde{U}_h$ is constructed by
+a subspace $\tilde{U}_h$ is constructed by 
 \begin{enumerate}[i)]
 \item selecting a subset of indices $\tilde{J}_h\subset J_h$
 \item and settting $\tilde{U}_h = \text{span}\left\{\tilde\phi_j \,:\, j\in \tilde{J}_h\right\}$,
-where the new basis functions have the form
+where the new basis functions have the form 
 \begin{equation*}
 \tilde\phi_j = \phi_j + \sum_{l\in J_h\setminus\tilde{J}_h} (B)_{j,l} \phi_l \quad \forall j\in \tilde{J}_h.
 \end{equation*}
@@ -367,8 +367,8 @@ We now turn to how the residual can be evaluated in practice.
 The residual form \eqref{eq:ResidualForm} can be readily decomposed into
 elementwise contributions:
 \begin{equation*}
-r^{\text{NLP}}\left(u,v\right) =
-\sum_{T\in\mathcal{T}_h} \alpha_T^V(u,v)
+r^{\text{NLP}}\left(u,v\right) =  
+\sum_{T\in\mathcal{T}_h} \alpha_T^V(u,v) 
   + \sum_{T\in\mathcal{T}_h} \lambda_T^V(v)
  + \sum_{F\in\mathcal{F}_h^{\partial\Omega}}\lambda_F^B(v)
 \end{equation*}
@@ -380,7 +380,7 @@ with
 \end{align*}
 Here $\mathcal{F}_h^{\partial\Omega}$ is the set of intersections of
 elements with the domain boundary, i.e. $F=T_F^-\cap\partial\Omega$
-where $T_F^-$ is the element associated with $F$.
+where $T_F^-$ is the element associated with $F$. 
 The element-wise computations can be classified on the one hand as volume
 integrals (superscript $V$), boundary integrals (superscript $B$) and
 skeleton integrals (superscript $S$, to be shown later) and on the
@@ -388,9 +388,9 @@ other hand as integrals depending on trial and test functions ($\alpha$-terms)
 and integrals depending only on test functions ($\lambda$-terms). Here we need
 three of these six possible combinations.
 
-The three terms can now be evaluated using the techniques introduced in
+The three terms can now be evaluated using the techniques introduced in 
 tutorial 00 with the small extension that for general maps $\mu_T$ we
-have
+have 
 $$\nabla w(\mu_T(\hat x)) = J_{\mu_T}^{-1}(\hat x) \hat\nabla \hat w (\hat x)$$
 with $J_{\mu_T}(\hat x)$ the Jacobian of $\mu_T$ at point $\hat x$.
 
@@ -399,16 +399,16 @@ with $J_{\mu_T}(\hat x)$ the Jacobian of $\mu_T$ at point $\hat x$.
 For any $(T,m)\in C(i)$ we obtain
 \begin{equation*}
 \begin{split}
-\lambda_T^V(\phi_i) &= - \int_T f \phi_i \,dx =
+\lambda_T^V(\phi_i) &= - \int_T f \phi_i \,dx = 
 - \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x) |\text{det} J_{\mu_T}(\hat x)|\, d\hat x .
 \end{split}
 \end{equation*}
 This integral on the reference element is then computed by employing
 numerical integration of appropriate order.
 The evaluation for all test functions with support on element $T$ may be collected in
-a vector
+a vector 
 \begin{equation*}
-(\mathcal{L}_T^V)_m = - \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x)
+(\mathcal{L}_T^V)_m = - \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x) 
 |\text{det} J_{\mu_T}(\hat x)|\, d\hat x.
 \end{equation*}
 
@@ -418,8 +418,8 @@ For $F\in\mathcal{F}_h^{\partial\Omega}$ with $F\cap\Gamma_N\neq\emptyset$
 and $(T_F^-,m)\in C(i)$ we obtain
 \begin{equation*}
 \begin{split}
-\lambda_T^B(\phi_i) &= \int_{F} j v\,ds =
-\int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x))
+\lambda_T^B(\phi_i) &= \int_{F} j v\,ds = 
+\int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x)) 
 \sqrt{|\text{det} J^T_{\mu_T}(\hat x)J_{\mu_T}(\hat x)|} \,ds
 \end{split}
 \end{equation*}
@@ -429,8 +429,8 @@ global coordinates while the map $\eta_F$ maps $\hat F$ into the referece
 element $\hat T$ of $T$. Also the integration element has to redefined accordingly.
 Again, all contributions of the face $F$ can e collected in a vector:
 \begin{equation*}
-(\mathcal{L}_T^B)_m =
-\int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x))
+(\mathcal{L}_T^B)_m = 
+\int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x)) 
 \sqrt{|\text{det} J^T_{\mu_T}(\hat x)J_{\mu_T}(\hat x)|} \,ds .
 \end{equation*}
 
@@ -440,11 +440,11 @@ For any $(T,m)\in C(i)$ we get
 \begin{equation*}
 \begin{split}
 \alpha_T^V(u_h,\phi_i) &= \int_T \nabla u \cdot \nabla \phi_i + q(u) \phi_i \,dx,
-= \int_T \sum_j (z)_j \left(\nabla \phi_j \cdot \nabla \phi_i \right)
+= \int_T \sum_j (z)_j \left(\nabla \phi_j \cdot \nabla \phi_i \right) 
 + q\left( \sum_j (z)_j \phi_j \right) \phi_i \,dx,\\
 &= \int_{\hat T} \sum_{n} (z)_{g_T(n)} (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_n^{\hat T}(\hat x) )
 \cdot (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_m^{\hat T}(\hat x) ) \\
-&\hspace{40mm}+ q\left( \sum_n (z)_{g_T(n)} p_n^{\hat T}(\hat x) \right) p_m^{\hat T}(\hat x)
+&\hspace{40mm}+ q\left( \sum_n (z)_{g_T(n)} p_n^{\hat T}(\hat x) \right) p_m^{\hat T}(\hat x) 
 |\text{det} J_{\mu_T}(\hat x)| \,dx
 \end{split}
 \end{equation*}
@@ -454,7 +454,7 @@ Again contributions for all test functions can be collected in a vector
 (\mathcal{A}_T^V(R_T z))_m &=
 \sum_{n} (z)_{g_T(n)} \int_{\hat T} (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_n^{\hat T}(\hat x) )
 \cdot (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_m^{\hat T}(\hat x) ) |\text{det} J_{\mu_T}(\hat x)| \,dx\\
-&\hspace{30mm}+ \int_{\hat T} q\left( \sum_n (z)_{g_T(n)} p_n^{\hat T}(\hat x) \right) p_m^{\hat T}(\hat x)
+&\hspace{30mm}+ \int_{\hat T} q\left( \sum_n (z)_{g_T(n)} p_n^{\hat T}(\hat x) \right) p_m^{\hat T}(\hat x) 
 |\text{det} J_{\mu_T}(\hat x)| \,dx
 \end{split}
 \end{equation*}
@@ -464,7 +464,7 @@ Again contributions for all test functions can be collected in a vector
 
 Now with these definitions in place the evaluation of the algebraic residual is
 \begin{equation}
-R(z) =
+R(z) = 
 \sum_{T\in\mathcal{T}_h} R_T^T \mathcal{A}_T^V(R_T z)
   + \sum_{T\in\mathcal{T}_h} R_T^T \mathcal{L}_T^V
  + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_N} R_T^T \mathcal{L}_F^B
@@ -494,13 +494,13 @@ files:
 \begin{enumerate}[1)]
 \item The ini-file
 \lstinline{tutorial01.ini} holds parameters read by various parts of the code
-which control the execution.
+which control the execution. 
 \item The main file \lstinline{tutorial01.cc} includes the necessary C++,
 DUNE and PDELab header files
-and contains the \lstinline{main} function where the execution starts.
+and contains the \lstinline{main} function where the execution starts. 
 The purpose of the \lstinline{main} function is
 to instantiate DUNE grid objects and call the \lstinline{driver} function.
-\item File \lstinline{driver.hh} instantiates the necessary PDELab classes
+\item File \lstinline{driver.hh} instantiates the necessary PDELab classes 
 for solving a nonlinear stationary problem and finally solves the problem.
 \item File \lstinline{nonlinearpoissonfem.hh} contains the class
 \lstinline{NonlinearPoissonFEM} realizing a PDELab local operator implementing
@@ -522,7 +522,7 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
 The \lstinline{grid} section allows to set the space dimension to $1$, $2$ or $3$.
 In one dimension the grid manager \lstinline{OneDGrid} is used.
-In dimension $2$ or $3$ \lstinline{UGGrid} or \lstinline{ALUGrid}
+In dimension $2$ or $3$ \lstinline{UGGrid} or \lstinline{ALUGrid} 
 using simplex grids or \lstinline{YaspGrid} using cube grids can be selected.
 The refinement parameter can be used to refine the initial coarse
 mesh the specified number of times.
@@ -543,7 +543,7 @@ backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
 The \lstinline{grid.structured} subsection is active when \lstinline{yasp}
 is selected as a grid manager and allows to set the length of the domain
 in every direction (always starting at zero) and the number of elements
-to be used per direction.
+to be used per direction. 
 
 \lstinputlisting[linerange={19-20},
 basicstyle=\ttfamily\small,
@@ -592,18 +592,18 @@ The user can give the name of the output file and specify the subsampling depth.
 
 The \lstinline{main} function  in \lstinline{tutorial01.cc} is very simular to the one
 in \lstinline{tutorial00.cc}. It starts by getting a reference to the
-\lstinline{Dune::MPIHelper} singleton and opens and reads in the ini-file.
+\lstinline{Dune::MPIHelper} singleton and opens and reads in the ini-file. 
 This is not repeated here.
 
 Then there are several sections where \lstinline{Dune::Grid} objects are instantiated
 and the \lstinline{driver} function is called. Since the grid manager, the space
 dimension and the polynomial degree are template parameters of various classes
-but the user should be able to select these during run-time in the ini-file all
+but the user should be able to select these during run-time in the ini-file all 
 the different cases are selected with \lstinline{if}-statements within which
 the appropriate classes are instantiated. As an example we just
 present the section for dimension $1$ using \lstinline{OneDGrid} here.
 
-In one space dimension we start with reading the grid parameters
+In one space dimension we start with reading the grid parameters 
 from the ini-file:
 \lstinputlisting[linerange={91-97},
 basicstyle=\ttfamily\small,
@@ -628,7 +628,7 @@ backgroundcolor=\color{listingbg}]{../src/tutorial01.cc}
 Finally, for polynomial degrees one through four a finite element
 map of the appropriate order is created and the \lstinline{driver} function
 is called. The \lstinline{driver} function gets a grid view, the finite element map
-and the parameter tree as parameters and is covered in the next section:
+and the parameter tree as parameters and is covered in the next section: 
 \lstinputlisting[linerange={109-135},
 basicstyle=\ttfamily\small,
 frame=single,
@@ -636,7 +636,7 @@ backgroundcolor=\color{listingbg}]{../src/tutorial01.cc}
 
 \subsection{Function \lstinline{driver}}
 
-The function \lstinline{driver} solves the problem on a given mesh
+The function \lstinline{driver} solves the problem on a given mesh 
 with a particular finite element method given by its local basis functions
 on the reference element. It has the following interface:
 \lstinputlisting[linerange={6-8},
@@ -646,14 +646,14 @@ backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 The \lstinline{driver} function is very similar to the one in
 tutorial 00. Therefore we mainly focus on the differences.
-It starts by extracting the dimension of the grid and some
+It starts by extracting the dimension of the grid and some 
 important types:
-\lstinputlisting[linerange={10-12},
+\lstinputlisting[linerange={10-13},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
-An important difference to tutorial 00 is that all parameters
+An important difference to tutorial 00 is that all parameters 
 of the PDE to be solved are encapsulated in a seperate class with
 a prescribed interface. This class is then given to the local operator
 as a template parameter. This makes sense here because problem \eqref{eq:ProblemStrong}
@@ -664,9 +664,9 @@ part. This is a general pattern followed by many PDELab local operators.
 The interface of the parameter class is defined by the implementor of the
 local operator and is not part of PDELab. As shown in tutorial 00 it is
 perfectly possible to have a local operator without a parameter class.
-The following code segment instantiates the problem class which
+The following code segment instantiates the problem class which 
 is called \lstinline{Problem} here (it is explained in detail below):
-\lstinputlisting[linerange={14-16},
+\lstinputlisting[linerange={15-17},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -678,17 +678,17 @@ initialize a vector which represents the initial guess and the Dirichlet boundar
 The class \lstinline{Problem} defines a method which we need to use
 to define a class with the interface of \lstinline{Dune::PDELab::GridFunction}.
 This is accomplished by the follwing code using C++-14 generic lambdas:
-\lstinputlisting[linerange={17-20},
+\lstinputlisting[linerange={18-21},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
-Similarly, we need an object that can be passed to
+Similarly, we need an object that can be passed to 
 \lstinline{Dune::PDELab::constraints} to fill a constraints container which
 is used to build a subspace of a function space. Again, the
 class \lstinline{Problem} defines such a method which is extracted with
 a lambda function:
-\lstinputlisting[linerange={21-24},
+\lstinputlisting[linerange={22-25},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -696,26 +696,26 @@ backgroundcolor=\color{listingbg}]{../src/driver.hh}
 The next step is to define the grid function space. This is
 exactly the same code as in tutorial 00 except that the finite element
 map is passed as an argument to the \lstinline{driver} function from outside:
-\lstinputlisting[linerange={26-31},
+\lstinputlisting[linerange={27-32},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 Now comes unchanged code to assemble the constraints,
 instantiate a coefficient vector, making a discrete grid function that can be
-used for visualization and interpolating the initial guess and Dirichlet boundary
+used for visualization and interpolating the initial guess and Dirichlet boundary 
 conditions:
-\lstinputlisting[linerange={33-50},
+\lstinputlisting[linerange={34-51},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 The next step is to instantiate a local operator, called \lstinline{NonlinearPoissonFEM},
 containing the implementation of the element-wise computations of the finite element
-method. As explained above the local operator is parametrized by the class
+method. As explained above the local operator is parametrized by the class 
 \lstinline{Problem}. In addition, also the finite element map is passed as a template
 parameter for reasons that will become clear below:
-\lstinputlisting[linerange={52-54},
+\lstinputlisting[linerange={53-55},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -725,14 +725,14 @@ constraints container are used to set up a grid operator facilitating
 the global residual assembly, Jacobian assembly and matrix-free Jacobian application.
 The matrix backend is initialized with a guess of the approximate number
 of nonzero matrix entries per row.
-\lstinputlisting[linerange={56-67},
+\lstinputlisting[linerange={57-68},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
-In order to prepare for the solution process an appropriate
+In order to prepare for the solution process an appropriate 
 linear solver needs to be selected:
-\lstinputlisting[linerange={69-71},
+\lstinputlisting[linerange={70-72},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -741,19 +741,19 @@ Since the problem is nonlinear we use the implementation of
 Newton's method in PDELab. It provides the inexact Newton method
 in the sense that the iterative solution of the linear subproblems is
 stopped early and uses line search as globalization strategy:
-\lstinputlisting[linerange={73-80},
+\lstinputlisting[linerange={74-81},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 Now, finally do all the work and solve the problem:
-\lstinputlisting[linerange={82-83},
+\lstinputlisting[linerange={83-84},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 At the end we can write the VTK file with subsampling:
-\lstinputlisting[linerange={85-92},
+\lstinputlisting[linerange={86-93},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -778,7 +778,6 @@ First is the nonlinearity $q(u)$:
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/problem.hh}
-
 We also provide the derivative of the function $q$ as a seperate method:
 \lstinputlisting[linerange={20-24},
 basicstyle=\ttfamily\small,
@@ -840,7 +839,7 @@ Evaluation of the residual $R(z)$ is accomplished
 by the three types of contributions shown in equation \eqref{eq:FinalResidualEvaluation}.
 In order to make things as simple as possible we chose to implement
 the evaluation of the Jacobian and the matrix-free Jacobian application
-with finite differences.
+with finite differences. 
 
 The definition of class \lstinline{NonlinearPoissonFEM} starts as follows:
 \lstinputlisting[linerange={23-30},
@@ -851,7 +850,7 @@ The class is parametrized by a parameter class and a finite element map.
 Implementation of element-wise constributions to the Jacobian and matrix-free
 Jacobian evaluation is achieved through inheriting from the
 classes \lstinline{NumericalJacobianVolume} and \lstinline{NumericalJacobianApplyVolume}.
-Using the \textit{curiously recurring template pattern} these classes provide
+Using the \textit{curiously recurring template pattern} these classes provide 
 the corresponding methods without any additional coding effort
 based on the \lstinline{alpha_volume} method explained below.
 The other tow base classes are the same as in tutorial 00.
@@ -935,7 +934,7 @@ residual contributions for each test function are stored in the result object \l
 \subsubsection*{Method \lstinline{lambda_boundary}}
 
 The \lstinline{lambda_boundary} implements the residual
-contributions due to Neumann boundary conditions.
+contributions due to Neumann boundary conditions. 
 It implements the term $\mathcal{L}_T^B$ and has the following interface:
 \lstinputlisting[linerange={79-82},
 basicstyle=\ttfamily\small,
@@ -983,7 +982,7 @@ are accumulated.
 
 \subsubsection*{Method \lstinline{alpha_volume}}
 
-This method was already present in tutorial 00.
+This method was already present in tutorial 00. 
 It implements the term $\mathcal{A}_T^V(R_T z)$ and its interface is
 \lstinputlisting[linerange={118-122},
 basicstyle=\ttfamily\small,
@@ -1082,19 +1081,19 @@ in nonlinearity on the solution. $\eta=0$ (left), $\eta=10$ (middle), $\eta=100$
 \label{fig:1}
 \end{figure}
 
-\subsection{Outlook}
+\section{Outlook}
 
 Here are some suggestions how to test and modify this example:
 \begin{itemize}
 \item Play with other nonlinearites, e.g. $q(u)=\exp(au)$.
 \item Compare cost and accuracy of different polynomial degrees and
 simplicial meshes vs. cube meshes.
-\item Implement Nitsche's method to incorporate Dirichlet boundary conditions
+\item Implement Nitsche's method to incorporate Dirichlet boundary conditions 
 in a weak sense. This method is based on the following residual form:
 \begin{equation*}
 \begin{split}
 r^{\text{Nitsche}}(u,v) &= \int_\Omega \nabla u \cdot \nabla v + (q(u)-f)v\,dx + \int_{\Gamma_N} jv\,ds \\
-&\quad - \int_{\Gamma_D} \nabla u \cdot\nu v\,ds - \int_{\Gamma_D} (u-g)\nabla v \cdot\nu\,ds
+&\quad - \int_{\Gamma_D} \nabla u \cdot\nu v\,ds - \int_{\Gamma_D} (u-g)\nabla v \cdot\nu\,ds 
 + \eta \int_{\Gamma_D} (u-g)v\,ds
 \end{split}
 \end{equation*}
@@ -1102,10 +1101,10 @@ and requires an additional method \lstinline{alpha_boundary} with the following 
 \begin{lstlisting}[basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]
-template<typename IG, typename LFSU, typename X,
+template<typename IG, typename LFSU, typename X, 
          typename LFSV, typename R>
 void alpha_boundary (const IG& ig,
-                     const LFSU& lfsu_s, const X& x_s,
+                     const LFSU& lfsu_s, const X& x_s, 
                      const LFSV& lfsv_s, R& r_s) const
 \end{lstlisting}
 
@@ -1113,7 +1112,6 @@ void alpha_boundary (const IG& ig,
 \end{itemize}
 
 % bibtex bibliography
-\addcontentsline{toc}{section}{References}
 \bibliographystyle{plain}
 \bibliography{tutorial01.bib}
 

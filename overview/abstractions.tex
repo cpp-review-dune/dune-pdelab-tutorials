@@ -275,7 +275,7 @@ r_h^{\text{CCFV}}(u_h,v)
 &\ + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D} 
 \frac{u_h(x_{T_F^-})}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F| \\
 &\ - \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D} 
-\frac{g(x_{T_F^+}))}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F|
+\frac{g(x_{F}))}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F|
 + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_N} j(x_{F}) v(x_{T_F^-}) |F| .
 \end{split}
 \end{equation*}
@@ -522,7 +522,6 @@ the space decomposition and residual form decomposition approach lead
 to very similar methods.
 
 % bibtex bibliography
-\addcontentsline{toc}{section}{References}
 \bibliographystyle{plain}
 \bibliography{abstractions.bib}
 
