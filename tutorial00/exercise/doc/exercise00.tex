@@ -64,7 +64,7 @@ In this exercise you will:
   \end{align*}
   where
   \begin{align*}
-    f(x) = 2 \quad\text{and}\quad  g(x) = \sum_{i=1}^d (x)_i^2.
+    f(x) = -2d \quad\text{and}\quad  g(x) = \sum_{i=1}^d (x)_i^2.
   \end{align*}
 
   First of all check that $u(x) = \sum_{i=1}^d (x)_i^2$ is a solution
@@ -108,13 +108,15 @@ filename=solution_1
   visualized using ParaView.  Note that you must press the
   \lstinline{Apply} button in the paraview user interface to see the
   loaded vtu/vtp files.  Use the Calculator filter to visualize the
-  difference $|u-u_h|$ and determine the maximum error.
+  difference $|u-u_h|$ and determine the maximum error. Note that $u$
+  and $u_h$ are called \lstinline{exact} and \lstinline{fesol} in
+  the parview output.
 
 \item {\sc Solving a new problem}:
 
   Now consider
   \begin{align}
-    f(x) = \sum_{i=1}^d 6(x)_i \quad\text{and}\quad  g(x) = \sum_{i=1}^d (x)_i^3
+    f(x) =  -\sum_{i=1}^d 6(x)_i \quad\text{and}\quad  g(x) = \sum_{i=1}^d (x)_i^3
   \end{align}
   and check that $u(x)=\sum_{i=1}^d (x)_i^3$ solves the PDE.
 
