@@ -1,0 +1,80 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,total={150mm,240mm}]{geometry}
+\usepackage[american]{babel}
+
+\usepackage{float}
+\usepackage{babel}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{todonotes}
+
+
+\usepackage{listings}
+\definecolor{listingbg}{gray}{0.95}
+\lstset{language=C++,basicstyle=\ttfamily\small,frame=single,backgroundcolor=\color{listingbg}}
+% \lstset{language=C++, basicstyle=\ttfamily,
+%   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
+%   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
+
+
+\newcommand{\vx}{\vec x}
+\newcommand{\grad}{\vec \nabla}
+\newcommand{\wind}{\vec \beta}
+\newcommand{\Laplace}{\Delta}
+\newcommand{\mycomment}[1]{}
+
+
+% Exercise stylesheet
+\usepackage{exercise}
+
+\title{\textbf{Exercises for Tutorial01}}
+\subtitle{TODO Subtitle?}
+\exerciselabel{Exercise}
+
+
+
+
+\begin{document}
+
+\exerciseheader
+
+\begin{Exercise}{TODO NAME}
+  Would make sense to have an exercise where they play around with the
+  code. Easy:
+  \begin{itemize}
+    \item Grids
+    \item degree
+    \item dimension
+    \item Convergence order would be possible if they adapt $f$ in such a way
+      that $g$ is the solution.
+    \item Right now the code only uses dirichlet boundary.
+    \end{itemize}
+\end{Exercise}
+
+\begin{Exercise}{Nitsche's method for weak Dirichlet boundary
+    conditions}
+  In this exercise we want to implement Dirichlet boundary conditions
+  in a weak sense by using Nitsche's method.  The residual takes the
+  form:
+
+  \begin{align*}
+    r^{\text{Nitsche}}(u,v) &= \int_\Omega \nabla u \cdot \nabla v + (q(u)-f)v\,dx + \int_{\Gamma_N} jv\,ds \\
+    &\quad - \int_{\Gamma_D} \nabla u \cdot\nu v\,ds - \int_{\Gamma_D} (u-g)\nabla v \cdot\nu\,ds
+    + \eta \int_{\Gamma_D} (u-g)v\,ds
+  \end{align*}
+
+  In order to implement these changes we need to do the following:
+  \begin{itemize}
+  \item Adapt constraints.
+  \item Adapt LOP.
+  \end{itemize}
+
+
+\end{Exercise}
+
+
+\end{document}
