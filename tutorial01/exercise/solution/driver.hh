@@ -25,6 +25,7 @@ void driver (const GV& gv, const FEM& fem,
 
   // Make grid function space
   typedef Dune::PDELab::ConformingDirichletConstraints CON;
+  // typedef Dune::PDELab::NoConstraints CON;
   typedef Dune::PDELab::istl::VectorBackend<> VBE;
   typedef Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE> GFS;
   GFS gfs(gv,fem);
@@ -37,6 +38,7 @@ void driver (const GV& gv, const FEM& fem,
   Dune::PDELab::constraints(b,gfs,cc); // assemble constraints
   std::cout << "constrained dofs=" << cc.size() << " of "
             << gfs.globalSize() << std::endl;
+  // typedef Dune::PDELab::EmptyTransformation CC;
 
   // A coefficient vector
   using Z = Dune::PDELab::Backend::Vector<GFS,RF>;
@@ -48,10 +50,13 @@ void driver (const GV& gv, const FEM& fem,
 
   // Fill the coefficient vector
   Dune::PDELab::interpolate(g,gfs,z);
+  // Dune::PDELab::set_nonconstrained_dofs(cc,0.0,z);
 
   // Make a local operator
   typedef NonlinearPoissonFEM<Problem<RF>,FEM> LOP;
   LOP lop(problem);
+  // RF stab = ptree.get("fem.stab",(RF)1);
+  // LOP lop(problem,stab);
 
   // Make a global operator
   typedef Dune::PDELab::istl::BCRSMatrixBackend<> MBE;
@@ -65,6 +70,7 @@ void driver (const GV& gv, const FEM& fem,
     CC,CC     /* constraints for ansatz and test space */
     > GO;
   GO go(gfs,cc,gfs,cc,lop,mbe);
+  // GO go(gfs,gfs,lop,mbe);
 
   // Select a linear solver backend
   typedef Dune::PDELab::ISTLBackend_SEQ_CG_AMG_SSOR<GO> LS;
@@ -83,11 +89,16 @@ void driver (const GV& gv, const FEM& fem,
   newton.apply();
 
   // Write VTK output file
+  Z w(gfs); // Lagrange interpolation of exact solution
+  Dune::PDELab::interpolate(g,gfs,w);
+  ZDGF wdgf(gfs,w);
   int subsampling = ptree.get("output.subsampling",(int)0);
   Dune::SubsamplingVTKWriter<GV> vtkwriter(gv,subsampling);
   typedef Dune::PDELab::VTKGridFunctionAdapter<ZDGF> VTKF;
   vtkwriter.addVertexData(std::shared_ptr<VTKF>(new
                                          VTKF(zdgf,"fesol")));
+  vtkwriter.addVertexData(std::shared_ptr<VTKF>(new
+                                         VTKF(wdgf,"exact")));
   vtkwriter.write(ptree.get("output.filename","output"),
                   Dune::VTK::appendedraw);
 }
