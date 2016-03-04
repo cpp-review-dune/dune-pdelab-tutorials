@@ -56,7 +56,10 @@
 #include<dune/pdelab/newton/newton.hh>
 
 // include all components making up this tutorial
+//== Exercise 2 {
 #include"nonlinearpoissonfem.hh"
+// #include "nitschenonlinearpoissonfem.hh"
+//== }
 #include"problem.hh"
 #include"driver.hh"
 
