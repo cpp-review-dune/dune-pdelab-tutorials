@@ -27,32 +27,32 @@
 
 \exerciseheader
 
-\begin{Exercise}{Constructing Dune grids}
+\begin{Exercise}{Iterating over a grid}
 
-In the source directory, you should see (using \lstinline!ls!) the source file \lstinline!grid_exercise1.cc!,
-which is the relevant code for this exercise. You build it like this:
+First, you should start a fresh terminal and switch to the working directory of this exercise:
 \begin{lstlisting}
-  [user@dunevm grid-exercise]$ make
+  [user@dune-vm ~]$ cd iwr-course-2016
+  [user@dune-vm iwr-course-2016]$ cd release-build
+  [user@dune-vm release-build]$ cd dune-pdelab-tutorials
+  [user@dune-vm dune-pdelab-turtorials]$ cd gridinterface
+  [user@dune-vm gridinterface]$ cd exercise
+  [user@dune-vm exercise]$ cd src
 \end{lstlisting}
 
-Running \lstinline!make! will build your application (in this case: the exercise). The resulting output
-is an executable, which in this cases is called \lstinline!exercise1!. You can execute it like this:
+This is the build directory, so typing \lstinline!make! will build two executables.
+To switch to the source directory, where the actual \lstinline!.cc! files are located, type \lstinline!cd src_dir!.
+To switch back to the build directory, type \lstinline!cd ..!.
 
-\begin{lstlisting}
-  [user@dunevm grid-exercise]$ ./exercise1
-\end{lstlisting}
-
-
-Open the file \texttt{exercise1.cc} in a text editor.  It is an
+Open the file \texttt{grid-exercise1.cc} in a text editor.  It is an
 example code that creates a structured grid (using the DUNE class
 \texttt{YaspGrid}). The printgrid function then visualizes the grid
 as a png file with some useful information, like global and local
 indices, boundary intersections and such. You can have a look at the
-visualization after a succesful run of the executbale \lstinline!exercise1!
+visualization after a succesful run of the executable \lstinline!grid-exercise1!
 with:
 
 \begin{lstlisting}
-  [user@dune-vm grid-exercise]$ ristretto printgrid_0.png
+  [user@dune-vm src]$ ristretto printgrid_0.png
 \end{lstlisting}
 
 By default, a 4x4 grid is generated. You can change this to some
