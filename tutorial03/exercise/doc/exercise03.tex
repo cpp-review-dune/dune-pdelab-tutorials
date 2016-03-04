@@ -190,7 +190,8 @@
   and some linear decrease in between.
 
   On a $16\times16$ or finer grid the initial values can be represented
-  exactly by Q1 and Q2 finite elements.  The exact solution will instantly
+  exactly by $\mathcal{Q}_1$ and $\mathcal{Q}_2$ finite elements.
+  The exact solution will instantly
   become smooth and tend toward the mean over time.  A computed solution is
   only an approximation, and may show different behavior.  Most often it may
   take a long time for the solution to become smooth and, depending on
@@ -206,9 +207,10 @@
   \lstinline!std::abs()! instead.
 
   Compile and run your program.
-  Remember that the grid needs $16\times16$ elements for the Q1/Q2 elements to
-  resolve the initial condition exactly.  What happens to the interpolated
-  initial condition if you use a coarser mesh?
+  Remember that the grid needs $16\times16$ elements for the
+  $\mathcal{Q}_1$/$\mathcal{Q}_2$ elements to resolve the initial
+  condition exactly.  What happens to the interpolated initial condition
+  if you use a coarser mesh?
 
   \paragraph{Step 4: Investigate Maximum Principle}
 
@@ -222,14 +224,14 @@
   filter to get an image distorted into the third dimension according to
   the values of the solution.
 
-  After one time step, the solution computed by Q1 finite elements with
-  Implicit Euler time stepping should be completely smooth.  The same goes for
-  Q2 with Implicit Euler.
+  After one time step, the solution computed by $\mathcal{Q}_1$ finite
+  elements with Implicit Euler time stepping should be completely
+  smooth. The same goes for $\mathcal{Q}_2$ with Implicit Euler.
 
-  With both Crank-Nicholson and Fractional Step $\theta$, both with Q1 and Q2
-  the solution should be quite non-smooth, i.e.\ there should be some edges
-  visible.  The Fractional Step $\theta$ scheme should be smoother than
-  Crank-Nicholson.
+  With both Crank-Nicholson and Fractional Step $\theta$, both with
+  $\mathcal{Q}_1$ and $\mathcal{Q}_2$ the solution should be quite
+  non-smooth, i.e.\ there should be some edges visible.  The Fractional
+  Step $\theta$ scheme should be smoother than Crank-Nicholson.
 
   Try to run the simulation with smaller time steps.  How small do you need to
   make the time steps to get smooth solutions with Fractional Step $\theta$?
