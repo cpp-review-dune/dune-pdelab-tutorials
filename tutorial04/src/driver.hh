@@ -63,7 +63,8 @@ void driver (const GV& gv, const FEM& fem,
   typedef Dune::PDELab::
     CompositeConstraintsParameters<decltype(b0),decltype(b1)> B;
   B b(b0,b1);
-  typedef typename GFS::template ConstraintsContainer<RF>::Type CC;
+  typedef typename GFS::template
+    ConstraintsContainer<RF>::Type CC;
   CC cc;
   Dune::PDELab::constraints(b,gfs,cc);
   std::cout << "constrained dofs=" << cc.size() << " of "
