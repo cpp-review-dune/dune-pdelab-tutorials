@@ -16,10 +16,14 @@
 
 \usepackage{listings}
 \definecolor{listingbg}{gray}{0.95}
-\lstset{language=C++,basicstyle=\ttfamily\small,frame=single,backgroundcolor=\color{listingbg}}
-% \lstset{language=C++, basicstyle=\ttfamily,
-%   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-%   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  frame=single,
+  backgroundcolor=\color{listingbg},
+  breaklines=true,
+  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
+  }
 
 
 % Exercise stylesheet
@@ -40,7 +44,7 @@
 
   \lstset{language=bash}
 
-  It solves the problem
+  The code of tutorial03 solves the problem
   \begin{align}
     \partial_t u-\Delta u+q(u) &= f && \text{in }\Omega\times\Sigma =
     (0,1)^d \times (t_0, T], \\
@@ -60,19 +64,18 @@
     j(x,t) &= 0 \\
     u_0(x) &= 0 \\
     \label{ch1:last}
-    t_0&=0
+    t_0&=0 .
   \end{align}
 
-  All of the code for this exercise is in the directory
-  \lstinline{dune-pdelab-tutorials/tutorial03}. You can recompile this
-  tutorial individually by changing \textbf{to your build directory} and
-  by typing make:
+  The code to this exercise can be recompiled individually \textbf{in
+    your build directory} by typing make:
   \begin{lstlisting}
-    dune001@cip54:~$ cd release-build/dune-pdelab-tutorials/tutorial03
-    dune001@cip54:~/release-build/dune-pdelab-tutorials/tutorial03$ make
+  [user@localhost]$ cd release-build/dune-pdelab-tutorials/tutorial03/exercise/src
+  [user@localhost]$ make
   \end{lstlisting}
 
-  The code consists of the following files:
+  The structure of the code is very similar to the previous tutorials,
+  it consists of the following files:
   \begin{itemize}
   \item \lstinline!exercise03.cc! -- main program,
   \item \lstinline!driver.hh! -- driver to solve problem on a gridview,
@@ -84,12 +87,19 @@
   \end{itemize}
   As in the previous exercises you can control most of the settings
   through the ini-file \lstinline!tutorial03.ini!. Get an overview of
-  the configurable settings, compile \lstinline!tutorial03!, run it and
-  examine the result with ParaView.
+  the configurable settings, compile and run \lstinline!exercise03!.
+
+  The program writes output with the extension \lstinline!pvd!. This is one
+  of several ways to write VTK output for the instationary case,
+  c.f. the documentation of the tutorial03. The \lstinline!pvd!-file can
+  be visualized by ParaView and it consists of a collection of the
+  corresponding \lstinline!vtu!-files.
+  One big advantage of this approach is that the physical time can be
+  printed out. This can be achieved by using the ``AnnotateTimeFiler``
+  in ParaView.
 
 \end{Exercise}
 
-\newpage
 \begin{Exercise}{Making Discretizations Easily Exchangeable}
 
   \paragraph{Step 1: Switching to the linear heat equation}
@@ -145,7 +155,6 @@
   object for the Fractional Step $\theta$ scheme can be created with
   \lstinline!Dune::PDELab::FractionalStepParameter<Real>()!.
 
-  \newpage
   \paragraph{Step 3: Different Initial and Boundary Conditions}
   \quad \newline
   \begin{wrapfigure}[9]{l}{4.5cm}
@@ -241,7 +250,8 @@
   \end{align}
   Incorporating the time dependence into the functions $g$ and $j$ is
   easy even if they don't have the time variable as an argument. The
-  problem parameter class \lstinline!driver.hh! possesses the member function
+  problem parameter class possesses the member variable \lstinline!t!
+  and the member function
   \begin{lstlisting}
     void setTime (Number t_)
     {
@@ -255,11 +265,9 @@
   Scalar'' filter.
   \paragraph{A short note on time dependent $\Gamma_D$ and $\Gamma_N$:}
   In principle it is possible to implement time dependent $\Gamma_D$ and
-  $\Gamma_N$ the same way as for $g$ and $j$. But there is a technical
-  limitation for conforming spatial discretizations, namely that the
-  implementation assumes the type of boundary conditions not to change
-  over a time step. For a discontinuous Galerkin discretization this
-  assumption is not needed.
+  $\Gamma_N$ the same way as for $g$ and $j$. But for conforming spatial
+  discretizations there is an important limiting assumption, namely that
+  the type of boundary conditions do not change over a time step.
 \end{Exercise}
 
 \end{document}
