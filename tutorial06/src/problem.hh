@@ -20,7 +20,7 @@ public:
   //! derivative of nonlinearity
   Number qprime (Number u) const
   {
-    return 2*lambda*u;
+    return 2*eta*u;
   }
 
   //! right hand side
