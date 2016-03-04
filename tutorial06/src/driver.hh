@@ -45,11 +45,11 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   Dune::PDELab::interpolate(g,gfs,z);
 
   // make vector consistent NEW IN PARALLEL
-  // Dune::PDELab::istl::ParallelHelper<GFS> helper(gfs);
-  // helper.maskForeignDOFs(z);
-  // Dune::PDELab::AddDataHandle<GFS,Z> adddh(gfs,z);
-  // if (gfs.gridView().comm().size()>1)
-  //   gfs.gridView().communicate(adddh,Dune::InteriorBorder_All_Interface,Dune::ForwardCommunication);
+  Dune::PDELab::istl::ParallelHelper<GFS> helper(gfs);
+  helper.maskForeignDOFs(z);
+  Dune::PDELab::AddDataHandle<GFS,Z> adddh(gfs,z);
+  if (gfs.gridView().comm().size()>1)
+    gfs.gridView().communicate(adddh,Dune::InteriorBorder_All_Interface,Dune::ForwardCommunication);
 
   // Make a local operator
   typedef NonlinearPoissonFEM<Problem<RF>,FEM> LOP;

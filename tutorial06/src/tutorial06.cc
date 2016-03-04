@@ -96,8 +96,8 @@ int main(int argc, char** argv)
         L[0] = ptree.get("grid.structured.LX",(double)1.0);
         L[1] = ptree.get("grid.structured.LY",(double)1.0);
         std::array<int,dim> N;
-        N[0] = ptree.get("grid.structured.NX",(int)10);
-        N[1] = ptree.get("grid.structured.NY",(int)10);
+        N[0] = ptree.get("grid.structured.NX",(int)16);
+        N[1] = ptree.get("grid.structured.NY",(int)16);
         std::bitset<dim> B(false);
         int overlap=1;
         std::shared_ptr<Grid> gridp = std::shared_ptr<Grid>(new Grid(L,N,B,overlap,Dune::MPIHelper::getCollectiveCommunication()));
@@ -126,9 +126,9 @@ int main(int argc, char** argv)
         L[1] = ptree.get("grid.structured.LY",(double)1.0);
         L[2] = ptree.get("grid.structured.LZ",(double)1.0);
         std::array<int,dim> N;
-        N[0] = ptree.get("grid.structured.NX",(int)1);
-        N[1] = ptree.get("grid.structured.NY",(int)1);
-        N[2] = ptree.get("grid.structured.NZ",(int)1);
+        N[0] = ptree.get("grid.structured.NX",(int)16);
+        N[1] = ptree.get("grid.structured.NY",(int)16);
+        N[2] = ptree.get("grid.structured.NZ",(int)16);
         std::bitset<dim> B(false);
         int overlap=1;
         std::shared_ptr<Grid> gridp = std::shared_ptr<Grid>(new Grid(L,N,B,overlap,Dune::MPIHelper::getCollectiveCommunication()));

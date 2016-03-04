@@ -25,13 +25,16 @@
 template<typename Param, typename FEM>
 class NonlinearHeatFEM :
   public NonlinearPoissonFEM<Param,FEM>,
-  public Dune::PDELab::InstationaryLocalOperatorDefaultMethods<double> // default methods
+  public Dune::PDELab::
+    InstationaryLocalOperatorDefaultMethods<double>
 {
   Param& param;
 public:
   //! Pass on constructor
   NonlinearHeatFEM (Param& param_, int incrementorder_=0)
-    : NonlinearPoissonFEM<Param,FEM>(param_,incrementorder_), param(param_) {}
+    : NonlinearPoissonFEM<Param,FEM>(param_,incrementorder_),
+    param(param_)
+  {}
   //! set time for subsequent evaluation
   void setTime (double t) {
     param.setTime(t);
@@ -49,10 +52,12 @@ template<typename FEM>
 class L2
   : public Dune::PDELab::FullVolumePattern,
     public Dune::PDELab::LocalOperatorDefaultFlags,
-    public Dune::PDELab::InstationaryLocalOperatorDefaultMethods<double>
+    public Dune::PDELab::
+  InstationaryLocalOperatorDefaultMethods<double>
 {
-  typedef typename FEM::Traits::FiniteElementType::Traits::LocalBasisType LocalBasis;
-  Dune::PDELab::LocalBasisCache<LocalBasis> cache; // a cache for local basis evaluations
+  typedef typename FEM::Traits::FiniteElementType::
+     Traits::LocalBasisType LocalBasis;
+  Dune::PDELab::LocalBasisCache<LocalBasis> cache;
 
 public:
   // pattern assembly flags
@@ -62,8 +67,10 @@ public:
   enum { doAlphaVolume = true };
 
   // volume integral depending on test and ansatz functions
-  template<typename EG, typename LFSU, typename X, typename LFSV, typename R>
-  void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
+  template<typename EG, typename LFSU, typename X,
+           typename LFSV, typename R>
+  void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x,
+                     const LFSV& lfsv, R& r) const
   {
     // types & dimension
     typedef decltype(makeZeroBasisFieldValue(lfsu)) RF;
@@ -77,7 +84,9 @@ public:
     for (const auto& ip : rule)
       {
         // evaluate basis functions
-        auto& phihat = cache.evaluateFunction(ip.position(),lfsu.finiteElement().localBasis());
+        auto& phihat =
+          cache.evaluateFunction(ip.position(),
+                                 lfsu.finiteElement().localBasis());
 
         // evaluate u
         RF u=0.0;
@@ -107,7 +116,9 @@ public:
     for (const auto& ip : rule)
       {
         // evaluate basis functions
-        auto& phihat = cache.evaluateFunction(ip.position(),lfsu.finiteElement().localBasis());
+        auto& phihat =
+          cache.evaluateFunction(ip.position(),
+                                 lfsu.finiteElement().localBasis());
 
         // integrate phi_j*phi_i
         RF factor = ip.weight() * geo.integrationElement(ip.position());

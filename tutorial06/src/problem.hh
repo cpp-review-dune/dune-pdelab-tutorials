@@ -1,20 +1,20 @@
 template<typename Number>
 class Problem
 {
-  Number lambda;
+  Number eta;
 public:
   typedef Number value_type;
 
   //! Constructor without arg sets nonlinear term to zero
-  Problem () : lambda(0.0) {}
+  Problem () : eta(0.0) {}
 
   //! Constructor takes lambda parameter
-  Problem (const Number& lambda_) : lambda(lambda_) {}
+  Problem (const Number& eta_) : eta(eta_) {}
 
   //! nonlinearity
   Number q (Number u) const
   {
-    return lambda*u*u;
+    return eta*u*u;
   }
 
   //! derivative of nonlinearity

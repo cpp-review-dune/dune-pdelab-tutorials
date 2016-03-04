@@ -73,7 +73,7 @@ public:
 
         // evaluate u1
         RF u1=0.0;
-        for (size_t i=0; i<lfsu0.size(); i++) u1 += x(lfsu1,i)*phihat[i];
+        for (size_t i=0; i<lfsu1.size(); i++) u1 += x(lfsu1,i)*phihat[i];
 
         // evaluate gradient of shape functions
         auto& gradphihat = cache.evaluateJacobian(ip.position(),lfsu0.finiteElement().localBasis());

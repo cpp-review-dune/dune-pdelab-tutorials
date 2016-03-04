@@ -4,7 +4,8 @@
 /********************************************************/
 
 template<typename GV, typename FEM>
-void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
+void driver (const GV& gv, const FEM& fem,
+             Dune::ParameterTree& ptree)
 {
   // dimension and important types
   const int dim = GV::dimension;
@@ -17,10 +18,26 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   GFS0 gfs0(gv,fem);
 
   // Make grid function space for the system
-  typedef Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::fixed> VBE;
+  typedef Dune::PDELab::istl::
+    VectorBackend<Dune::PDELab::istl::Blocking::fixed> VBE;
   typedef Dune::PDELab::EntityBlockedOrderingTag OrderingTag;
-  typedef Dune::PDELab::PowerGridFunctionSpace<GFS0,2,VBE,OrderingTag> GFS;
+  typedef Dune::PDELab::
+    PowerGridFunctionSpace<GFS0,2,VBE,OrderingTag> GFS;
   GFS gfs(gfs0);
+
+  // define the initial condition
+  auto ulambda = [dim](const auto& x){
+    Dune::FieldVector<RF,2> rv(0.0);
+    for (int i=0; i<dim; i++) rv[0]+=(x[i]-0.375)*(x[i]-0.375);
+    rv[0] = std::max(0.0,1.0-8.0*sqrt(rv[0]));
+    return rv;
+  };
+  auto u = Dune::PDELab::makeGridFunctionFromCallable(gv,ulambda);
+
+  // set up coefficient vector filled with initial condition
+  using Z = Dune::PDELab::Backend::Vector<GFS,RF>;
+  Z z(gfs);
+  Dune::PDELab::interpolate(u,gfs,z);
 
   // subspaces
   typedef Dune::PDELab::GridFunctionSubSpace
@@ -29,20 +46,6 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   typedef Dune::PDELab::GridFunctionSubSpace
     <GFS,Dune::TypeTree::TreePath<1> > U1SUB;
   U1SUB u1sub(gfs);
-
-  // define the initial condition
-  auto ulambda = [dim](const auto& x){
-    Dune::FieldVector<RF,2> rv(0.0);
-    for (int i=0; i<dim; i++) rv[0] += (x[i]-0.375)*(x[i]-0.375);
-    rv[0] = std::max(0.0,1.0-8.0*sqrt(rv[0]));
-    return rv;
-  };
-  auto u = Dune::PDELab::makeGridFunctionFromCallable(gv,ulambda);
-
-  // set up coefficient vector filled with initial condition
-  using Z = Dune::PDELab::Backend::Vector<GFS,RF>;
-  Z z(gfs); // initial value
-  Dune::PDELab::interpolate(u,gfs,z);
 
   // Make discrete grid functions for components
   typedef Dune::PDELab::DiscreteGridFunction<U0SUB,Z> U0DGF;
@@ -57,7 +60,8 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   auto b1lambda = [](const auto& x){return false;};
   auto b1 = Dune::PDELab::
     makeBoundaryConditionFromCallable(gv,b1lambda);
-  typedef Dune::PDELab::CompositeConstraintsParameters<decltype(b0),decltype(b1)> B;
+  typedef Dune::PDELab::
+    CompositeConstraintsParameters<decltype(b0),decltype(b1)> B;
   B b(b0,b1);
   typedef typename GFS::template ConstraintsContainer<RF>::Type CC;
   CC cc;
@@ -75,7 +79,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   if( stat( filename.c_str(), &st ) != 0 )
     {
       int stat = 0;
-      stat = mkdir( filename.c_str(), S_IRWXU | S_IRWXG | S_IRWXO );
+      stat = mkdir(filename.c_str(),S_IRWXU|S_IRWXG|S_IRWXO);
       if( stat != 0 && stat != -1)
         std::cout << "Error: Cannot create directory "
                   << filename << std::endl;
