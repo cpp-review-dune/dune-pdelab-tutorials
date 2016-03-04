@@ -182,69 +182,18 @@ public:
   void alpha_boundary (const IG& ig, const LFSU& lfsu, const X& x,
                      const LFSV& lfsv, R& r) const
   {
-    // evaluate boundary condition type
-    auto localgeo = ig.geometryInInside();
-    auto facecenterlocal = Dune::PDELab::
-      referenceElement(localgeo).position(0,0);
-    bool isdirichlet=param.b(ig.intersection(),facecenterlocal);
+    // Add your code here, see below for creation of transformation!
 
-    // skip rest if we are _not_ on Dirichlet boundary
-    if (!isdirichlet) return;
+    //   // geometry of inside cell
+    //   auto geo_inside = ig.inside().geometry();
 
-    // types & dimension
-    const int dim = IG::dimension;
-    typedef decltype(Dune::PDELab::makeZeroBasisFieldValue(lfsu)) RF;
+    //   // loop over quadrature points
+    //   for (const auto& ip : rule)
+    //     {
 
-    // select quadrature rule
-    auto geo = ig.geometry();
-    const int order = incrementorder+
-      2*lfsu.finiteElement().localBasis().order();
-    auto rule = Dune::PDELab::quadratureRule(geo,order);
+    //       // transform gradients of shape functions to real element
+    //       const auto S = geo_inside.jacobianInverseTransposed(local);
+    //     }
 
-    // geometry of inside cell
-    auto geo_inside = ig.inside().geometry();
-
-    // loop over quadrature points
-    for (const auto& ip : rule)
-      {
-        // quadrature point in local coordinates of element
-        auto local = localgeo.global(ip.position());
-
-        // evaluate basis functions
-        auto& phihat = cache.evaluateFunction(local,
-                             lfsu.finiteElement().localBasis());
-
-        // evaluate u
-        RF u=0.0;
-        for (size_t i=0; i<lfsu.size(); i++)
-          u += x(lfsu,i)*phihat[i];
-
-        // evaluate gradient of shape functions
-        auto& gradphihat = cache.evaluateJacobian(local,
-                             lfsu.finiteElement().localBasis());
-
-        // transform gradients of shape functions to real element
-        const auto S = geo_inside.jacobianInverseTransposed(local);
-        auto gradphi = makeJacobianContainer(lfsu);
-        for (size_t i=0; i<lfsu.size(); i++)
-          S.mv(gradphihat[i][0],gradphi[i][0]);
-
-        // compute gradient of u
-        Dune::FieldVector<RF,dim> gradu(0.0);
-        for (size_t i=0; i<lfsu.size(); i++)
-          gradu.axpy(x(lfsu,i),gradphi[i][0]);
-
-        // get unit outer normal vector and g
-        auto n = ig.unitOuterNormal(ip.position());
-        auto g = param.g(ig.intersection(),ip.position());
-
-        // integrate -(grad u)*n * phi_i + q(u)*phi_i
-        auto factor = ip.weight()*
-          geo.integrationElement(ip.position());
-        for (size_t i=0; i<lfsu.size(); i++)
-          r.accumulate(lfsu,i,(-(gradu*n)*phihat[i]-
-                               (u-g)*(gradphi[i][0]*n)+
-                               stab*(u-g)*phihat[i])*factor);
-      }
   }
 };

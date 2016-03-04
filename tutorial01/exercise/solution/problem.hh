@@ -32,12 +32,11 @@ public:
     auto global = e.geometry().global(x);
     Number s=0.0;
     for (std::size_t i=0; i<global.size(); i++) s+=global[i]*global[i];
-    // return -2.0*x.size()+eta*s*s;
-    // return -2.0*x.size()+std::exp(eta*s);
-    return -2.0*x.size();
-    // for (std::size_t i=0; i<global.size(); i++) s+=global[i];
-    // auto exp = std::exp(s/x.size());
-    // return -exp/x.size()+eta*exp*exp;
+    // original version
+    // return -2.0*x.size();
+
+    // right hand side where g(x) is exact solution
+    return -2.0*x.size()+eta*s*s;
   }
 
   //! boundary condition type function (true = Dirichlet)
@@ -55,8 +54,6 @@ public:
     Number s=0.0;
     for (std::size_t i=0; i<global.size(); i++) s+=global[i]*global[i];
     return s;
-    // for (std::size_t i=0; i<global.size(); i++) s+=global[i];
-    // return std::exp(s/x.size());
   }
 
   //! Neumann boundary condition

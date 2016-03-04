@@ -24,14 +24,17 @@ void driver (const GV& gv, const FEM& fem,
     makeBoundaryConditionFromCallable(gv,blambda);
 
   // Make grid function space
+  //== Exercise 2 {
   typedef Dune::PDELab::ConformingDirichletConstraints CON;
   // typedef Dune::PDELab::NoConstraints CON;
+  //== }
   typedef Dune::PDELab::istl::VectorBackend<> VBE;
   typedef Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE> GFS;
   GFS gfs(gv,fem);
   gfs.name("Vh");
 
   // Assemble constraints
+  //== Exercise 2 {
   typedef typename GFS::template
     ConstraintsContainer<RF>::Type CC;
   CC cc;
@@ -39,6 +42,7 @@ void driver (const GV& gv, const FEM& fem,
   std::cout << "constrained dofs=" << cc.size() << " of "
             << gfs.globalSize() << std::endl;
   // typedef Dune::PDELab::EmptyTransformation CC;
+  //== }
 
   // A coefficient vector
   using Z = Dune::PDELab::Backend::Vector<GFS,RF>;
@@ -50,13 +54,15 @@ void driver (const GV& gv, const FEM& fem,
 
   // Fill the coefficient vector
   Dune::PDELab::interpolate(g,gfs,z);
-  // Dune::PDELab::set_nonconstrained_dofs(cc,0.0,z);
 
   // Make a local operator
+  //== Exercise 2 {
   typedef NonlinearPoissonFEM<Problem<RF>,FEM> LOP;
   LOP lop(problem);
   // RF stab = ptree.get("fem.stab",(RF)1);
+  // typedef NitscheNonlinearPoissonFEM<Problem<RF>,FEM> LOP;
   // LOP lop(problem,stab);
+  //== }
 
   // Make a global operator
   typedef Dune::PDELab::istl::BCRSMatrixBackend<> MBE;
@@ -69,8 +75,10 @@ void driver (const GV& gv, const FEM& fem,
     RF,RF,RF, /* domain, range, jacobian field type*/
     CC,CC     /* constraints for ansatz and test space */
     > GO;
+  //== Exercise 2 {
   GO go(gfs,cc,gfs,cc,lop,mbe);
   // GO go(gfs,gfs,lop,mbe);
+  //== }
 
   // Select a linear solver backend
   typedef Dune::PDELab::ISTLBackend_SEQ_CG_AMG_SSOR<GO> LS;
