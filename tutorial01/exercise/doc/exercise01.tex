@@ -102,8 +102,8 @@ subsampling=0
     \lstinline{filename}.  Look at your solutions using paraview and the
     \lstinline{warp by scalar} filter.  You can see the underlying grid
     by choosing \lstinline{surface with edges} instead of
-    \lstinline{surface} in the parview drop down menu.  Explain what you
-    see.
+    \lstinline{surface} in the parview drop down menu.  How does
+    subsampling change the output?
 
   \item It is easy to implement different nonlinearities.  Use
     $q(u)=\exp(au)$ by adjusting the file \lstinline{problem.hh}.
@@ -141,7 +141,9 @@ subsampling=0
     \end{lstlisting}
     Use paraview to see how the maximal error $\max|u-u_h|$ behaves
     for diferent refienements \lstinline{refinement=1|...|5}.  Then
-    try again for \lstinline{degree=2}.  What happens here?
+    try again for \lstinline{degree=2}.  What happens here?  Does the
+    behaviour change when you use \lstinline{alu} instead of
+    \lstinline{yasp}?
   \end{enumerate}
 \end{Exercise}
 
@@ -163,41 +165,57 @@ subsampling=0
 
   In order to implement this method you have to do the following:
   \begin{itemize}
+  \item Go to \lstinline{exercise01.cc} and include the new file
+    \lstinline{nitschenonlinearpoissonfem} instead of
+    \lstinline{nonlinearpoissonfem}.
   \item In the file \lstinline{driver.hh} you have to turn of the
     constraints.  The code to this is already there you just have to
     comment/uncomment the parts marked with
     \begin{lstlisting}
-//== Exercise 2
-// ...
-//==
+//== Exercise 2 {
 ...
-//==
+// ...
+//== }
     \end{lstlisting}
     to
     \begin{lstlisting}
-//== Exercise 2
-...
-//==
+//== Exercise 2 {
 // ...
-//==
+...
+//== }
     \end{lstlisting}
     By changing these lines you use no constraints, an empty
     constraints container and construct the grid operator without
-    constraints.  Besides that you use a local operator that expects
+    constraints.  Besides that you use the new
+    \lstinline{NitscheNonlinearPoissonFEM} local operator that expects
     the stabilization parameter $\eta_{stab}$.
-  \item Now you have to modify the local operator in the file
-    \lstinline{nonlinearpoissonfem.hh}.  Once again activate code for
-    this exercise by searching for \lstinline{//== Exercise 2} and
-    switching comments.
-  \item The missing key part is the \lstinline{alpha_boundary } method
-    you have to implement yourself.  Take a close look at the
-    \lstinline{lambda_volume}, \lstinline{lambda_boundary} and
+  \item The key part is adding the \lstinline{alpha_boundary} method
+    to the new local operator in the file
+    \lstinline{nitschenonlinearpoissonfem.hh}.  Take a close look at
+    the \lstinline{lambda_volume}, \lstinline{lambda_boundary} and
     \lstinline{alhpa_volume} methods and you should be on your way.
-    The code for generating the jacobian transformation is already
-    there.
+
+    \emph{Hint:} The code for generating the transformation
+    is already there:
+    \begin{lstlisting}
+// transform gradients of shape functions to real element
+const auto S = geo_inside.jacobianInverseTransposed(local);
+    \end{lstlisting}
+
   \end{itemize}
 
+  When you have done all that test your implementation.  Use the test
+  case from exercise 1 with $f(x)=-2d+\eta(\sum_{i=1}^d(x)_i^2)^2$ and
+  exact solution $u(x)=\sum_{i=1}^d(x)_i^2=g(x)$ and compare it to
+  your approximation.
 
+  Introduce the parameter
+  \begin{lstlisting}
+[fem]
+stab = 100
+  \end{lstlisting}
+  in the ini file and look at the maximal error $\max|u-u_h|$ for
+  \lstinline{stab=10|100|1000.}
 \end{Exercise}
 
 
