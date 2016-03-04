@@ -62,10 +62,6 @@
 #include"problem.hh"
 #include"driver.hh"
 
-#if !(HAVE_UG || HAVE_DUNE_ALUGRID)
-  std::cout << "Example requires an unstructured grid!" << std::endl;
-#endif
-
 //===============================================================
 // Main program with grid setup
 //===============================================================
@@ -93,9 +89,9 @@ int main(int argc, char** argv)
     const int degree = ptree.get<int>("fem.degree");
 
     // use UG grid if available and selected
-#if HAVE_UG
     if (dim==2 && gridmanager=="ug")
       {
+#if HAVE_UG
         typedef Dune::UGGrid<2> Grid;
         std::string filename = ptree.get("grid.twod.filename",
                                          "ldomain.msh");
@@ -106,14 +102,19 @@ int main(int argc, char** argv)
         if (degree==2) driver<Grid,2>(*gridp,ptree);
         if (degree==3) driver<Grid,3>(*gridp,ptree);
         if (degree==4) driver<Grid,4>(*gridp,ptree);
-      }
+#else
+        std::cout << "You selected ug as grid manager "
+          << "but ug was not found during installation"
+          << std::endl;
 #endif
+      }
 
-#if HAVE_DUNE_ALUGRID
+
     if (dim==2 && gridmanager=="alu")
       {
+#if HAVE_DUNE_ALUGRID
         typedef Dune::ALUGrid<2,2,Dune::simplex,
-                              Dune::nonconforming> Grid;
+                              Dune::conforming> Grid;
         std::string filename = ptree.get("grid.twod.filename",
                                          "ldomain.msh");
         Dune::GridFactory<Grid> factory;
@@ -123,8 +124,16 @@ int main(int argc, char** argv)
         if (degree==2) driver<Grid,2>(*gridp,ptree);
         if (degree==3) driver<Grid,3>(*gridp,ptree);
         if (degree==4) driver<Grid,4>(*gridp,ptree);
-      }
+#else
+        std::cout << "You selected alugrid as grid manager "
+          << "but alugrid was not found during installation"
+          << std::endl;
 #endif
+      }
+
+    if (!(gridmanager=="ug") && !(gridmanager=="alu"))
+      std::cout << "Example requires an unstructured grid!" << std::endl;
+
   }
   catch (Dune::Exception &e){
     std::cerr << "Dune reported error: " << e << std::endl;

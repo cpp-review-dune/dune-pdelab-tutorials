@@ -47,11 +47,11 @@ In this tutorial we extend tutorial 00 in the following ways:
 \begin{enumerate}[1)]
 \item Solve a nonlinear stationary partial differential equation (PDE).
 \item Use conforming finite element spaces of arbitrary order.
-\item Use different types of (conforming) meshes (simplical, cubed and mixed).
+\item Use different types of (conforming) meshes (simplicial, cubed and mixed).
 \item Use multiple types of boundary conditions.
 \end{enumerate}
 Combined with the fact that the implementation works in any dimension
-(note: it is not claimed to be efficient in high dimension ($d>3$) this comprises
+(note: it is not claimed to be efficient in high dimension $d>3$) this comprises
 already a relatively large space of different methods, so the example illustrates
 the flexibility of PDELab. Moreover, the 
 finite element method developed in this tutorial will serve as a 
@@ -142,7 +142,7 @@ algorithmic building blocks:
 \item Jacobian evaluation $J(z)$ (or an approximation of it),
 \item matrix-free Jacobian application $J(z) w$ (or an approximation).
 \end{enumerate}
-Only one of the methods i) and ii) is required depending on the chosen
+Only one of the methods ii) and iii) is required depending on the chosen
 solution procedure.
 
 \subsubsection*{A Note on Matrix-free Evaluation}
@@ -177,7 +177,7 @@ For this reason there exist two different functions for matrix-free operator app
 one for the linear case providing only the argument $w$ and one for the nonlinear
 case providing two arguments $z$ and $w$. 
 
-Note also that it is advantageous to seperate in the
+Note also that it is advantageous to separate in the
 implementation of the residual form the part that depends on trial and test functions,
 and which consequently contributes to the Jacobian, and the part that only depends
 on the test functions and which does not contribute to the Jacobian.
@@ -204,7 +204,7 @@ $n_T$ is the number of corners of element $T$.
 \item For every element $T\in\mathcal{T}_h$ an element transformation map
 $$\mu_T : \hat T \to T$$
 mapping the corresponding reference element to $T$. The element transformation
-map need not be affine but is assumed to be suffiently differentiable with invertible
+map need not be affine but is assumed to be sufficiently differentiable with invertible
 Jacobian as well as consistent in the sense 
 $\forall i\in\{0,\ldots,n_T-1\} : \mu_T(\hat x_i) = x_{g_T(i)}$.
 \end{enumerate}
@@ -297,7 +297,7 @@ one basis function is associated with each vertex of the mesh.
 
 The standard way to handle Dirichlet boundary conditions in the conforming
 finite element method is to incorporate them directly into the function space. 
-To that define the indices of Lagrange points on the Dirichlet boundary
+To do that define the indices of Lagrange points on the Dirichlet boundary
 \begin{equation*}
 \mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right) = 
 \left\{ i\in\mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right)  \,:\,
@@ -306,7 +306,7 @@ x_i\in\mathcal{X}_h^{k,d} \wedge x_i\in\Gamma_D
 \end{equation*}
 
 For the test space one defines the space of finite element
-functions that are zero on the Dirchlet boundary:
+functions that are zero on the Dirichlet boundary:
 \begin{equation*}
 V_{h,0}^{k,d}(\mathcal{T}_{h}) = \left\{ 
 v\in V_{h}^{k,d}(\mathcal{T}_{h}) \,:\, v(x_i) = 0 
@@ -347,7 +347,7 @@ finite-dimensional space $U_h = \text{span}\left\{\phi_j \,:\, j\in J_h=\{1,\ldo
 a subspace $\tilde{U}_h$ is constructed by 
 \begin{enumerate}[i)]
 \item selecting a subset of indices $\tilde{J}_h\subset J_h$
-\item and settting $\tilde{U}_h = \text{span}\left\{\tilde\phi_j \,:\, j\in \tilde{J}_h\right\}$,
+\item and setting $\tilde{U}_h = \text{span}\left\{\tilde\phi_j \,:\, j\in \tilde{J}_h\right\}$,
 where the new basis functions have the form 
 \begin{equation*}
 \tilde\phi_j = \phi_j + \sum_{l\in J_h\setminus\tilde{J}_h} (B)_{j,l} \phi_l \quad \forall j\in \tilde{J}_h.
@@ -425,9 +425,9 @@ and $(T_F^-,m)\in C(i)$ we obtain
 \end{equation*}
 Because integration is over a face of codimension 1 now, two mappings are
 involved. The map $\mu_F$ maps the reference element $\hat F$ of $F$ into
-global coordinates while the map $\eta_F$ maps $\hat F$ into the referece
+global coordinates while the map $\eta_F$ maps $\hat F$ into the reference
 element $\hat T$ of $T$. Also the integration element has to redefined accordingly.
-Again, all contributions of the face $F$ can e collected in a vector:
+Again, all contributions of the face $F$ can be collected in a vector:
 \begin{equation*}
 (\mathcal{L}_T^B)_m = 
 \int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x)) 
@@ -532,9 +532,9 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
 The \lstinline{grid.oned} subsection is active when the dimension
-of the grid set to one. Then the domain is the interval from \lstinline{a}
+of the grid is set to one. Then the domain is the interval from \lstinline{a}
 to \lstinline{b} and \lstinline{elements} gives the number of elements
-sed to subdivide the interval.
+used to subdivide the interval.
 
 \lstinputlisting[linerange={11-17},
 basicstyle=\ttfamily\small,
@@ -551,7 +551,7 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
 The \lstinline{grid.twod} subsection is active when \lstinline{ug}
 or \lstinline{alu} are selected as grid managers in two space dimensions.
-The the gmsh-file with the given name is read as coarse grid.
+The gmsh-file with the given name is read as coarse grid.
 
 \lstinputlisting[linerange={22-23},
 basicstyle=\ttfamily\small,
@@ -559,7 +559,7 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
 The \lstinline{grid.threed} subsection is active when \lstinline{ug}
 or \lstinline{alu} are selected as grid managers in three space dimensions.
-The the gmsh-file with the given name is read as coarse grid.
+The gmsh-file with the given name is read as coarse grid.
 
 \lstinputlisting[linerange={25-26},
 basicstyle=\ttfamily\small,
@@ -590,7 +590,7 @@ The user can give the name of the output file and specify the subsampling depth.
 
 \subsection{Function \lstinline{main}}
 
-The \lstinline{main} function  in \lstinline{tutorial01.cc} is very simular to the one
+The \lstinline{main} function  in \lstinline{tutorial01.cc} is very similar to the one
 in \lstinline{tutorial00.cc}. It starts by getting a reference to the
 \lstinline{Dune::MPIHelper} singleton and opens and reads in the ini-file. 
 This is not repeated here.
@@ -654,11 +654,11 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 An important difference to tutorial 00 is that all parameters 
-of the PDE to be solved are encapsulated in a seperate class with
+of the PDE to be solved are encapsulated in a separate class with
 a prescribed interface. This class is then given to the local operator
 as a template parameter. This makes sense here because problem \eqref{eq:ProblemStrong}
 has five parameters: the functions $q$, $f$, $g$ and $j$ as well as
-the partitioning of the domain boundary in Dirchlet and Neumann
+the partitioning of the domain boundary in Dirichlet and Neumann
 part. This is a general pattern followed by many PDELab local operators.
 
 The interface of the parameter class is defined by the implementor of the
@@ -677,7 +677,7 @@ as an argument to \lstinline{Dune::PDELab::interpolate} to
 initialize a vector which represents the initial guess and the Dirichlet boundary conditions.
 The class \lstinline{Problem} defines a method which we need to use
 to define a class with the interface of \lstinline{Dune::PDELab::GridFunction}.
-This is accomplished by the follwing code using C++-14 generic lambdas:
+This is accomplished by the following code using C++-14 generic lambdas:
 \lstinputlisting[linerange={18-21},
 basicstyle=\ttfamily\small,
 frame=single,
@@ -847,7 +847,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfem.hh}
 The class is parametrized by a parameter class and a finite element map.
-Implementation of element-wise constributions to the Jacobian and matrix-free
+Implementation of element-wise contributions to the Jacobian and matrix-free
 Jacobian evaluation is achieved through inheriting from the
 classes \lstinline{NumericalJacobianVolume} and \lstinline{NumericalJacobianApplyVolume}.
 Using the \textit{curiously recurring template pattern} these classes provide 
@@ -1052,7 +1052,7 @@ frame=single,
 backgroundcolor=\color{listingbg}]
 ./tutorial01
 \end{lstlisting}
-yields an ouput simular to the following:
+yields an output similar to the following:
 \begin{lstlisting}[basicstyle=\ttfamily\tiny,
 frame=single,
 backgroundcolor=\color{listingbg}]
@@ -1085,7 +1085,7 @@ in nonlinearity on the solution. $\eta=0$ (left), $\eta=10$ (middle), $\eta=100$
 
 Here are some suggestions how to test and modify this example:
 \begin{itemize}
-\item Play with other nonlinearites, e.g. $q(u)=\exp(au)$.
+\item Play with other nonlinearities, e.g. $q(u)=\exp(au)$.
 \item Compare cost and accuracy of different polynomial degrees and
 simplicial meshes vs. cube meshes.
 \item Implement Nitsche's method to incorporate Dirichlet boundary conditions 

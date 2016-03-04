@@ -169,7 +169,7 @@ algorithmic building blocks:
 \item Jacobian evaluation $J(z)$ (or an approximation of it),
 \item matrix-free Jacobian application $J(z) w$ (or an approximation).
 \end{enumerate}
-Only one of the methods i) and ii) is required depending on the chosen
+Only one of the methods ii) and iii) is required depending on the chosen
 solution procedure.
 
 \subsection*{Constraints}
@@ -340,9 +340,9 @@ and $u_h^{k}$ is an approximation of $u_h(t^k)$. For $\theta=1$
 we obtain the implicit Euler method, for $\theta=1/2$ the Crank-Nicolson method
 and for $\theta=0$ the explicit Euler method. With $u_h^k$ given
 and $u_h^{k+1}$ unknown, the left hand side of equation \eqref{Eq:InstationaryProblem}
-can be considered to be a new residual form involving a new residual form
-built up from a linear combinations of the temporal residual form $m_h(u_h,v;t)$
-and the spatial residual form $r_h(u_h,v;t)$ evaluated at different points in time.
+can be considered a new residual form built up from a linear combination of the
+temporal residual form $m_h(u_h,v;t)$ and the spatial residual form $r_h(u_h,v;t)$
+evaluated at different points in time.
 Various explicit and diagonally implicit Runge-Kutta \cite{alexander:77} 
 methods result in variants of
 equation \eqref{Eq:InstationaryProblem} which yield higher-order accuracy in
@@ -392,10 +392,10 @@ Dz^{k+1} = s^k - \Delta t^k q^k.
 Moreover, a stability condition restricting the time step $\Delta t^k$ 
 has to be obeyed. The maximum allowable time step can be computed
 explicitly for the simplest schemes but depends on the mesh $\mathcal{T}_h$.
-For explicit time-stepping schemes therefore the follwing algorithm is employed:
+For explicit time-stepping schemes therefore the following algorithm is employed:
 \begin{enumerate}[i)]
 \item While traversing the mesh assemble the vectors $s^k$ and
-$q^k$ seperately and compute the maximum time step $\Delta t^k$.
+$q^k$ separately and compute the maximum time step $\Delta t^k$.
 \item Form the right hand side $b^k=s^k - \Delta t^k q^k$ and ``solve'' the 
 diagonal system $Dz^{k+1} = b^k$ (can be done in one step).
 \end{enumerate}
@@ -405,7 +405,7 @@ such as strong stability preserving Runge-Kutta methods \cite{shu:88}.
 \section{Systems of Partial Differential Equations}
 
 All the considerations above carry over to the case of systems of
-partial differential equations when cartesian products of
+partial differential equations when Cartesian products of
 functions spaces are introduced, i.e. the abstract stationary problem then reads
 \begin{equation}
 \text{Find $u_h\in U_h=U_h^1\times \ldots \times U_h^s$ s.t.:} \quad r_h(u_h,v)=0 
@@ -464,7 +464,7 @@ u v \, dx$.
 \section{Solving in Parallel}
 
 In this section we consider the solution of PDEs on parallel computers
-in from an implementation point of view.
+from an implementation point of view.
 
 One approach relies on an additive splitting of the function space $U_h$
 into subspaces $U_{h,i}$:
@@ -509,7 +509,7 @@ are then nonoverlapping. The evaluation of the skeleton terms
 in the general residual form \eqref{eq:GeneralResidualForm} requires some additional thought
 and can be either achieved through communication during evaluation of the residual 
 or through the introduction of additional overlap solely for this purpose (ghost cells
-in DUNE's data decomposition model). the splitting of the residual form \eqref{eq:ResidualFormSplitting}
+in DUNE's data decomposition model). The splitting of the residual form \eqref{eq:ResidualFormSplitting}
 naturally carries over to an additive splitting of the Jacobian matrix.
 
 The residual form decomposition is the natural way
