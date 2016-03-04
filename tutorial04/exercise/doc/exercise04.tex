@@ -1,0 +1,192 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,total={150mm,240mm}]{geometry}
+\usepackage[american]{babel}
+
+\usepackage{float}
+\usepackage{babel}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{todonotes}
+
+
+\usepackage{listings}
+\definecolor{listingbg}{gray}{0.95}
+\lstset{language=C++,basicstyle=\ttfamily\small,frame=single,backgroundcolor=\color{listingbg}}
+% \lstset{language=C++, basicstyle=\ttfamily,
+%   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
+%   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
+
+
+\newcommand{\vx}{\vec x}
+\newcommand{\grad}{\vec \nabla}
+\newcommand{\wind}{\vec \beta}
+\newcommand{\Laplace}{\Delta}
+\newcommand{\mycomment}[1]{}
+
+
+% Exercise stylesheet
+\usepackage{exercise}
+
+\title{\textbf{Exercises for Tutorial04}}
+\subtitle{Finite Elements for the Wave  Equation}
+\exerciselabel{Exercise}
+
+
+
+
+\begin{document}
+
+\exerciseheader
+
+\begin{Exercise}{Poisson Equation with Piecewise Linear Elements}
+
+In this exercise you will:
+\begin{itemize}
+\item Work on the problem presented in the tutorial and see how to work with a system of equations.
+\item Modify the implementation to test different time discretizations. 
+\item Work with higher order elements and block ordering.
+\item Implement your own local operator that represents elliptic coupling (see Tutorial notes adn Erikson et al. )
+\end{itemize}
+
+\begin{enumerate}
+\item {\sc Warming up}:\\
+  The code presented in this tutorial solves the following elliptic
+  equation with Dirichlet boundary conditions
+  \begin{align*}
+    \begin{array}{rcll}
+      -\Laplace u  & = & f & \text{ in } \Omega, \\
+      u & = & g & \text{ on } \partial\Omega,
+    \end{array}
+  \end{align*}
+  where
+  \begin{align*}
+    f(x) = -2d \quad\text{and}\quad  g(x) = \sum_{i=1}^d (x)_i^2.
+  \end{align*}
+
+  First of all check that $u(x) = \sum_{i=1}^d (x)_i^2$ is a solution
+  in any dimension $d$.
+
+  For general instructions how to modify the sources and rebuilding
+  the program see the exercise-workflow in the \lstinline{overview} folder.  
+  
+  
+  We now want to run the program for different grid
+  refinement levels.  The source file for this exercise is called
+  \lstinline{exercise0.cc}.  What the program does is controlled by
+  the file \lstinline{tutorial00.ini}:
+  \lstinputlisting[language=bash]{../src/tutorial04.ini}
+
+  Here you may change the dimension, the number of mesh refinements
+  and the names of input and output files. In dimension 1 the
+  extension \lstinline{.vtp} is added and in dimension 2 and 3
+  \lstinline{.vtu} is added.
+
+  In order to generate a set of output files you may set
+  \begin{lstlisting}
+refinement=0
+  \end{lstlisting}
+  and
+  \begin{lstlisting}
+[output]
+filename=solution_0
+  \end{lstlisting}
+  and then
+  \begin{lstlisting}
+refinement=1
+  \end{lstlisting}
+  and
+  \begin{lstlisting}
+[output]
+filename=solution_1
+  \end{lstlisting}
+  and so on.  You don't have to rebuild your program after changing
+  the ini file.
+
+  Now run the program for these settings. The solutions can be
+  visualized using ParaView.  Note that you must press the
+  \lstinline{Apply} button in the paraview user interface to see the
+  loaded vtu/vtp files.  Use the Calculator filter to visualize the
+  difference $|u-u_h|$ and determine the maximum error. Note that $u$
+  and $u_h$ are called \lstinline{exact} and \lstinline{fesol} in
+  the parview output.
+
+\item {\sc Solving a new problem}:
+
+  Now consider
+  \begin{align}
+    f(x) =  -\sum_{i=1}^d 6(x)_i \quad\text{and}\quad  g(x) = \sum_{i=1}^d (x)_i^3
+  \end{align}
+  and check that $u(x)=\sum_{i=1}^d (x)_i^3$ solves the PDE.
+
+  Implement the new $f$ and $g$ functions in the files
+  \lstinline{ffunction.hh} and \lstinline{gfunction.hh}
+  respectively. Recompile and run the program accordingly.
+
+\item {\sc Analysis of finite element error}:
+
+  Produce now a sequence of output files for different levels of mesh
+  refinement $0, 1, 2, \ldots$. Visualize the error $|u-u_h|$ in
+  ParaView and determine the maximum error on each level.  Make a
+  table and determine the convergence rate.
+
+\item {\sc Use a different solver}:
+
+You may also try to exchange the iterative linear solver by
+replacing it with the following lines:
+\begin{lstlisting}
+typedef Dune::PDELab::ISTLBackend_SEQ_BCGS_SSOR LS;
+LS ls(5000,true);
+\end{lstlisting}
+Compare the number of iterations which is given by the following lines
+in the output (here we have 12 iterations):
+\begin{lstlisting}
+=== CGSolver
+   12       1.9016e-09
+=== rate=0.144679, T=0.02362, TIT=0.00196833, IT=12
+\end{lstlisting}
+\end{enumerate}
+\end{Exercise}
+
+
+\begin{Exercise}{Changeing the Local Operator}
+Now consider the extended equation of the form
+\begin{align}
+    \begin{array}{rcll}
+      -\nabla\cdot (k(x) \nabla u) +a(x) u  & = & f & \text{ in } \Omega, \\
+      u & = & g & \text{ on } \partial\Omega,
+    \end{array}
+\end{align}
+with scalar functions $k(x)$, $a(x)$.
+
+\begin{enumerate}
+\item In a first step show that the weak formulation of the problem
+  involves the new bilinear form
+  \begin{align}
+    a(u,v) = \int_\Omega k(x) \nabla u(x) \cdot \nabla v(x) + a(x) u(x) v(x) \,dx .
+  \end{align}
+\item The main work is now to extend the local operator given by the
+  class \lstinline{PoissonP1}. This is done in several steps:
+  \begin{itemize}
+  \item Copy class \lstinline{PoissonP1} to a new file and rename it.
+  \item Provide analytic functions for $k(x)$ and $a(x)$ and pass
+    GridFunctions to the local operator like it is done for $f(x)$.
+  \item Extend the local operator to first handle $k(x)$ by assuming the
+    function $k(x)$ to be \emph{constant} on mesh elements.
+  \item Now extend the local operator to handle $a(x) u(x)$. Also assume
+    the function $a(x)$ to be \emph{constant} on mesh elements.
+  \end{itemize}
+\item Plug in your new local operator in the driver code and test it.
+  In the solution the code is tested for $k(x)=2(x)_1$,
+  $a(x)=\sum_{i=1}^{d}(x)_i$ and $g=\sum_{i=1}^d (x)_i^3$ by choosing
+  the right hand side $f(x)$ in such a way that $u(x)=\sum_{i=1}^d
+  (x)_i^3$ solves the PDE.
+\end{enumerate}
+\end{Exercise}
+
+
+
+\end{document}
