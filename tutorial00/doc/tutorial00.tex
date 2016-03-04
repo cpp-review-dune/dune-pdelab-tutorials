@@ -74,7 +74,7 @@ The problem with homogeneous right hand side $f\equiv 0$ is sometimes called
 is one of the basic equations of mathematical physics which describes gravitational
 and electric potential as well as stationary heat or groundwater flow.
 Poisson's equation is an instance of an {\em elliptic partial differential equation}.
-More about modelling with partial differential equations can be found in \cite{Eriksson,BastianII}.
+More about modeling with partial differential equations can be found in \cite{Eriksson,BastianII}.
 
 A function $u\in C^2(\Omega)\cap C^0(\bar\Omega)$ 
 (the space of twice continuously differentiable functions in $\Omega$ which are continuous
@@ -91,13 +91,13 @@ here as it is also not done in the computer implementation of the method.
 
 \subsection{Weak Formulation}
 
-Existence, uniqeness and stability of solutions, i.e. well-posedness in the
+Existence, uniqueness and stability of solutions, i.e. well-posedness in the
 sense of Hadamard, is easier to prove for so-called weak solutions. As the weak
 formulation is also the basis of the finite element method we explain it here.
 
-To start with, suppose $u$ is a strong solution of \eqref{eq:1a}, \eqref{eq:1b} and take 
+As a start, suppose $u$ is a strong solution of \eqref{eq:1a}, \eqref{eq:1b} and take 
 {\em any } function
-$v\in C^1(\Omega)\cap C^0(\bar\Omega)$ with $v=0$ on $\partial\Omega$ then we
+$v\in C^1(\Omega)\cap C^0(\bar\Omega)$ with $v=0$ on $\partial\Omega$, then we
 have by integration by parts:
 \begin{equation*}
 \int_\Omega (-\Delta u) v \,dx = 
@@ -127,12 +127,12 @@ the bilinear form $a : V\times V \to \mathbb{R}$ is continuous and coercive on t
 subspace $V_0\subset V$ and the linear form $l: V \to \mathbb{R}$ is also continuous. 
 Coercivity on $V_0$ follows from Friedrich's inequality and for the continuity of the right hand
 side functional $f\in L^2(\Omega)$ is a sufficient condition.
-\item If in addition $u\in C^2(\Omega)\cap C^0(\bar\Omega)$, then the solution
+\item If in addition $u\in C^2(\Omega)\cap C^0(\bar\Omega)$, then the solutions
 of \eqref{eq:weakform} and \eqref{eq:1a}, \eqref{eq:1b} coincide.
 \end{enumerate}
 We call \eqref{eq:weakform} the {\em weak formulation} of \eqref{eq:1a}, \eqref{eq:1b}.
 As it has a unique solution under more general conditions than \eqref{eq:1a}, \eqref{eq:1b},
-e.g. discontinuous right hand side functions $f$, it can be considered as a generalization
+e.g. discontinuous right hand side functions $f$, it can be considered a generalization
 of the problem.
 
 \section{The Finite Element Method}
@@ -142,7 +142,7 @@ the function space $V$ is replaced by a subspace $V_h\subset V$
 which is {\em finite dimensional}. Here, the subscript $h$ relates to the dimension of the
 function space. One major part of the finite element method is to construct such
 so-called {\em finite element spaces}.
-Typically, finite element spaces are piecewise polynomial functions.
+Typically, finite element spaces consist of piecewise polynomial functions.
 We consider one particular choice, the space of linear functions on simplicial elements.
 There are many text books about the finite element method,
 a small selection is
@@ -246,7 +246,7 @@ g_{T_4}(0) = 1, & g_{T_4}(1) = 5, & g_{T_4}(2) = 4.
 \node at (11,2) {$\mathcal{I}_h^{int}=\{1\}, \mathcal{I}_h^{\partial\Omega}=\{2,3,4,5\}$};
 \end{tikzpicture}
 \end{center}
-\caption{Example of e finite element mesh and the local to global numbering.}
+\caption{Example of a finite element mesh and the local to global numbering.}
 \label{fig:femesh}
 \end{figure}
 
@@ -357,7 +357,7 @@ V_{h,g} = \{v\in V_h \,:\, \forall i\in\mathcal{I}_h^{\partial\Omega} : v(x_i)=g
 Note that $V_{h,0}$ is a subspace of $V_h$ and satisfies the homogeneous
 boundary data exactly whereas $V_{h,g}$ is {\em not} a subspace (it is an affine space)
 and only {\em approximates} the given boundary data by piecewise linear functions.
-Twodimensional Lagrange basis functions are illustrated in FIgure \ref{fig:p1basis}.
+Twodimensional Lagrange basis functions are illustrated in Figure \ref{fig:p1basis}.
 
 \begin{figure}
 \begin{center}
@@ -448,16 +448,16 @@ of the matrix and only computations for non-zero elements are necessary.
 Thus, one iteration can be implemented with effort $O(N)$. 
 The other major factor in the total work is then the number
 of iterations needed to achieve the convergence criterion. To keep this
-number to an acceptable level effective preconditioners are required.
+number at an acceptable level effective preconditioners are required.
 We do ignore any discussions on effective preconditioners here but they may require 
 a major portion of the total work.
 
-Matrix-vector products $y=Az$, require between one and three memory accessess for two
+Matrix-vector products $y=Az$, require between one and three memory accesses for two
 floating point operations as there is never any reuse of the matrix elements.
 The exact number depends on the cache reuse of $x$ and $y$ (this is true for
 dense and sparse matrices). This fact leads to a very low floating point performance
 on modern processors which are much better at computations than at memory access.
-A possibility out of this dilemma is to perform the matrix-vector  product in a
+A possible way out of this dilemma is to perform the matrix-vector  product in a
 {\em matrix-free} fashion, i.e. to recompute the matrix elements while performing
 the matrix-vector product instead of storing them. This may lead to a faster 
 execution of this operation, especially for certain high-order elements.
@@ -519,7 +519,7 @@ w(\mu_T(\hat x))=\hat w(\hat x)
 is the corresponding function on the general element.
 \item Computation of gradients. The construction via the reference element
 is particularly useful when computing gradients of functions on the general element.
-applying the chain rule to \eqref{eq:tranformedfunction} gives
+Applying the chain rule to \eqref{eq:tranformedfunction} gives
 \begin{equation*}
 B_T^T \nabla w(\mu_T(\hat x)) = \hat\nabla \hat w(\hat x) \quad\Leftrightarrow\quad
 \nabla w(\mu_T(\hat x)) = B_T^{-T}\hat\nabla \hat w(\hat x) .
@@ -538,8 +538,8 @@ interior vertices than boundary vertices we may first compute $(b)_i = l(\phi_i)
 for {\em all} $i\in\mathcal{I}_h$ and then overwrite the entries on the boundary
 with $(b)_i = g(x_i)$. Moreover, when considering the global index $i$
 only the pairs in the set
-$$C(i) = \{(T,m)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g_T(m)=i\}$$
-contribute to the computation which can carried out in the following way:
+$$C(i) = \{(T,m)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g(T,m)=i\}$$
+contribute to the computation, which can be carried out in the following way:
 \begin{align*}
 (b)_i &= l(\phi_i) = \int_\Omega f \phi_i\,dx &&\text{(definition)} \\
 &= \sum_{T\in\mathcal{T}_h} \int_T f \phi_i\,dx &&\text{(use mesh)} \\
@@ -550,7 +550,7 @@ f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) \det B_T w_d \, + \text{error}. &&\text{
 \end{align*}
 Note that for general $f$ the integral cannot be computed exactly. The
 quadrature formula here only yields exact results for elementwise constant
-function $f$ as $\phi_i$ is linear. From now on we ignore this quadrature error
+functions $f$ as $\phi_i$ is linear. From now on we ignore this quadrature error.
 
 The computations for all components $i\in\mathcal{I}_h$ are now arranged
 in such a way that all computations involving element $T$ are carried out together.
@@ -575,7 +575,7 @@ b = \sum_{T\in\mathcal{T}_h} R_T^T b_T .
 
 The assembly of the matrix $A$ defined in \eqref{eq:systemdetail} can be carried
 out in a similar way. We assemble first the entries as $(A)_{i,j}=a(\phi_j,\phi_i)$
-for all $i,j\in\mathcal{I}_h$ and the modify the matrix to respect the Dirichlet
+for all $i,j\in\mathcal{I}_h$ and then modify the matrix to respect the Dirichlet
 boundary conditions. In the computation of $(A)_{i,j}$ only the triples
 $$C(i,j) = \{(T,m,n)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g_T(m)=i \wedge g_T(n)=j\}$$
 are involved due to the locality of the Lagrange basis functions:
@@ -660,7 +660,7 @@ finite element computations reveals a joint algorithmic form:
 
 It turns out that this basic structure is the same for a huge number
 of  finite element and finite volume methods independently of
-the partial differential equation to be solved including linear
+the partial differential equation to be solved, including linear
 and nonlinear equations, stationary and time-dependent equations
 and even systems of equations. Only the element-local
 computations in step (3) need to be exchanged. Therefore PDELab
@@ -728,7 +728,7 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
 It is customary that the input file has the same name as the 
 main file of the application with the extension \lstinline{.ini}.
-Here is the contents of the file \lstinline{tutorial00.ini}:
+Here is the content of the file \lstinline{tutorial00.ini}:
 \lstinputlisting[basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial00.ini}
@@ -842,7 +842,7 @@ with a point \lstinline{x} in global coordinates. In this case it denotes the
 right hand side $f$ in the partial differential equation. Note that it is 
 mandatory to explicitly specify the type for the return value in order
 to make the automatic extraction of the return type work. Then the lambda
-function (actually closure) is used by the function \lstinline{makeGridFunctionFromGlobalLambda}
+function (actually closure) is used by the function \lstinline{makeGridFunctionFromCallable}
 which wraps the lambda function into a class having the interface of a PDELab \lstinline{GridFunction}.
 Such types and corresponding objects can then be used to interpolate
 finite element functions or provide graphical output.
@@ -865,8 +865,8 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 The return type of the lambda function must be \lstinline{bool}.
-Note that the function \lstinline{makeBoundaryConditionFromGlobalLambda}
-is now used as the specification of constraints on function spaces requires
+Note that the function \lstinline{makeBoundaryConditionFromCallable}
+is now used as the specification of constraints on function spaces, which requires
 a class with a different interface in PDELab.
 
 The purpose of the next block of lines
@@ -891,7 +891,7 @@ is to be constructed from its local, element-wise pieces. This involves
 the identification of global degrees of freedom via the local to global map.
 
 The next line defines the type \lstinline{CON}, a so-called constraints class,
-which provides a way how to assemble constraints on a function space.
+which provides a way to assemble constraints on a function space.
 In our case it is used to identify degrees of freedom constrained by
 Dirichlet boundary conditions.
 
@@ -910,7 +910,7 @@ instantiated and the space is given a name.
 
 The grid function space actually corresponds to the unconstrained
 function space $V_h$. The \lstinline{CON} class does not provide
-the constraints themselves but rather {\em a way how to determine the constraints}.
+the constraints themselves but rather {\em a way to determine the constraints}.
 The determination of the constraints for a specific grid function space from the
 boundary condition type function \lstinline{b} constructed above 
 is done by the following lines:
@@ -951,7 +951,7 @@ coefficient vector then also the function changes.
 
 Often one wants to fill a coefficient vector such that $\text{FE}_h(z)$ approximates
 a given function, say $w$. In general, $w$ is not a finite element function, but if it
-is, then $w=\text{FE}(z)$ should hold. So what we seek is $z=FE_h^{-1}(P(w))$ where $P$ is 
+is, then $w=\text{FE}_h(z)$ should hold. So what we seek is $z=\text{FE}_h^{-1}(P(w))$ where $P$ is 
 a projection into the finite element space. This is provided by the following line:
 \lstinputlisting[linerange={54-54},
 basicstyle=\ttfamily\small,
@@ -974,8 +974,8 @@ then sets all interior degrees of freedom to zero.
 
 As pointed out in Subsection \ref{subs:impl} the assembly of the 
 right hand side $b$ and the matrix $A$ as well as matrix-free computation of $Az$
-can be seperated into a generic part looping over the finite element mesh 
-and doing element-local computations. This seperation is represented in the code 
+can be separated into a generic part looping over the finite element mesh 
+and doing element-local computations. This separation is represented in the code 
 by first setting up a {\em local operator}, here of the type \lstinline{LOP}
 \lstinputlisting[linerange={58-59},
 basicstyle=\ttfamily\small,
@@ -1120,7 +1120,7 @@ backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 provide types to represent arguments and results of basis function
 evaluations. \lstinline{DomainType} represents $\mathbb{A}^d$,
 \lstinline{RF} represents $\mathbb{B}$, \lstinline{RangeType}
-represents $\mathbb{R}^k$ and finally \lstinline{JacobianType}
+represents $\mathbb{B}^k$ and finally \lstinline{JacobianType}
 represents $\mathbb{B}^{k\times d}$.
 
 Next, we extract some important constants, the dimension 
@@ -1142,8 +1142,8 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 where \lstinline{qp} is $\hat S_d$ and \lstinline{weight} is
-$w_d$ and the values of the basis functions at the quadrature
-point and its gradients:
+$w_d$, and the values of the basis functions at the quadrature
+point and their gradients:
 \lstinputlisting[linerange={38-39},
 basicstyle=\ttfamily\small,
 frame=single,
@@ -1232,7 +1232,7 @@ functions.
 
 This method computes the contributions $b_T$ to the right hand side 
 vector for a given element as given in Eq.\eqref{eq:lambda_volume}.
-It has the follwowing signature:
+It has the following signature:
 \lstinputlisting[linerange={84-86},
 basicstyle=\ttfamily\small,
 frame=single,
@@ -1240,7 +1240,7 @@ backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 Argument \lstinline{eg} provides the element $T$ in
 a wrapped form such that PDELab need not operate directly on a DUNE grid.
 With \lstinline{eg.geometry()} the geometry of the element can be accessed
-in the form of a \lstinline{Dune:Geometry}. With \lstinline{eg.entity()} one can
+in the form of a \lstinline{Dune::Geometry}. With \lstinline{eg.entity()} one can
 access the underlying codim 0 entity of the DUNE grid.
 The second argument \lstinline{lfsv} provides the test functions on the reference
 element and \lstinline{r} provides a container where the result should be stored.
@@ -1319,7 +1319,7 @@ The computations are arranged in such a way that the innermost loop
 has the dimension number of basis functions. In 3d there are four basis functions
 and the loop has a chance to get vectorized.
 
-Now the local stiffnes matrix $A_T = G^T G$ (up to the factor $\det B_T w_d$) is formed
+Now the local stiffness matrix $A_T = G^T G$ (up to the factor $\det B_T w_d$) is formed
 \lstinputlisting[linerange={116-120},
 basicstyle=\ttfamily\small,
 frame=single,
@@ -1411,7 +1411,7 @@ backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 \subsection{Running the Example}
 
 Now we can run the tutorial and look at the results.
-One may check that $u(x) = \sum_{i=1}^d (x)_i^2$ is
+One may check that $u(x) = \sum_{i=1}^d (x)_i^2$
 solves the PDE $-\Delta u = -2d$ in $d$ dimensions
 (in $d=1$ this is not a PDE but a two-point boundary value problem).
 So we provide the exact solution as Dirichlet boundary data and set $f=-2d$. 
