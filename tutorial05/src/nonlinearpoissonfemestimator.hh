@@ -105,7 +105,7 @@ public:
 
         // integrate f^2
         RF factor = ip.weight() * geo.integrationElement(ip.position());
-        sum += (f*f-q*q)*factor;
+        sum += (f-q)*(f-q)*factor;
       }
 
     // accumulate cell indicator
