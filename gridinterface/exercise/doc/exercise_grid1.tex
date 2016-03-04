@@ -1,0 +1,71 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,total={150mm,240mm}]{geometry}
+\usepackage[american]{babel}
+
+\usepackage{float}
+\usepackage{babel}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{amssymb}
+
+\usepackage{listings}
+\definecolor{listingbg}{gray}{0.95}
+\lstset{language=C++,basicstyle=\ttfamily\small,frame=single,backgroundcolor=\color{listingbg}}
+% \lstset{language=C++, basicstyle=\ttfamily,
+%   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
+%   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
+
+\usepackage{exercise}
+
+\title{\textbf{Exercises for the introduction to the Grid Interface}}
+\exerciselabel{Exercise}
+
+\begin{document}
+
+\exerciseheader
+
+\begin{Exercise}{Constructing Dune grids}
+
+In the source directory, you should see (using \lstinline!ls!) the source file \lstinline!grid_exercise1.cc!,
+which is the relevant code for this exercise. You build it like this:
+\begin{lstlisting}
+  [user@dunevm grid-exercise]$ make
+\end{lstlisting}
+
+Running \lstinline!make! will build your application (in this case: the exercise). The resulting output
+is an executable, which in this cases is called \lstinline!exercise1!. You can execute it like this:
+
+\begin{lstlisting}
+  [user@dunevm grid-exercise]$ ./exercise1
+\end{lstlisting}
+
+
+Open the file \texttt{exercise1.cc} in a text editor.  It is an
+example code that creates a structured grid (using the DUNE class
+\texttt{YaspGrid}). The printgrid function then visualizes the grid
+as a png file with some useful information, like global and local
+indices, boundary intersections and such. You can have a look at the
+visualization after a succesful run of the executbale \lstinline!exercise1!
+with:
+
+\begin{lstlisting}
+  [user@dune-vm grid-exercise]$ ristretto printgrid_0.png
+\end{lstlisting}
+
+By default, a 4x4 grid is generated. You can change this to some
+other number, recompile and rerun the executable and have a look at
+the new grid visualization.
+
+The code then iterates over all elements of this grid and
+over all intersections of each element.  The code is meant to print
+some information about the grid cells and the intersections (but it
+does not yet).  The file is intermingled by suggestions what to print.
+You are invited to follow these suggestions or to try any of the
+member functions you learned about in the lectures.
+
+\end{Exercise}
+
+\end{document}
