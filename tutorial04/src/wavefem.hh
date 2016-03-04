@@ -46,14 +46,17 @@ public:
   // residual assembly flags
   enum { doAlphaVolume = true };
 
-  //! constructor stores a copy of the parameter object
+  //! constructor stores the speed of sound
   WaveFEM (RF c_) : c(c_) {}
 
   //! volume integral depending on test and ansatz functions
-  template<typename EG, typename LFSU, typename X, typename LFSV, typename R>
-  void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
+  template<typename EG, typename LFSU, typename X,
+           typename LFSV, typename R>
+  void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x,
+                     const LFSV& lfsv, R& r) const
   {
     // select the two components (but assume Galerkin scheme U=V)
+    assert(LFSU::CHILDREN==2);
     auto lfsu0 = lfsu.template child<0>();
     auto lfsu1 = lfsu.template child<1>();
 
@@ -62,24 +65,28 @@ public:
 
     // select quadrature rule
     auto geo = eg.geometry();
-    const int order = 2*lfsu0.finiteElement().localBasis().order();
+    int order = 2*lfsu0.finiteElement().localBasis().order();
     auto rule = Dune::PDELab::quadratureRule(geo,order);
 
     // loop over quadrature points
     for (const auto& ip : rule)
       {
         // evaluate basis functions; Assume basis is the same for both components
-        auto& phihat = cache.evaluateFunction(ip.position(),lfsu0.finiteElement().localBasis());
+        auto& phihat = cache.evaluateFunction(ip.position(),
+                          lfsu0.finiteElement().localBasis());
 
         // evaluate u1
         RF u1=0.0;
-        for (size_t i=0; i<lfsu1.size(); i++) u1 += x(lfsu1,i)*phihat[i];
+        for (size_t i=0; i<lfsu1.size(); i++)
+          u1 += x(lfsu1,i)*phihat[i];
 
         // evaluate gradient of shape functions
-        auto& gradphihat = cache.evaluateJacobian(ip.position(),lfsu0.finiteElement().localBasis());
+        auto& gradphihat = cache.evaluateJacobian(ip.position(),
+                          lfsu0.finiteElement().localBasis());
 
         // transform gradients of shape functions to real element
-        const auto S = geo.jacobianInverseTransposed(ip.position());
+        const auto S =
+          geo.jacobianInverseTransposed(ip.position());
         auto gradphi = makeJacobianContainer(lfsu0);
         for (size_t i=0; i<lfsu0.size(); i++)
           S.mv(gradphihat[i][0],gradphi[i][0]);
@@ -90,7 +97,8 @@ public:
           gradu0.axpy(x(lfsu0,i),gradphi[i][0]);
 
         // integrate both equations
-        RF factor = ip.weight() * geo.integrationElement(ip.position());
+        RF factor = ip.weight()*
+          geo.integrationElement(ip.position());
         for (size_t i=0; i<lfsu0.size(); i++) {
           r.accumulate(lfsu0,i,c*c*(gradu0*gradphi[i][0])*factor);
           r.accumulate(lfsu1,i,-u1*phihat[i]*factor);
@@ -98,10 +106,11 @@ public:
       }
   }
 
-    //! jacobian contribution of volume term
-  template<typename EG, typename LFSU, typename X, typename LFSV, typename M>
-  void jacobian_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv,
-                        M& mat) const
+  //! jacobian contribution of volume term
+  template<typename EG, typename LFSU, typename X,
+           typename LFSV, typename M>
+  void jacobian_volume (const EG& eg, const LFSU& lfsu, const X& x,
+                        const LFSV& lfsv, M& mat) const
   {
     // select the two components (assume Galerkin scheme U=V)
     auto lfsu0 = lfsu.template child<0>();
@@ -128,11 +137,14 @@ public:
           S.mv(gradphihat[i][0],gradphi[i][0]);
 
         // integrate both equations
-        RF factor = ip.weight() * geo.integrationElement(ip.position());
+        RF factor = ip.weight()*
+          geo.integrationElement(ip.position());
         for (size_t j=0; j<lfsu0.size(); j++)
           for (size_t i=0; i<lfsu0.size(); i++) {
-            mat.accumulate(lfsu0,i,lfsu0,j,c*c*(gradphi[j][0]*gradphi[i][0])*factor);
-            mat.accumulate(lfsu1,i,lfsu1,j,-phihat[j]*phihat[i]*factor);
+            mat.accumulate(lfsu0,i,lfsu0,j,
+                     c*c*(gradphi[j][0]*gradphi[i][0])*factor);
+            mat.accumulate(lfsu1,i,lfsu1,j,
+                    -phihat[j]*phihat[i]*factor);
           }
       }
   }
@@ -187,8 +199,10 @@ public:
   enum { doAlphaVolume = true };
 
   // volume integral depending on test and ansatz functions
-  template<typename EG, typename LFSU, typename X, typename LFSV, typename R>
-  void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
+  template<typename EG, typename LFSU, typename X,
+           typename LFSV, typename R>
+  void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x,
+                     const LFSV& lfsv, R& r) const
   {
     // select the two components (assume Galerkin scheme U=V)
     auto lfsu0 = lfsu.template child<0>();
@@ -203,7 +217,8 @@ public:
     for (const auto& ip : rule)
       {
         // evaluate basis functions at first child
-        auto& phihat = cache.evaluateFunction(ip.position(),lfsu0.finiteElement().localBasis());
+        auto& phihat = cache.evaluateFunction(ip.position(),
+                         lfsu0.finiteElement().localBasis());
 
         // evaluate u0
         RF u0=0.0, u1=0.0;
@@ -212,10 +227,8 @@ public:
           u1 += x(lfsu1,i)*phihat[i];
         }
 
-        // integration factor
-        RF factor = ip.weight() * geo.integrationElement(ip.position());
-
-        // integrate u*phi_i
+        // accumulate residuals
+        RF factor=ip.weight()*geo.integrationElement(ip.position());
         for (size_t i=0; i<lfsu0.size(); i++) {
           r.accumulate(lfsu0,i,u1*phihat[i]*factor);
           r.accumulate(lfsu1,i,u0*phihat[i]*factor);
@@ -224,9 +237,10 @@ public:
   }
 
   //! jacobian contribution of volume term
-  template<typename EG, typename LFSU, typename X, typename LFSV, typename M>
-  void jacobian_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv,
-                        M& mat) const
+  template<typename EG, typename LFSU, typename X,
+           typename LFSV, typename M>
+  void jacobian_volume (const EG& eg, const LFSU& lfsu, const X& x,
+                        const LFSV& lfsv, M& mat) const
   {
     // get first child, assuming PowerGridFunctionSpace
     auto lfsu0 = lfsu.template child<0>();
@@ -241,16 +255,17 @@ public:
     for (const auto& ip : rule)
       {
         // evaluate basis functions at first child
-        auto& phihat = cache.evaluateFunction(ip.position(),lfsu0.finiteElement().localBasis());
+        auto& phihat = cache.evaluateFunction(ip.position(),
+                         lfsu0.finiteElement().localBasis());
 
-        // integration factor
-        RF factor = ip.weight() * geo.integrationElement(ip.position());
-
-        // loop over all components
+        // accumulate matrix entries
+        RF factor=ip.weight()*geo.integrationElement(ip.position());
         for (size_t j=0; j<lfsu0.size(); j++)
           for (size_t i=0; i<lfsu0.size(); i++) {
-            mat.accumulate(lfsu0,i,lfsu1,j,phihat[j]*phihat[i]*factor);
-            mat.accumulate(lfsu1,i,lfsu0,j,phihat[j]*phihat[i]*factor);
+            mat.accumulate(lfsu0,i,lfsu1,j,
+                           phihat[j]*phihat[i]*factor);
+            mat.accumulate(lfsu1,i,lfsu0,j,
+                           phihat[j]*phihat[i]*factor);
           }
       }
   }
