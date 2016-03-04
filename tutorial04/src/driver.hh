@@ -57,7 +57,7 @@ void driver (const GV& gv, const FEM& fem,
   auto b0lambda = [](const auto& x){return true;};
   auto b0 = Dune::PDELab::
     makeBoundaryConditionFromCallable(gv,b0lambda);
-  auto b1lambda = [](const auto& x){return false;};
+  auto b1lambda = [](const auto& x){return true;};
   auto b1 = Dune::PDELab::
     makeBoundaryConditionFromCallable(gv,b1lambda);
   typedef Dune::PDELab::
