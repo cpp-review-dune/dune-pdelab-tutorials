@@ -238,7 +238,7 @@ int main(int argc, char** argv)
           driver(gv,fem,ptree);
         }
 #else
-        std::cout << "You selected alugrid as grid manager but ug was not found during installation" << std::endl;
+        std::cout << "You selected alugrid as grid manager but alugrid was not found during installation" << std::endl;
 #endif
       }
     if (dim==3 && gridmanager=="alu")
@@ -272,7 +272,7 @@ int main(int argc, char** argv)
           driver(gv,fem,ptree);
         }
 #else
-        std::cout << "You selected alugrid as grid manager but ug was not found during installation" << std::endl;
+        std::cout << "You selected alugrid as grid manager but alugrid was not found during installation" << std::endl;
 #endif
       }
 
