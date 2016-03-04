@@ -1,0 +1,60 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,total={150mm,240mm}]{geometry}
+\usepackage[american]{babel}
+
+\usepackage{float}
+\usepackage{babel}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{amssymb}
+
+\usepackage{listings}
+\definecolor{listingbg}{gray}{0.95}
+\lstset{language=C++,basicstyle=\ttfamily\small,frame=single,backgroundcolor=\color{listingbg}}
+% \lstset{language=C++, basicstyle=\ttfamily,
+%   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
+%   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
+
+\usepackage{exercise}
+
+\title{\textbf{Exercises for the introduction to the Grid Interface}}
+\exerciselabel{Exercise}
+
+\begin{document}
+
+\exerciseheader
+
+\begin{Exercise}{Constructing Dune grids}
+
+In this exercise you should experiment with constructing different grids. The file
+\lstinline!exercise_grid2.cc! contains a code, which
+\begin{itemize}
+ \item defines the \lstinline!GridType! to one of a list of available Dune grids
+ \item constructs a grid either through one of the three basic factory concepts:
+  \begin{itemize}
+   \item \lstinline!StructuredgridFactory! for equidistant grids
+   \item \lstinline!GmshReader! for unstructured grids
+   \item \lstinline!TensorGridFactory! for tensor product grids
+  \end{itemize}
+ \item potentially refines the grid once globally (disabled by default)
+ \item fills a data structure that maps each cell to its index in the index set.
+ \item Outputs this data structure to a vtk file which can be visualized in \lstinline!paraview!
+\end{itemize}
+
+Try to construct as many different grids as possible and look at the result in paraview.
+Here are some questions to guide your exploration of grid construction:
+\begin{itemize}
+ \item Find out (visually) how the elements in a \lstinline!YaspGrid! are ordered in the index set.
+ \item Construct a structured grid with an unstructured grid manager
+ \item Load an unstructured grid from one of the \lstinline!.msh! files you find in the exercise directory.
+ \item Construct a \lstinline!YaspGrid! for the domain $[-1,1]^2$
+ \item Enable the global refinement in the code and observe the effect on the index set for structured and unstructured grids.
+ \item Build a tensor product \lstinline!YaspGrid! with and without global refinement. What do you observe?
+\end{itemize}
+
+\end{Exercise}
+
+\end{document}
