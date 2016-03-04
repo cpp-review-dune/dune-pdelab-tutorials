@@ -35,8 +35,10 @@ template<typename Param, typename FEM>
 class NonlinearPoissonFEMEstimator
   : public Dune::PDELab::LocalOperatorDefaultFlags
 {
-  typedef typename FEM::Traits::FiniteElementType::Traits::LocalBasisType LocalBasis;
-  Dune::PDELab::LocalBasisCache<LocalBasis> cache; // a cache for local basis evaluations
+  // a cache for local basis evaluations
+  typedef typename FEM::Traits::FiniteElementType
+    ::Traits::LocalBasisType LocalBasis;
+  Dune::PDELab::LocalBasisCache<LocalBasis> cache;
   Param& param; // parameter functions
   int incrementorder; // additional increment for integration order
 
@@ -75,15 +77,18 @@ public:
   {}
 
   // volume integral depending on test and ansatz functions
-  template<typename EG, typename LFSU, typename X, typename LFSV, typename R>
-  void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
+  template<typename EG, typename LFSU, typename X,
+    typename LFSV, typename R>
+  void alpha_volume (const EG& eg, const LFSU& lfsu,
+      const X& x, const LFSV& lfsv, R& r) const
   {
     // types & dimension
     typedef decltype(makeZeroBasisFieldValue(lfsu)) RF;
 
     // select quadrature rule
     auto geo = eg.geometry();
-    const int order = incrementorder+2*lfsu.finiteElement().localBasis().order();
+    const int order =
+      incrementorder+2*lfsu.finiteElement().localBasis().order();
     auto rule = Dune::PDELab::quadratureRule(geo,order);
 
     // loop over quadrature points
@@ -91,7 +96,8 @@ public:
     for (const auto& ip : rule)
       {
         // evaluate basis functions
-        auto& phihat = cache.evaluateFunction(ip.position(),lfsu.finiteElement().localBasis());
+        auto& phihat = cache.evaluateFunction(
+            ip.position(),lfsu.finiteElement().localBasis());
 
         // evaluate u
         RF u=0.0;
@@ -104,7 +110,8 @@ public:
         auto f = param.f(eg.entity(),ip.position());
 
         // integrate f^2
-        RF factor = ip.weight() * geo.integrationElement(ip.position());
+        RF factor =
+          ip.weight() * geo.integrationElement(ip.position());
         sum += (f-q)*(f-q)*factor;
       }
 
@@ -115,11 +122,12 @@ public:
 
   // skeleton integral depending on test and ansatz functions
   // each face is only visited ONCE!
-  template<typename IG, typename LFSU, typename X, typename LFSV, typename R>
+  template<typename IG, typename LFSU, typename X,
+    typename LFSV, typename R>
   void alpha_skeleton (const IG& ig,
-                       const LFSU& lfsu_s, const X& x_s, const LFSV& lfsv_s,
-                       const LFSU& lfsu_n, const X& x_n, const LFSV& lfsv_n,
-                       R& r_s, R& r_n) const
+      const LFSU& lfsu_i, const X& x_i, const LFSV& lfsv_i,
+      const LFSU& lfsu_o, const X& x_o, const LFSV& lfsv_o,
+      R& r_i, R& r_o) const
   {
     // geometries in local coordinates of the elements
     auto insidegeo = ig.geometryInInside();
@@ -130,69 +138,70 @@ public:
     auto cell_outside = ig.outside();
 
     // geometries from local to global in elements
-    auto geo_s = cell_inside.geometry();
-    auto geo_n = cell_outside.geometry();
+    auto geo_i = cell_inside.geometry();
+    auto geo_o = cell_outside.geometry();
 
     // dimensions
     const int dim = IG::Entity::dimension;
 
     // select quadrature rule
     auto globalgeo = ig.geometry();
-    const int order = incrementorder+2*lfsu_s.finiteElement().localBasis().order();
+    const int order =
+      incrementorder+2*lfsu_i.finiteElement().localBasis().order();
     auto rule = Dune::PDELab::quadratureRule(globalgeo,order);
 
     // loop over quadrature points and integrate normal flux
-    typedef decltype(makeZeroBasisFieldValue(lfsu_s)) RF;
+    typedef decltype(makeZeroBasisFieldValue(lfsu_i)) RF;
     RF sum(0.0);
     for (const auto& ip : rule)
       {
         // position of quadrature point in local coordinates of elements
-        auto iplocal_s = insidegeo.global(ip.position());
-        auto iplocal_n = outsidegeo.global(ip.position());
+        auto iplocal_i = insidegeo.global(ip.position());
+        auto iplocal_o = outsidegeo.global(ip.position());
 
         // unit outer normal direction
         auto n_F = ig.unitOuterNormal(ip.position());
 
         // gradient in normal direction in self
-        auto& gradphihat_s = cache.evaluateJacobian(iplocal_s,lfsu_s.finiteElement().localBasis());
-        const auto S_s = geo_s.jacobianInverseTransposed(iplocal_s);
-        RF gradun_s = 0.0;
-        for (size_t i=0; i<lfsu_s.size(); i++)
+        auto& gradphihat_i = cache.evaluateJacobian(iplocal_i,lfsu_i.finiteElement().localBasis());
+        const auto S_i = geo_i.jacobianInverseTransposed(iplocal_i);
+        RF gradun_i = 0.0;
+        for (size_t i=0; i<lfsu_i.size(); i++)
           {
             Dune::FieldVector<RF,dim> v;
-            S_s.mv(gradphihat_s[i][0],v);
-            gradun_s += x_s(lfsu_s,i)*(v*n_F);
+            S_i.mv(gradphihat_i[i][0],v);
+            gradun_i += x_i(lfsu_i,i)*(v*n_F);
           }
 
         // gradient in normal direction in neighbor
-        auto& gradphihat_n = cache.evaluateJacobian(iplocal_n,lfsu_n.finiteElement().localBasis());
-        const auto S_n = geo_n.jacobianInverseTransposed(iplocal_n);
-        RF gradun_n = 0.0;
-        for (size_t i=0; i<lfsu_n.size(); i++)
+        auto& gradphihat_o = cache.evaluateJacobian(iplocal_o,lfsu_o.finiteElement().localBasis());
+        const auto S_o = geo_o.jacobianInverseTransposed(iplocal_o);
+        RF gradun_o = 0.0;
+        for (size_t i=0; i<lfsu_o.size(); i++)
           {
             Dune::FieldVector<RF,dim> v;
-            S_n.mv(gradphihat_n[i][0],v);
-            gradun_n += x_n(lfsu_n,i)*(v*n_F);
+            S_o.mv(gradphihat_o[i][0],v);
+            gradun_o += x_o(lfsu_o,i)*(v*n_F);
           }
 
         // integrate
         RF factor = ip.weight()*globalgeo.integrationElement(ip.position());
-        RF jump = gradun_s-gradun_n;
+        RF jump = gradun_i-gradun_o;
         sum += jump*jump*factor;
       }
 
     // accumulate indicator
     auto h_T = diameter(globalgeo);
-    r_s.accumulate(lfsv_s,0,0.5*h_T*sum);
-    r_n.accumulate(lfsv_n,0,0.5*h_T*sum);
+    r_i.accumulate(lfsv_i,0,0.5*h_T*sum);
+    r_o.accumulate(lfsv_o,0,0.5*h_T*sum);
   }
 
   // boundary integral depending on test and ansatz functions
   // We put the Dirchlet evaluation also in the alpha term to save some geometry evaluations
   template<typename IG, typename LFSU, typename X, typename LFSV, typename R>
   void alpha_boundary (const IG& ig,
-                       const LFSU& lfsu_s, const X& x_s, const LFSV& lfsv_s,
-                       R& r_s) const
+                       const LFSU& lfsu_i, const X& x_i, const LFSV& lfsv_i,
+                       R& r_i) const
   {
     // geometries in local coordinates of the elements
     auto insidegeo = ig.geometryInInside();
@@ -201,18 +210,18 @@ public:
     auto cell_inside = ig.inside();
 
     // geometries from local to global in elements
-    auto geo_s = cell_inside.geometry();
+    auto geo_i = cell_inside.geometry();
 
     // dimensions
     const int dim = IG::Entity::dimension;
 
     // select quadrature rule
     auto globalgeo = ig.geometry();
-    const int order = incrementorder+2*lfsu_s.finiteElement().localBasis().order();
+    const int order = incrementorder+2*lfsu_i.finiteElement().localBasis().order();
     auto rule = Dune::PDELab::quadratureRule(globalgeo,order);
 
     // loop over quadrature points and integrate normal flux
-    typedef decltype(makeZeroBasisFieldValue(lfsu_s)) RF;
+    typedef decltype(makeZeroBasisFieldValue(lfsu_i)) RF;
     RF sum(0.0);
     for (const auto& ip : rule)
       {
@@ -220,20 +229,20 @@ public:
         if (param.b(ig.intersection(),ip.position())) continue;
 
         // position of quadrature point in local coordinates of elements
-        auto iplocal_s = insidegeo.global(ip.position());
+        auto iplocal_i = insidegeo.global(ip.position());
 
         // unit outer normal direction
         auto n_F = ig.unitOuterNormal(ip.position());
 
         // gradient in normal direction in self
-        auto& gradphihat_s = cache.evaluateJacobian(iplocal_s,lfsu_s.finiteElement().localBasis());
-        const auto S_s = geo_s.jacobianInverseTransposed(iplocal_s);
-        RF gradun_s = 0.0;
-        for (size_t i=0; i<lfsu_s.size(); i++)
+        auto& gradphihat_i = cache.evaluateJacobian(iplocal_i,lfsu_i.finiteElement().localBasis());
+        const auto S_i = geo_i.jacobianInverseTransposed(iplocal_i);
+        RF gradun_i = 0.0;
+        for (size_t i=0; i<lfsu_i.size(); i++)
           {
             Dune::FieldVector<RF,dim> v;
-            S_s.mv(gradphihat_s[i][0],v);
-            gradun_s += x_s(lfsu_s,i)*(v*n_F);
+            S_i.mv(gradphihat_i[i][0],v);
+            gradun_i += x_i(lfsu_i,i)*(v*n_F);
           }
 
         // Neumann boundary condition value
@@ -241,12 +250,12 @@ public:
 
         // integrate
         RF factor = ip.weight()*globalgeo.integrationElement(ip.position());
-        RF jump = gradun_s+j;
+        RF jump = gradun_i+j;
         sum += jump*jump*factor;
       }
 
     // accumulate indicator
     auto h_T = diameter(globalgeo);
-    r_s.accumulate(lfsv_s,0,h_T*sum);
+    r_i.accumulate(lfsv_i,0,h_T*sum);
   }
 };
