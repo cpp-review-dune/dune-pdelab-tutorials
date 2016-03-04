@@ -91,7 +91,7 @@ and Neumann boundary intersections $\mathcal{F}_h^{\Gamma_N}$.
 Each boundary intersection is equipped with a unit normal vector
 $\nu_F$ which coincides with the unit outer normal to the domain. 
 Furthermore, $x_T$, $x_F$ denotes the center point of an element or face.
-This notation is illustrated graphicall in Figure \ref{fig:MeshNotation}.
+This notation is illustrated graphically in Figure \ref{fig:MeshNotation}.
 
 \begin{figure}
 \begin{center}
@@ -267,7 +267,7 @@ tutorial 01.
 
 \subsection{Ini-File}
 
-The ini-file uses the same sections as in tutorial 01 with the follwing exceptions:
+The ini-file uses the same sections as in tutorial 01 with the following exceptions:
 \begin{itemize}
 \item Only the structured grid in its \lstinline{YaspGrid} implementation can be used
 in dimension 2 and 3. \lstinline{OneDGrid} is used in dimension 1.
@@ -317,7 +317,7 @@ that the same problem can be easily solved using the two different methods.
 \subsection{Local Operator \lstinline{NonlinearPoissonFV}}
 
 The class \lstinline{NonlinearPoissonFV} implements the
-element-wise computations of the cell-centred finite volume
+element-wise computations of the cell-centered finite volume
 method. In particular, it provides a full implementation
 of all possible methods on a local operator including
 analytic Jacobians. The class has the problem class as a template parameter:
@@ -384,7 +384,7 @@ This means that basis functions will never be evaluated!
 
 \subsubsection*{Method \lstinline{lambda_boundary}}
 
-This method was also already present in the finite element method.
+This method was also already present in the finite element method
 and corresponds
 to sums five \textit{and} six on the right hand side of equation \eqref{eq:res_form_final}.
 It assembles contributions from Dirchlet and Neumann
@@ -401,7 +401,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
 
-Now comes the part for the DIrichlet boundary conditions where we
+Now comes the part for the Dirichlet boundary conditions where we
 need to compute the distance from the face center to the element center,
 the value of the Dirichlet boundary condition and the measure of the face:
 \lstinputlisting[linerange={77-100},
@@ -489,7 +489,7 @@ backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
 The arguments comprise an intersection, local trial function
 and local test space for both elements adjacent to the intersection
 and containers for the local residual contributions in both elements.
-The subsripts \lstinline{_i} and \lstinline{_o} correspond to
+The subscripts \lstinline{_i} and \lstinline{_o} correspond to
 ``inside'' and ``outside''. W.r.t. our notation above in section \ref{sec:fv_method}
 ``inside'' corresponds to ``-'' and ``outside'' corresponds to ``+''.
 
@@ -606,7 +606,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
 \lstinline{x_i}, \lstinline{x_o} are the linearization point
-and \lstinline{z_i}, \lstinline{z_o} are the coefficents to multiply with.
+and \lstinline{z_i}, \lstinline{z_o} are the coefficients to multiply with.
 
 As the skeleton terms are linear with respect to degrees of freedom
 the Jacobian does not depend on the linearization point and
@@ -690,7 +690,7 @@ in nonlinearity on the solution. $\eta=0$ (left), $\eta=10$ (middle), $\eta=100$
 \end{figure}
 
 Figure \ref{fig:Bunt} shows results for three different values of $\eta$ on a relatively
-coarse mesh. Clearly, the peacewise constant approximation can be seen.
+coarse mesh. Clearly, the piecewise constant approximation can be seen.
 
 \begin{figure}
 \caption{Comparison of conforming finite element and cell-centered finite volume
