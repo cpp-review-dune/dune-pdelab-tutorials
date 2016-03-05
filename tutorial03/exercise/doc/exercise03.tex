@@ -133,7 +133,7 @@
 
   \paragraph{Step 2: Arbitrary one-step schemes}
   We want to examine the numerical solution under three different time
-  discretization schemes -- Implicit Euler, Crank-Nicholson and
+  discretization schemes -- Implicit Euler, Crank-Nicolson and
   Fractional-Step-$\theta$. In order to change the time discretization
   scheme you will have to go to the file \lstinline!driver.hh! and
   search for the line
@@ -148,9 +148,9 @@
   applied similarly.
 
   \textbf{Note that} there is no special one step parameter class for
-  Crank-Nicholson.  Crank-Nicholson is however the special case of the one
+  Crank-Nicolson.  Crank-Nicolson is however the special case of the one
   step $\theta$ scheme with $\theta=0.5$.  So you can create a parameter
-  object for Crank-Nicholson with
+  object for Crank-Nicolson with
   \lstinline!Dune::PDELab::OneStepThetaParameter<Real>(0.5)!.  A parameter
   object for the Fractional Step $\theta$ scheme can be created with
   \lstinline!Dune::PDELab::FractionalStepParameter<Real>()!.
@@ -228,15 +228,15 @@
   elements with Implicit Euler time stepping should be completely
   smooth. The same goes for $\mathcal{Q}_2$ with Implicit Euler.
 
-  With both Crank-Nicholson and Fractional Step $\theta$, both with
+  With both Crank-Nicolson and Fractional Step $\theta$, both with
   $\mathcal{Q}_1$ and $\mathcal{Q}_2$ the solution should be quite
   non-smooth, i.e.\ there should be some edges visible.  The Fractional
-  Step $\theta$ scheme should be smoother than Crank-Nicholson.
+  Step $\theta$ scheme should be smoother than Crank-Nicolson.
 
   Try to run the simulation with smaller time steps.  How small do you need to
   make the time steps to get smooth solutions with Fractional Step $\theta$?
 
-  Can you get the Crank-Nicholson scheme to produce smooth solutions as well?
+  Can you get the Crank-Nicolson scheme to produce smooth solutions as well?
 
 \end{Exercise}
 
