@@ -44,9 +44,9 @@
 This exercise will show you two things:
 \begin{enumerate}
 \item For common problems it is really easy to run your code in
-  parallel. Almost everything is done by PDELab and you only have make
+  parallel. Almost everything is done by PDELab and you only have to make
   some small changes compared to the sequential code.
-\item If you have a more complicated problem this exercsie will give
+\item If you have a more complicated problem this exercise will give
   you some hints how to start implementing it.
 \end{enumerate}
 
@@ -55,7 +55,7 @@ Some remarks regarding parallel programs in DUNE:
 \item Parallel DUNE programs utilize the \emph{Message Parsing
     Interface} MPI. Many different MPI implementations are known to
   work well with DUNE.
-\item By default cmake builds your programs for parallel use so you
+\item By default CMake builds your programs for parallel use so you
   can build the exercises for this tutorial the same way as usual.
 \item To actually run the parallel program, you need to call the
   \lstinline{mpirun} command of your MPI implementation. If you want
@@ -67,7 +67,7 @@ mpirun -np 2 ./exercise06-1
   treatment in the parallel case. When applied to a
   \lstinline{GridView} of a parallel grid each process will produce
   output corresponding to his local sub grid (\lstinline{*.vtu}
-  files).  Furthermore the process of zeor id will create a file
+  files).  Furthermore the process of zero id will create a file
   (\lstinline{*.pvtu}) which corresponds to the global grid.
 \end{itemize}
 
@@ -78,11 +78,11 @@ mpirun -np 2 ./exercise06-1
   \item First run the code from \lstinline{exercise06-1} and try out
     different settings. Don't forget to use \lstinline{mpirun} if you
     want to use more than one process.
-  \item Add a timer to the program and meassure how long it takes to
+  \item Add a timer to the program and measure how long it takes to
     solve the nonlinear system with newton. In tutorial00 you can see
     how to use \lstinline{Dune::Timer}. In the parallel case we want
     to take the maximum time from all processes. This means we have to
-    make a global communication. The easies way to do this is to use
+    make a global communication. The easiest way to do this is to use
     the \lstinline{CollectiveCommunication}
     \footnote{\href{http://www.dune-project.org/doc-pdelab-master/doxygen/html/classDune\_1\_1CollectiveCommunication.html}{http://www.dune-project.org/doc-pdelab-master/doxygen/html/classDune\_1\_1CollectiveCommunication.html}}
     from the \lstinline{GridView}:
