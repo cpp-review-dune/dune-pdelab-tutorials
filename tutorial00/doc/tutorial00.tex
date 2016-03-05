@@ -494,7 +494,7 @@ tools:
 \begin{enumerate}[Tool 1)]
 \item Transformation formula for integrals. For $T\in\mathcal{T}_h$ we have
 \begin{equation*}
-\int_T y(x)\,dx = \int_{\hat T} y(\mu_T(\hat x)) \det B_T \,dx .
+\int_T y(x)\,dx = \int_{\hat T} y(\mu_T(\hat x)) |\det B_T| \,dx .
 \end{equation*}
 \item Quadrature formula. The midpoint rule reads
 \begin{equation*}
@@ -543,10 +543,10 @@ contribute to the computation, which can be carried out in the following way:
 \begin{align*}
 (b)_i &= l(\phi_i) = \int_\Omega f \phi_i\,dx &&\text{(definition)} \\
 &= \sum_{T\in\mathcal{T}_h} \int_T f \phi_i\,dx &&\text{(use mesh)} \\
-&= \sum_{(T,m)\in C(i)} \int_{\hat T} f(\mu_T(\hat x)) \hat\phi_m(\hat x) \det B_T\,dx 
+&= \sum_{(T,m)\in C(i)} \int_{\hat T} f(\mu_T(\hat x)) \hat\phi_m(\hat x) |\det B_T|\,dx 
 &&\text{(localize)} \\
 &= \sum_{(T,m)\in C(i)} 
-f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) \det B_T w_d \, + \text{error}. &&\text{(employ quadrature)} 
+f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) |\det B_T| w_d \, + \text{error}. &&\text{(employ quadrature)} 
 \end{align*}
 Note that for general $f$ the integral cannot be computed exactly. The
 quadrature formula here only yields exact results for elementwise constant
@@ -556,7 +556,7 @@ The computations for all components $i\in\mathcal{I}_h$ are now arranged
 in such a way that all computations involving element $T$ are carried out together.
 These computations at element $T$ are:
 \begin{equation}
-(b_T)_m =  f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) \det B_T w_d \quad \forall m=0,\ldots,d .
+(b_T)_m =  f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) |\det B_T| w_d \quad \forall m=0,\ldots,d .
 \label{eq:lambda_volume}
 \end{equation}
 Then define the restriction matrix 
@@ -586,10 +586,10 @@ are involved due to the locality of the Lagrange basis functions:
 &&\text{(use mesh)}\\
 &= \sum_{(T,m,n)\in C(i,j)}
 \int_{\hat T} (B_T^{-T} \hat\nabla\phi_n(\hat x))\cdot (B_T^{-T} \hat\nabla\phi_m(\hat x))
-\det B_T \,d\hat x &&\text{(localize)}\\
+|\det B_T| \,d\hat x &&\text{(localize)}\\
 &= \sum_{(T,m,n)\in C(i,j)}
 (B_T^{-T} \hat\nabla\phi_n(\hat S_d))\cdot (B_T^{-T} \hat\nabla\phi_m(\hat S_d))
-\det B_T w_d . &&\text{(quadrature)}
+|\det B_T| w_d . &&\text{(quadrature)}
 \end{align*}
 Note that the quadrature formula is exact since gradients of linear basis functions
 and $B_T$ are constant on the element.
@@ -607,7 +607,7 @@ With the matrix of transformed gradients $G=B_T^{-T} \hat G$
 all computations at element $T$ are 
 combined in the so-called {\em local stiffness matrix} given by
 \begin{equation}
-A_T = G^T G \det B_T w_d .
+A_T = G^T G |\det B_T| w_d .
 \label{eq:jacobian_volume}
 \end{equation}
 and the system matrix $A$ can be computed as
@@ -628,10 +628,10 @@ evaluation \eqref{eq:opeval}:
 &= \sum_{(T,m)\in C(i)}
 \int_{\hat T} 
 \left(\sum_{n=0}^d (z)_{g_T(n)} B_T^{-T} \hat\nabla\phi_n\right)
-\cdot (B_T^{-T} \hat\nabla\phi_m) \det B_T \,d\hat x &&\text{(localize)}\\
+\cdot (B_T^{-T} \hat\nabla\phi_m) |\det B_T| \,d\hat x &&\text{(localize)}\\
 &= \sum_{(T,m)\in C(i)}
 \left(\sum_{n=0}^d (z)_{g_T(n)} B_T^{-T} \hat\nabla\phi_n\right)
-\cdot (B_T^{-T} \hat\nabla\phi_m) \det B_T w_d . &&\text{(quadrature)}
+\cdot (B_T^{-T} \hat\nabla\phi_m) |\det B_T| w_d . &&\text{(quadrature)}
 \end{align*}
 Again, computations for all indices can be arranged in an element-wise fashion
 which now computes per element
@@ -1258,7 +1258,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 Note that the method \lstinline{integrationElement} on the geometry
-provides the value of $\det B_T$.
+provides the value of $|\det B_T|$.
 
 Finally, we can compute the entries and store them in the results container:
 \lstinputlisting[linerange={91-92},
@@ -1302,7 +1302,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 
-Next, $\det B_T$ is retrieved from the geometry and
+Next, $|\det B_T|$ is retrieved from the geometry and
 the factor that is common to all entries of the local stiffness matrix is computed:
 \lstinputlisting[linerange={106-106},
 basicstyle=\ttfamily\small,
@@ -1319,7 +1319,7 @@ The computations are arranged in such a way that the innermost loop
 has the dimension number of basis functions. In 3d there are four basis functions
 and the loop has a chance to get vectorized.
 
-Now the local stiffness matrix $A_T = G^T G$ (up to the factor $\det B_T w_d$) is formed
+Now the local stiffness matrix $A_T = G^T G$ (up to the factor $|\det B_T| w_d$) is formed
 \lstinputlisting[linerange={116-120},
 basicstyle=\ttfamily\small,
 frame=single,
@@ -1346,7 +1346,7 @@ of the finite element solution, \lstinline{lfsv} providing the test functions
 and \lstinline{r} a container to store the result.
 
 The computations are actually quite similar to those in \lstinline{jacobian_volume}.
-In particular, the computation of $B_T^{-T}$, $\det B_T$ and $G = B_T^{-T} \hat G$
+In particular, the computation of $B_T^{-T}$, $|\det B_T|$ and $G = B_T^{-T} \hat G$
 are the same.
 
 Extracting the element local coefficients $z_T = R_T z$ is done by:

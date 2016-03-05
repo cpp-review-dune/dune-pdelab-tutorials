@@ -18,12 +18,13 @@
 \mode<presentation>
 {
   \usetheme{default}
+%  \usecolortheme{crane}
   \setbeamercovered{transparent}
-  \setbeamertemplate{background canvas}[vertical shading][bottom=white!10,top=white!10]
-  \setlength{\parindent}{0pt}
-  \setlength{\parskip}{1.35ex plus 0.5ex minus 0.3ex}
+%  \setlength{\parindent}{0pt}
+%  \setlength{\parskip}{1.35ex plus 0.5ex minus 0.3ex}
+%  \usefonttheme{structuresmallcapsserif}
+  \usefonttheme{structurebold}
   \setbeamertemplate{theorems}[numbered]
-  \usefonttheme[onlysmall]{structurebold}
   \usepackage{amscd}
 }
 
@@ -118,7 +119,8 @@
 % Title definition
 \mode<presentation>
 {
-  \title{DUNE PDELab Tutorial 00}
+  \title{DUNE PDELab Tutorial 00\\
+  {\small  An Introduction to the Finite Element Method}}
   \author{Peter Bastian}
   \institute[]
   {
@@ -166,27 +168,86 @@
 
 \begin{document}
 
-\begin{frame}
-\titlepage
-\end{frame}
+\frame{\titlepage}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}
-\frametitle{Introduction}
+\frametitle{Motivation}
 \begin{itemize}
-\item This tutorial is about numerically 
-solving the Poisson equation with DUNE using
-piecwise linear ``P$_1$'' finite elements
-\item ``Hello World!'' for any numerical partial differential equation (PDE) solver framework
-\item We start with a recapitulation of the math to fix notation 
+\item Start with an introduction to the finite element method (FEM) for solving Poisson's equation
+with piecwise linear ``P$_1$'' finite elements
+\item ``Hello World!'' for any numerical partial differential equation (PDE) solver framework!
+\item Gives necessary background for \lstinline{dune-grid} module
+\item Implement the method in PDELab (Wednesday)
 \end{itemize}
 \end{frame}
 
 \begin{frame}
+\frametitle{Challenges for PDE Software}
+\begin{itemize}
+\item \textbf{Many different PDE applications}
+\begin{itemize}
+\item Multi-physics
+\item Multi-scale
+\item Inverse modeling: parameter estimation, optimal control
+\item Uncertainty quantification
+\end{itemize}
+\item \textbf{Many different numerical solution methods}
+\begin{itemize}
+\item No single method to solve all equations!
+\item Different mesh types,  mesh generation, mesh refinement
+\item Higher-order approximations (polynomial degree)
+\item Error control and adaptive mesh/degree refinement
+\item Iterative solution of (non-)linear algebraic equations
+\end{itemize}
+\item \textbf{High-performance Computing}
+\begin{itemize}
+\item Single core performance: Often bandwidth limited
+\item Parallelization through domain decomposition
+\item Robustness w.r.t. to mesh size, model parameters,  processors
+\item Dynamic load balancing
+\end{itemize}
+\end{itemize}
+$\Rightarrow$ \textbf{One software to do it all!}
+\end{frame}
+
+\begin{frame}
+\frametitle{Flexibility Requires Abstraction!}
+\begin{itemize}
+\item DUNE/PDELab is based on an abstract formulation of the numerical scheme
+based on \textbf{residual forms}
+\item In order to implement a scheme it requires to put it to that form!
+\item Although you might be familiar with the FEM, you might not
+be familiar to the notation used here
+\item When you have mastered the abstraction you can solve complex problems with 
+reasonable effort
+\item Important feature: Orthogonality of concepts:
+\begin{itemize}
+\item Dimension $d=1,2,3,\ldots$
+\item Linear and nonlinear
+\item Stationary and Instationary
+\item Scalar PDE and systems of PDEs
+\item Uniform and adaptive mesh refinement of different types
+\item Sequential and parallel
+\end{itemize}
+All that will be handled in the course!
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large\textbf{Introduction to the Finite Element Method}
+\end{center}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
 \frametitle{Strong Formulation of the PDE Problem}
-We solve Poisson's equation:
+We solve Poisson's equation with inhomogeneous Dirichlet boundary conditions:
 \begin{subequations}
 \begin{align}
 -\Delta u & = f \qquad\text{in $\Omega$},\label{eq:1a}\\
@@ -195,19 +256,20 @@ u &= g \qquad\text{on $\partial\Omega$},\label{eq:1b}
 \end{subequations}
 \begin{itemize}
 \item $\Omega\subset\mathbb{R}^d$ is a polygonal domain in $d$-dimensional space
-\item A function $u\in C^2(\Omega)\cap C^0(\bar\Omega)$ solving \eqref{eq:1a}, \eqref{eq:1b}
+\item A function $u\in C^2(\Omega)\cap C^0(\overline\Omega)$ solving \eqref{eq:1a}, \eqref{eq:1b}
 is called {\em strong solution}
-\item Inhomogeneous Dirichlet boundary conditions could always be
+\item Inhomogeneous Dirichlet boundary conditions could be
 reduced to {\em homogeneous} ones: we will not do this!
-\item Proving existence and uniqueness of solutions requires quite restrictive consditions on $f$
+\item Proving existence and uniqueness of solutions of strong solutions
+requires quite restrictive conditions on $f$ and $g$
 \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{Weak Formulation of the PDE Problem}
 
-Suppose $u$ is a strong solution and take  {\em any }
-$v\in C^1(\Omega)\cap C^0(\bar\Omega)$ with $v=0$ on $\partial\Omega$ then:
+Suppose $u$ is a strong solution and take  {\em any test function}
+$v\in C^1(\Omega)\cap C^0(\overline\Omega)$ with $v=0$ on $\partial\Omega$ then:
 \begin{equation*}
 \int_\Omega (-\Delta u) v \,dx = 
 \underbrace{\int_\Omega \nabla u \cdot \nabla v \,dx}_{=: a(u,v)}= 
@@ -234,7 +296,9 @@ Advantage: Weak solutions do exist under less restrictive conditions on the data
 PDEs
 \item Others are the finite volume method (FVM) or the finite difference method (FDM)
 \item The FEM is based on the weak formulation derived above
-\item We need some preparations to explain the method
+\item Its basic idea is to replace the space $V$ by a {\em finite-dimensional space} $V_h$!
+\item The construction of these finite-dimensional spaces
+needs some preparations \ldots
 \end{itemize}
 \end{frame}
 
@@ -280,9 +344,9 @@ g_{T_4}(0) = 1, & g_{T_4}(1) = 5, & g_{T_4}(2) = 4.
 \node at (11,2) {$\mathcal{I}_h^{int}=\{1\}, \mathcal{I}_h^{\partial\Omega}=\{2,3,4,5\}$};
 \end{tikzpicture}
 \end{center}
-\vspace{-5mm}
+\vspace{-3mm}
 \begin{itemize}
-\item A mesh consists of vertices and elements:
+\item A mesh consists of ordered sets of vertices and elements:
 \begin{equation*}
 \mathcal{X}_h = \{x_1,\ldots,x_N\} \subset \mathbb{R}^d, \quad
 \mathcal{T}_h = \{T_1, \ldots, T_M\}
@@ -361,7 +425,7 @@ V_h(\mathcal{T}_h) = \{ v\in C^0(\overline{\Omega}) \,:\,
 \end{equation*}
 where $\mathbb{P}_1^d = \{ p : \mathbb{R}^d \to \mathbb{R}
 \,:\, p(x) = a^Tx+ b, a\in\mathbb{R}^d, b\in\mathbb{R}\}$
-\item One can show $\text{dim} V_h = N = \text{dim} \mathcal{X}_h$
+\item One can show $\text{dim} V_h = N = \text{dim} \mathcal{X}_h$ and $V_h\subset H^1(\Omega)$
 \item {\em Lagrange} basis functions:
 $$\Phi_h=\{\phi_1,\ldots,\phi_N\}, \quad
 \forall i,j\in\mathcal{I}_h \,:\, \phi_i(x_j) = \delta_{i,j}$$
@@ -380,6 +444,7 @@ Here in two space dimensions:
 \includegraphics[width=0.49\textwidth]{p1_1}
 \includegraphics[width=0.49\textwidth]{p1_2}
 \end{center}
+Due to their shape they are often called {\em hat functions}
 \end{frame}
 
 \begin{frame}
@@ -425,6 +490,8 @@ $$\lim_{k\to\infty} z^k = z$$
 \item A very simple example is {\em Richardson's} iteration:
 $$ z^{k+1} = z^{k} + \omega (b-Az^{k})$$
 requiring only {\em matrix-vector products}
+\item Another well known class of iterative solvers are Krylov methods requiring
+also only matrix-vector products
 \end{itemize}
 %\begin{algorithmic}
 %\State Given $A, b, \epsilon$ and $z$ \Comment{input data}
@@ -445,7 +512,7 @@ requiring only {\em matrix-vector products}
 elements $a(\phi_j,\phi_i)$ and storing them in an appropriate data structure.
 \item Assembling the right hand side vector $b$. This mainly involves evaluations of
 the right hand side functional $l(\phi_i)$.
-\item Perform a matrix free operator evaluation $y=Az$. This involves evaluations
+\item {\em Alternatively:} Perform a matrix free operator evaluation $y=Az$. This involves evaluations
 of $a(u_h,\phi_i)$ for all test functions $\phi_i$ and a given function $u_h$ due to:
 \begin{align*}
 (Az)_i &= \sum_{j=1}^N (A)_{i,j} (z)_j = \sum_{j=1}^N a(\phi_j,\phi_i) (z)_j \\
@@ -460,12 +527,13 @@ We now discuss {\em how} these steps may be implemented
 \begin{enumerate}
 \item Transformation formula for integrals. For $T\in\mathcal{T}_h$:
 \begin{equation*}
-\int_T y(x)\,dx = \int_{\hat T} y(\mu_T(\hat x)) \det B_T \,dx .
+\int_T y(x)\,dx = \int_{\hat T} y(\mu_T(\hat x)) |\det B_T| \,dx .
 \end{equation*}
 \item Midpoint rule on the reference element:
 \begin{equation*}
-\int_{\hat T} q(\hat x) \,dx = q(\hat S_d) w_d
+\int_{\hat T} q(\hat x) \,dx \approx q(\hat S_d) w_d
 \end{equation*}
+(More accurate formulas are used later)
 \item Basis functions via shape function transformation:
 \begin{equation*}
 \hat\phi_0(\hat x) = 1-\sum_{i=1}^d (\hat x)_i, \quad
@@ -488,10 +556,10 @@ Then
 \begin{align*}
 (b)_i &= l(\phi_i) = \int_\Omega f \phi_i\,dx &&\text{(definition)} \\
 &= \sum_{T\in\mathcal{T}_h} \int_T f \phi_i\,dx &&\text{(use mesh)} \\
-&= \sum_{(T,m)\in C(i)} \int_{\hat T} f(\mu_T(\hat x)) \hat\phi_m(\hat x) \det B_T\,dx 
+&= \sum_{(T,m)\in C(i)} \int_{\hat T} f(\mu_T(\hat x)) \hat\phi_m(\hat x) |\det B_T|\,dx 
 &&\text{(localize)} \\
 &= \sum_{(T,m)\in C(i)} 
-f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) \det B_T w_d \, + \text{err}. &&\text{(quadrature)} 
+f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) |\det B_T| w_d \, + \text{err}. &&\text{(quadrature)} 
 \end{align*}
 \end{frame}
 
@@ -501,7 +569,7 @@ f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) \det B_T w_d \, + \text{err}. &&\text{(q
 \item Now we need to perform these computations {\em for all $i\in\mathcal{I}_h^{int}$}!
 \item Collect {\em element-local} computations:
 \begin{equation*}
-(b_T)_m =  f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) \det B_T w_d \quad \forall m=0,\ldots,d 
+(b_T)_m =  f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) |\det B_T| w_d \quad \forall m=0,\ldots,d 
 \end{equation*}
 \item Define {destriction matrix} $R_T : \mathbb{R}^N \to \mathbb{R}^{d+1}$ with
 \begin{equation*}
@@ -526,10 +594,10 @@ Then
 &&\text{(use mesh)}\\
 &= \sum_{(T,m,n)\in C(i,j)}
 \int_{\hat T} (B_T^{-T} \hat\nabla\phi_n(\hat x))\cdot (B_T^{-T} \hat\nabla\phi_m(\hat x))
-\det B_T \,d\hat x &&\text{(localize)}\\
+|\det B_T| \,d\hat x &&\text{(localize)}\\
 &= \sum_{(T,m,n)\in C(i,j)}
 (B_T^{-T} \hat\nabla\phi_n(\hat S_d))\cdot (B_T^{-T} \hat\nabla\phi_m(\hat S_d))
-\det B_T w_d . &&\text{(quadrature)}
+|\det B_T| w_d . &&\text{(quadrature)}
 \end{align*}}
 \end{frame}
 
@@ -544,7 +612,7 @@ Then
 and the matrix of transformed gradients $$G=B_T^{-T} \hat G$$
 \item Define the {\em local stiffness matrix} 
 \begin{equation*}
-A_T = G^T G \det B_T w_d .
+A_T = G^T G |\det B_T| w_d .
 \end{equation*}
 \item Then
 \begin{equation*}
@@ -596,32 +664,80 @@ except (3) which needs to be supplied by the implementor of a FEM
 \end{frame}
 
 \begin{frame}
+\frametitle{Residual Forms}
+\begin{itemize}
+\item The FEM based on the weak formulation formulation may equivalently
+be written as
+\begin{equation*}
+\text{Find $u_h\in U_h$ s.t.:} \quad r_h^\text{Poisson}(u_h,v)=0 \quad \forall v\in V_h.
+\end{equation*}
+where $r^\text{Poisson}(u_h,v) = a(u_h,v) - l(v)$ is the \textbf{residual form}
+\item This residual form is {\em affine linear} in $u_h$ and {\em linear} in $v$
+\item A {\em nonlinear} PDE results in a residual form $r(u,v)$ that is {\em nonlinear}
+in its first argument
+\item Residual forms are always linear in the second argument due
+to linearity of the integral
+\item \textbf{PDELab uses the concept of a residual form as its main abstraction!}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Generalization}
+\begin{itemize}
+\item More complicated discretization schemes:
+\begin{equation*}
+\begin{split}
+r(u,v) &= 
+\sum_{T\in\mathcal{T}_h} \alpha_T^V(R_T u, R_T v) 
++ \sum_{T\in\mathcal{T}_h} \lambda_T^V(R_T v) \\
+&\qquad+ \sum_{F\in\mathcal{F}_h^i} \alpha_F^S(R_{T_F^-} u,R_{T_F^+} u, R_{T_F^-} v, R_{T_F^+} v)\\
+&\qquad+ \sum_{F\in\mathcal{F}_h^{\partial\Omega}} \alpha_F^B(R_{T_F^-} u, R_{T_F^-} v)
++ \sum_{F\in\mathcal{F}_h^{\partial\Omega}} \lambda_F^B(R_{T_F^-} v) .
+\end{split}
+\end{equation*}
+\item Instationary problems: Find $u_h(t)\in U_h$ s.t.:
+\begin{equation*}
+d_t m_h(u_h(t),v;t) + r_h(u_h(t),v;t) = 0 
+\quad \forall v\in V_h
+\end{equation*}
+\item Systems of PDEs: Find $u_h\in U_h=U_h^1\times \ldots \times U_h^s$ s.t.:
+\begin{equation*}
+r_h(u_h,v)=0 
+\quad \forall v\in V_h=V_h^1\times\ldots\times V_h^s
+\end{equation*}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\begin{center}
+\Large\textbf{Implementation in DUNE/PDELab}
+\end{center}
+\end{frame}
+
+\begin{frame}
 \frametitle{Overview DUNE/PDELab Implementation}
 Files involved are:
 \begin{enumerate}[1)]
-\item Files \lstinline{ffunction.hh} and \lstinline{gfunction.hh}:
+\item File \lstinline{tutorial00.cc} 
 \begin{itemize}
-\item Classes \lstinline{FFunction} and \lstinline{GFunction} 
-implementing $f$ and $g$
+\item Includes C++, DUNE and PDELab header files 
+\item Includes all the other files 
+\item Contains the \lstinline{main} function
+\item Creates a finite element mesh and calls the \lstinline{driver}
 \end{itemize}
-\item File \lstinline{bctype.hh}
+\item File \lstinline{tutorial00.ini} 
 \begin{itemize}
-\item Class \lstinline{BCType} describing Dirichlet conditions
-\end{itemize}
-\item File \lstinline{poissonp1.hh} 
-\begin{itemize}
-\item Class \lstinline{PoissonP1} 
-realizing the necessary element-local computations
+\item Contains parameters controlling the execution
 \end{itemize}
 \item File \lstinline{driver.hh}
 \begin{itemize}
 \item Function \lstinline{driver} setting up and solving the finite element problem
 \end{itemize}
-\item File \lstinline{tutorial00.cc} 
+\item File \lstinline{poissonp1.hh} 
 \begin{itemize}
-\item Includes all the other files 
-\item Contains the \lstinline{main} function
-\item Creates a finite element mesh and calls the \lstinline{driver}
+\item Class \lstinline{PoissonP1} 
+realizing the necessary element-local computations
 \end{itemize}
 \end{enumerate}
 Now lets go to the code \ldots
