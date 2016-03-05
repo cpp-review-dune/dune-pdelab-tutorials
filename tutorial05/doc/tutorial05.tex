@@ -145,7 +145,8 @@ should:
 The local estimates $\gamma_T(u_h)$ can then be used in a strategy that tries to minimize $\gamma(u_h)$
 for fixed $\text{dim}(V_h)$ and thereby find a mesh with low discretization error $\|u - u_h\|$.
 
-If the considered PDE is linear, i.e. $q(u)$ is an affine linear function, then it can be shown
+If the considered PDE is linear, i.e. $q(u)$ is an affine linear function, then it can be shown 
+\cite{Eriksson,AinsworthOden}
 that such an estimate of the discretization error is given by
 \begin{equation*}
   \gamma_T^2(u_h) = h_T^2 \| R_T(u_h) \|_{0,T}^2 + \sum_{F \in \mathcal{F}_h \cap \partial T} h_T \| R_F(u_h) \|_{0,F}^2
@@ -805,7 +806,7 @@ The more obvious things are:
 \end{itemize}
 
 % bibtex bibliography
-%\bibliographystyle{plain}
-%\bibliography{tutorial05}
+\bibliographystyle{plain}
+\bibliography{tutorial05}
 
 \end{document}
