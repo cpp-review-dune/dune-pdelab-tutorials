@@ -65,7 +65,25 @@ some information about the grid cells and the intersections (but it
 does not yet).  The file is intermingled by suggestions what to print.
 You are invited to follow these suggestions or to try any of the
 member functions you learned about in the lectures.
-
 \end{Exercise}
+
+\begin{Exercise}{Integrating a function}
+ Write a code that integrates a function using a quadrature formula of given order.
+ Dune provides you with quadrature formulas for many geometry types and integration orders
+ with the following simple mechanism:
+
+\begin{lstlisting}
+#include<dune/pdelab/common/quadraturerules.hh>
+
+...
+  auto rule = Dune::PDELab::quadratureRule(globalgeo,order);
+  for (const auto& qp : rule)
+  { ... }
+...
+\end{lstlisting}
+ You can no call the methods \verb!weight()! and \verb!position()! on the quadrature
+ point object \verb!qp!.
+\end{Exercise}
+
 
 \end{document}

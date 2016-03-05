@@ -182,7 +182,7 @@ residual form:
 \item Boundary intersection integral depending on trial and test function.
 \item Boundary intersection integral depending on test function only.
 \end{enumerate}
-Note also note that here no constraints on the function space are necessary.
+Also note that no constraints on the function space are necessary in this case.
 Dirichlet as well as Neumann boundary conditions are built weakly into the
 residual form!
 
@@ -193,7 +193,7 @@ conforming as well as nonconforming meshes.
 \subsection*{General Residual Form}
 
 The residual form of the cell-centered finite volume method suggests that 
-all residual forms could be composed of five different types terms
+all residual forms could be composed of five different types of terms
 in the following way:
 \begin{equation}
 \begin{split}
@@ -300,7 +300,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
-Cell-wise data is passed to the \lstinline{VTKWrite}
+Cell-wise data is passed to the \lstinline{VTKWriter}
 using its method \lstinline{addCellData}:
 \lstinputlisting[linerange={71-77},
 basicstyle=\ttfamily\small,
@@ -387,7 +387,7 @@ This means that basis functions will never be evaluated!
 This method was also already present in the finite element method
 and corresponds
 to sums five \textit{and} six on the right hand side of equation \eqref{eq:res_form_final}.
-It assembles contributions from Dirchlet and Neumann
+It assembles contributions from Dirichlet and Neumann
 boundary conditions and has the interface
 \lstinputlisting[linerange={64-66},
 basicstyle=\ttfamily\small,
@@ -549,7 +549,7 @@ order discontinuous Galerkin schemes and/or systems of PDEs there are four block
 of the matrix where the face contributes to. The following figure illustrates 
 the matrix structure and the corresponding submatrices. For ease of drawing it is
 assumed that all trial and test functions of one element are numbered consecutively
-but this need not be these!
+but this need not be the case!
 \begin{figure}[h]
 \begin{center}
 \begin{tikzpicture}[scale=1.0]
@@ -580,12 +580,12 @@ but this need not be these!
 \label{fig:MatrixBlocks}
 \end{figure}
 
-The method has the follwing interface:
+The method has the following interface:
 \lstinputlisting[linerange={189-195},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
-It is very similar to \lstinline{alpha_skeleton} except that for containers
+It is very similar to \lstinline{alpha_skeleton} except that four containers
 are passed where the matrix entries of the four blocks need to be stored.
 
 The computation of distance of cell centers and the face volume are
