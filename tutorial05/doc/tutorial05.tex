@@ -157,14 +157,17 @@ with the \emph{element residuals}
 \end{equation*}
 and the \emph{face residuals}
 \begin{equation*}
-  R_F(u_h) = \begin{cases} \frac{1}{2} [-(\nabla u_h) \cdot \nu] & F \in \mathcal{F}_h^i \\ - (\nabla u_h) \cdot \nu - j & F \in \mathcal{F}_h^N \end{cases}
+  R_F(u_h) = \begin{cases} 2^{-1/2} [-(\nabla u_h) \cdot \nu] & F \in \mathcal{F}_h^i \\ - (\nabla u_h) \cdot \nu - j & F \in \mathcal{F}_h^N \end{cases}
 \end{equation*}
 Here $h_T$ is the local mesh width of the element $T$, $\mathcal{F}_h$ the set of faces of the elements
 in $\mathcal{T}_h$, $\partial T$ the boundary of element $T$, $\mathcal{F}_h^i \subset \mathcal{F}_h$
 the set of interior faces, $\mathcal{F}_h^N \subset \mathcal{F}_h$ the set of Neumann boundary faces and
-$\nu$ the unit normal vector of the face $F$ pointing from one of the elements $T^-(F)$ that belong to
-$F$ to the other $T^+(F)$. $\|\cdot\|_{0,T}$ is the $L^2$ norm on $T$, $\|\cdot\|_{0,F}$ that on $F$,
-and $[\cdot]$ the jump of the given expression across the face $F$ in the direction of $\nu$.
+$\nu$ the unit normal vector of the face $F$ pointing from one of the elements $T_F^-$ that belong to
+$F$ to the other $T_F^+$. $\|\cdot\|_{0,T}$ is the $L^2$ norm on $T$, $\|\cdot\|_{0,F}$ that on $F$,
+and $[\cdot]$ the jump of the given expression across the face $F$ in the direction of $\nu$. Broadly
+speaking, the element residual $R_T$ measures to which degree $u_h$ solves the PDE on the element $T$,
+and the face residual $R_F$ measures the consistency of the flux $-(\nabla u_h)\cdot \nu$ between the
+elements. 
 
 With these definitions one can show that
 \begin{equation*}
@@ -670,13 +673,52 @@ backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfemestimator.hh}
 The coordinates on the intersection are translated to coordinates in the two
 elements to make the evaluation of $u_h$ and its gradient possible, and the
 unit vector on the intersection pointing from $T^-$ to $T^+$ is obtained.
-\lstinputlisting[linerange={158-159},
+\lstinputlisting[linerange={158-163},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfemestimator.hh}
+
+The gradients of the basis functions are evaluated on the reference element,
+mapped onto the actual element, and used to calculate $(\nabla u_h) \cdot \nu$
+for the element $T_F^-$. Afterwards the same steps are performed for $T_F^+$,
+which is not repeated here.
+\lstinputlisting[linerange={165-175},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfemestimator.hh}
+
+The face residual $R_F$ is calculated as the difference between the two
+directional derivatives of $u_h$ across the face, and its square is added to
+the sum.
+\lstinputlisting[linerange={189-193},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfemestimator.hh}
+
+After summing up all local contributions, the result is multiplied with
+$\frac{1}{2} h_T$ and added to the estimate on the element:
+\lstinputlisting[linerange={196-199},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfemestimator.hh}
 
 \subsubsection*{Method \lstinline{alpha_boundary}}
 
+The method \lstinline{alpha_boundary} is largely identical with
+\lstinline{alpha_skeleton} and therefore isn't repeated here. All calculations
+concerning $T_F^+$ are dropped, and instead the Neumann boundary condition
+value $j$ is used in the calculation of the jump:
+\lstinputlisting[linerange={252-259},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfemestimator.hh}
+
+Additionally, the final accumulation scales with $h_T$, and not with
+$\frac{1}{2} h_T$ as the \lstinline{alpha_skeleton} method.
+\lstinputlisting[linerange={262-264},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfemestimator.hh}
 \subsection{Running the Example}
 
 Now we can run the tutorial and look at the results.
@@ -790,6 +832,34 @@ refined mesh would have:
     5 & 0.045 & 0.54 & 6804 & 3.8e5 \\
 \end{tabular}
 \end{center}
+
+The experimental order of convergence indicates that $\gamma(u_h)$ is in
+$\mathcal{O}(h^{1/2})$, which is the theoretical order of convergence of
+the $H^1$ seminorm for the considered problem. This means the error
+estimate is efficient. A more detailed analysis shows that its efficiency
+index is approximately 3.5, i.e. the estimate is a rather accurate
+representation of the size of the true error. Figure~\ref{fig:results}
+shows the final mesh and the corresponding solution $u_h$. The
+discretization error is almost completely restricted to the elements that
+touch the reentrant corner in the point $(0,0)$ and therefore hard to
+visualize. This locality suggests that the error of the locally refined
+mesh is effectively the same as that of a globally refined mesh with the
+same minimum local element diameter, and this is confirmed by a direct
+comparison with the reference solution. This means adaptive grid refinement
+reduces the required number of degrees of freedom by approximately two
+orders of magnitude for this problem, see the table above.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.499\textwidth]{solution}\hfill
+\includegraphics[width=0.499\textwidth]{refined_mesh}
+\end{center}
+\caption{Solution on the finest mesh and underlying elements. The colormap
+  for the solution uses discrete intervals to make the large gradients in
+  the reentrant corner visible. Refinement has mainly occurred in this area,
+  as can be seen on the right.}
+  \label{fig:results}
+\end{figure}
 
 \section{Outlook}
 

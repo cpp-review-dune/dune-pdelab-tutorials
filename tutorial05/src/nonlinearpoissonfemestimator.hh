@@ -163,7 +163,8 @@ public:
         auto n_F = ig.unitOuterNormal(ip.position());
 
         // gradient in normal direction in self
-        auto& gradphihat_i = cache.evaluateJacobian(iplocal_i,lfsu_i.finiteElement().localBasis());
+        auto& gradphihat_i = cache.evaluateJacobian(
+            iplocal_i,lfsu_i.finiteElement().localBasis());
         const auto S_i = geo_i.jacobianInverseTransposed(iplocal_i);
         RF gradun_i = 0.0;
         for (size_t i=0; i<lfsu_i.size(); i++)
@@ -174,7 +175,8 @@ public:
           }
 
         // gradient in normal direction in neighbor
-        auto& gradphihat_o = cache.evaluateJacobian(iplocal_o,lfsu_o.finiteElement().localBasis());
+        auto& gradphihat_o = cache.evaluateJacobian(
+            iplocal_o,lfsu_o.finiteElement().localBasis());
         const auto S_o = geo_o.jacobianInverseTransposed(iplocal_o);
         RF gradun_o = 0.0;
         for (size_t i=0; i<lfsu_o.size(); i++)
@@ -185,7 +187,8 @@ public:
           }
 
         // integrate
-        RF factor = ip.weight()*globalgeo.integrationElement(ip.position());
+        RF factor =
+          ip.weight()*globalgeo.integrationElement(ip.position());
         RF jump = gradun_i-gradun_o;
         sum += jump*jump*factor;
       }
@@ -235,7 +238,8 @@ public:
         auto n_F = ig.unitOuterNormal(ip.position());
 
         // gradient in normal direction in self
-        auto& gradphihat_i = cache.evaluateJacobian(iplocal_i,lfsu_i.finiteElement().localBasis());
+        auto& gradphihat_i = cache.evaluateJacobian(
+            iplocal_i,lfsu_i.finiteElement().localBasis());
         const auto S_i = geo_i.jacobianInverseTransposed(iplocal_i);
         RF gradun_i = 0.0;
         for (size_t i=0; i<lfsu_i.size(); i++)
@@ -249,7 +253,8 @@ public:
         auto j = param.j(ig.intersection(),ip.position());
 
         // integrate
-        RF factor = ip.weight()*globalgeo.integrationElement(ip.position());
+        RF factor =
+          ip.weight()*globalgeo.integrationElement(ip.position());
         RF jump = gradun_i+j;
         sum += jump*jump*factor;
       }
