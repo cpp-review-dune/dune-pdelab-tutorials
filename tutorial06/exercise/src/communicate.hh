@@ -17,13 +17,13 @@ public:
   // Returns true if data for this codimension should be communicated
   bool contains (int dim, int codim) const
   {
-    return (codim==cdim_);
+    // TODO: Add code here
   }
 
   // Returns true if size per entity of given dim and codim is a constant
   bool fixedsize (int dim, int codim) const
   {
-    return true;
+    // TODO: Add code here
   }
 
   // How many objects of type Data::value_type will we send for this
@@ -31,7 +31,7 @@ public:
   template<class EntityType>
   size_t size (EntityType& e) const
   {
-    return 1;
+    // TODO: Add code here
   }
 
   // Pack data from user to message buffer. With buff.write(..) you
@@ -41,8 +41,7 @@ public:
   template<class MessageBuffer, class EntityType>
   void gather (MessageBuffer& buff, const EntityType& e) const
   {
-    int idx = iset_.index(e);
-    buff.write(data_[idx]);
+    // TODO: Add code here
   }
 
   // Unpack data from message buffer to user. Hints:
@@ -52,11 +51,7 @@ public:
   template<class MessageBuffer, class EntityType>
   void scatter (MessageBuffer& buff, const EntityType& e, size_t n)
   {
-    // Else do normal scatter
-    int idx = iset_.index(e);
-    typename Data::value_type x;
-    buff.read(x);
-    data_[idx] = x;
+    // TODO: Add code here
   }
 };
 
@@ -94,13 +89,13 @@ void communicate(const GV& gv, Dune::ParameterTree& ptree){
   // Overlap_All_Interface:                   send overlap, receive all entities
   // All_All_Interface:                       send all and receive all entities
   int communicationType = ptree.get("communication.type",(int)5);
-  switch (communicationType){
-  case 1: gv.communicate(dh,Dune::InteriorBorder_InteriorBorder_Interface,Dune::ForwardCommunication); break;
-  case 2: gv.communicate(dh,Dune::InteriorBorder_All_Interface,Dune::ForwardCommunication); break;
-  case 3: gv.communicate(dh,Dune::Overlap_OverlapFront_Interface,Dune::ForwardCommunication); break;
-  case 4: gv.communicate(dh,Dune::Overlap_All_Interface,Dune::ForwardCommunication); break;
-  default: gv.communicate(dh,Dune::All_All_Interface,Dune::ForwardCommunication);
-  }
+  // switch (communicationType){
+  // case 1: gv.communicate(dh,Dune::InteriorBorder_InteriorBorder_Interface,Dune::ForwardCommunication); break;
+  // case 2: gv.communicate(dh,Dune::InteriorBorder_All_Interface,Dune::ForwardCommunication); break;
+  // case 3: gv.communicate(dh,Dune::Overlap_OverlapFront_Interface,Dune::ForwardCommunication); break;
+  // case 4: gv.communicate(dh,Dune::Overlap_All_Interface,Dune::ForwardCommunication); break;
+  // default: gv.communicate(dh,Dune::All_All_Interface,Dune::ForwardCommunication);
+  // }
 
   // Calculate the sum of the data vector
   int sum(0);
