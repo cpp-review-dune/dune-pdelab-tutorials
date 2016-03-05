@@ -175,8 +175,8 @@ DUNE and PDELab header files
 and contains the \lstinline{main} function where the execution starts.
 The purpose of the \lstinline{main} function is
 to instantiate DUNE grid objects and call the \lstinline{driver} function.
-\item File \lstinline{driver.hh} instantiates the necessary PDELab classes
-for solving a nonlinear stationary problem and finally solves the problem.
+\item File \lstinline{driver.hh} instantiates the necessary PDELab classes 
+for solving a linear instationary problem and finally solves the problem.
 \item File \lstinline{wavefem.hh} contains the local operator classes
 \lstinline{WaveFEM} and \lstinline{WaveL2} realizing the spatial
 and temporal residual forms.
@@ -195,7 +195,7 @@ backgroundcolor=\color{listingbg}]{../src/tutorial04.ini}
 \subsection{Function \lstinline{main}}
 
 The \lstinline{main} function is very similar to the one in tutorial 03.
-In order to simplify things just structured grids \lstinline{OneDGrid}
+In order to simplify things only the structured grids \lstinline{OneDGrid}
 and \lstinline{YaspGrid} are used.
 
 \subsection{Function \lstinline{driver}}
@@ -209,7 +209,7 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 There are several changes now in the driver due to the system of PDEs.
-The first step is to set a the grid function space using the given finite
+The first step is to set up the grid function space using the given finite
 element map:
 \lstinputlisting[linerange={15-18},
 basicstyle=\ttfamily\small,
@@ -260,8 +260,8 @@ closure
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
-now returning now two components in a \lstinline{FieldVector}.
-The first component is the initial value for $u$ the second component
+now returning two components in a \lstinline{FieldVector}.
+The first component is the initial value for $u$ and the second component
 is the initial value for $\partial_t u$. Then a PDELab grid function
 can be constructed from the lambda closure
 \lstinputlisting[linerange={35-35},
@@ -307,7 +307,7 @@ and then combine it using:
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
-Note that you could different constraints for each component
+Note that you could define different constraints for each component
 space although it is the same underlying function space.
 
 Now the constraints container can be assembled as before:
@@ -361,7 +361,7 @@ we select a quadrature rule
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
-and may now loop over the quadrature points
+and may now loop over the quadrature points.
 
 For each quadrature point, evaluate the basis function
 of the first component:
@@ -395,7 +395,7 @@ With the integration factor
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
-the residuals can now be accumulated
+the residuals can now be accumulated:
 \lstinputlisting[linerange={102-105},
 basicstyle=\ttfamily\small,
 frame=single,
