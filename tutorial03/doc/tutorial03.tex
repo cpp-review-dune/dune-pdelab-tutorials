@@ -44,7 +44,7 @@ Conforming Finite Elements for a\\ Nonlinear Heat Equation}
 \section{Introduction}
 
 In this tutorial we extend the elliptic problem from tutorial 01 to the
-time dependent case. Following the method of lines a genral approach to time-dependent
+time dependent case. Following the method of lines a general approach to time-dependent
 problems is presented.
 
 \subsection*{Depends On} This tutorial depends on tutorial 01.
@@ -58,7 +58,7 @@ u &= g &&\text{on $\Gamma_D\subseteq\partial\Omega$},\\
 -\nabla u\cdot \nu &= j &&\text{on $\Gamma_N=\partial\Omega\setminus\Gamma_D$},\\
 u &= u_0 &&\text{at $t=0$}.
 \end{align*}
-This problem is a straightfoward extension of the stationary
+This problem is a straightforward extension of the stationary
 problem solved in tutorial 01.
 The parameter functions $f$, $g$, $j$ may now also depend on time
 and (with some restrictions) the subdivision into Dirichlet and Neumann boundary
@@ -78,7 +78,7 @@ t \in \Sigma,
 \label{eq:WeakForm}
 \end{equation}
 where $V(t) = \{v\in H^1(\Omega)\,:\, \text{$v=0$ on $\Gamma_D(t)$}\}$
-and $H^1(\Omega)\ni u_g(t)|_{\Gamma_D}=g$. This can be shortly written
+and $H^1(\Omega)\ni u_g(t)|_{\Gamma_D}=g$. This can be written in a more compact way
 with residual forms as follows:
 \begin{equation*}
 \frac{d}{dt} m^{\text{L2}}(u,v) + r^{\text{NLP}}(u,v) = 0 \quad \forall v \in V(t), t \in \Sigma.
@@ -171,7 +171,7 @@ methods can be written in the Shu-Osher form
 \item $u_h^{k+1} = u_h^{(s)}$.
 \end{enumerate}
 Here we assume that the same type of boundary condition
-holds throught the interval $(t^k,t^{k+1}]$. The parameter $s$ denotes
+holds through the interval $(t^k,t^{k+1}]$. The parameter $s$ denotes
 the number of stages of the scheme.
 An $s$-stage scheme is given by the parameters
 \begin{equation*}
@@ -285,7 +285,7 @@ explicitly for the simplest schemes and depends on the mesh $\mathcal{T}_h$.
 For explicit time-stepping schemes therefore the following algorithm is employed:
 \begin{enumerate}[i)]
 \item While traversing the mesh assemble the vectors $s^k$ and
-$q^k$ seperately and compute the maximum time step $\Delta t^k$.
+$q^k$ separately and compute the maximum time step $\Delta t^k$.
 \item Form the right hand side $b^k=s^k - \Delta t^k q^k$ and ``solve'' the
 diagonal system $Dz^{k+1} = b^k$ (can be done in one step).
 \end{enumerate}
@@ -306,7 +306,7 @@ and contains the \lstinline{main} function where the execution starts.
 The purpose of the \lstinline{main} function is
 to instantiate DUNE grid objects and call the \lstinline{driver} function.
 \item File \lstinline{driver.hh} instantiates the necessary PDELab classes
-for solving a nonlinear stationary problem and finally solves the problem.
+for solving a nonlinear instationary problem and finally solves the problem.
 \item File \lstinline{nonlinearheatfem.hh} contains the local operator classes
 \lstinline{NonlinearHeatFEM} and \lstinline{L2} realizing the spatial
 and temporal residual forms.
@@ -316,16 +316,16 @@ encapsulates the user-definable part of the PDE problem.
 
 \subsection{Ini-File}
 
-The ini-file contains a few new parameter as compared to tutorial 01.
-The fem section contains a new parameter for the order of the time stepping
-scheme (so 1 would be implicit Euler, 2 a second order scheme like
-Alexanders 2 stage scheme):
+The ini-file contains a few new parameters compared to tutorial 01.
+The \lstinline{fem} section contains a new parameter for the order of the
+time stepping scheme (so 1 would be implicit Euler, 2 a second order
+scheme like Alexander's 2 stage scheme):
 \lstinputlisting[linerange={18-21},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial03.ini}
-and the problem section contains a parameter for the final time (the
-initial time $t_0$ is always zero:
+and the \lstinline{problem} section contains a parameter for the final time (the
+initial time $t_0$ is always zero):
 \lstinputlisting[linerange={23-25},
 basicstyle=\ttfamily\small,
 frame=single,
@@ -334,7 +334,7 @@ backgroundcolor=\color{listingbg}]{../src/tutorial03.ini}
 \subsection{Function \lstinline{main}}
 
 The \lstinline{main} function is very similar to the one in tutorial 01.
-In order to simplify things just structured grids \lstinline{OneDGrid}
+In order to simplify things only the structured grids \lstinline{OneDGrid}
 and \lstinline{YaspGrid} are used.
 
 \subsection{Parameter Class in \lstinline{problem.hh}}
@@ -345,14 +345,14 @@ In order to pass the time argument there are at least two options:
 \begin{enumerate}[1)]
 \item Extend the interface of all methods by an additional time
 argument.
-\item Pass the evaluation time via a seperate function and store the
+\item Pass the evaluation time via a separate function and store the
 time in a private data member for subsequent spatial evaluations.
 \end{enumerate}
 The second approach is taken in PDELab as it allows the reuse
 of classes from the stationary case. Interfaces of methods are not changed
 and only an additional method needs to be provided.
 This new method on the class \lstinline{Problem} has the following implementation:
-\lstinputlisting[linerange={62-65},
+\lstinputlisting[linerange={63-67},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/problem.hh}
@@ -362,7 +362,7 @@ an internal data member.
 The use of the time is shown by the Dirichlet boundary condition
 extension method implementing the function
 $u_g(x,t) = \sin(2\pi t)*\prod_{i=1}^{d-1} \sin^2(\pi x_i)\sin^2(10\pi x_i)$:
-\lstinputlisting[linerange={44-52},
+\lstinputlisting[linerange={43-54},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/problem.hh}
@@ -456,7 +456,7 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 Now a \lstinline{SubsamplingVTKWriter} and a \lstinline{VTKSequenceWriter}
-can be instatiated:
+can be instantiated:
 \lstinputlisting[linerange={111-116},
 basicstyle=\ttfamily\small,
 frame=single,
@@ -501,7 +501,7 @@ writing only  every $n$th output file and so on.
 \subsection{Spatial Local Operator}
 
 The file \lstinline{nonlinearheatfem.hh} contains the two local operators
-for spatial and temporal part. The class \lstinline{NonlinearHeatFEM} implements the
+for the spatial and the temporal part. The class \lstinline{NonlinearHeatFEM} implements the
 spatial part. It is actually very easy since the main part can be reused
 from the \lstinline{NonlinearPoissonFEM} local operator  implemented in tutorial 01 through
 public inheritance:
@@ -513,7 +513,7 @@ Just a few methods need to be added to the local operator.
 Default implementations can be inherited from
 \lstinline{InstationaryLocalOperatorDefaultMethods}. Here only the method
 \lstinline{setTime} needs to be implemented to pass on the time
-for subsequent evaluations to the parameter class.
+to the parameter class for subsequent evaluations.
 
 The following methods need to be provided by a local
 operator for instationary computations:
@@ -589,7 +589,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/nonlinearheatfem.hh}
 
-The following flag indicate that we provide a \lstinline{pattern_volume} method
+The following flag indicates that we provide a \lstinline{pattern_volume} method
 specifying the sparsity pattern. Actually, this method is provided from the base class
 \lstinline{FullVolumePattern}:
 \lstinputlisting[linerange={64-64},
@@ -604,7 +604,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/nonlinearheatfem.hh}
 
-The implementation of the \lstinline{alpha_volume}
+The implementation of \lstinline{alpha_volume}
 is very similar to the reaction term in tutorial 01. For efficiency reasons
 also \lstinline{jacobian_volume} is provided as well as the
 \lstinline{*_apply_*} variants for matrix-free operation (which might
@@ -633,7 +633,7 @@ Several ideas could be pursued from this example:
 \item Experiment with a rough initial condition, observe
 smoothing effect in time.
 \item Explore the monotonicity properties of the scheme by
-providing a discontinuous initial conditions and testing different
+providing discontinuous initial conditions and testing different
 polynomial degrees and temporal orders.
 \end{itemize}
 
