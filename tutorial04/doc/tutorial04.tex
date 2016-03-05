@@ -108,9 +108,18 @@ for simplicity.
 \subsection*{Weak Formulation}
 
 Multiplying \eqref{eq:2a}
-with test function $v_0$ and \eqref{eq:2b} with test function $v_1$
+with the test function $v_0$ and \eqref{eq:2b} with the test function $v_1$
 and using integration by parts we arrive at the weak formulation: Find $(u_0(t),u_1(t))\in
 U_0\times U_1$ s.t.
+\begin{align}
+  d_t (u_1,v_0)_{0,\Omega} + c^2 (\nabla u_0, \nabla v_0)_{0,\Omega} &=
+  0 \quad \forall v_0 \in U_0 \notag \\
+  d_t (u_0,v_1)_{0,\Omega} - (u_1,v_1)_{0,\Omega} &= 0 \quad \forall
+  v_1 \in U_1 \label{eq:WeakFormSystem}
+\end{align}
+where we used the notation of the $L^2$ inner product $(u,v)_{0,\Omega} = \int_\Omega
+u v \, dx$. An equivalent formulation to (\ref{eq:WeakFormSystem}) that
+hides the system structure reads as follows:
 \begin{equation}
 \label{eq:WeakForm}
 \begin{split}
@@ -119,16 +128,20 @@ d_t &\left[ (u_0,v_1)_{0,\Omega} + (u_1,v_0)_{0,\Omega}\right] \\
 \quad \forall (v_0,v_1)\in U_0\times U_1
 \end{split}
 \end{equation}
-where we used the notation of the $L^2$ inner product $(u,v)_{0,\Omega} = \int_\Omega
-u v \, dx$.
-We readily identify the temporal and spatial residual forms:
+With the latter we readily identify the temporal and spatial residual
+forms:
 \begin{align}
 m^{\text{WAVE}}((u_0,u_1),(v_0,v_1)) &= (u_0,v_1)_{0,\Omega} + (u_1,v_0)_{0,\Omega},
 \label{eq:TemporalResForm}\\
-r^{\text{WAVE}}((u_0,u_1),(v_0,v_1)) &= c^2 (\nabla u_0,\nabla v_0)_{0,\Omega} - (u_1,v_1)_{0,\Omega} . \label{eq:SpatialResForm}
+r^{\text{WAVE}}((u_0,u_1),(v_0,v_1)) &= c^2 (\nabla u_0,\nabla
+v_0)_{0,\Omega} - (u_1,v_1)_{0,\Omega} \; , \label{eq:SpatialResForm}
 \end{align}
-The spaces $U_0$ and $U_1$ are different as $U_0$ incorporates homogeneous
-Dirichlet boundary conditions and $U_1$ employs no boundary conditions.
+while with the former the system structure is more visible which might
+help to understand the implementation presented in section
+\ref{sec:funct-driver}.
+The spaces $U_0$ and $U_1$ can differ as different types of boundary
+conditions can be incorporated into the ansatz spaces. But here both
+spaces are constrained by homogeneous Dirichlet boundary conditions.
 
 \subsection*{Generalization}
 
@@ -175,7 +188,7 @@ DUNE and PDELab header files
 and contains the \lstinline{main} function where the execution starts.
 The purpose of the \lstinline{main} function is
 to instantiate DUNE grid objects and call the \lstinline{driver} function.
-\item File \lstinline{driver.hh} instantiates the necessary PDELab classes 
+\item File \lstinline{driver.hh} instantiates the necessary PDELab classes
 for solving a linear instationary problem and finally solves the problem.
 \item File \lstinline{wavefem.hh} contains the local operator classes
 \lstinline{WaveFEM} and \lstinline{WaveL2} realizing the spatial
@@ -199,6 +212,7 @@ In order to simplify things only the structured grids \lstinline{OneDGrid}
 and \lstinline{YaspGrid} are used.
 
 \subsection{Function \lstinline{driver}}
+\label{sec:funct-driver}
 
 The \lstinline{driver} function gets a grid view, a finite element
 map and a parameter tree and its purpose is to solve the problem on
@@ -485,7 +499,8 @@ The following ideas could be explored from this tutorial:
 \begin{itemize}
 \item Explore polynomial degree greater than $2$ by changing the blocking
 to \lstinline{none}.
-\item Compute the energy $E(u) = \|u\|^2$ and check its conservation in
+\item Compute the total energy $E(t) = \|\partial_t u\|_{0,\Omega}^2 +
+  \|\nabla u\|_{0,\Omega}^2$ and check its conservation in
 the numerical scheme.
 \item Try various time integrators, in particular the Crank-Nicolson method.
 \item Implement the elliptic projection method of \cite{Eriksson} from
