@@ -82,7 +82,15 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   newton.setMinLinearReduction(1e-4);
   newton.setMaxIterations(25);
   newton.setLineSearchMaxIterations(10);
+
+  // meassure time
+  Dune::Timer timer;
   newton.apply();
+  auto time = timer.elapsed();
+  auto maxTime = gv.comm().max(time);
+  if (gv.comm().rank()==0){
+    std::cout << std::endl << "Maximal time for solving with newton: " << maxTime << std::endl;
+  }
 
   // Write VTK output file
   Dune::SubsamplingVTKWriter<GV> vtkwriter(gv,ptree.get("output.subsampling",(int)0));

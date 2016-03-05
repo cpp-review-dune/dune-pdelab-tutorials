@@ -113,11 +113,11 @@ void communicate(const GV& gv, Dune::ParameterTree& ptree){
     std::cout << std::endl;
     std::cout << "== Output for rank " << myrank << std::endl;
     std::cout << std::endl;
-    std::cout << "For rank=0 the sum is equal to the number of codim entities" << std::endl;
-    std::cout << "where communication happened. The size  of the data vectoris" << std::endl;
-    std::cout << "equal to the number of all codim entities of this processor." << std::endl;
+    std::cout << "If you run the program with two processes the sum is equal to the number" << std::endl;
+    std::cout << "of codim entities where communication happened. The size  of the data" << std::endl;
+    std::cout << "vector is equal to the number of all codim entities of this processor." << std::endl;
     std::cout << std::endl;
-    std::cout <<"Sum of data vector: " << sum << std::endl;
+    std::cout << "Sum of data vector: " << sum << std::endl;
     std::cout << "Size of data vector: " << data.size() << std::endl;
   }
 }
