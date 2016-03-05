@@ -76,7 +76,7 @@ mpirun -np 2 ./exercise06-1
   and make some simple changes.
   \begin{enumerate}
   \item First run the code from \lstinline{exercise06-1} and try out
-    different setting. Don't forget to use \lstinline{mpirun} if you
+    different settings. Don't forget to use \lstinline{mpirun} if you
     want to use more than one process.
   \item Add a timer to the program and meassure how long it takes to
     solve the nonlinear system with newton. In tutorial00 you can see
@@ -89,8 +89,9 @@ mpirun -np 2 ./exercise06-1
     \begin{lstlisting}
 auto maxTime = gv.comm().max(time);
     \end{lstlisting}
-    This takes the maximum of the values of time from all processes.
-  \item You could also try different solver backends
+    This takes the maximum of the values of time from all
+    processes. Compare parallel and sequential times.
+  \item You could also try different solver backends.
   \end{enumerate}
 \end{Exercise}
 
@@ -135,7 +136,7 @@ gv.communicate(dh,Dune::All_All_Interface,
     but we don't need that for completing the exercise.
   \end{itemize}
   Our goal is to communicate the rank stored in the data vector to the
-  other process in overlap regions. Right now the
+  other process in the overlap regions. Right now the
   \lstinline{ExampleDataHandle} on top of the file does not
   communicate anything. Let's change that!
 
@@ -167,10 +168,11 @@ mpirun -np 2 ./exercise06-2
 [communication]
 type = 5
     \end{lstlisting}
-    Use the program output and find out where communication
-    happens. Drawing the grid with overlap is highly recommended. When
-    you know what's going on try different codimensions or larger
-    grids with more overlap.
+    Find out where communication happens for different communication
+    interfaces by looking at the program output and the comments in
+    the source code. Drawing the grid with overlap is highly
+    recommended. When you know what's going on try different
+    codimensions or larger grids with more overlap.
   \end{enumerate}
 \end{Exercise}
 
