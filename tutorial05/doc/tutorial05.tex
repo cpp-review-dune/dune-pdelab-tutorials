@@ -8,12 +8,12 @@
 \usepackage{amsthm}
 \usepackage{amscd}
 \usepackage{grffile}
-\usepackage{tikz} 
-\usepackage{eurosym} 
+\usepackage{tikz}
+\usepackage{eurosym}
 \usepackage{graphicx}
 \usepackage{color}
 \usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily, 
+\lstset{language=C++, basicstyle=\ttfamily,
   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
   commentstyle=\itshape, extendedchars=true, escapeinside={/*@}{@*/}}
 \usepackage{paralist}
@@ -30,7 +30,7 @@
 
 \definecolor{listingbg}{gray}{0.95}
 
-\title{DUNE PDELab Tutorial 05 \\ 
+\title{DUNE PDELab Tutorial 05 \\
 Adaptive Finite Element Method for a\\
 Nonlinear Poisson Equation}
 \author{DUNE/PDELab Team}
@@ -85,9 +85,9 @@ with the continuous residual form
 r^{\text{NLP}}(u,v) = \int_\Omega \nabla u \cdot \nabla v + (q(u)-f)v\,dx + \int_{\Gamma_N} jv\,ds
 \label{eq:ResidualForm}
 \end{equation*}
-and the function spaces 
+and the function spaces
 $U= \{v\in H^1(\Omega) \,:\, \text{``$v=g$'' on $\Gamma_D$}\}$
-and $V= \{v\in H^1(\Omega) \,:\, \text{``$v=0$'' on $\Gamma_D$}\}$. 
+and $V= \{v\in H^1(\Omega) \,:\, \text{``$v=0$'' on $\Gamma_D$}\}$.
 We assume that $q$ is such that this problem has a unique solution.
 
 The example application uses a domain $\Omega$ that is L-shaped and given by
@@ -113,7 +113,7 @@ element mesh with an ordered set
 \begin{equation}
 \mathcal{X}_h = \{x_1,\ldots,x_N\}
 \end{equation}
-of vertices and an ordered set 
+of vertices and an ordered set
 \begin{equation}
 \mathcal{T}_h = \{T_1, \ldots, T_M\}
 \end{equation}
@@ -145,7 +145,7 @@ should:
 The local estimates $\gamma_T(u_h)$ can then be used in a strategy that tries to minimize $\gamma(u_h)$
 for fixed $\text{dim}(V_h)$ and thereby find a mesh with low discretization error $\|u - u_h\|$.
 
-If the considered PDE is linear, i.e. $q(u)$ is an affine linear function, then it can be shown 
+If the considered PDE is linear, i.e. $q(u)$ is an affine linear function, then it can be shown
 \cite{Eriksson,AinsworthOden}
 that such an estimate of the discretization error is given by
 \begin{equation*}
@@ -201,13 +201,13 @@ files:
 \begin{enumerate}[1)]
 \item The ini-file
 \lstinline{tutorial05.ini} holds parameters read by various parts of the code
-which control the execution. 
+which control the execution.
 \item The main file \lstinline{tutorial05.cc} includes the necessary C++,
 DUNE and PDELab header files
-and contains the \lstinline{main} function where the execution starts. 
+and contains the \lstinline{main} function where the execution starts.
 The purpose of the \lstinline{main} function is
 to instantiate DUNE grid objects and call the \lstinline{driver} function.
-\item File \lstinline{driver.hh} instantiates the necessary PDELab classes 
+\item File \lstinline{driver.hh} instantiates the necessary PDELab classes
 for solving a nonlinear stationary problem and solves the problem. The file is similar
 to that of tutorial 01 but adds a loop for iterative refinement.
 \item File \lstinline{nonlinearpoissonfem.hh} contains the class
@@ -270,13 +270,13 @@ The user can give the name of the output file and specify the subsampling depth.
 
 The \lstinline{main} function  in \lstinline{tutorial05.cc} is very similar to the ones
 in \lstinline{tutorial00.cc} and \lstinline{tutorial01.cc}. It starts by getting a reference
-to the \lstinline{Dune::MPIHelper} singleton and opens and reads in the ini-file. 
+to the \lstinline{Dune::MPIHelper} singleton and opens and reads in the ini-file.
 These parts are not repeated here.
 
 Then there are two sections where \lstinline{Dune::Grid} objects are instantiated
 and the \lstinline{driver} function is called. Since the grid manager
 and the polynomial degree are template parameters of various classes
-but the user should be able to select these during run-time in the ini-file all 
+but the user should be able to select these during run-time in the ini-file all
 the different cases are selected with \lstinline{if}-statements within which
 the appropriate classes are instantiated. We present the section using
 \lstinline{UGGrid} here, the section for \lstinline{AluGrid} is nearly identical.
@@ -443,7 +443,7 @@ the order of the quadrature rule that is used in this process.
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
-The function \lstinline{adapt_grid} has updated the grid function space and transfered the
+The function \lstinline{adapt_grid} has updated the grid function space and transferred the
 solution to the new mesh, but the Dirichlet boundary condition requires manual intervention.
 The function \lstinline{constraints} is called again, which updates the list of constrained
 degrees of freedom on the Dirichlet boundary. Then the corresponding values of the Dirichlet
@@ -555,7 +555,7 @@ backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfemestimator.hh}
 
 \subsubsection*{Method \lstinline{alpha_volume}}
 
-This method assembles the error estimate contribution $R_T$ for a single element $T$. 
+This method assembles the error estimate contribution $R_T$ for a single element $T$.
 Its interface is
 \lstinputlisting[linerange={79-83},
 basicstyle=\ttfamily\small,
