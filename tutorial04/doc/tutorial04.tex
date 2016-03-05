@@ -8,12 +8,12 @@
 \usepackage{amsthm}
 \usepackage{amscd}
 \usepackage{grffile}
-\usepackage{tikz} 
-\usepackage{eurosym} 
+\usepackage{tikz}
+\usepackage{eurosym}
 \usepackage{graphicx}
 \usepackage{color}
 \usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily, 
+\lstset{language=C++, basicstyle=\ttfamily,
   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
   commentstyle=\itshape, extendedchars=true, escapeinside={/*@}{@*/}}
 \usepackage{paralist}
@@ -30,7 +30,7 @@
 
 \definecolor{listingbg}{gray}{0.95}
 
-\title{DUNE PDELab Tutorial 04 \\ 
+\title{DUNE PDELab Tutorial 04 \\
 Finite Elements for the Wave Equation}
 \author{DUNE/PDELab Team}
 \date{\today}
@@ -44,7 +44,7 @@ Finite Elements for the Wave Equation}
 \section{Introduction}
 
 In this tutorial we solve the wave equation formulated as a first order
-in time system. This way the example serves as a model for the 
+in time system. This way the example serves as a model for the
 treatment of systems of partial differential equations in PDELab.
 
 \subsection*{Depends On} This tutorial depends on tutorial 01 and 03.
@@ -97,7 +97,7 @@ in a first-order hyperbolic system of PDEs for $q$ and $w$
 \partial_t q + c^2 \nabla\cdot w &= 0\\
 \partial_t w + \nabla q &= 0
 \end{align*}
-which are called equations of linear acoustics \cite{LeVeque}. This formulation 
+which are called equations of linear acoustics \cite{LeVeque}. This formulation
 is physically more relevant. It can be modified to handle discontinuous material
 properties and upwind finite volume methods can be used for numerical treatment.
 \end{itemize}
@@ -115,7 +115,7 @@ U_0\times U_1$ s.t.
 \label{eq:WeakForm}
 \begin{split}
 d_t &\left[ (u_0,v_1)_{0,\Omega} + (u_1,v_0)_{0,\Omega}\right] \\
-&\hspace{20mm}+ \left[ c^2 (\nabla u_0,\nabla v_0)_{0,\Omega} -(u_1,v_1)_{0,\Omega} \right] = 0 
+&\hspace{20mm}+ \left[ c^2 (\nabla u_0,\nabla v_0)_{0,\Omega} -(u_1,v_1)_{0,\Omega} \right] = 0
 \quad \forall (v_0,v_1)\in U_0\times U_1
 \end{split}
 \end{equation}
@@ -127,7 +127,7 @@ m^{\text{WAVE}}((u_0,u_1),(v_0,v_1)) &= (u_0,v_1)_{0,\Omega} + (u_1,v_0)_{0,\Ome
 \label{eq:TemporalResForm}\\
 r^{\text{WAVE}}((u_0,u_1),(v_0,v_1)) &= c^2 (\nabla u_0,\nabla v_0)_{0,\Omega} - (u_1,v_1)_{0,\Omega} . \label{eq:SpatialResForm}
 \end{align}
-The spaces $U_0$ and $U_1$ are different as $U_0$ incorporates homogeneous 
+The spaces $U_0$ and $U_1$ are different as $U_0$ incorporates homogeneous
 Dirichlet boundary conditions and $U_1$ employs no boundary conditions.
 
 \subsection*{Generalization}
@@ -137,7 +137,7 @@ carries over to the case of systems of
 partial differential equations when cartesian products of
 functions spaces are introduced, i.e. the abstract \textit{stationary} problem then reads
 \begin{equation}
-\text{Find $u_h\in U_h=U_h^1\times \ldots \times U_h^s$ s.t.:} \quad r_h(u_h,v)=0 
+\text{Find $u_h\in U_h=U_h^1\times \ldots \times U_h^s$ s.t.:} \quad r_h(u_h,v)=0
 \quad \forall v\in V_h=V_h^1\times\ldots\times V_h^s
 \label{Eq:BasicSystemBuildingBlock}
 \end{equation}
@@ -146,7 +146,7 @@ are completely orthogonal meaning that $r_h$ might be affine linear or nonlinear
 in its first argument and the instationary case works as well.
 
 From an organizational point of view it makes sense to allow that
-a component space $U_h^i$ in the cartesian product is itself 
+a component space $U_h^i$ in the cartesian product is itself
 a product space. This naturally leads to a \textit{tree structure} in the
 function spaces.
 
@@ -158,24 +158,24 @@ $$ U = (P,(V^1,\ldots,V^d)).$$
 \section{Finite Element Method}
 
 The finite element method applied to \eqref{eq:WeakForm} is straightforward.
-We may use the conforming space $V_h^{k,d}(\mathcal{T}_h)$ of degree $k$ 
+We may use the conforming space $V_h^{k,d}(\mathcal{T}_h)$ of degree $k$
 in dimension $d$ for each of the components. Typically one would choose
 the same polynomial degree for both components.
 
 \section{Realization in PDELab}
 
-The structure of the code is very similar to that of tutorial 01 and 03. 
+The structure of the code is very similar to that of tutorial 01 and 03.
 It consists of the following files:
 \begin{enumerate}[1)]
 \item The ini-file
 \lstinline{tutorial04.ini} holds parameters read by various parts of the code
-which control the execution. 
+which control the execution.
 \item The main file \lstinline{tutorial04.cc} includes the necessary C++,
 DUNE and PDELab header files
-and contains the \lstinline{main} function where the execution starts. 
+and contains the \lstinline{main} function where the execution starts.
 The purpose of the \lstinline{main} function is
 to instantiate DUNE grid objects and call the \lstinline{driver} function.
-\item File \lstinline{driver.hh} instantiates the necessary PDELab classes 
+\item File \lstinline{driver.hh} instantiates the necessary PDELab classes
 for solving a nonlinear stationary problem and finally solves the problem.
 \item File \lstinline{wavefem.hh} contains the local operator classes
 \lstinline{WaveFEM} and \lstinline{WaveL2} realizing the spatial
@@ -226,23 +226,23 @@ PDELab offers two different class templates to build product spaces. The
 one used here is \lstinline{PowerGridFunctionSpace} which creates
 a product of a compile-time given number (2 here)
 of \textit{identical} function spaces (\lstinline{GFS0} here)
-which may only differ in the constraints. With the 
+which may only differ in the constraints. With the
 class template \lstinline{CompositeGridFunctionSpace} you can create
-a product space where all components might be different spaces. 
+a product space where all components might be different spaces.
 
-An important aspect of product spaces is the ordering of the corresponding degrees 
+An important aspect of product spaces is the ordering of the corresponding degrees
 of freedom. Often the solvers need to exploit an underlying block structure
-of the matrices. 
+of the matrices.
 
 This works in two stages: An ordering has first to be specified when creating product spaces
 which is then subsequently exploited in the backend.
-Here we use the \lstinline{EntityBlockedOrderingTag} to specify that all degrees of 
+Here we use the \lstinline{EntityBlockedOrderingTag} to specify that all degrees of
 freedom related to a geometric entity should be numbered consecutively in
 the coefficient vector. Other options are the \lstinline{LexicographicOrderingTag}
 ordering first all degrees of freedom of the first component space, then
 all of the second component space and so on.
 With the Iterative Solver Template Library ISTL it is now
-possible to exploit the block structure at compile-time. 
+possible to exploit the block structure at compile-time.
 Here we use the tag \lstinline{fixed} in the ISTL vector backend to indicate
 that at this level we want to create blocks of fixed size (in this case the block size will be two --
 corresponding to the degrees of freedom per entity). Another option
@@ -251,7 +251,7 @@ of freedom are still ordered in the specified way but no block structure is
 introduced on the ISTL level. \textit{Important notice:} Using fixed block
 structure in ISTL requires that there is the same number of degrees of freedom
 per entity. This is true for polynomial degrees one and two but \textit{not}
-for higher polynomial degree! 
+for higher polynomial degree!
 
 In order to define a function that specifies the initial value we can
 use the same techniques as in the scalar case. We first define a lambda
@@ -282,7 +282,7 @@ space. This is done by the following code section:
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
-In fact, one could have a tree-tructured function space and
+In fact, one could have a tree-structured function space and
 extract an arbitrary node as a function space.
 
 The component spaces can now be used to build
@@ -297,7 +297,7 @@ The subspace automatically extracts the required components from the solution ve
 The next step is to assemble the constraints container for the composite
 function space. Unfortunately there is currently no way to define the
 constraints for both components in one go. We need to
-set up a seperate lambda closure for each component:
+set up a separate lambda closure for each component:
 \lstinputlisting[linerange={57-62},
 basicstyle=\ttfamily\small,
 frame=single,
@@ -325,7 +325,7 @@ The spatial residual form \eqref{eq:SpatialResForm} is
 implemented by the local operator \lstinline{WaveFEM} in
 file \lstinline{wavefem.hh}. Cache construction and flags settings
 are the same as in tutorial 01 and 03. Only volume terms are used here.
-Note also that no parameter object is necessary as the only parameter 
+Note also that no parameter object is necessary as the only parameter
 is the speed of sound $c$.
 
 \subsubsection*{\lstinline{alpha_volume} method}
@@ -412,14 +412,14 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
 
-Component selection, quadrature rule selection and 
+Component selection, quadrature rule selection and
 basis evaluation are the same as in \lstinline{alpha_volume}.
 We only consider the accumulation of the Jacobian entries here:
 \lstinputlisting[linerange={140-148},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
-Note how the diagonal subblocks of the Jacobian with respect to
+Note how the diagonal sub-blocks of the Jacobian with respect to
 the first and second component are accessed.
 
 Finally, \lstinline{WaveFEM} also implements the matrix-free versions
@@ -449,7 +449,7 @@ and vice versa.
 
 \subsubsection*{\lstinline{jacobian_volume} method}
 
-The corresponding Jacobian entries are accumulated in the 
+The corresponding Jacobian entries are accumulated in the
 \lstinline{jacobian_volume} method:
 \lstinputlisting[linerange={262-269},
 basicstyle=\ttfamily\small,
@@ -473,7 +473,7 @@ to right, top to bottom.}
 \label{fig:Bunt}
 \end{figure}
 
-The example solves the wave equation in the domain 
+The example solves the wave equation in the domain
 $\Omega = (0,2.5)\times (0,1)^{d-1}$ with a bump-like
 initial condition. The results for the two-dimensional case are
 illustrated in Figure \ref{fig:Bunt}. The initial bump has a height of 1
@@ -484,9 +484,9 @@ while the color code corresponds to blue for $-0.5$ and red for $0.5$.
 The following ideas could be explored from this tutorial:
 \begin{itemize}
 \item Explore polynomial degree greater than $2$ by changing the blocking
-to \lstinline{none}. 
+to \lstinline{none}.
 \item Compute the energy $E(u) = \|u\|^2$ and check its conservation in
-the numerical scheme. 
+the numerical scheme.
 \item Try various time integrators, in particular the Crank-Nicolson method.
 \item Implement the elliptic projection method of \cite{Eriksson} from
 equation \eqref{eq:Eriksson}.
