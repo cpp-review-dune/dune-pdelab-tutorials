@@ -10,11 +10,11 @@
 \usepackage{grffile}
 \usepackage{tikz}
 \usetikzlibrary{patterns}
-\usepackage{eurosym} 
+\usepackage{eurosym}
 \usepackage{graphicx}
 \usepackage{color}
 \usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily, 
+\lstset{language=C++, basicstyle=\ttfamily,
   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
   commentstyle=\itshape, extendedchars=true, escapeinside={/*@}{@*/}}
 \usepackage{paralist}
@@ -76,11 +76,11 @@ restricted to \textit{axiparallel meshes}. We assume that  the domain $\Omega$ i
 $\mathcal{T}_h = \{T_1, \ldots, T_M\}$ consisting of elements
 which are closed point sets satisfying
 \begin{equation}
-\bigcup_{T\in \mathcal{T}_h} T = \overline{\Omega}, \quad 
+\bigcup_{T\in \mathcal{T}_h} T = \overline{\Omega}, \quad
 \forall T, T' \in \mathcal{T}_h, T\neq T' : \mathring{T} \cap \mathring{T}' = \emptyset .
 \end{equation}
 In order to describe the method some further notation is needed.
-The nonempty intersections $F = T_F^-\cap T_F^+$ 
+The nonempty intersections $F = T_F^-\cap T_F^+$
 of codimension 1 form the interior skeleton $\mathcal{F}_h^i=\{F_1,\ldots,F_N\}$.
 Each intersection is equipped with a unit normal vector $\nu_F$ pointing from $T_F^-$ to $T_F^+$.
 The intersections of an element $F=T_F^-\cap\partial\Omega$ with the domain
@@ -89,7 +89,7 @@ boundary form the set of boundary intersections $\mathcal{F}_h^{\partial\Omega}=
 Dirichlet boundary intersections $\mathcal{F}_h^{\Gamma_D}$
 and Neumann boundary intersections $\mathcal{F}_h^{\Gamma_N}$.
 Each boundary intersection is equipped with a unit normal vector
-$\nu_F$ which coincides with the unit outer normal to the domain. 
+$\nu_F$ which coincides with the unit outer normal to the domain.
 Furthermore, $x_T$, $x_F$ denotes the center point of an element or face.
 This notation is illustrated graphically in Figure \ref{fig:MeshNotation}.
 
@@ -120,14 +120,14 @@ This notation is illustrated graphically in Figure \ref{fig:MeshNotation}.
 \label{fig:MeshNotation}
 \end{figure}
 
-For the cell-centered finite volume method the discrete function space involved 
+For the cell-centered finite volume method the discrete function space involved
 is the space of piecewise constant functions on the mesh:
 \begin{equation*}
 W_h = \{w\in L^2(\Omega) \,:\,  \text{$w|_T=$ const for all $T\in\mathcal{T}_h$}\} .
 \end{equation*}
 
-In order to derive the residual form we proceed as follows: multiply 
-equation \eqref{eq:ProblemStrong} with a test function $v\in W_h$, i.e. \textit{from 
+In order to derive the residual form we proceed as follows: multiply
+equation \eqref{eq:ProblemStrong} with a test function $v\in W_h$, i.e. \textit{from
 the discrete space}, and use integration by parts:
 \begin{align*}
 \int_{\Omega} f v \,dx &= \int_{\Omega} [-\Delta u + q(u)] v\,dx\\
@@ -151,7 +151,7 @@ and all integrals are approximated by the midpoint rule
 \end{equation*}
 where $|T|$ is the measure of $T$.
 
-Put together the cell-centered finite volume method can be stated 
+Put together the cell-centered finite volume method can be stated
 in its abstract form suitable for implementation in PDELab:
 \begin{equation}
 \boxed{ \text{Find $u_h\in W_h$ s.t.:} \quad r_h^{\text{CCFV}}(u_h,v) = 0 \quad \forall v \in W_h }
@@ -160,20 +160,20 @@ where the residual form is
 \begin{equation}
 \label{eq:res_form_final}
 \begin{split}
-r_h^{\text{CCFV}}(u_h,v) 
+r_h^{\text{CCFV}}(u_h,v)
 & = \sum_{T\in\mathcal{T}_h} q(u_h(x_T)) v(x_T) |T|
 - \sum_{T\in\mathcal{T}_h} f(x_T) v(x_T) |T|\\
-&\ - \sum_{F\in\mathcal{F}_h^i} 
+&\ - \sum_{F\in\mathcal{F}_h^i}
 \frac{u_h(x_{T_F^+})-u_h(x_{T_F^-})}{\|x_{T_F^+} - x_{T_F^-}\|}
 \bigl[v(x_{T_F^-}) - v(x_{T_F^+})\bigr] |F|\\
-&\ + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D} 
+&\ + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D}
 \frac{u_h(x_{T_F^-})}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F| \\
-&\ - \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D} 
+&\ - \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D}
 \frac{g(x_{F}))}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F|
 + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_N} j(x_{F}) v(x_{T_F^-}) |F| .
 \end{split}
 \end{equation}
-In this case \textit{five} different types of integrals are involved in the 
+In this case \textit{five} different types of integrals are involved in the
 residual form:
 \begin{enumerate}
 \item Volume integral depending on trial and test function.
@@ -186,19 +186,19 @@ Also note that no constraints on the function space are necessary in this case.
 Dirichlet as well as Neumann boundary conditions are built weakly into the
 residual form!
 
-Finally, many types of discontinuous Galerkin finite element methods (DGFEM) 
+Finally, many types of discontinuous Galerkin finite element methods (DGFEM)
 lead to the same five types of integrals and can be applied on general unstructured
 conforming as well as nonconforming meshes.
 
 \subsection*{General Residual Form}
 
-The residual form of the cell-centered finite volume method suggests that 
+The residual form of the cell-centered finite volume method suggests that
 all residual forms could be composed of five different types of terms
 in the following way:
 \begin{equation}
 \begin{split}
-r(u,v) &= 
-\sum_{T\in\mathcal{T}_h} \alpha_T^V(R_T u, R_T v) 
+r(u,v) &=
+\sum_{T\in\mathcal{T}_h} \alpha_T^V(R_T u, R_T v)
 + \sum_{T\in\mathcal{T}_h} \lambda_T^V(R_T v) \\
 &\qquad+ \sum_{F\in\mathcal{F}_h^i} \alpha_F^S(R_{T_F^-} u,R_{T_F^+} u, R_{T_F^-} v, R_{T_F^+} v)\\
 &\qquad+ \sum_{F\in\mathcal{F}_h^{\partial\Omega}} \alpha_F^B(R_{T_F^-} u, R_{T_F^-} v)
@@ -220,7 +220,7 @@ The five terms comprise volume integrals (superscript $V$), interior skeleton in
 $\alpha$-terms depend on trial and test functions whereas the $\lambda$-terms only
 depend on the test function and involve the data of the PDE.
 
-Each of the five terms $\alpha_T^V$, $\alpha_F^S$, $\alpha_F^B$, 
+Each of the five terms $\alpha_T^V$, $\alpha_F^S$, $\alpha_F^B$,
 $\lambda_T^V$, $\lambda_F^B$ corresponds to one method on the
 local operator.
 In addition to the evaluation of residuals also Jacobians and
@@ -231,37 +231,37 @@ to in total $5+3+3=11$ possible methods on a local operator given in the followi
 \begin{tabular}{l|l|l|l}
     & volume & skeleton & boundary \\
 \hline
-residual    & \lstinline{alpha_volume} & \lstinline{alpha_skeleton} & \lstinline{alpha_boundary} \\
-                & \lstinline{lambda_volume} & & \lstinline{lambda_boundary} \\
+residual    & \lstinline!alpha_volume! & \lstinline!alpha_skeleton! & \lstinline!alpha_boundary! \\
+                & \lstinline!lambda_volume! & & \lstinline!lambda_boundary! \\
 \hline
-Jacobian  & \lstinline{jacobian_volume} & \lstinline{jacobian_skeleton} & \lstinline{jacobian_boundary} \\
+Jacobian  & \lstinline!jacobian_volume! & \lstinline!jacobian_skeleton! & \lstinline!jacobian_boundary! \\
 \hline
-Jac.  app.  & \lstinline{jacobian_apply_volume} & \lstinline{jacobian_apply_skeleton} &
-\lstinline{jacobian_apply_boundary}
+Jac.  app.  & \lstinline!jacobian_apply_volume! & \lstinline!jacobian_apply_skeleton! &
+\lstinline!jacobian_apply_boundary!
 \end{tabular}
 \end{center}
 
 \section{Realization in PDELab}
 
-The structure of the code is already known from the previous tutorials. 
+The structure of the code is already known from the previous tutorials.
 It consists of the following files:
 \begin{enumerate}[1)]
 \item The ini-file
 \lstinline{tutorial02.ini} holds parameters read by various parts of the code
-which control the execution. 
+which control the execution.
 \item The main file \lstinline{tutorial02.cc} includes the necessary C++,
 DUNE and PDELab header files
-and contains the \lstinline{main} function where the execution starts. 
+and contains the \lstinline{main} function where the execution starts.
 The purpose of the \lstinline{main} function is
 to instantiate DUNE grid objects and call the \lstinline{driver} function.
-\item File \lstinline{driver.hh} instantiates the necessary PDELab classes 
+\item File \lstinline{driver.hh} instantiates the necessary PDELab classes
 for solving a nonlinear stationary problem with the cell-centered finite
 volume method and solves the problem.
 \item File \lstinline{nonlinearpoissonfv.hh} contains the class
 \lstinline{NonlinearPoissonFV} realizing a PDELab local operator implementing
 the cell-centered finite volume method on axi-parallel meshes.
 \item File \lstinline{problem.hh} contains a parameter class which
-encapsulates the user-definable part of the PDE problem as introduced in 
+encapsulates the user-definable part of the PDE problem as introduced in
 tutorial 01.
 \end{enumerate}
 
@@ -271,7 +271,7 @@ The ini-file uses the same sections as in tutorial 01 with the following excepti
 \begin{itemize}
 \item Only the structured grid in its \lstinline{YaspGrid} implementation can be used
 in dimension 2 and 3. \lstinline{OneDGrid} is used in dimension 1.
-\item No degree can be chosen. 
+\item No degree can be chosen.
 \end{itemize}
 
 \subsection{Function \lstinline{main}}
@@ -281,7 +281,7 @@ and need not be repeated here.
 
 \subsection{Function \lstinline{driver}}
 
-Also the function \lstinline{driver} is very similar in structure to the 
+Also the function \lstinline{driver} is very similar in structure to the
 one in tutorial 00 and 01. Here we just point out the differences.
 The cell-centered finite volume method is based on the space of piecewise
 constant functions on the mesh $W_h$. The following code segment
@@ -418,7 +418,7 @@ backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
 
 Now \lstinline{alpha_volume} has also been present before and corresponds
 to the first sum on the right hand side of equation \eqref{eq:res_form_final}.
-Here it just contains the evaluation of the reaction term 
+Here it just contains the evaluation of the reaction term
 with the midpoint rule:
 \lstinputlisting[linerange={110-123},
 basicstyle=\ttfamily\small,
@@ -466,7 +466,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
 \lstinline{x} are the coefficients of the linearization point and
-\lstinline{z} are the entries of the vector to be multiplied with the 
+\lstinline{z} are the entries of the vector to be multiplied with the
 Jacobian. The result is accumulated to the container \lstinline{r}.
 
 Here is the implementation:
@@ -493,7 +493,7 @@ The subscripts \lstinline{_i} and \lstinline{_o} correspond to
 ``inside'' and ``outside''. W.r.t. our notation above in section \ref{sec:fv_method}
 ``inside'' corresponds to ``-'' and ``outside'' corresponds to ``+''.
 
-Note that \lstinline{alpha_skeleton} needs to assemble 
+Note that \lstinline{alpha_skeleton} needs to assemble
 residual contributions for all test functions involved with \textit{both}
 elements next to the intersection and corresponds
 to sum number three on the right hand side of equation \eqref{eq:res_form_final}.
@@ -529,7 +529,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
 In fact, the contribution to the inside element, i.e. to \lstinline{r_i} is the flux from the
-inside to the outside element. The contribution to the outside 
+inside to the outside element. The contribution to the outside
 element residual is exactly the negative value, i.e. we have local conservation.
 
 \subsubsection*{Method \lstinline{jacobian_skeleton}}
@@ -544,9 +544,9 @@ are test functions on the inside and outside elements (corresponding to rows in 
 matrix) as well as trial functions on the inside and outside element (corresponding to
 columns of the matrix). In the case of the cell-centered finite volume method for
 the nonlinear Poisson equations there is only one degree of freedom and test function per
-element, so there are four matrix entries which the face contributes. In case of higher 
-order discontinuous Galerkin schemes and/or systems of PDEs there are four blocks 
-of the matrix where the face contributes to. The following figure illustrates 
+element, so there are four matrix entries which the face contributes. In case of higher
+order discontinuous Galerkin schemes and/or systems of PDEs there are four blocks
+of the matrix where the face contributes to. The following figure illustrates
 the matrix structure and the corresponding submatrices. For ease of drawing it is
 assumed that all trial and test functions of one element are numbered consecutively
 but this need not be the case!
@@ -598,8 +598,8 @@ backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
 
 \subsubsection*{Method \lstinline{jacobian_apply_skeleton}}
 
-The \lstinline{jacobian_apply_skeleton} method needs to 
-compute the local Jacobian contributions and multiply them with 
+The \lstinline{jacobian_apply_skeleton} method needs to
+compute the local Jacobian contributions and multiply them with
 a given coefficient vector. It has the following interface
 \lstinputlisting[linerange={225-231},
 basicstyle=\ttfamily\small,
@@ -648,7 +648,7 @@ backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
 
 \subsubsection*{Method \lstinline{jacobian_boundary}}
 
-The \lstinline{jacobian_boundary} method computes 
+The \lstinline{jacobian_boundary} method computes
 the Jacobian contributions resulting from boundary face integrals
 and has the following interface:
 \lstinputlisting[linerange={270-274},
@@ -658,7 +658,7 @@ backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
 The interface is the same as for \lstinline{alpha_boundary} except that
 a matrix container is passed as the last argument.
 
-As the contributions only depend on test and trial functions 
+As the contributions only depend on test and trial functions
 of the inside element there is only contribution to one
 matrix entry:
 \lstinputlisting[linerange={298-298},
@@ -668,7 +668,7 @@ backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
 
 \subsubsection*{Method \lstinline{jacobian_apply_boundary}}
 
-Finally, the \lstinline{jacobian_apply_boundary} does a 
+Finally, the \lstinline{jacobian_apply_boundary} does a
 matrix-free Jacobian times vector multiplication. Due to linearity
 we can reuse the \lstinline{alpha_boundary} method:
 \lstinputlisting[linerange={302-311},
@@ -705,7 +705,7 @@ method}
  Time per iteration & 0.10 & 0.08 \\
  \# Linear Iterations & 15 & 9 \\
  \# Newton Iterations & 5 & 5 \\
- Total time & 16.83 & 6.95 
+ Total time & 16.83 & 6.95
 \end{tabular}
 \end{center}
 \end{figure}
@@ -728,7 +728,7 @@ exact Jacobian in combination with a different discretization scheme make any di
 \item Implement a convection term with upwinding. The equation in strong conservative
 form is
 $$ \nabla\{ \vec\beta u - \nabla u\} + q(u) = f $$
-where $\vec\beta(x)$ is a given (divergence free) velocity field. 
+where $\vec\beta(x)$ is a given (divergence free) velocity field.
 
 In the residual form the full upwind discretization is realized by the following
 term:
