@@ -89,12 +89,12 @@ which has advantages for energy conservation but requires additional smoothness
 properties.
 \item Alternatively, we may introduce the abbreviations
 $q=\partial_t u$ and $w=-\nabla u$, so $\partial_{tt} u - c^2 \Delta u =
-\partial_{tt} u - \nabla\cdot\nabla u = \partial_{t} q + \nabla\cdot w = 0$.
+\partial_{tt} u - c^2 \nabla\cdot\nabla u = \partial_{t} q + c^2 \nabla\cdot w = 0$.
 Taking partial derivatives of the introduced variables we obtain $\partial_{x_i} q=
 \partial_{x_i} \partial_t u = \partial_t \partial_{x_i}  u = - \partial_t w_i$. This results
 in a first-order hyperbolic system of PDEs for $q$ and $w$
 \begin{align*}
-\partial_t q - c^2 \nabla\cdot w &= 0\\
+\partial_t q + c^2 \nabla\cdot w &= 0\\
 \partial_t w + \nabla q &= 0
 \end{align*}
 which are called equations of linear acoustics \cite{LeVeque}. This formulation 
