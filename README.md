@@ -10,7 +10,7 @@ This package contains a number of individual tutorials that present different as
 the PDELab framework.
 
 If you need help, please ask on our [mailinglist][2]. Bugs can also be submitted
-to the PDELab [bugtracker][3] instead.
+to the [bugtracker][3] instead.
 
 Dependencies
 ------------
@@ -53,4 +53,4 @@ Links
  [3]: https://gitlab.dune-project.org/pdelab/dune-pdelab-tutorials/issues
  [4]: https://gitlab.dune-project.org/ug/ug
  [5]: https://gitlab.dune-project.org/extensions/dune-alugrid
- [4]: LICENSE.md
+ [6]: LICENSE.md
