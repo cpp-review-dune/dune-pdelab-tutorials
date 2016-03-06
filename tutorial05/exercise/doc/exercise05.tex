@@ -77,7 +77,7 @@ $ time ./exercise05
 meshes generated for the different polynomial degrees.
 \item The idea of the heuristic refinement algorithm refining only the elements with the
 largest contribution to the error is to \textit{equilibrate} the error. To check how well this
-is achieved use the calculator filter in paraview to plot $\log(\gamma_T(u_h))$. Note that
+is achieved use the calculator filter in ParaView to plot $\log(\gamma_T(u_h))$. Note that
 the cell data exported by the (unchanged) code is $\gamma_T^2(u_h)$! Now check
 the minimum and maximum error contributions. What happens directly at the singularity,
 i.e. the point $(0,0)$?
@@ -97,7 +97,7 @@ auto glambda =
   [&](const auto& e, const auto& x){return problem.g(e,x);};
 auto g = Dune::PDELab::makeGridFunctionFromCallable(gv,glambda);
 \end{lstlisting}
-Also the following code segement used in many tutorials constructs
+Also the following code segment used in many tutorials constructs
 a PDELab grid function object \lstinline{zdgf} from a grid function space and
 a coefficient vector:
 \begin{lstlisting}[basicstyle=\ttfamily\small,
@@ -136,7 +136,7 @@ from \lstinline{<dune/pdelab/function/sqr.hh>} and the function
 Output the result to the console by writing in a single line a tag
 like \lstinline{L2ERROR}, the number of degrees of freedom
 using \lstinline{gfs.globalSize()} and the $L_2$-norm. This
-lets you grep the results later for postprocessing.
+lets you grep the results later for post-processing.
 \item Investigate the $L_2$-error for different polynomial degrees. Run the code
 using different polynomial degrees and also uniform and adaptive (use your optimal
 \lstinline{fraction}) refinement. Use \lstinline{gnuplot} to produce graphs such as
