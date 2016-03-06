@@ -52,8 +52,8 @@ adaptive refinement starts.
 \item \lstinline{fraction} : Remember that the global error is estimated from element-wise
 contributions: $$\gamma^2(u_h) = \sum_{T\in \mathcal{T}_h} \gamma_T^2(u_h).$$
 The fraction parameter controls which elements are marked for refinement. More precisely,
-the largest threshold $\gamma^\ast$ is determined such that 
-$$\sum_{\{T\in\mathcal{T}_h \,:\, \gamma_T(u_h)\geq\gamma^\ast\}} \gamma_T^2(u_h) 
+the largest threshold $\gamma^\ast$ is determined such that
+$$\sum_{\{T\in\mathcal{T}_h \,:\, \gamma_T(u_h)\geq\gamma^\ast\}} \gamma_T^2(u_h)
 \geq \text{\lstinline{fraction}} \cdot \gamma^2(u_h). $$
 If \lstinline{fraction} is set to zero no elements need to be refined, i.e. $\gamma^\ast=\infty$.
 When \lstinline{fraction} is set to one then all elements need to be refined, i.e. $\gamma^\ast=0$.
@@ -64,7 +64,7 @@ value for \lstinline{fraction}.
 \end{itemize}
 Carry out the following experiments:
 \begin{enumerate}
-\item Choose polynomial degree 1 and fix a tolerance, e.g. \lstinline{tol}=0.01. 
+\item Choose polynomial degree 1 and fix a tolerance, e.g. \lstinline{tol}=0.01.
 Set \lstinline{steps} to a large number so that the algorithm is not stopped before the
 tolerance is reached. Set \lstinline{uniformlevel} to zero. Now vary the \lstinline{fraction} parameter
 and measure the execution time with
@@ -73,7 +73,7 @@ frame=single,
 backgroundcolor=\color{listingbg}]
 $ time ./exercise05
 \end{lstlisting}
-\item Repeat the previous experiment with polynomial degrees tow and three. Compare the optimal
+\item Repeat the previous experiment with polynomial degrees two and three. Compare the optimal
 meshes generated for the different polynomial degrees.
 \item The idea of the heuristic refinement algorithm refining only the elements with the
 largest contribution to the error is to \textit{equilibrate} the error. To check how well this
@@ -86,7 +86,7 @@ i.e. the point $(0,0)$?
 
 \begin{Exercise}{Compute the True $L_2$-error}
 
-To do that exercise we need some more background on PDELab grid functions.
+To do this exercise we need some more background on PDELab grid functions.
 The following code known from several tutorials by now
 constructs a PDELab grid function object \lstinline{g}:
 \begin{lstlisting}[basicstyle=\ttfamily\small,
@@ -104,7 +104,7 @@ a coefficient vector:
 frame=single,
 backgroundcolor=\color{listingbg}]
 typedef Dune::PDELab::DiscreteGridFunction<GFS,Z> ZDGF;
-ZDGF zdgf(gfs,z); 
+ZDGF zdgf(gfs,z);
 \end{lstlisting}
 PDELab grid functions can be evaluated in local coordinates given by an
 element and a local coordinate within the corresponding reference element.
@@ -132,7 +132,7 @@ by \lstinline{g.evaluate} and \lstinline{zdgf.evaluate}.
 with the squared error using \lstinline{Dune::PDELab::SqrGridFunctionAdapter}
 from \lstinline{<dune/pdelab/function/sqr.hh>} and the function
 \lstinline{Dune::PDELab::integrateGridFunction} contained in the header file
-\lstinline{<dune/pdelab/common/functionutilities.hh>}. 
+\lstinline{<dune/pdelab/common/functionutilities.hh>}.
 Output the result to the console by writing in a single line a tag
 like \lstinline{L2ERROR}, the number of degrees of freedom
 using \lstinline{gfs.globalSize()} and the $L_2$-norm. This
