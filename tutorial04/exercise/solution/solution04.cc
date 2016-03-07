@@ -126,7 +126,7 @@ int main(int argc, char** argv)
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
-        //added degree 3 for higher order exercise
+        //add degree 3 for higher order exercise
         if (degree==3) {
           typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,3> FEM;
           FEM fem(gv);

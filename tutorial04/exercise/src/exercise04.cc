@@ -61,7 +61,6 @@
 #include<dune/pdelab/newton/newton.hh>
 
 // include all components making up this tutorial
-//#include"wavefem_elip.hh"
 #include"wavefem.hh"
 #include"driver.hh"
 
@@ -83,7 +82,7 @@ int main(int argc, char** argv)
     // open ini file
     Dune::ParameterTree ptree;
     Dune::ParameterTreeParser ptreeparser;
-    ptreeparser.readINITree("tutorial04.ini",ptree);
+    ptreeparser.readINITree("exercise04.ini",ptree);
     ptreeparser.readOptions(argc,argv,ptree);
 
     // read ini file
@@ -124,12 +123,7 @@ int main(int argc, char** argv)
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
-        //added degree 3 for higher order exercise
-        if (degree==3) {
-          typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,3> FEM;
-          FEM fem(gv);
-          driver(gv,fem,ptree);
-        }
+        //add degree 3 for higher order exercise
       }
 
     // YaspGrid section
