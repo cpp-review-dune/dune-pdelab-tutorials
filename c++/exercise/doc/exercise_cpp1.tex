@@ -31,8 +31,9 @@
 First, you should start a fresh terminal and switch to the working directory of this exercise:
 \begin{lstlisting}
   [user@dune-vm ~]$ cd iwr-course-2016
-  [user@dune-vm iwr-course-2016]$ cd dune-pdelab-tutorials
-  [user@dune-vm dune-pdelab-turtorials]$ cd c++
+  [user@dune-vm iwr-course-2016]$ cd dune
+  [user@dune-vm dune]$ cd dune-pdelab-tutorials
+  [user@dune-vm dune-pdelab-tutorials]$ cd c++
   [user@dune-vm gridinterface]$ cd exercise
   [user@dune-vm exercise]$ cd src
 \end{lstlisting}
@@ -52,7 +53,7 @@ This command will attempt to compile the source code in \lstinline!task1.cc! and
 However, the compiler does output an error message and fails to create the program. Try to understand the compiler error, open the source file in an editor and fix the problem. Afterwards, try to compile and run the program again.
 
 In this case, the error is due to the fact that the compiler sees two functions called \texttt{min()}. How
-can you fix this problem? If you get stuck, you can look at the solution in the \lstinline!solution! directory next to the \lstinline!src! directory. You can get there by entering \lstinline!cd ..\solution!.
+can you fix this problem? If you get stuck, you can look at the solution in the \lstinline!solution! directory next to the \lstinline!src! directory. You can get there by entering \lstinline!cd ../solution!.
 
 \end{Exercise}
 
@@ -69,7 +70,7 @@ updated with the cubed values? Fix the error! (Hint: Take a look at the slides a
 In the third program, we also want to calculate the cubes of a vector of floating point values. However,
 our current \texttt{cubed()} function only works with integers.
 
-Run texttt{task3.cc} and check the calculated cubes. Are they correct?
+Run \texttt{task3.cc} and check the calculated cubes. Are they correct?
 
 In order to fix this problem, rewrite the function \texttt{cubed()} as a template function (see the lecture
 for a simple example).
