@@ -6,3 +6,5 @@
 *.synctex.gz
 *.pdf
 *.gz
+*.toc
+*.out
