@@ -10,15 +10,19 @@
 \usepackage{tikz}
 \usepackage{graphicx}
 \usepackage{amssymb}
+\usepackage{wrapfig}
 \usepackage{todonotes}
-
 
 \usepackage{listings}
 \definecolor{listingbg}{gray}{0.95}
-\lstset{language=C++,basicstyle=\ttfamily\small,frame=single,backgroundcolor=\color{listingbg}}
-% \lstset{language=C++, basicstyle=\ttfamily,
-%   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-%   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  frame=single,
+  backgroundcolor=\color{listingbg},
+  breaklines=true,
+  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
+  }
 
 
 \newcommand{\vx}{\vec x}
@@ -35,22 +39,85 @@
 \subtitle{Finite Elements for the Wave  Equation}
 \exerciselabel{Exercise}
 
-
-
-
 \begin{document}
 
 \exerciseheader
 
-\begin{Exercise}{Poisson Equation with Piecewise Linear Elements}
-
 In this exercise you will:
 \begin{itemize}
-\item Work on the problem presented in the tutorial and see how to work with a system of equations.
+\item Work on the problem presented in the tutorial04.
 \item Modify the implementation to test different time discretizations. 
 \item Work with higher order elements and block ordering.
 \item Implement your own local operator that represents elliptic coupling (see Tutorial notes adn Erikson et al. )
+\item Check the energy conservation property.
 \end{itemize}
+
+\begin{Exercise}{Getting to Know the Code}
+
+  \lstset{language=bash}
+
+  The code of tutorial03 solves the problem
+  \begin{align}
+    \partial_t u-\Delta u+q(u) &= f && \text{in }\Omega\times\Sigma =
+    (0,1)^d \times (t_0, T], \\
+    u(x,t) & =g(x,t) && \text{on }\Gamma_D\subseteq\partial\Omega, \\
+    -\nabla u(x,t) \cdot \vec{n} &= j(x,t) &&
+    \text{on }\Gamma_N=\partial\Omega\setminus\Gamma_D, \\
+    u(x,t_0)&=u_0(x) && \text{at } t=t_0
+  \end{align}
+  with the following choices applied:
+  \begin{align}
+    \label{ch1:first}
+    q(u) &= \eta u^2 \\
+    f &= 0 \\
+    \Gamma_D &= \{x \in\partial\Omega \mid x_0 = 0 \} \\
+    g(x,t) &= \sin(2\pi t) \prod_{i=1}^{d-1} \sin(\pi x_i)^2
+    \sin(10\pi x_i)^2\\
+    j(x,t) &= 0 \\
+    u_0(x) &= 0 \\
+    \label{ch1:last}
+    t_0&=0 .
+  \end{align}
+
+  The code to this exercise can be recompiled individually \textbf{in
+    your build directory} by typing make:
+  \begin{lstlisting}
+  [user@localhost]$ cd release-build/dune-pdelab-tutorials/tutorial03/exercise/src
+  [user@localhost]$ make
+  \end{lstlisting}
+
+  The structure of the code is very similar to the previous tutorials,
+  it consists of the following files:
+  \begin{itemize}
+  \item \lstinline!exercise03.cc! -- main program,
+  \item \lstinline!driver.hh! -- driver to solve problem on a gridview,
+    hard-codes $t_0=0$
+  \item \lstinline!problem.hh! -- problem parameter class, definitions
+    of $q(u)$, $f$, $\Gamma_D$, $\Gamma_N$, $g$ and $j$
+  \item \lstinline!nonlinearheatfem.hh! instationary spatial and
+    temporal local operators $r(u,v,t)$ and $m(u,v,t)$ respectively .
+  \end{itemize}
+  As in the previous exercises you can control most of the settings
+  through the ini-file \lstinline!tutorial03.ini!. Get an overview of
+  the configurable settings, compile and run \lstinline!exercise03!.
+
+  The program writes output with the extension \lstinline!pvd!. This is one
+  of several ways to write VTK output for the instationary case,
+  c.f. the documentation of the tutorial03. The \lstinline!pvd!-file can
+  be visualized by ParaView and it consists of a collection of the
+  corresponding \lstinline!vtu!-files.
+  One big advantage of this approach is that the physical time can be
+  printed out. This can be achieved by using the ``AnnotateTimeFiler``
+  in ParaView.
+
+\end{Exercise}
+
+
+
+
+\begin{Exercise}{Poisson Equation with Piecewise Linear Elements}
+
+
 
 \begin{enumerate}
 \item {\sc Warming up}:\\
@@ -152,7 +219,8 @@ in the output (here we have 12 iterations):
 \end{Exercise}
 
 
-\begin{Exercise}{Changeing the Local Operator}
+\begin{Exercise}{Changing the Local Operator}
+
 Now consider the extended equation of the form
 \begin{align}
     \begin{array}{rcll}
