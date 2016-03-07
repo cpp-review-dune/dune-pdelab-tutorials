@@ -1,6 +1,8 @@
 #ifndef FV_HH
 #define FV_HH
 
+#include <algorithm>
+
 #include <dune/common/fvector.hh>
 #include <dune/grid/common/mcmgmapper.hh>
 
@@ -14,15 +16,10 @@ struct FVLayout
   }
 };
 
-// template parameters: GV = gridview type, E = equation parameters
-template<typename rtype, typename GV, typename E>
+// template parameters: GV = gridview type, E = equation parameters, ScalarField = solution vector
+template<typename GV, typename E, typename ScalarField>
 class FiniteVolume
 {
-
-public:
-
-  //solution vector
-  using ScalarField = std::vector<rtype>;
 
 private:
   // mapper for elements (codim=0)
@@ -41,7 +38,7 @@ public:
     , update(grid_view.size(0))
   {}
 
-  void update_concentration(ScalarField& concentration, rtype dt)
+  void update_concentration(ScalarField& concentration, double dt)
   {
 
     // initialize update vector with 0

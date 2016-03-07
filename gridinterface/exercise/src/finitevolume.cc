@@ -5,7 +5,6 @@
 #include "config.h"
 
 #include <iostream>
-#include <sstream>
 
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/grid/yaspgrid.hh>
@@ -91,7 +90,7 @@ int main(int argc, char** argv)
     using Parameters = SimpleTransport<double,GridView::dimension,ScalarField>;
     Parameters params;;
 
-    FiniteVolume<double,GridView,Parameters> fv(grid_view, params);
+    FiniteVolume<GridView,Parameters,ScalarField> fv(grid_view, params);
 
     // Create VTKSequenceWriter for graphical output
     Dune::VTKSequenceWriter<GridView> vtk_writer(
