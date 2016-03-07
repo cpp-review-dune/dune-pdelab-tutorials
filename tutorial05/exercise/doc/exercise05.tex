@@ -86,6 +86,14 @@ i.e. the point $(0,0)$?
 
 \begin{Exercise}{Compute the True $L_2$-error}
 
+\textit{Disclaimer: In this exercise we compute and evalute the $L_2$-norm
+of the error. The residual based error estimator implemented in the
+code, however, estimates the $H^1$-seminorm (which is equivalent to the $H^1$-norm here)
+and thus also optimizes the mesh with respect to that norm.
+This is done to make the exercise as simple as possible. It would be more appropriate
+to carry out the experiments either with the true $H^1$-norm or to change the estimator
+to the $L_2$-norm.}
+
 To do this exercise we need some more background on PDELab grid functions.
 The following code known from several tutorials by now
 constructs a PDELab grid function object \lstinline{g}:
