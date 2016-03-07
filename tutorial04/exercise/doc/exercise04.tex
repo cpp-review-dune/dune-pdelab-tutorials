@@ -45,10 +45,10 @@
 
 In this exercise you will:
 \begin{itemize}
-\item Work on the problem presented in the tutorial04.
+\item Work on the problem presented in the \lstinline{tutorial04}.
 \item Modify the implementation to test different time discretizations. 
 \item Work with higher order elements and block ordering.
-\item Implement your own local operator that represents elliptic coupling (see Tutorial notes adn Erikson et al. )
+\item Implement your own local operator that represents elliptic coupling (see Tutorial notes and Eriksson et al. \cite{Eriksson})
 \item Check the energy conservation property.
 \end{itemize}
 
@@ -56,7 +56,7 @@ In this exercise you will:
 
   \lstset{language=bash}
 
-  The code of tutorial03 solves the problem
+  The code of \textbf{exercise04} solves the wave equation formulated as a system. As already explained in the \lstinline{tutorial04}
   \begin{align}
     \partial_t u-\Delta u+q(u) &= f && \text{in }\Omega\times\Sigma =
     (0,1)^d \times (t_0, T], \\
@@ -255,6 +255,7 @@ with scalar functions $k(x)$, $a(x)$.
 \end{enumerate}
 \end{Exercise}
 
-
+\bibliographystyle{plain}
+\bibliography{exercise04.bib}
 
 \end{document}
