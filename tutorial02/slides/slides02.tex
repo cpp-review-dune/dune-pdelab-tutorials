@@ -30,6 +30,7 @@
 
 % all after
 \usepackage{tikz} 
+\usetikzlibrary{patterns}
 \usepackage{pgfplots,adjustbox}
 \usepackage{eurosym} 
 \usepackage{graphicx}
@@ -119,8 +120,8 @@
 % Title definition
 \mode<presentation>
 {
-  \title{DUNE PDELab Tutorial 01\\
-  {\small  Conforming FEM for a Nonlinear Poisson Equation}}
+  \title{DUNE PDELab Tutorial 02\\
+  {\small  The Cell-centered Finite Volume Method}}
   \author{Peter Bastian}
   \institute[]
   {
@@ -178,9 +179,10 @@
 This tutorial extends on tutorial 00 by
 \begin{enumerate}[1)]
 \item Solving a \textbf{nonlinear} stationary PDE
-\item Using conforming finite element spaces of \textbf{arbitrary order}
-\item Using \textbf{different types of (conforming) meshes} (simplicial, cubed and mixed)
 \item Using \textbf{multiple types of boundary conditions}
+\item Implementing a cell-centered finite volume method with two-point flux
+approximation as an example of a non-conforming scheme.
+\item Implementing \textit{all} possible methods of a local operator.
 \end{enumerate}
 \end{frame}
 
@@ -203,428 +205,156 @@ nonlinear function
 \end{frame}
 
 \begin{frame}
-\frametitle{Weak Formulation}
-\begin{equation}
-\text{Find $u\in U$ s.t.:} \quad r^{\text{NLP}}(u,v)=0 \quad \forall v\in V,
-\label{Eq:BasicBuildingBlock}
-\end{equation}
-with the continuous residual form
-\begin{equation*}
-r^{\text{NLP}}(u,v) = \int_\Omega \nabla u \cdot \nabla v + (q(u)-f)v\,dx + \int_{\Gamma_N} jv\,ds
-\label{eq:ResidualForm}
-\end{equation*}
-and the function spaces 
-\begin{itemize}
-\item $U= \{v\in H^1(\Omega) \,:\, \text{``$v=g$'' on $\Gamma_D$}\}$ (affine space)
-\item $V= \{v\in H^1(\Omega) \,:\, \text{``$v=0$'' on $\Gamma_D$}\}$
-\end{itemize}
-We assume that a unique solution exists
-\end{frame}
-
-\begin{frame}
-\frametitle{Algebraic Problem}
-$\to$ Solve weak formulation in finite-dimensional spaces
-\begin{equation*}
-U_h=\text{span}\{\phi_1,\ldots,\phi_n\}, \quad V_h=\text{span}\{\psi_1,\ldots,\psi_m\}
-\end{equation*}
-
-Expanding the solution $u_h=\sum_{j=1}^n (z)_j\phi_j$ 
-results in an algebraic equation for $z\in\mathbb{R}^n$:
-\begin{align*}
-\text{Find $u_h\in U_h$ s.t.:} && r(u_h,v)&=0 && \forall v\in V_h\\
-\Leftrightarrow{} && r\left(\sum_{j=1}^n (z)_j\phi_j,\psi_i\right) &= 0 &&\forall i=1,\ldots,m\\
-\Leftrightarrow{} && R(z) = 0,
-\end{align*}
-where $R: \mathbb{R}^n \to \mathbb{R}^m$ given by 
-$R_i(z) = r_h\left(\sum_{j=1}^n (z)_j\phi_j,\psi_i\right)$ is a nonlinear, vector-valued function.
-\end{frame}
-
-\begin{frame}
-\frametitle{Solution of Algebraic Problem}
-Use {\em iterative} methods to solve $R(z)=0$, fixed point iteration:
-\begin{equation}
-z^{(k+1)} = G(z^{(k)}) = z^{(k)} - \lambda^{k} W(z^{(k)}) R(z^{(k)}) .
-\end{equation}
-\vspace{-5mm}
-\begin{itemize}
-\item $\lambda^{k}$ is a damping factor
-\item $W(z^{(k)})$ is a preconditioner matrix, e.g. in Newton's method one has 
-\begin{equation*}
-W(z^{(k)}) = (J(z^{(k)}))^{-1} \quad \text{where $(J(z^{(k)}))_{i,j} = \frac{\partial R_i}{\partial z_j}
-(z^{(k)})$}
-\end{equation*}
-i.e. need to solve $J\left(z^{(k)}\right) w = R(z^{(k)})$
-\end{itemize}
-The following algorithmic building blocks are required:
-\begin{enumerate}[i)]
-\item residual evaluation $R(z)$,
-\item Jacobian evaluation $J(z)$ (or an approximation of it),
-\item matrix-free Jacobian application $J(z) w$ (or an approximation).
-\end{enumerate}
-\end{frame}
-
-\begin{frame}
-\frametitle{Note on Matrix-free Evaluation}
-\textbf{Nonlinear case:}
-\begin{equation*}
-(J(z) w)_i = \sum_{j=1}^n (J(z))_{i,j} (w)_j = \sum_{j=1}^n 
-\frac{\partial}{\partial z_j} r_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j .
-\end{equation*}
-\textbf{Linear case:} $r_h(u,v)=a(u,v)-l(v)$, $a$ BLF, $l$ LF
-\begin{equation*}
-\begin{split}
-(J(z) w)_i &= \sum_{j=1}^n 
-\frac{\partial}{\partial z_j} r_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j \\
-&= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left( 
-a_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) - l_h(\psi_i)\right) (w)_j \\
-&= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left( 
-\sum_{l=1}^n (z)_l a_h(\phi_l,\psi_i) \right)  (w)_j \\
-&= \sum_{j=1}^n a_h(\phi_j,\psi_i) (w)_j =
-a_h\left( \sum_{j=1}^n (w)_j \phi_j,\psi_i\right) =
-(A w)_i 
-\end{split}
-\end{equation*}
-\end{frame}
-
-\begin{frame}
-\frametitle{Recall Finite Element Mesh Notation}
-\begin{enumerate}[i)]
-\item Ordered sets of vertices and elements:
-$$\mathcal{X}_h = \{x_1,\ldots,x_N\}, \quad\mathcal{T}_h = \{T_1, \ldots, T_M\}$$
-\item Partitioning of vertex index set $\mathcal{I}_h=\{1,\ldots,N\}$ into $
-\mathcal{I}_h = \mathcal{I}_h^{int}\cup\mathcal{I}_h^{\partial\Omega}$:
-\begin{equation*}
-\mathcal{I}_h^{int} = \{i\in \mathcal{I}_h\,:\, x_i\in\Omega\},
-\quad \mathcal{I}_h^{\partial\Omega} = \{i\in \mathcal{I}_h\,:\, x_i\in\partial\Omega\}.
-\end{equation*}
-\item For every element $T\in\mathcal{T}_h$ a local-to-global map 
-$$g_T:\{0,\ldots,n_T-1\}\to\mathcal{I}_h$$ 
-\item For every element $T\in\mathcal{T}_h$ an element transformation map
-$$\mu_T : \hat T \to T$$
-$\mu_T$ is differentiable with invertible Jacobian and consistent with $g_T$:
-$$\forall i\in\{0,\ldots,n_T-1\} : \mu_T(\hat x_i) = x_{g_T(i)}$$
-\end{enumerate}
-\end{frame}
-
-\begin{frame}
-\frametitle{Conforming Finite Element Space}
-with \textbf{polynomial degree} $k$ in \textbf{dimension} $d$ on \textbf{mesh} $\mathcal{T}_h$:
-\begin{equation*}
-V_h^{k,d}(\mathcal{T}_h) = \left\{ v\in C^0(\overline{\Omega}) \,:\, 
-\forall T\in\mathcal{T}_h : v|_T = \mu_T \circ p_T \wedge p_T\in\mathbb{P}_T^{k,d}\right\}
-\end{equation*}
-where the multivariate polynomials $\mathbb{P}$ depend on element type:
-{\small\begin{equation*}
-\mathbb{P}_T^{k,d} = \left\{\begin{array}{ll}
-\left\{ p\,:\, p(x_1,\ldots,x_d) = \sum\limits_{0\leq\|\alpha\|_1\leq k} c_\alpha
-x_1^{\alpha_1}\cdot\ldots\cdot x_d^{\alpha_d}\right\} & \text{$\hat T = \hat S$ (simplex)}, \\
-\left\{ p\,:\, p(x_1,\ldots,x_d) = \sum\limits_{0\leq\|\alpha\|_\infty\leq k} c_\alpha
-x_1^{\alpha_1}\cdot\ldots\cdot x_d^{\alpha_d}\right\} & \text{$\hat T = \hat C$ (cube)} 
-\end{array}\right .
-\end{equation*}}
-The dimension of $\mathbb{P}^{k,d}_T$ is:
-\begin{equation*}
-n_{\hat C}^{k,d} = (k+1)^d \text{ (cube) },  \ 
-n_{\hat S}^{k,d} = \left\{ \begin{array}{ll}
-1 & k=0 \vee d=0\\
-\sum\limits_{i=0}^k n_{\hat S}^{i,d-1} &\text{else}
-\end{array}\right . \text{ (simplex) }
-\end{equation*}
-\end{frame}
-
-\begin{frame}
-\frametitle{Local Lagrange Basis}
+\frametitle{Notation for Interior Intersections}
 \begin{center}
 \begin{tikzpicture}[scale=1.3]
-\draw (0,0) -- (2,0) -- (0,2) -- cycle;
-%\draw[gray] (0.5,0.0) -- (2.0,1.5);
-%\draw[gray] (1.0,0.0) -- (2.0,1.0);
-%\draw[gray] (1.5,0.0) -- (2.0,0.5);
-%\draw[gray] (0.5,0.5) -- (2.0,0.5);
-%\draw[gray] (1,1) -- (2.0,1);
-%\draw[gray] (1.5,1.5) -- (2.0,1.5);
-%\draw[gray] (0.5,0.0) -- (0.5,0.5);
-%\draw[gray] (1.0,0.0) -- (1.0,1.0);
-%\draw[gray] (1.5,0.0) -- (1.5,1.5);
-\node[left] at (0,0) {$(0,0)$};
-\node[right] at (2,0) {$(1,0)$};
-\node[left] at (0,2) {$(0,1)$};
-\fill(0,0) circle (3pt);
-\fill(2,0) circle (3pt);
-\fill(0,2) circle (3pt);
-\fill(0.5,0) circle (2pt);
-\fill(1,0) circle (2pt);
-\fill(1.5,0) circle (2pt);
-\fill(0,0.5) circle (2pt);
-\fill(0.5,0.5) circle (2pt);
-\fill(1,0.5) circle (2pt);
-\fill(1.5,0.5) circle (2pt);
-\fill(0,1) circle (2pt);
-\fill(0.5,1) circle (2pt);
-\fill(1,1) circle (2pt);
-\fill(0,1.5) circle (2pt);
-\fill(0.5,1.5) circle (2pt);
-\end{tikzpicture}
+\draw[draw=none,pattern=north east lines] (-0.25,0)  rectangle (0,3);
+\draw[very thick] (0,0)  rectangle (6,3);
+\draw[very thick] (3,0) -- (3,3);
+\node at (1.5,2.2) {$T_{F'}^-, T_F^-$};
+\node at (4.5,2.2) {$T_F^+$};
+\draw[fill=black] (1.5,1.5)  circle (0.07);
+\node[below] at (1.5,1.5) {$x_{T_{F'}^-}, x_{T_F^-}$};
+\draw[fill=black] (4.5,1.5)  circle (0.07);
+\node[below] at (4.5,1.5) {$x_{T_F^+}$};
+\draw[thick,->] (3,1.5) -- (4,1.5);
+\draw[fill=black] (3,1.5)  circle (0.07);
+\node[left] at (3,1.5) {$x_{F}$};
+\node[below] at (3.5,1.5) {$\nu_F$};
+\node[left] at (3,0.5) {$F$};
+\draw[fill=black] (0,1.5)  circle (0.07);
+\draw[thick,->] (0,1.5) -- (-1,1.5);
+\node[right] at (0,1.5) {$x_{F'}$};
+\node[right] at (0,0.5) {$F'$};
+\end{tikzpicture}\hspace{0.1\textwidth}
 \end{center}
-Lagrange points and poynomials (shape functions) on $\hat T$:
-$$L_{\hat T} = \left\{ \hat x^{\hat T}_0,\ldots,\hat x^{\hat T}_{n_{\hat T}^{k,d}-1} \right\}, \quad
-P_{\hat T} = \left\{ p^{\hat T}_0,\ldots,p^{\hat T}_{n_{\hat T}^{k,d}-1}\right\}$$
-such that $$p^{\hat T}_i(\hat x^{\hat T}_j) = \delta_{i,j}$$
-Extend local to global map:
+$\mathcal{F}_h^i=\{F_1,\ldots,F_N\}$ is the set of {\em interior intersections}\\
+\medskip
+$\mathcal{F}_h^{\partial\Omega}=\{F_1,\ldots,F_L\}$ is the set of {\em boundary intersections}\\
+\medskip
+$\mathcal{F}_h^{\partial\Omega} = \mathcal{F}_h^{\Gamma_D}  \cup \mathcal{F}_h^{\Gamma_N}$
+\end{frame}
+
+\begin{frame}
+\frametitle{Discrete Weak Formulation}
+Finite volume methods us the space
 \begin{equation*}
-g_T : \{0,\ldots,n_{\hat T}^{k,d}-1\} \to \mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right) =
-\left\{0,\ldots,\text{dim} V_h^{k,d}(\mathcal{T}_h)-1\right\}
+W_h = \{w\in L^2(\Omega) \,:\,  \text{$w|_T=$ const for all $T\in\mathcal{T}_h$}\} .
+\end{equation*}
+then
+{\small\begin{align*}
+\int_{\Omega} f v \,dx &= \int_{\Omega} [-\Delta u + q(u)] v\,dx
+= \sum_{T\in\mathcal{T}_h} v \int_T -\Delta u + q(u) \,dx &&\text{($v$ const on $T$)}\\
+&= \sum_{T\in\mathcal{T}_h} \left[\int_T q(u) v \,dx - \int_{\partial T} \nabla u \cdot \nu v \,ds
+\right] &&\text{(Gauss' thm.)} \\
+&= \sum_{T\in\mathcal{T}_h} \int_T q(u) v \,dx \\
+& \hspace{10mm} -\sum_{F\in\mathcal{F}_h^i} \int_F \nabla u \cdot \nu_F \bigl[v(x_{T_F^-}) - v(x_{T_F^+})\bigr] \,ds \\
+& \hspace{10mm}-\sum_{F\in\mathcal{F}_h^{\partial\Omega}} \int_F \nabla u \cdot \nu_F \,ds .
+&&\text{(rearrange)}
+\end{align*}}
+\end{frame}
+
+\begin{frame}
+\frametitle{Finite Volume Scheme}
+Now approximate the directional derivative
+$$\nabla u\cdot \nu_F \approx \frac{u_h(x_{T_F^+})-u_h(x_{T_F^-})}{\|x_{T_F^+} - x_{T_F^-}\|}$$
+and the integrals
+$$\int_T f \,dx \approx f(x_T)|T| $$
+to get the abstract problem
+\begin{equation}
+\boxed{ \text{Find $u_h\in W_h$ s.t.:} \quad r_h^{\text{CCFV}}(u_h,v) = 0 \quad \forall v \in W_h }
+\end{equation}
+with the residual form \ldots
+\end{frame}
+
+\begin{frame}
+\frametitle{Residual Form}
+\ldots is
+\begin{equation*}
+\begin{split}
+r_h^{\text{CCFV}}(u_h,v)
+& = \sum_{T\in\mathcal{T}_h} q(u_h(x_T)) v(x_T) |T|
+- \sum_{T\in\mathcal{T}_h} f(x_T) v(x_T) |T|\\
+&\ - \sum_{F\in\mathcal{F}_h^i}
+\frac{u_h(x_{T_F^+})-u_h(x_{T_F^-})}{\|x_{T_F^+} - x_{T_F^-}\|}
+\bigl[v(x_{T_F^-}) - v(x_{T_F^+})\bigr] |F|\\
+&\ + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D}
+\frac{u_h(x_{T_F^-})}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F| \\
+&\ - \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D}
+\frac{g(x_{F}))}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F| \\
+&+ \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_N} j(x_{F}) v(x_{T_F^-}) |F| .
+\end{split}
 \end{equation*}
 \end{frame}
 
 \begin{frame}
-\frametitle{Global Lagrange Basis}
+\frametitle{Remarks on the Residual Form}
+\textit{Five} different types of integrals are involved in the
+residual form:
+\begin{enumerate}
+\item Volume integral depending on trial and test function.
+\item Volume integral depending on test function only.
+\item Interior intersection integral depending on trial and test function.
+\item Boundary intersection integral depending on trial and test function.
+\item Boundary intersection integral depending on test function only.
+\end{enumerate}
+Dirichlet as well as Neumann boundary conditions are built weakly into the
+residual form!\\
+\medskip
+No constraints on the function space are necessary in this case\\
+\medskip
+Can be extended to discontinuous Galerkin methods
+\end{frame}
+
+\begin{frame}
+\frametitle{General Residual Form}
+A residual form in PDELab has the following structure:
+\begin{equation*}
+\begin{split}
+r(u,v) &=
+\sum_{T\in\mathcal{T}_h} \alpha_T^V(R_T u, R_T v)
++ \sum_{T\in\mathcal{T}_h} \lambda_T^V(R_T v) \\
+&\qquad+ \sum_{F\in\mathcal{F}_h^i} \alpha_F^S(R_{T_F^-} u,R_{T_F^+} u, R_{T_F^-} v, R_{T_F^+} v)\\
+&\qquad+ \sum_{F\in\mathcal{F}_h^{\partial\Omega}} \alpha_F^B(R_{T_F^-} u, R_{T_F^-} v)
++ \sum_{F\in\mathcal{F}_h^{\partial\Omega}} \lambda_F^B(R_{T_F^-} v) .
+\end{split}\label{eq:GeneralResidualForm}
+\end{equation*}
+which results in the following methods on the local operator
 \begin{center}
-\begin{tikzpicture}[scale=1.35]
-\draw (0,0) -- (2,0) -- (2,2) -- cycle;
-\draw (0,0) -- (2,2) -- (0,2) -- cycle;
-\draw (2,0) -- (2,2) -- (4,2) -- cycle;
-\fill(0,0) circle (2pt);
-\fill(2,0) circle (2pt);
-\fill(2,2) circle (2pt);
-\fill(0,2) circle (2pt);
-\fill(4,2) circle (2pt);
-\fill(1,0) circle (2pt);
-\fill(0,1) circle (2pt);
-\fill(1,1) circle (2pt);
-\fill(2,1) circle (3pt);
-\fill(3,1) circle (2pt);
-\fill(1,2) circle (2pt);
-\fill(3,2) circle (2pt);
-\fill(0.5,0) circle (2pt);
-\fill(1.5,0) circle (2pt);
-\fill(0.0,0.5) circle (2pt);
-\fill(0.5,0.5) circle (2pt);
-\fill(1.0,0.5) circle (2pt);
-\fill(1.5,0.5) circle (2pt);
-\fill(2.0,0.5) circle (2pt);
-\fill(0.0,0.5) circle (2pt);
-\fill(0.5,0.5) circle (2pt);
-\fill(1.0,0.5) circle (2pt);
-\fill(1.5,0.5) circle (2pt);
-\fill(2.0,0.5) circle (2pt);
-\fill(0.5,1) circle (2pt);
-\fill(1.5,1) circle (2pt);
-\fill(0.0,1.5) circle (2pt);
-\fill(0.5,1.5) circle (2pt);
-\fill(1.0,1.5) circle (2pt);
-\fill(1.5,1.5) circle (2pt);
-\fill(2.0,1.5) circle (2pt);
-\fill(0.5,2) circle (2pt);
-\fill(1.5,2) circle (2pt);
-\fill(2.5,0.5) circle (2pt);
-\fill(2.5,1) circle (2pt);
-\fill(2.5,1.5) circle (2pt);
-\fill(3.0,1.5) circle (2pt);
-\fill(3.5,1.5) circle (2pt);
-\fill(2.5,2) circle (2pt);
-\fill(3.5,2) circle (2pt);
-\node[above right] at (2,1) {$i$};
-\node at (1.3,0.8) {$T_1$};
-\node at (2.8,1.3) {$T_2$};
-\node[below left] at (2,1) {$m$};
-\node[below right] at (2,1) {$n$};
-\node[right] at (3.5,0.75) {$C(i)=\{(T_1,m), (T_2,n)\}$};
-\end{tikzpicture}
+\tiny
+\begin{tabular}{l|l|l|l}
+    & volume & skeleton & boundary \\
+\hline
+residual    & \lstinline!alpha_volume! & \lstinline!alpha_skeleton! & \lstinline!alpha_boundary! \\
+                & \lstinline!lambda_volume! & & \lstinline!lambda_boundary! \\
+\hline
+Jacobian  & \lstinline!jacobian_volume! & \lstinline!jacobian_skeleton! & \lstinline!jacobian_boundary! \\
+\hline
+Jac.  app.  & \lstinline!jacobian_apply_volume! & \lstinline!jacobian_apply_skeleton! &
+\lstinline!jacobian_apply_boundary!
+\end{tabular}
 \end{center}
-Define inversion of the global map:
-\begin{equation*}
-C(i) = \{(T,m)\in\mathcal{T}_h\times\mathbb{N} \,:\, g_T(m)=i\}
-\end{equation*}
-then the global Lagrange basis functions are
-\begin{equation*}
-\phi_i(x) = \left\{\begin{array}{ll}
-p^{\hat T}_m(\mu_T^{-1}(x)) & x\in T \wedge (T,m)\in C(i) \\
-0 & \text{else}
-\end{array}\right. , \quad i\in\mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right) .
-\end{equation*}
-corresponding to the global Lagrange points
-\begin{equation*}
-\mathcal{X}_h^{k,d} = \left\{ x_i\in\overline{\Omega} \,:\,
-x_i=\mu_T(\hat x^{\hat T}_{m})  \wedge (T,m)\in C(i) \right\}
-\end{equation*}
-\end{frame}
-
-\begin{frame}
-\frametitle{Dirichlet Boundary Conditions}
-Indices of Lagrange points on the Dirichlet boundary are:
-\begin{equation*}
-\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right) = 
-\left\{ i\in\mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right)  \,:\,
-x_i\in\mathcal{X}_h^{k,d} \cap\Gamma_D  
-\right\} .
-\end{equation*}
-Then the test space with zero Dirichlet condition is:
-\begin{equation*}
-V_{h,0}^{k,d}(\mathcal{T}_{h}) = \left\{ 
-v\in V_{h}^{k,d}(\mathcal{T}_{h}) \,:\, v(x_i) = 0 
-\quad \forall i\in\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right)
- \right\}
-\end{equation*}
-For the trial space choose any extension
-\begin{equation*}
-u_{h,g} = \sum_{i\in \mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right)}
-u_g(x_i) \phi_i \qquad \text{$u_g(x_i)=g(x_i) \ \forall i\in 
-\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right)$}
-\end{equation*}
-Then
-\begin{equation*}
-U_{h}^{k,d}(\mathcal{T}_{h}) = \left\{ u\in V_h^{k,d}(\mathcal{T}_h)
-\,:\, u = u_{h,g} + w \wedge w\in V_{h,0}^{k,d}(\mathcal{T}_{h})\right\}
-\end{equation*}
-\end{frame}
-
-\begin{frame}
-\frametitle{General Constraints}
-\textbf{Task:} Given $U_h = \text{span}\left\{\phi_j \,:\, j\in J_h=\{1,\ldots,n\}\right\}$
-construct $\tilde{U}_h\subseteq U_h$\\
-\bigskip
-This is how it is done in PDELab:
-\begin{enumerate}[1)]
-\item Assume $U_h=\text{span}\{\phi_i \,:\, i\in J_h\}$
-\item Select a subset of indices $\tilde{J}_h\subset J_h$
-\item Set $\tilde{U}_h = \text{span}\left\{\tilde\phi_j \,:\, j\in \tilde{J}_h\right\}$,
-where the new basis functions have the form 
-\begin{equation*}
-\tilde\phi_j = \phi_j + \sum_{l\in J_h\setminus\tilde{J}_h} (B)_{j,l} \phi_l \quad \forall j\in \tilde{J}_h.
-\end{equation*}
-\end{enumerate}
-Any subspace is thus characterized by $C=(\tilde{J}_h,B)$
-\end{frame}
-
-\begin{frame}
-\frametitle{Element-wise Computations}
-Come back to the residual form which is element-wise
-\begin{equation*}
-r^{\text{NLP}}\left(u,v\right) =  
-\sum_{T\in\mathcal{T}_h} \alpha_T^V(u,v) 
-  + \sum_{T\in\mathcal{T}_h} \lambda_T^V(v)
- + \sum_{F\in\mathcal{F}_h^{\partial\Omega}}\lambda_F^B(v)
-\end{equation*}
-with
-\begin{align*}
-\alpha_T^V(u,v) &= \int_T \nabla u \cdot \nabla v + q(u) v \,dx \\
-\lambda_T^V(v) &= - \int_T f v \,dx \\
-\lambda_F^B(v) &= \int_{F\cap\Gamma_N} j v\,ds
-\end{align*}
-$\mathcal{F}_h^{\partial\Omega}$: intersections of
-elements with the domain boundary, i.e. 
-$$F=T_F^-\cap\partial\Omega$$
-with $T_F^-\in\mathcal{T}_h$ the ``minus'' element associated with $F$
-\end{frame}
-
-\begin{frame}
-\frametitle{$\lambda$ Volume Term}
-For any $(T,m)\in C(i)$ we obtain
-\begin{equation*}
-\begin{split}
-\lambda_T^V(\phi_i) &= - \int_T f \phi_i \,dx = 
-- \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x) |\text{det} J_{\mu_T}(\hat x)|\, d\hat x .
-\end{split}
-\end{equation*}
-$J_{\mu_T}$ is the Jacobian of the element map $\mu_T$\\
-\medskip
-This integral is computed using numerical quadrature\\
-\medskip
-Collect all contributions of $T$ in a small vector:
-\begin{equation*}
-(\mathcal{L}_T^V)_m = - \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x) 
-|\text{det} J_{\mu_T}(\hat x)|\, d\hat x.
-\end{equation*}
-\end{frame}
-
-\begin{frame}
-\frametitle{$\lambda$ Boundary Term}
-For $F\in\mathcal{F}_h^{\partial\Omega}$ with $F\subseteq\Gamma_N$
-and $(T_F^-,m)\in C(i)$ we obtain
-\begin{equation*}
-\begin{split}
-\lambda_T^B(\phi_i) &= \int_{F} j v\,ds = 
-\int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x)) 
-\sqrt{|\text{det} (J^T_{\mu_F}(\hat x)J_{\mu_F}(\hat x))|} \,ds
-\end{split}
-\end{equation*}
-The integration is more involved here because it is over a face:
-\begin{itemize}
-\item $\mu_F: \hat F \to F$ maps the reference element of the face to the face
-\item $\eta_F: \hat F \to \hat T_F^-$ maps reference
-element of the face to reference element of $T_F^-$
-\end{itemize}
-Collect all contributions of $F$ in a small vector:
-\begin{equation*}
-(\mathcal{L}_T^B)_m = 
-\int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x)) 
-\sqrt{|\text{det} J^T_{\mu_T}(\hat x)J_{\mu_T}(\hat x)|} \,ds .
-\end{equation*}
-Numerical quadrature is applied to compute the integral
-\end{frame}
-
-\begin{frame}
-\frametitle{$\alpha$ Volume Term}
-For any $(T,m)\in C(i)$ we get
-\begin{equation*}
-\begin{split}
-\alpha_T^V(u_h,\phi_i) &= \int_T \nabla u \cdot \nabla \phi_i + q(u) \phi_i \,dx, \\
-&= \int_T \sum_j (z)_j \left(\nabla \phi_j \cdot \nabla \phi_i \right) 
-+ q\left( \sum_j (z)_j \phi_j \right) \phi_i \,dx,\\
-&= \int_{\hat T} \sum_{n} (z)_{g_T(n)} (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_n^{\hat T}(\hat x) )
-\cdot (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_m^{\hat T}(\hat x) ) \\
-&\hspace{10mm}+ q\left( \sum_n (z)_{g_T(n)} p_n^{\hat T}(\hat x) \right) p_m^{\hat T}(\hat x) 
-|\text{det} J_{\mu_T}(\hat x)| \,dx
-\end{split}
-\end{equation*}
-and again collect all contributions from $T$ in a small vector:
-\begin{equation*}
-\begin{split}
-(\mathcal{R}_T^V(R_T z))_m &= \alpha_T^V\left(\sum_n (R_T z)_n p_n^{\hat T},p_m^{\hat T}\right)
-\end{split}
-\end{equation*}
-\end{frame}
-
-\begin{frame}
-\frametitle{Putting It All Together}
-With these local contributions the evaluation of the algebraic residual is
-\begin{equation*}
-R(z) = 
-\sum_{T\in\mathcal{T}_h} R_T^T \mathcal{R}_T^V(R_T z)
-  + \sum_{T\in\mathcal{T}_h} R_T^T \mathcal{L}_T^V
- + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_N} R_T^T \mathcal{L}_F^B
-\end{equation*}
-where $R_T$ is the ``picking out'' matrix of element $T$\\
-\medskip
-The Jacobian of $R$ is
-\begin{equation*}
-(J(z))_{i,j} = \frac{\partial R_i}{\partial z_j} (z) =
-\sum_{(T,m,n) : (T,m)\in C(i) \wedge (T,n)\in C(j)} \frac{\partial (\mathcal{R}_T^V)_m}{\partial z_n}
-(R_T z)
-\end{equation*}
-Note that:
-\begin{enumerate}[i)]
-\item Entries of the Jacobian can be computed element by element.
-\item The derivative is independent of the $\lambda$-terms 
-\item Jacobian entries may be computed by numerical differentiation
-\end{enumerate}
+$\Rightarrow$ There are up to 11 methods on the local operator. The CCFV scheme implements them all!
 \end{frame}
 
 \begin{frame}
 \frametitle{Implementation Overview}
+The tutorial consist of the following files:
 \begin{enumerate}[1)]
-\item \lstinline{tutorial01.ini} holds parameters controlling the execution
-\item \lstinline{tutorial01.cc} includes the necessary C++,
-DUNE and PDELab header files; contains \lstinline{main} function calling
-\lstinline{driver}
-\item Function \lstinline{driver} in \lstinline{driver.hh} instantiates the necessary PDELab classes 
-for solving a nonlinear stationary problem and finally solves the problem.
-\item File \lstinline{nonlinearpoissonfem.hh} contains class
-\lstinline{NonlinearPoissonFEM} realizing a PDELab local operator
-\item File \lstinline{problem.hh} contains a ``parameter class'' which
+\item The ini-file
+\lstinline{tutorial02.ini} holds parameters
+which control the execution.
+\item The main file \lstinline{tutorial02.cc} includes the necessary C++,
+DUNE and PDELab header files;
+contains the \lstinline{main} function;
+instantiates DUNE grid objects and calls the \lstinline{driver} function.
+\item File \lstinline{driver.hh} instantiates the PDELab classes
+for solving a nonlinear stationary problem with the cell-centered finite
+volume method and solves the problem.
+\item File \lstinline{nonlinearpoissonfv.hh} contains the class
+\lstinline{NonlinearPoissonFV} realizing a PDELab local operator
+\item File \lstinline{problem.hh} contains a parameter class which
 encapsulates the user-definable part of the PDE problem
-\item Finally, the tutorial provides some mesh files.
 \end{enumerate}
 \end{frame}
 
