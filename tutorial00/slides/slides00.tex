@@ -177,7 +177,7 @@
 \frametitle{Motivation}
 \begin{itemize}
 \item Start with an introduction to the finite element method (FEM) for solving Poisson's equation
-with piecwise linear ``P$_1$'' finite elements
+with piecewise linear ``P$_1$'' finite elements
 \item ``Hello World!'' for any numerical partial differential equation (PDE) solver framework!
 \item Gives necessary background for \lstinline{dune-grid} module
 \item Implement the method in PDELab (Wednesday)
@@ -305,8 +305,8 @@ needs some preparations \ldots
 \begin{frame}
 \frametitle{Finite Element Mesh}
 \vspace{-5mm}
-\begin{center}
-\begin{tikzpicture}[scale=0.75,baseline=(current bounding box.center)]
+\begin{center}\small
+\begin{tikzpicture}[scale=0.65,baseline=(current bounding box.center)]
 \draw[thick] (0,0) -- (5,0) -- (5,2) -- cycle;
 \draw[thick] (0,0) -- (5,2) -- (4,4) -- cycle;
 \draw[thick] (5,0) -- (9,3) -- (5,2) -- cycle;
@@ -352,6 +352,7 @@ g_{T_4}(0) = 1, & g_{T_4}(1) = 5, & g_{T_4}(2) = 4.
 \mathcal{T}_h = \{T_1, \ldots, T_M\}
 \end{equation*}
 \item {\em Simplicial element}: $T=\text{convex\_hull}(x_{T,0},\ldots,x_{T,d})$
+\item {\em Conforming}: Intersection is subentity
 \item {\em Local to global map} : $g_T : \{0,\ldots,d\}\to\mathcal{N}$
 \begin{equation*}
 \forall T\in\mathcal{T}_h, 0\leq i \leq d: g_T(l) = j \Leftrightarrow x_{T,l} = x_{j} .
@@ -429,10 +430,10 @@ where $\mathbb{P}_1^d = \{ p : \mathbb{R}^d \to \mathbb{R}
 \item {\em Lagrange} basis functions:
 $$\Phi_h=\{\phi_1,\ldots,\phi_N\}, \quad
 \forall i,j\in\mathcal{I}_h \,:\, \phi_i(x_j) = \delta_{i,j}$$
-\item {\em Ansatz and test spaces}:
+\item {\em Test and Ansatz spaces}:
 \begin{align*}
-V_{h,g} &= \{v\in V_h : \forall i\in\mathcal{I}_h^{\partial\Omega} : v(x_i)=g(x_i)\}, \\ 
-V_{h,0} &= \{v\in V_h \,:\, \forall i\in\mathcal{I}_h^{\partial\Omega} : v(x_i)=0\}
+V_{h,0} &= \{v\in V_h \,:\, \forall i\in\mathcal{I}_h^{\partial\Omega} : v(x_i)=0\}, \\
+V_{h,g} &= \{v\in V_h : \forall i\in\mathcal{I}_h^{\partial\Omega} : v(x_i)=g(x_i)\} = v_{h,g} + V_{h,0} 
 \end{align*}
 \end{itemize}
 \end{frame}
@@ -593,10 +594,10 @@ Then
 &= \sum_{T\in\mathcal{T}_h} \int_T \nabla \phi_j \cdot \nabla \phi_i \,dx
 &&\text{(use mesh)}\\
 &= \sum_{(T,m,n)\in C(i,j)}
-\int_{\hat T} (B_T^{-T} \hat\nabla\phi_n(\hat x))\cdot (B_T^{-T} \hat\nabla\phi_m(\hat x))
+\int_{\hat T} (B_T^{-T} \hat\nabla\hat\phi_n(\hat x))\cdot (B_T^{-T} \hat\nabla\hat\phi_m(\hat x))
 |\det B_T| \,d\hat x &&\text{(localize)}\\
 &= \sum_{(T,m,n)\in C(i,j)}
-(B_T^{-T} \hat\nabla\phi_n(\hat S_d))\cdot (B_T^{-T} \hat\nabla\phi_m(\hat S_d))
+(B_T^{-T} \hat\nabla\hat\phi_n(\hat S_d))\cdot (B_T^{-T} \hat\nabla\hat\phi_m(\hat S_d))
 |\det B_T| w_d . &&\text{(quadrature)}
 \end{align*}}
 \end{frame}
@@ -607,7 +608,7 @@ Then
 \item Now we need to perform these computations for {\em  all} matrix entries!
 \item Define the $d\times d+1$ matrix of shape function gradients
 \begin{equation*}
-\hat G = \left[\hat\nabla\phi_0(\hat S_d)),\ldots,\hat\nabla\phi_d(\hat S_d))\right] .
+\hat G = \left[\hat\nabla\hat\phi_0(\hat S_d)),\ldots,\hat\nabla\hat\phi_d(\hat S_d))\right] .
 \end{equation*}
 and the matrix of transformed gradients $$G=B_T^{-T} \hat G$$
 \item Define the {\em local stiffness matrix} 
@@ -629,7 +630,7 @@ A =  \sum_{T\in\mathcal{T}_h} R_T^T A_T R_T .
 $$z_T = R_T z$$
 \item Perform the {\em element-local computation}:
 \begin{equation*}
-y_T = G^T G z_T
+y_T = |\det B_T| w_d G^T G z_T
 \end{equation*}
 \item Accumulate the results:
 \begin{equation*}

@@ -420,7 +420,7 @@ and $(T_F^-,m)\in C(i)$ we obtain
 \begin{split}
 \lambda_T^B(\phi_i) &= \int_{F} j v\,ds = 
 \int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x)) 
-\sqrt{|\text{det} J^T_{\mu_T}(\hat x)J_{\mu_T}(\hat x)|} \,ds
+\sqrt{|\text{det} (J^T_{\mu_F}(\hat x)J_{\mu_F}(\hat x))|} \,ds
 \end{split}
 \end{equation*}
 Because integration is over a face of codimension 1 now, two mappings are
@@ -451,7 +451,7 @@ For any $(T,m)\in C(i)$ we get
 Again contributions for all test functions can be collected in a vector
 \begin{equation*}
 \begin{split}
-(\mathcal{A}_T^V(R_T z))_m &=
+(\mathcal{R}_T^V(R_T z))_m &=
 \sum_{n} (z)_{g_T(n)} \int_{\hat T} (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_n^{\hat T}(\hat x) )
 \cdot (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_m^{\hat T}(\hat x) ) |\text{det} J_{\mu_T}(\hat x)| \,dx\\
 &\hspace{30mm}+ \int_{\hat T} q\left( \sum_n (z)_{g_T(n)} p_n^{\hat T}(\hat x) \right) p_m^{\hat T}(\hat x) 
@@ -465,7 +465,7 @@ Again contributions for all test functions can be collected in a vector
 Now with these definitions in place the evaluation of the algebraic residual is
 \begin{equation}
 R(z) = 
-\sum_{T\in\mathcal{T}_h} R_T^T \mathcal{A}_T^V(R_T z)
+\sum_{T\in\mathcal{T}_h} R_T^T \mathcal{R}_T^V(R_T z)
   + \sum_{T\in\mathcal{T}_h} R_T^T \mathcal{L}_T^V
  + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_N} R_T^T \mathcal{L}_F^B
 \label{eq:FinalResidualEvaluation}
@@ -474,7 +474,7 @@ R(z) =
 The Jacobian of the residual is
 \begin{equation*}
 (J(z))_{i,j} = \frac{\partial R_i}{\partial z_j} (z) =
-\sum_{(T,m,n) : (T,m)\in C(i) \wedge (T,n)\in C(j)} \frac{\partial (\mathcal{A}_T^V)_m}{\partial z_n}
+\sum_{(T,m,n) : (T,m)\in C(i) \wedge (T,n)\in C(j)} \frac{\partial (\mathcal{R}_T^V)_m}{\partial z_n}
 (R_T z)
 \end{equation*}
 Note that:
@@ -983,7 +983,7 @@ are accumulated.
 \subsubsection*{Method \lstinline{alpha_volume}}
 
 This method was already present in tutorial 00. 
-It implements the term $\mathcal{A}_T^V(R_T z)$ and its interface is
+It implements the term $\mathcal{R}_T^V(R_T z)$ and its interface is
 \lstinputlisting[linerange={118-122},
 basicstyle=\ttfamily\small,
 frame=single,

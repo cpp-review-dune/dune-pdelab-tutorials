@@ -585,10 +585,10 @@ are involved due to the locality of the Lagrange basis functions:
 &= \sum_{T\in\mathcal{T}_h} \int_T \nabla \phi_j \cdot \nabla \phi_i \,dx
 &&\text{(use mesh)}\\
 &= \sum_{(T,m,n)\in C(i,j)}
-\int_{\hat T} (B_T^{-T} \hat\nabla\phi_n(\hat x))\cdot (B_T^{-T} \hat\nabla\phi_m(\hat x))
+\int_{\hat T} (B_T^{-T} \hat\nabla\hat\phi_n(\hat x))\cdot (B_T^{-T} \hat\nabla\hat\phi_m(\hat x))
 |\det B_T| \,d\hat x &&\text{(localize)}\\
 &= \sum_{(T,m,n)\in C(i,j)}
-(B_T^{-T} \hat\nabla\phi_n(\hat S_d))\cdot (B_T^{-T} \hat\nabla\phi_m(\hat S_d))
+(B_T^{-T} \hat\nabla\hat\phi_n(\hat S_d))\cdot (B_T^{-T} \hat\nabla\hat\phi_m(\hat S_d))
 |\det B_T| w_d . &&\text{(quadrature)}
 \end{align*}
 Note that the quadrature formula is exact since gradients of linear basis functions
@@ -599,7 +599,7 @@ necessary at a single element are collected. To that end,
 the gradients of the basis functions on the reference element (which are {\em independent}
 of position) are collected in the $d\times d+1$ matrix
 \begin{equation*}
-\hat G = \left[\hat\nabla\phi_0(\hat S_d)),\ldots,\hat\nabla\phi_d(\hat S_d))\right] .
+\hat G = \left[\hat\nabla\hat\phi_0(\hat S_d)),\ldots,\hat\nabla\hat\phi_d(\hat S_d))\right] .
 \end{equation*}
 The matrix $\hat G$ need only be computed once as it does not depend on the
 particular element.
@@ -627,16 +627,16 @@ evaluation \eqref{eq:opeval}:
 &&\text{(use mesh)}\\
 &= \sum_{(T,m)\in C(i)}
 \int_{\hat T} 
-\left(\sum_{n=0}^d (z)_{g_T(n)} B_T^{-T} \hat\nabla\phi_n\right)
-\cdot (B_T^{-T} \hat\nabla\phi_m) |\det B_T| \,d\hat x &&\text{(localize)}\\
+\left(\sum_{n=0}^d (z)_{g_T(n)} B_T^{-T} \hat\nabla\hat\phi_n\right)
+\cdot (B_T^{-T} \hat\nabla\hat\phi_m) |\det B_T| \,d\hat x &&\text{(localize)}\\
 &= \sum_{(T,m)\in C(i)}
-\left(\sum_{n=0}^d (z)_{g_T(n)} B_T^{-T} \hat\nabla\phi_n\right)
-\cdot (B_T^{-T} \hat\nabla\phi_m) |\det B_T| w_d . &&\text{(quadrature)}
+\left(\sum_{n=0}^d (z)_{g_T(n)} B_T^{-T} \hat\nabla\hat\phi_n\right)
+\cdot (B_T^{-T} \hat\nabla\hat\phi_m) |\det B_T| w_d . &&\text{(quadrature)}
 \end{align*}
 Again, computations for all indices can be arranged in an element-wise fashion
 which now computes per element
 \begin{equation}
-y_T = G^T G R_T z
+y_T = |\det B_T| w_d G^T G R_T z
 \label{eq:alpha_volume}
 \end{equation}
 and then accumulates
