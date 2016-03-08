@@ -7,4 +7,5 @@ add_executable(finitevolume finitevolume.cc)
 dune_symlink_to_source_files(FILES complex.msh
                                    ldomain.msh
                                    unitcube.msh
-                                   unitsquare.msh)
+                                   unitsquare.msh
+                                   2dexample.vtu)

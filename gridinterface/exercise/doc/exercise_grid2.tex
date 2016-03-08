@@ -59,4 +59,34 @@ Here are some questions to guide your exploration of grid construction:
 
 \end{Exercise}
 
+\begin{Exercise}{Visualization with ParaView}
+ The purpose of this exercise is to explore the visualization capabilities of ParaView.
+
+ We start by visualizing the file \lstinline!2dexample.vtu!. It contains two data sets: a solution of a finite element method
+ for the Poisson equation and the interpolation of the exact solution onto the grid. Try the following steps:
+ \begin{itemize}
+  \item Load the file into paraview and get it visualized.
+  \item Get a 3D Plot by using the \lstinline!Warp by Scalar! filter.
+  \item Plot the solution along a line using the \lstinline!Plot over Line! filter
+  \item Add a third data set using the \lstinline!Calculator! filter, which contains the error of the finite element discretization.
+ \end{itemize}
+
+ We will now visualize the solution of the finite volume example from this morning. If you have not successfully implemented the scheme,
+ you can produce the results by running the executables from the solution subfolder. Instead of a single file, we do load a \lstinline!pvd!
+ file that describes a time series. Again, try, the following:
+ \begin{itemize}
+  \item Load the \lstinline!pvd! file, get it visualized and run it.
+  \item Again use \lstinline!Plot over Line!.
+  \item Try using the filter \lstinline!Warp by Scalar!. What might be the problem with it?
+  \item Calculate the total mass by using the filter \lstinline!Integrate Variables!.
+  \item Try plotting the total mass over time and hopefully observe mass conversation. To do this,
+  you need to select the row with your integrated variable by clicking it and then apply the filter
+  \lstinline!Plot Selection over Time!.
+ \end{itemize}
+
+ Now load the 3D Finite Volume Data and try to explore it with ParaView. In addition to the above mentioned,
+ you might want to play around with \lstinline!Clip! and \lstinline!Contour!.
+\end{Exercise}
+
+
 \end{document}
