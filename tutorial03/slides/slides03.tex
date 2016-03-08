@@ -120,8 +120,8 @@
 % Title definition
 \mode<presentation>
 {
-  \title{DUNE PDELab Tutorial 02\\
-  {\small  The Cell-centered Finite Volume Method}}
+  \title{DUNE PDELab Tutorial 03\\
+  {\small  Conforming Finite Elements for a Nonlinear Heat Equation}}
   \author{Peter Bastian}
   \institute[]
   {
@@ -175,184 +175,227 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}
-\frametitle{Motivation}
-This tutorial extends on tutorial 00 by
+\frametitle{PDE Problem}
+This tutorial extends the problem from tutorial 01 to the instationary setting: 
+\begin{align*}
+\partial_t u -\Delta u + q(u) &= f &&\text{in $\Omega\times\Sigma$},\\
+u &= g &&\text{on $\Gamma_D\subseteq\partial\Omega$},\\
+-\nabla u\cdot \nu &= j &&\text{on $\Gamma_N=\partial\Omega\setminus\Gamma_D$},\\
+u &= u_0 &&\text{at $t=0$}.
+\end{align*}
+\textit{Weak formulation:} Find $u\in L_2(t_0,t_0+T;u_g+V(t))$:
+\begin{equation*}
+\frac{d}{dt} \int_\Omega u v \,dx+ \int_\Omega \nabla u \cdot \nabla v
++ q(u) v - f v \, dx + \int_{\Gamma_N} jv \, ds = 0 \qquad
+\begin{array}{l}
+\forall v \in V(t),\\
+t \in \Sigma,
+\end{array}
+\end{equation*}
+where $V(t) = \{v\in H^1(\Omega)\,:\, \text{$v=0$ on $\Gamma_D(t)$}\}$
+and $H^1(\Omega)\ni u_g(t)|_{\Gamma_D}=g$. 
+\end{frame}
+
+\begin{frame}
+\frametitle{Residual Forms}
+\textit{Introduce the residual forms:} Find $u\in L_2(t_0,t_0+T;u_g+V(t))$:
+\begin{equation*}
+\frac{d}{dt} m^{\text{L2}}(u,v) + r^{\text{NLP}}(u,v) = 0 \quad \forall v \in V(t), t \in \Sigma.
+\end{equation*}
+with the \textit{temporal residual form}
+\begin{equation*}
+m^{\text{L2}}(u,v) = \int_\Omega u v \,dx
+\end{equation*}
+and the \textit{spatial residual form}
+\begin{equation*}
+r^{\text{NLP}}(u,v) = \int_\Omega \nabla u \cdot \nabla v + (q(u)-f)v\,dx + \int_{\Gamma_N} jv\,ds ,
+\end{equation*}
+\end{frame}
+
+\begin{frame}
+\frametitle{Method of Lines}
 \begin{enumerate}[1)]
-\item Solving a \textbf{nonlinear} stationary PDE
-\item Using \textbf{multiple types of boundary conditions}
-\item Implementing a cell-centered finite volume method with two-point flux
-approximation as an example of a non-conforming scheme.
-\item Implementing \textit{all} possible methods of a local operator.
+\item Discretize in space with conforming finite elements, i.e. choose a 
+finite-dimensional test space $V_h(t)\subset V(t)$. 
+\item Results in a system of ordinary differential equations (ODEs) for the time-dependent
+coefficient vector $z(t)$
+\item Choose an appropriate method to integrate the ODE system
+\item Other schemes can be implemented in PDELab as well, e.g. space-time methods
 \end{enumerate}
 \end{frame}
 
 \begin{frame}
-\frametitle{PDE Problem}
-We consider the problem
+\frametitle{One Step $\theta$ Method}
+Subdivide time interval
+\begin{equation*}
+\overline{\Sigma} = \{t^{0}\} \cup (t^0,t^1] \cup \ldots \cup (t^{N-1},t^N]
+\end{equation*}
+Set  $\Delta t^k=t^{k+1}-t^k$; 
+Find $u_h^{k+1}\in U_h(t^{k+1})$ s.t.:
+\begin{equation*}
+\begin{split}
+\frac{1}{\Delta t_k}(&m_h^\text{L2}(u_h^{k+1},v;t^{k+1})-m_h^\text{L2}(u_h^{k},v;t^{k})) + \\
+&\theta r_h^\text{NLP}(u_h^{k+1},v;t^{k+1}) + (1-\theta) r_h^\text{NLP}(u_h^{k},v;t^{k}) = 0
+\quad \forall v\in V_h(t^{k+1})
+\end{split}
+\end{equation*}
+\hrule
+\smallskip
+Reformulated this formally corresponds in each time step to the nonlinear problem
+\begin{equation*}
+\text{Find $u_h^{k+1}\in U_h(t^{k+1})$ s.t.:}
+\quad r_h^{\theta,k} (u_h^{k+1},v) + s_h^{\theta,k}(v) = 0
+\quad \forall v\in V_h(t^{k+1})
+\end{equation*}
+where
 \begin{align*}
--\Delta u + q(u) &= f &&\text{in $\Omega$},\\
-u &= g &&\text{on $\Gamma_D\subseteq\partial\Omega$},\\
--\nabla u\cdot \nu &= j &&\text{on $\Gamma_N=\partial\Omega\setminus\Gamma_D$}.
+r^{\theta,k}_h(u,v) &= m_h^\text{L2}(u,v;t^{k+1})+\Delta t^k \theta r_h^\text{NLP}(u,v;t^{k+1}) ,\\
+s^{\theta,k}_h(v) &= -m_h^\text{L2}(u^k_h,v;t^k) + \Delta t^k (1-\theta) r_h^\text{NLP}(u_h^k,v;t^k)
 \end{align*}
+\end{frame}
+
+\begin{frame}
+\frametitle{Runge-Kutta Methods}
+in Shu-Osher form:
+\begin{enumerate}
+\item $u_h^{(0)} = u_h^{k}$.
+\item For $i=1,\ldots,s\in\mathbb{N}$, find $u_h^{(i)}\in u_{h,g}(t^k+d_i \Delta t^k)
++ V_h(t^{k+1})$:
+\begin{equation*}
+\begin{split}
+\sum\limits_{j=0}^{s} \bigl[a_{ij} m_h&\left(u_h^{(j)},v;t^k+d_j \Delta t^k\right) \\
+&+ b_{ij} \Delta t^k r_h\left(u_h^{(j)}, v;t^k+d_j \Delta t^k\right) \bigr] = 0
+\qquad \forall v\in V_h(t^{k+1})
+\end{split}
+\end{equation*}
+\item $u_h^{k+1} = u_h^{(s)}$.
+\end{enumerate}
+An $s$-stage scheme is given by the parameters
+\begin{equation*}
+A = \left[\begin{array}{ccc}
+a_{10} & \ldots & a_{1s}\\
+\vdots &  & \vdots\\
+a_{s0} & \ldots & a_{ss}
+\end{array}\right],
+\quad B = \left[\begin{array}{ccc}
+b_{10} & \ldots & b_{1s}\\
+\vdots &  & \vdots\\
+b_{s0} & \ldots & b_{ss}
+\end{array}\right],
+\quad d = \left(
+d_{0}, \ldots, d_{s}
+\right)^T
+\end{equation*}
+Consider explicit and diagonally implicit schemes
+\end{frame}
+
+\begin{frame}
+\frametitle{Examples}
 \begin{itemize}
-\item $q:\mathbb{R}\to\mathbb{R}$ is possibly
-nonlinear function
-\item $f: \Omega\to\mathbb{R}$ the source term
-\item $\nu$ unit outer normal to the domain
+\item One step $\theta$ scheme (introduced above):
+\begin{equation*}
+A = \left[\begin{array}{cc}
+-1 & 1
+\end{array}\right],
+\quad B = \left[\begin{array}{cc}
+1-\theta & \theta
+\end{array}\right],
+\quad d = \left(
+0, 1
+\right)^T.
+\end{equation*}
+Explicit/implicit Euler ($\theta\in\{0,1\}$), Crank-Nicolson ($\theta=\nicefrac12$).
+\item Heun's second order explicit method
+\begin{equation*}
+A = \left[\begin{array}{ccc}
+-1 & 1 & 0\\
+-\nicefrac12 & -\nicefrac12 & 1\\
+\end{array}\right],
+\quad B = \left[\begin{array}{ccc}
+1 & 0 & 0\\
+0 & \nicefrac12 & 0\\
+\end{array}\right],
+\quad d = \left(
+0, 1, 1
+\right)^T.
+\end{equation*}
+\item Alexander's two-stage second order strongly S-stable scheme
+{\footnotesize\begin{equation*}
+A = \left[\begin{array}{ccc}
+-1 & 1 & 0\\
+-1 & 0 & 1\\
+\end{array}\right],
+\quad B = \left[\begin{array}{ccc}
+0 & \alpha     & 0\\
+0 & 1-\alpha & \alpha\\
+\end{array}\right],
+\quad d = \left(
+0, \alpha, 1
+\right)^T
+\end{equation*}}
+with $\alpha=1-\nicefrac{\sqrt{2}}{2}$.
+\item Fractional step $\theta$, three stage second order strongly A-stable
+{\footnotesize\begin{equation*}
+A = \left[\begin{array}{rrrr}
+-1 & 1 & 0 & 0\\
+0  & -1 & 1 & 0\\
+0  & 0 & -1 & 1\\
+\end{array}\right],
+\quad B = \left[\begin{array}{rrrr}
+\theta \theta' & 2\theta^2 & 0 & 0\\
+0 & 2\theta\theta' & 2\theta^2 & 0\\
+0 & 0 & \theta\theta' & 2\theta^2
+\end{array}\right],
+\quad d = \left(
+0, \theta, 1-\theta, 1
+\right)^T
+\end{equation*}}
+with $\theta=1-\nicefrac{\sqrt{2}}{2}$, $\theta' = 1-2\theta = \sqrt{2}-1$.
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Notation for Interior Intersections}
-\begin{center}
-\begin{tikzpicture}[scale=1.3]
-\draw[draw=none,pattern=north east lines] (-0.25,0)  rectangle (0,3);
-\draw[very thick] (0,0)  rectangle (6,3);
-\draw[very thick] (3,0) -- (3,3);
-\node at (1.5,2.2) {$T_{F'}^-, T_F^-$};
-\node at (4.5,2.2) {$T_F^+$};
-\draw[fill=black] (1.5,1.5)  circle (0.07);
-\node[below] at (1.5,1.5) {$x_{T_{F'}^-}, x_{T_F^-}$};
-\draw[fill=black] (4.5,1.5)  circle (0.07);
-\node[below] at (4.5,1.5) {$x_{T_F^+}$};
-\draw[thick,->] (3,1.5) -- (4,1.5);
-\draw[fill=black] (3,1.5)  circle (0.07);
-\node[left] at (3,1.5) {$x_{F}$};
-\node[below] at (3.5,1.5) {$\nu_F$};
-\node[left] at (3,0.5) {$F$};
-\draw[fill=black] (0,1.5)  circle (0.07);
-\draw[thick,->] (0,1.5) -- (-1,1.5);
-\node[right] at (0,1.5) {$x_{F'}$};
-\node[right] at (0,0.5) {$F'$};
-\end{tikzpicture}\hspace{0.1\textwidth}
-\end{center}
-$\mathcal{F}_h^i=\{F_1,\ldots,F_N\}$ is the set of {\em interior intersections}\\
-\medskip
-$\mathcal{F}_h^{\partial\Omega}=\{F_1,\ldots,F_L\}$ is the set of {\em boundary intersections}\\
-\medskip
-$\mathcal{F}_h^{\partial\Omega} = \mathcal{F}_h^{\Gamma_D}  \cup \mathcal{F}_h^{\Gamma_N}$
-\end{frame}
-
-\begin{frame}
-\frametitle{Discrete Weak Formulation}
-Finite volume methods us the space
+\frametitle{Note on Explicit Schemes}
+Example: Explicit Euler method ($\theta=0$)
+results in: Find $u_h^{k+1}\in U_h(t^{k+1})$ s.t.:
 \begin{equation*}
-W_h = \{w\in L^2(\Omega) \,:\,  \text{$w|_T=$ const for all $T\in\mathcal{T}_h$}\} .
+ m_h^\text{L2}(u_h^{k+1},v;t)-m_h^\text{L2}(u_h^{k},v;t) +
+\Delta t^k r_h^\text{NLP}(u_h^{k},v;t) = 0
+\quad \forall v\in V_h(t^{k+1})
 \end{equation*}
-then
-{\small\begin{align*}
-\int_{\Omega} f v \,dx &= \int_{\Omega} [-\Delta u + q(u)] v\,dx
-= \sum_{T\in\mathcal{T}_h} v \int_T -\Delta u + q(u) \,dx &&\text{($v$ const on $T$)}\\
-&= \sum_{T\in\mathcal{T}_h} \left[\int_T q(u) v \,dx - \int_{\partial T} \nabla u \cdot \nu v \,ds
-\right] &&\text{(Gauss' thm.)} \\
-&= \sum_{T\in\mathcal{T}_h} \int_T q(u) v \,dx \\
-& \hspace{10mm} -\sum_{F\in\mathcal{F}_h^i} \int_F \nabla u \cdot \nu_F \bigl[v(x_{T_F^-}) - v(x_{T_F^+})\bigr] \,ds \\
-& \hspace{10mm}-\sum_{F\in\mathcal{F}_h^{\partial\Omega}} \int_F \nabla u \cdot \nu_F \,ds .
-&&\text{(rearrange)}
-\end{align*}}
-\end{frame}
-
-\begin{frame}
-\frametitle{Finite Volume Scheme}
-Now approximate the directional derivative
-$$\nabla u\cdot \nu_F \approx \frac{u_h(x_{T_F^+})-u_h(x_{T_F^-})}{\|x_{T_F^+} - x_{T_F^-}\|}$$
-and the integrals
-$$\int_T f \,dx \approx f(x_T)|T| $$
-to get the abstract problem
+Appropriate spatial discretization results in diagonal mass matrix:
 \begin{equation*}
-\boxed{ \text{Find $u_h\in W_h$ s.t.:} \quad r_h^{\text{CCFV}}(u_h,v) = 0 \quad \forall v \in W_h }
+Dz^{k+1} = s^k - \Delta t^k q^k.
 \end{equation*}
-where the residual form \ldots
-\end{frame}
-
-\begin{frame}
-\frametitle{Residual Form}
-\ldots is
-\begin{equation*}
-\begin{split}
-r_h^{\text{CCFV}}(u_h,v)
-& = \sum_{T\in\mathcal{T}_h} q(u_h(x_T)) v(x_T) |T|
-- \sum_{T\in\mathcal{T}_h} f(x_T) v(x_T) |T|\\
-&\ - \sum_{F\in\mathcal{F}_h^i}
-\frac{u_h(x_{T_F^+})-u_h(x_{T_F^-})}{\|x_{T_F^+} - x_{T_F^-}\|}
-\bigl[v(x_{T_F^-}) - v(x_{T_F^+})\bigr] |F|\\
-&\ + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D}
-\frac{u_h(x_{T_F^-})}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F| \\
-&\ - \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D}
-\frac{g(x_{F}))}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F| \\
-&+ \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_N} j(x_{F}) v(x_{T_F^-}) |F| .
-\end{split}
-\end{equation*}
-\end{frame}
-
-\begin{frame}
-\frametitle{Remarks on the Residual Form}
-\textit{Five} different types of integrals are involved in the
-residual form:
-\begin{enumerate}
-\item Volume integral depending on trial and test function.
-\item Volume integral depending on test function only.
-\item Interior intersection integral depending on trial and test function.
-\item Boundary intersection integral depending on trial and test function.
-\item Boundary intersection integral depending on test function only.
+Requires stability condition for $\Delta t^k$.\\
+\smallskip
+Use follwing algorithm:
+\begin{enumerate}[i)]
+\item While traversing the mesh assemble the vectors $s^k$ and
+$q^k$ separately and compute the maximum time step $\Delta t^k$.
+\item Form the right hand side $b^k=s^k - \Delta t^k q^k$ and ``solve'' the
+diagonal system $Dz^{k+1} = b^k$ (can be done in one step).
 \end{enumerate}
-Dirichlet as well as Neumann boundary conditions are built weakly into the
-residual form!\\
-\medskip
-No constraints on the function space are necessary in this case\\
-\medskip
-Can be extended to discontinuous Galerkin methods
+Extends to strong stability preserving Runge-Kutta methods
 \end{frame}
 
 \begin{frame}
-\frametitle{General Residual Form}
-A residual form in PDELab has the following structure:
-\begin{equation*}
-\begin{split}
-r(u,v) &=
-\sum_{T\in\mathcal{T}_h} \alpha_T^V(R_T u, R_T v)
-+ \sum_{T\in\mathcal{T}_h} \lambda_T^V(R_T v) \\
-&\qquad+ \sum_{F\in\mathcal{F}_h^i} \alpha_F^S(R_{T_F^-} u,R_{T_F^+} u, R_{T_F^-} v, R_{T_F^+} v)\\
-&\qquad+ \sum_{F\in\mathcal{F}_h^{\partial\Omega}} \alpha_F^B(R_{T_F^-} u, R_{T_F^-} v)
-+ \sum_{F\in\mathcal{F}_h^{\partial\Omega}} \lambda_F^B(R_{T_F^-} v) .
-\end{split}\label{eq:GeneralResidualForm}
-\end{equation*}
-which results in the following methods on the local operator
-\begin{center}
-\tiny
-\begin{tabular}{l|l|l|l}
-    & volume & skeleton & boundary \\
-\hline
-residual    & \lstinline!alpha_volume! & \lstinline!alpha_skeleton! & \lstinline!alpha_boundary! \\
-                & \lstinline!lambda_volume! & & \lstinline!lambda_boundary! \\
-\hline
-Jacobian  & \lstinline!jacobian_volume! & \lstinline!jacobian_skeleton! & \lstinline!jacobian_boundary! \\
-\hline
-Jac.  app.  & \lstinline!jacobian_apply_volume! & \lstinline!jacobian_apply_skeleton! &
-\lstinline!jacobian_apply_boundary!
-\end{tabular}
-\end{center}
-$\Rightarrow$ There are up to 11 methods on the local operator. The CCFV scheme implements them all!
-\end{frame}
-
-\begin{frame}
-\frametitle{Implementation Overview}
-The tutorial consist of the following files:
+\frametitle{Realization in PDELab}
 \begin{enumerate}[1)]
 \item The ini-file
-\lstinline{tutorial02.ini} holds parameters
-which control the execution.
-\item The main file \lstinline{tutorial02.cc} includes the necessary C++,
+\lstinline{tutorial03.ini} holds parameters 
+controlling the execution.
+\item Main file \lstinline{tutorial03.cc} includes the necessary C++,
 DUNE and PDELab header files;
-contains the \lstinline{main} function;
-instantiates DUNE grid objects and calls the \lstinline{driver} function.
-\item File \lstinline{driver.hh} instantiates the PDELab classes
-for solving a nonlinear stationary problem with the cell-centered finite
-volume method and solves the problem.
-\item File \lstinline{nonlinearpoissonfv.hh} contains the class
-\lstinline{NonlinearPoissonFV} realizing a PDELab local operator
+contains \lstinline{main} function;
+instantiates DUNE grid objects and calls the \lstinline{driver} function
+\item Function \lstinline{driver} in file \lstinline{driver.hh} instantiates 
+the necessary PDELab classes and finally solves the problem.
+\item File \lstinline{nonlinearheatfem.hh} contains the local operator classes
+\lstinline{NonlinearHeatFEM} and \lstinline{L2} realizing the spatial
+and temporal residual forms.
 \item File \lstinline{problem.hh} contains a parameter class which
-encapsulates the user-definable part of the PDE problem
+encapsulates the user-definable part of the PDE problem.
 \end{enumerate}
 \end{frame}
 
