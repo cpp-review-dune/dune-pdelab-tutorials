@@ -189,13 +189,11 @@ approximation as an example of a non-conforming scheme.
 \begin{frame}
 \frametitle{PDE Problem}
 We consider the problem
-\begin{subequations} \label{eq:ProblemStrong}
-\begin{align}
+\begin{align*}
 -\Delta u + q(u) &= f &&\text{in $\Omega$},\\
 u &= g &&\text{on $\Gamma_D\subseteq\partial\Omega$},\\
 -\nabla u\cdot \nu &= j &&\text{on $\Gamma_N=\partial\Omega\setminus\Gamma_D$}.
-\end{align}
-\end{subequations}
+\end{align*}
 \begin{itemize}
 \item $q:\mathbb{R}\to\mathbb{R}$ is possibly
 nonlinear function
@@ -261,10 +259,10 @@ $$\nabla u\cdot \nu_F \approx \frac{u_h(x_{T_F^+})-u_h(x_{T_F^-})}{\|x_{T_F^+} -
 and the integrals
 $$\int_T f \,dx \approx f(x_T)|T| $$
 to get the abstract problem
-\begin{equation}
+\begin{equation*}
 \boxed{ \text{Find $u_h\in W_h$ s.t.:} \quad r_h^{\text{CCFV}}(u_h,v) = 0 \quad \forall v \in W_h }
-\end{equation}
-with the residual form \ldots
+\end{equation*}
+where the residual form \ldots
 \end{frame}
 
 \begin{frame}

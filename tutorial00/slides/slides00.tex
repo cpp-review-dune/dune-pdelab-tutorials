@@ -717,6 +717,95 @@ r_h(u_h,v)=0
 \end{frame}
 
 \begin{frame}
+\frametitle{The PDE Problem Revisited}
+We solve Poisson's equation with inhomogeneous Dirichlet boundary conditions:
+\begin{align*}
+-\Delta u & = f \qquad\text{in $\Omega$}\\
+u &= g \qquad\text{on $\partial\Omega$}
+\end{align*}
+The weak formulation is
+\begin{equation*}
+u \in V_g :\qquad a(u,v) = l(v) \qquad \forall v\in V_0
+\end{equation*}
+with 
+$$a(u,v) = \int_\Omega \nabla u \cdot \nabla v \,dx  \quad\text{and}\quad
+l(v)=\int_\Omega fv\, dx $$
+and
+\begin{align*}
+V_0 &= H_0^1(\Omega) \\
+V_g &= \{ v\in H^1(\Omega) \,:\, v = u_g + w \wedge u_g|\Gamma_D=g \wedge w\in V_0 \}
+\end{align*}
+\end{frame}
+
+\begin{frame}
+\frametitle{Generic Assembly Loop}
+\begin{algorithmic}[1]
+\For{$T\in\mathcal{T}_h$} \Comment{loop over mesh elements}
+\State $z_T = R_T z$ \Comment{load element data}
+\State $q_T=\text{compute}(T,z_T)$ \Comment{element local computations}
+\State $\text{Accumulate}(q_T)$ \Comment{store result in global data structure}
+\EndFor
+\end{algorithmic}
+Only the computational kernels $\text{compute}(T,z_T)$ need to be implemented by the user
+to implement the finite element method
+\end{frame}
+
+\begin{frame}
+\frametitle{Assembly of Right Hand Side}
+\begin{itemize}
+\item Now we need to perform these computations {\em for all $i\in\mathcal{I}_h^{int}$}!
+\item Collect {\em element-local} computations:
+\begin{equation*}
+(b_T)_m =  f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) |\det B_T| w_d \quad \forall m=0,\ldots,d 
+\end{equation*}
+\item Define {destriction matrix} $R_T : \mathbb{R}^N \to \mathbb{R}^{d+1}$ with
+\begin{equation*}
+(R_T x)_m = (x)_i \quad \forall \,0\leq m \leq d, \,g_T(m)=i,
+\end{equation*}
+\item Then
+\begin{equation*}
+b = \sum_{T\in\mathcal{T}_h} R_T^T b_T .
+\end{equation*}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Assembly of Global Stiffness Matrix}
+\begin{itemize}
+\item Define the $d\times d+1$ matrix of shape function gradients
+\begin{equation*}
+\hat G = \left[\hat\nabla\hat\phi_0(\hat S_d)),\ldots,\hat\nabla\hat\phi_d(\hat S_d))\right] .
+\end{equation*}
+and the matrix of transformed gradients $$G=B_T^{-T} \hat G$$
+\item Define the {\em local stiffness matrix} 
+\begin{equation*}
+A_T = G^T G |\det B_T| w_d .
+\end{equation*}
+\item Then
+\begin{equation*}
+A =  \sum_{T\in\mathcal{T}_h} R_T^T A_T R_T .
+\end{equation*}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Matrix-free Operator Evaluation}
+\begin{itemize}
+\item Similar considerations apply for the operation $y=Az$
+\item Pick out the coefficients on the element $T$:
+$$z_T = R_T z$$
+\item Perform the {\em element-local computation}:
+\begin{equation*}
+y_T = |\det B_T| w_d G^T G z_T
+\end{equation*}
+\item Accumulate the results:
+\begin{equation*}
+Az =  \sum_{T\in\mathcal{T}_h} R_T^T y_T.
+\end{equation*}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
 \frametitle{Overview DUNE/PDELab Implementation}
 Files involved are:
 \begin{enumerate}[1)]
