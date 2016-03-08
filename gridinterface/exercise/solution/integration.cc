@@ -47,7 +47,7 @@ int main(int argc, char** argv)
             auto rule = Dune :: PDELab :: quadratureRule (geo, 3);
             for ( const auto & qp : rule )
             {
-                integral += qp.weight()*f(qp.position())*geo.integrationElement(qp.position());
+                integral += qp.weight()*f(geo.global(qp.position()))*geo.integrationElement(qp.position());
             }
         }
         std::cout << "Computed the integral: " << integral << std::endl;
