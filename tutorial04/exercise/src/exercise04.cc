@@ -152,6 +152,7 @@ int main(int argc, char** argv)
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
+        //add degree 3 for higher order exercise
       }
     if (dim==3)
       {
@@ -180,6 +181,7 @@ int main(int argc, char** argv)
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
+        //add degree 3 for higher order exercise
       }
   }
   catch (Dune::Exception &e){

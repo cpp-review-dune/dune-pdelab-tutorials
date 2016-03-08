@@ -235,7 +235,6 @@ public:
         // integrate u*phi_i
         for (size_t i=0; i<lfsu0.size(); i++) {
           r.accumulate(lfsu0,i,u1*phihat[i]*factor);
-          //r.accumulate(lfsu1,i,u0*phihat[i]*factor);
   		  r.accumulate(lfsu1,i,(gradu0*gradphi[i][0])*factor);
         }
       }

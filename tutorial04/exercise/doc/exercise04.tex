@@ -12,6 +12,7 @@
 \usepackage{amssymb}
 \usepackage{wrapfig}
 \usepackage{todonotes}
+\usepackage{hyperref}
 
 \usepackage{listings}
 \definecolor{listingbg}{gray}{0.95}
@@ -86,7 +87,7 @@ But one may also omit the boundary condition on $u_1$.
   \item \lstinline!exercise04.ini! -- holds parameters read by various parts of the code which control the execution,
   \item \lstinline!exercise04.cc! -- main program, 
   \item \lstinline!driver.hh! -- instantiates the necessary PDELab classes for solving a linear instationary problem and finally solves the problem,
-  \item \lstinline!wavefem.hh! -- contains the local operator classes WaveFEM and WaveL2 realizing the spatial and temporal residual forms $r(u,v,t)$ and $m(u,v,t)$ respectively.
+  \item \lstinline!wavefem.hh! -- contains the local operator classes \lstinline!WaveFEM! and \lstinline!WaveL2! realizing the spatial and temporal residual forms $r(u,v,t)$ and $m(u,v,t)$ respectively.
   \end{itemize}
   
   As in the previous exercises you can control most of the settings
@@ -97,186 +98,149 @@ But one may also omit the boundary condition on $u_1$.
   of several ways to write VTK output for the instationary case,
   c.f. the documentation of the tutorial03. The \lstinline!pvd!-file can
   be visualized by ParaView and it consists of a collection of the
-  corresponding \lstinline!vtu!-files.
-  One big advantage of this approach is that the physical time can be
-  printed out. This can be achieved by using the ``AnnotateTimeFiler``
-  in ParaView. To see 1D solution, one can apply ''Plot Over Line '' filer, note that our solution is depicted by $u_0$.
+  corresponding \lstinline!vtu!-files. To see 1D solution, one can apply ''Plot Over Line '' filer, note that our solution is depicted by $u_0$.
 
 \end{Exercise}
 
 \begin{Exercise}{ Try various time integrators, in particular the Crank-Nicolson method}
 
- \paragraph{Step 2: Arbitrary one-step schemes}
-  We want to examine the numerical solution under three different time
-  discretization schemes -- Implicit Euler, Crank-Nicolson and
-  Fractional-Step-$\theta$. In order to change the time discretization
-  scheme you will have to go to the file \lstinline!driver.hh! and
+  We want to examine the numerical solution under different time
+  discretization schemes, eg. Implicit Euler or Crank-Nicolson. In order to change the time discretization   scheme you will have to go to the file \lstinline!driver.hh! and
   search for the line
   \begin{lstlisting}
     Dune::PDELab::Alexander2Parameter<RF> pmethod;
   \end{lstlisting}
-  Change this to use the
-  \lstinline!Dune::PDELab::ImplicitEulerParameter<RF>!, compile and
-  rerun the simulation. The program reports the progress of the time
-  stepping and the method used. Convince yourself that you are using
-  indeed the Implicit Euler. The other two time stepping methods can be
-  applied similarly.
-
-  \textbf{Note that} there is no special one step parameter class for
-  Crank-Nicolson.  Crank-Nicolson is however the special case of the one
-  step $\theta$ scheme with $\theta=0.5$.  So you can create a parameter
-  object for Crank-Nicolson with
-  \lstinline!Dune::PDELab::OneStepThetaParameter<Real>(0.5)!.  A parameter
-  object for the Fractional Step $\theta$ scheme can be created with
-  \lstinline!Dune::PDELab::FractionalStepParameter<Real>()!.
-
+  
+ Recall the previous \lstinline!exercise03! and change the one 
+ step $\theta$ scheme in a way that corresponds to the Crank-Nicolson method.
+ 
+  \textbf{Note that} you can compare the solutions in ParaView. To do that you have to rename the second solution in \lstinline!exercise04.ini! and use "Append Attributes" filter before "Plot Over Line". Do not forget to change the torder parameter  in \lstinline!exercise04.ini! in order to get the right scheme.
+  
+  
 \end{Exercise}
+
+
+ \textbf{Remark} You can decide about the domain dimension, see \lstinline!exercise04.ini! file. 2d give you nicer pictures under the cost of longer runtime.  
+
 
 \begin{Exercise}{ Explore polynomial degree greater than $2$ by changing the blocking
 to \lstinline{none}. }
+ \textbf{Step 1:}
+Find the place where your Local Finite Element Maps are created and make it possible to use the polynomial degree 3
 
+\begin{lstlisting}
+Dune::PDELab::QkLocalFiniteElementMap<GV,DF,double,deg> FEM;
+\end{lstlisting} 
+
+Compile your program and check the results.
+
+\textbf{Note that:} \lstinline!deg! is a static template parameter.
+
+\textit{Program should compile and give a segmentation error when started.}
+
+
+ \textbf{Step 2:}
+
+Before we start please have a look at \lstinline!tutorial04! description of driver  and read the part that describes specification of an ordering when creating
+product spaces. We recall \textit{Important notice}: Using fixed block structure in ISTL requires that there is the same number of degrees of freedom per entity. This is true for polynomial degrees one and two but not for higher polynomial degree!
+ 
+ To avoid segfault you need to change 
+ 
+  \begin{lstlisting}
+  Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::fixed> VBE;  \end{lstlisting} 
+ to 
+\begin{lstlisting}
+  Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::none> VBE;  \end{lstlisting} 
+ in the  \lstinline!driver.hh!.
+ 
 \end{Exercise}
 
-
-\begin{Exercise}{Poisson Equation with Piecewise Linear Elements}
-
-
-
-\begin{enumerate}
-\item {\sc Warming up}:\\
-  The code presented in this tutorial solves the following elliptic
-  equation with Dirichlet boundary conditions
-  \begin{align*}
-    \begin{array}{rcll}
-      -\Laplace u  & = & f & \text{ in } \Omega, \\
-      u & = & g & \text{ on } \partial\Omega,
-    \end{array}
-  \end{align*}
-  where
-  \begin{align*}
-    f(x) = -2d \quad\text{and}\quad  g(x) = \sum_{i=1}^d (x)_i^2.
-  \end{align*}
-
-  First of all check that $u(x) = \sum_{i=1}^d (x)_i^2$ is a solution
-  in any dimension $d$.
-
-  For general instructions how to modify the sources and rebuilding
-  the program see the exercise-workflow in the \lstinline{overview} folder.  
-  
-  
-  We now want to run the program for different grid
-  refinement levels.  The source file for this exercise is called
-  \lstinline{exercise0.cc}.  What the program does is controlled by
-  the file \lstinline{tutorial00.ini}:
-  \lstinputlisting[language=bash]{../src/exercise04.ini}
-
-  Here you may change the dimension, the number of mesh refinements
-  and the names of input and output files. In dimension 1 the
-  extension \lstinline{.vtp} is added and in dimension 2 and 3
-  \lstinline{.vtu} is added.
-
-  In order to generate a set of output files you may set
-  \begin{lstlisting}
-refinement=0
-  \end{lstlisting}
-  and
-  \begin{lstlisting}
-[output]
-filename=solution_0
-  \end{lstlisting}
-  and then
-  \begin{lstlisting}
-refinement=1
-  \end{lstlisting}
-  and
-  \begin{lstlisting}
-[output]
-filename=solution_1
-  \end{lstlisting}
-  and so on.  You don't have to rebuild your program after changing
-  the ini file.
-
-  Now run the program for these settings. The solutions can be
-  visualized using ParaView.  Note that you must press the
-  \lstinline{Apply} button in the paraview user interface to see the
-  loaded vtu/vtp files.  Use the Calculator filter to visualize the
-  difference $|u-u_h|$ and determine the maximum error. Note that $u$
-  and $u_h$ are called \lstinline{exact} and \lstinline{fesol} in
-  the parview output.
-
-\item {\sc Solving a new problem}:
-
-  Now consider
-  \begin{align}
-    f(x) =  -\sum_{i=1}^d 6(x)_i \quad\text{and}\quad  g(x) = \sum_{i=1}^d (x)_i^3
-  \end{align}
-  and check that $u(x)=\sum_{i=1}^d (x)_i^3$ solves the PDE.
-
-  Implement the new $f$ and $g$ functions in the files
-  \lstinline{ffunction.hh} and \lstinline{gfunction.hh}
-  respectively. Recompile and run the program accordingly.
-
-\item {\sc Analysis of finite element error}:
-
-  Produce now a sequence of output files for different levels of mesh
-  refinement $0, 1, 2, \ldots$. Visualize the error $|u-u_h|$ in
-  ParaView and determine the maximum error on each level.  Make a
-  table and determine the convergence rate.
-
-\item {\sc Use a different solver}:
-
-You may also try to exchange the iterative linear solver by
-replacing it with the following lines:
-\begin{lstlisting}
-typedef Dune::PDELab::ISTLBackend_SEQ_BCGS_SSOR LS;
-LS ls(5000,true);
-\end{lstlisting}
-Compare the number of iterations which is given by the following lines
-in the output (here we have 12 iterations):
-\begin{lstlisting}
-=== CGSolver
-   12       1.9016e-09
-=== rate=0.144679, T=0.02362, TIT=0.00196833, IT=12
-\end{lstlisting}
-\end{enumerate}
-\end{Exercise}
 
 
 \begin{Exercise}{Changing the Local Operator}
 
-Now consider the extended equation of the form
-\begin{align}
-    \begin{array}{rcll}
-      -\nabla\cdot (k(x) \nabla u) +a(x) u  & = & f & \text{ in } \Omega, \\
-      u & = & g & \text{ on } \partial\Omega,
-    \end{array}
-\end{align}
-with scalar functions $k(x)$, $a(x)$.
+Now consider the elliptic projection as in Eriksson et al. \cite{Eriksson}, namely applying the Laplacian to equation \eqref{eq:2b}
+\begin{equation}\label{eq:elip}
+-\Delta \partial_t u_0 + \Delta u_1 = 0,
+\end{equation}
+which has the advantage of  energy conservation but requires additional smoothness properties.
 
-\begin{enumerate}
-\item In a first step show that the weak formulation of the problem
-  involves the new bilinear form
-  \begin{align}
-    a(u,v) = \int_\Omega k(x) \nabla u(x) \cdot \nabla v(x) + a(x) u(x) v(x) \,dx .
-  \end{align}
-\item The main work is now to extend the local operator given by the
-  class \lstinline{PoissonP1}. This is done in several steps:
+
+The main work is now to change the local operators given in the
+  file \lstinline{wavefem.hh}. This is done in several steps:
   \begin{itemize}
-  \item Copy class \lstinline{PoissonP1} to a new file and rename it.
-  \item Provide analytic functions for $k(x)$ and $a(x)$ and pass
-    GridFunctions to the local operator like it is done for $f(x)$.
-  \item Extend the local operator to first handle $k(x)$ by assuming the
-    function $k(x)$ to be \emph{constant} on mesh elements.
-  \item Now extend the local operator to handle $a(x) u(x)$. Also assume
-    the function $a(x)$ to be \emph{constant} on mesh elements.
-  \end{itemize}
-\item Plug in your new local operator in the driver code and test it.
-  In the solution the code is tested for $k(x)=2(x)_1$,
-  $a(x)=\sum_{i=1}^{d}(x)_i$ and $g=\sum_{i=1}^d (x)_i^3$ by choosing
-  the right hand side $f(x)$ in such a way that $u(x)=\sum_{i=1}^d
-  (x)_i^3$ solves the PDE.
-\end{enumerate}
+  \item Copy the file \lstinline{wavefem.hh} to a new file and rename it.
+  \item Rename local operators in a new file, eg. change \lstinline{waveL2} to \lstinline{WaveElip}
+  \item Include your new file in \lstinline{exercise04.cc} and change types of \lstinline{LOP} and \lstinline{TLOP} in \lstinline{driver.hh}
+  \begin{lstlisting}
+
+  // Make instationary grid operator
+  double speedofsound=ptree.get("problem.speedofsound",(double)1.0);
+  typedef WaveFEM<FEM> LOP;
+  LOP lop(speedofsound);
+  typedef WaveL2<FEM> TLOP;
+  TLOP tlop;  
+  \end{lstlisting}
+\end{itemize}
+
+Now, when the files are prepared you need to implement the following change 
+$$ \partial_t u_0 - u_1 = 0 \Rightarrow \Delta \partial_t u_0 - \Delta u_1 = 0.$$
+
+\begin{itemize}
+
+\item Introduce changes in spatial local operator 
+$$ - u_1 = 0 \Rightarrow -  \Delta u_1 = 0$$
+
+See how it is done for the $\Delta u_0$, we recall corresponding part of \lstinline{WaveFEM} \lstinline{alpha_volume} method
+  \begin{lstlisting}
+// integrate both equations
+RF factor = ip.weight() * geo.integrationElement(ip.position());
+for (size_t i=0; i<lfsu0.size(); i++) {
+	r.accumulate(lfsu0,i,c*c*(gradu0*gradphi[i][0])*factor);
+	r.accumulate(lfsu1,i,-u1*phihat[i]*factor);
+}
+  \end{lstlisting}
+
+
+\item Introduce changes in temporal local operator
+ $$ \partial_t u_0  = 0 \Rightarrow \Delta \partial_t u_0= 0$$
+
+See how it is done for the $\Delta u_0$, we recall corresponding part of \lstinline{WaveL2} \\ \lstinline{alpha_volume} method
+  \begin{lstlisting}
+// integrate u*phi_i
+for (size_t i=0; i<lfsu0.size(); i++) {
+	r.accumulate(lfsu0,i,u1*phihat[i]*factor);
+	r.accumulate(lfsu1,i,u0*phihat[i]*factor);
+}
+  \end{lstlisting}
+
+\item Do not forget about proper changes in \lstinline{jacobian_volume} methods. Since the problem is linear this should not cost you too much effort.
+\end{itemize}
 \end{Exercise}
+\begin{Exercise}{Energy conservation}
+If we multiply \eqref{eq:2a} by $u_1$ and \eqref{eq:elip} by $u_0$ and add, the terms $-(\Delta u_0,u_1 )$ and $(\Delta u_1,u_0 )$ cancel out, leading to the conclusion that energy $$E(t) = \|u_1\|^2 + \| \nabla u_0\|^2 $$
+is constant in time.
+
+
+Your task is to check the energy conservation for the elliptic projection and Crank-Nicolson in time. You can use the following Dune PDELab functions
+  \begin{lstlisting}
+	Dune::PDELab::SqrGridFunctionAdapter
+	Dune::PDELab::integrateGridFunction
+	Dune::PDELab::DiscreteGridFunctionGradient
+	Dune::PDELab::SqrGridFunctionAdapter  
+  \end{lstlisting}
+
+If you have problems with this task check online documentation
+\url{https://www.dune-project.org/doc/doxygen/html/modules.html} or the solution.
+\end{Exercise}
+
+\textbf{Additional task}\\
+If you are done with this exercises, you can play with initial conditions. Use the following setting in one space dimension:
+\begin{itemize}
+\item Change  the initial conditions to $\sin(2x)$ (implement proper lambda function)
+\item Change the domain size to $[0,\pi]$
+\end{itemize} 
+
 
 \bibliographystyle{plain}
 \bibliography{exercise04.bib}

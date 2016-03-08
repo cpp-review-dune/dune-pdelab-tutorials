@@ -63,6 +63,7 @@
 #include<dune/pdelab/newton/newton.hh>
 
 // include all components making up this tutorial
+// exercise 3 change header to inculde your new wavefem file 
 #include"wavefem_elip.hh"
 #include"wavefem.hh"
 #include"driver.hh"
@@ -126,7 +127,7 @@ int main(int argc, char** argv)
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
-        //add degree 3 for higher order exercise
+        //exercise 2 step 1: add degree 3 for higher order exercise
         if (degree==3) {
           typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,3> FEM;
           FEM fem(gv);
@@ -160,6 +161,12 @@ int main(int argc, char** argv)
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
+        //exercise 2 step 1: add degree 3 for higher order exercise
+        if (degree==3) {
+          typedef Dune::PDELab::QkLocalFiniteElementMap<GV,DF,double,3> FEM;
+          FEM fem(gv);
+          driver(gv,fem,ptree);
+        }
       }
     if (dim==3)
       {
@@ -185,6 +192,12 @@ int main(int argc, char** argv)
         }
         if (degree==2) {
           typedef Dune::PDELab::QkLocalFiniteElementMap<GV,DF,double,2> FEM;
+          FEM fem(gv);
+          driver(gv,fem,ptree);
+        }
+        //exercise 2 step 1: add degree 3 for higher order exercise
+        if (degree==3) {
+          typedef Dune::PDELab::QkLocalFiniteElementMap<GV,DF,double,3> FEM;
           FEM fem(gv);
           driver(gv,fem,ptree);
         }

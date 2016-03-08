@@ -18,6 +18,8 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
 
   // Make grid function space for the system
   typedef Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::fixed> VBE;
+  //exercise 2 step 2
+  //typedef Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::none> VBE;
   typedef Dune::PDELab::EntityBlockedOrderingTag OrderingTag;
   typedef Dune::PDELab::PowerGridFunctionSpace<GFS0,2,VBE,OrderingTag> GFS;
   GFS gfs(gfs0);
@@ -39,7 +41,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
     return rv;
   };
   /*
-  //minak: define stationary sine initial condition
+  //Additional task: define stationary sine initial condition
   auto ulambda = [dim](const auto& x){
     Dune::FieldVector<RF,2> rv(0.0);
     for (int i=0; i<dim; i++) rv[0] += sin(2*x[i]);
@@ -105,6 +107,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   // Make instationary grid operator
   double speedofsound=ptree.get("problem.speedofsound",(double)1.0);
   typedef WaveFEM<FEM> LOP;
+  //exercise 4 call new local operators
   //typedef WaveFEMElip<FEM> LOP;
   LOP lop(speedofsound);
   typedef WaveL2<FEM> TLOP;
@@ -156,6 +159,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
       z = znew;
       time+=dt;
 
+      //exercise 5 
       // Energy - integrate u square
 	  typedef Dune::PDELab::SqrGridFunctionAdapter<U1DGF> SQRU1DGF;
 	  SQRU1DGF u1sqrdgf(u1dgf);
@@ -163,7 +167,6 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
 	  typename SQRU1DGF::Traits::RangeType sqru1(0.0);
       Dune::PDELab::integrateGridFunction(u1sqrdgf, sqru1, 2*degree);
 
-	  //typedef Dune::PDELab::GridFunctionSubSpace<U0DGF,Dune::TypeTree::TreePath<0> > SUBU0;
       typedef Dune::PDELab::DiscreteGridFunctionGradient<U0SUB, Z> DGFU0G;
       DGFU0G dgfu0g(u0sub,z);
       //gradient square

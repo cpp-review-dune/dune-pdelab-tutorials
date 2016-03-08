@@ -31,21 +31,13 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   U1SUB u1sub(gfs);
 
   // define the initial condition
-  
   auto ulambda = [dim](const auto& x){
     Dune::FieldVector<RF,2> rv(0.0);
     for (int i=0; i<dim; i++) rv[0] += (x[i]-0.375)*(x[i]-0.375);
     rv[0] = std::max(0.0,1.0-8.0*sqrt(rv[0]));
     return rv;
   };
-  /*
-  //minak: define stationary sine initial condition
-  auto ulambda = [dim](const auto& x){
-    Dune::FieldVector<RF,2> rv(0.0);
-    for (int i=0; i<dim; i++) rv[0] += sin(2*x[i]);    
-    return rv;
-  };
-  */
+  
   auto u = Dune::PDELab::makeGridFunctionFromCallable(gv,ulambda);
 
   // set up coefficient vector filled with initial condition
@@ -153,6 +145,8 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
       // accept time step
       z = znew;
       time+=dt;
+      //exercise 5: put your code here
+
 
       // output to VTK file
       vtkSequenceWriter.write(time,Dune::VTK::appendedraw);
