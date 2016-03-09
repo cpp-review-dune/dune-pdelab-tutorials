@@ -135,19 +135,26 @@ int main(int argc, char** argv)
         }
       }
 
-    // YaspGrid section
+    // UGGrid section
     if (dim==2)
       {
         const int dim=2;
-        typedef Dune::YaspGrid<dim> Grid;
+        
+        typedef Dune::UGGrid<dim> Grid;
         typedef Grid::ctype DF;
         Dune::FieldVector<DF,dim> L;
+        //upper right
         L[0] = ptree.get("grid.structured.LX",(double)1.0);
         L[1] = ptree.get("grid.structured.LY",(double)1.0);
-        std::array<int,dim> N;
-        N[0] = ptree.get("grid.structured.NX",(int)10);
-        N[1] = ptree.get("grid.structured.NY",(int)10);
-        std::shared_ptr<Grid> gridp = std::shared_ptr<Grid>(new Grid(L,N));
+        std::array<unsigned int,dim> N;
+        N[0] = ptree.get("grid.structured.NX",(unsigned int)10);
+        N[1] = ptree.get("grid.structured.NY",(unsigned int)10);
+        //lower left
+        Dune::FieldVector<double,dim> lowerleft(0.0);
+        
+        // build a structured simplex grid
+        auto gridp = Dune::StructuredGridFactory<Grid>::createSimplexGrid(lowerleft, L, N);
+
         gridp->globalRefine(refinement);
         typedef Grid::LeafGridView GV;
         GV gv=gridp->leafGridView();
@@ -168,40 +175,43 @@ int main(int argc, char** argv)
           driver(gv,fem,ptree);
         }
       }
+    /*
     if (dim==3)
       {
         const int dim=3;
-        typedef Dune::YaspGrid<dim> Grid;
+
+        typedef Dune::UGGrid<dim> Grid;
         typedef Grid::ctype DF;
         Dune::FieldVector<DF,dim> L;
+        //upper right
         L[0] = ptree.get("grid.structured.LX",(double)1.0);
         L[1] = ptree.get("grid.structured.LY",(double)1.0);
         L[2] = ptree.get("grid.structured.LZ",(double)1.0);
-        std::array<int,dim> N;
-        N[0] = ptree.get("grid.structured.NX",(int)1);
-        N[1] = ptree.get("grid.structured.NY",(int)1);
-        N[2] = ptree.get("grid.structured.NZ",(int)1);
-        std::shared_ptr<Grid> gridp = std::shared_ptr<Grid>(new Grid(L,N));
+        std::array<unsigned int,dim> N;
+        N[0] = ptree.get("grid.structured.NX",(unsigned int)1);
+        N[1] = ptree.get("grid.structured.NY",(unsigned int)1);
+        N[2] = ptree.get("grid.structured.NZ",(unsigned int)1);
+        //lower left
+        Dune::FieldVector<double,dim> lowerleft(0.0);
+        
+        // build a structured simplex grid
+        auto gridp = Dune::StructuredGridFactory<Grid>::createSimplexGrid(lowerleft, L, N);
+
         gridp->globalRefine(refinement);
         typedef Grid::LeafGridView GV;
         GV gv=gridp->leafGridView();
         if (degree==1) {
-          typedef Dune::PDELab::QkLocalFiniteElementMap<GV,DF,double,1> FEM;
+          typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,1> FEM;
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
         if (degree==2) {
-          typedef Dune::PDELab::QkLocalFiniteElementMap<GV,DF,double,2> FEM;
+          typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,2> FEM;
           FEM fem(gv);
           driver(gv,fem,ptree);
         }
-        //exercise 2 step 1: add degree 3 for higher order exercise
-        if (degree==3) {
-          typedef Dune::PDELab::QkLocalFiniteElementMap<GV,DF,double,3> FEM;
-          FEM fem(gv);
-          driver(gv,fem,ptree);
-        }
-      }
+       }
+    */
   }
   catch (Dune::Exception &e){
     std::cerr << "Dune reported error: " << e << std::endl;
