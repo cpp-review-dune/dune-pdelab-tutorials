@@ -116,37 +116,37 @@ int main(int argc, char** argv)
           driver(gv,fem,ptree);
         }
       }
-    if (dim==3)
-      {
-        const int dim=3;
-        typedef Dune::YaspGrid<dim> Grid;
-        typedef Grid::ctype DF;
-        Dune::FieldVector<DF,dim> L;
-        L[0] = ptree.get("grid.structured.LX",(double)1.0);
-        L[1] = ptree.get("grid.structured.LY",(double)1.0);
-        L[2] = ptree.get("grid.structured.LZ",(double)1.0);
-        std::array<int,dim> N;
-        N[0] = ptree.get("grid.structured.NX",(int)16);
-        N[1] = ptree.get("grid.structured.NY",(int)16);
-        N[2] = ptree.get("grid.structured.NZ",(int)16);
-        std::bitset<dim> B(false);
-        int overlap=1;
-        std::shared_ptr<Grid> gridp = std::shared_ptr<Grid>(new Grid(L,N,B,overlap,Dune::MPIHelper::getCollectiveCommunication()));
-        gridp->refineOptions(false); // keep overlap in cells
-        gridp->globalRefine(refinement);
-        typedef Grid::LeafGridView GV;
-        GV gv=gridp->leafGridView();
-        if (degree==1) {
-          typedef Dune::PDELab::QkLocalFiniteElementMap<GV,DF,double,1> FEM;
-          FEM fem(gv);
-          driver(gv,fem,ptree);
-        }
-        if (degree==2) {
-          typedef Dune::PDELab::QkLocalFiniteElementMap<GV,DF,double,2> FEM;
-          FEM fem(gv);
-          driver(gv,fem,ptree);
-        }
-      }
+    // if (dim==3)
+    //   {
+    //     const int dim=3;
+    //     typedef Dune::YaspGrid<dim> Grid;
+    //     typedef Grid::ctype DF;
+    //     Dune::FieldVector<DF,dim> L;
+    //     L[0] = ptree.get("grid.structured.LX",(double)1.0);
+    //     L[1] = ptree.get("grid.structured.LY",(double)1.0);
+    //     L[2] = ptree.get("grid.structured.LZ",(double)1.0);
+    //     std::array<int,dim> N;
+    //     N[0] = ptree.get("grid.structured.NX",(int)16);
+    //     N[1] = ptree.get("grid.structured.NY",(int)16);
+    //     N[2] = ptree.get("grid.structured.NZ",(int)16);
+    //     std::bitset<dim> B(false);
+    //     int overlap=1;
+    //     std::shared_ptr<Grid> gridp = std::shared_ptr<Grid>(new Grid(L,N,B,overlap,Dune::MPIHelper::getCollectiveCommunication()));
+    //     gridp->refineOptions(false); // keep overlap in cells
+    //     gridp->globalRefine(refinement);
+    //     typedef Grid::LeafGridView GV;
+    //     GV gv=gridp->leafGridView();
+    //     if (degree==1) {
+    //       typedef Dune::PDELab::QkLocalFiniteElementMap<GV,DF,double,1> FEM;
+    //       FEM fem(gv);
+    //       driver(gv,fem,ptree);
+    //     }
+    //     if (degree==2) {
+    //       typedef Dune::PDELab::QkLocalFiniteElementMap<GV,DF,double,2> FEM;
+    //       FEM fem(gv);
+    //       driver(gv,fem,ptree);
+    //     }
+    //   }
   }
   catch (Dune::Exception &e){
     std::cerr << "Dune reported error: " << e << std::endl;
