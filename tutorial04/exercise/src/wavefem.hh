@@ -32,8 +32,8 @@ class WaveFEM :
   public Dune::PDELab::InstationaryLocalOperatorDefaultMethods<double>
 {
   // types
-  typedef typename FEM::Traits::FiniteElementType::Traits::LocalBasisType LocalBasis;
-  typedef typename LocalBasis::Traits::RangeFieldType RF;
+  using LocalBasis = typename FEM::Traits::FiniteElementType::Traits::LocalBasisType;
+  using RF = typename LocalBasis::Traits::RangeFieldType;
 
   // private data members
   Dune::PDELab::LocalBasisCache<LocalBasis> cache; // a cache for local basis evaluations
@@ -54,8 +54,9 @@ public:
   void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
   {
     // select the two components (but assume Galerkin scheme U=V)
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
     // types & dimension
     const int dim = EG::Entity::dimension;
@@ -73,7 +74,7 @@ public:
 
         // evaluate u1
         RF u1=0.0;
-        for (size_t i=0; i<lfsu0.size(); i++) u1 += x(lfsu1,i)*phihat[i];
+        for (std::size_t i=0; i<lfsu0.size(); i++) u1 += x(lfsu1,i)*phihat[i];
 
         // evaluate gradient of shape functions
         auto& gradphihat = cache.evaluateJacobian(ip.position(),lfsu0.finiteElement().localBasis());
@@ -81,17 +82,17 @@ public:
         // transform gradients of shape functions to real element
         const auto S = geo.jacobianInverseTransposed(ip.position());
         auto gradphi = makeJacobianContainer(lfsu0);
-        for (size_t i=0; i<lfsu0.size(); i++)
+        for (std::size_t i=0; i<lfsu0.size(); i++)
           S.mv(gradphihat[i][0],gradphi[i][0]);
 
         // compute gradient of u0
         Dune::FieldVector<RF,dim> gradu0(0.0);
-        for (size_t i=0; i<lfsu0.size(); i++)
+        for (std::size_t i=0; i<lfsu0.size(); i++)
           gradu0.axpy(x(lfsu0,i),gradphi[i][0]);
 
         // integrate both equations
         RF factor = ip.weight() * geo.integrationElement(ip.position());
-        for (size_t i=0; i<lfsu0.size(); i++) {
+        for (std::size_t i=0; i<lfsu0.size(); i++) {
           r.accumulate(lfsu0,i,c*c*(gradu0*gradphi[i][0])*factor);
           r.accumulate(lfsu1,i,-u1*phihat[i]*factor);
         }
@@ -104,8 +105,9 @@ public:
                         M& mat) const
   {
     // select the two components (assume Galerkin scheme U=V)
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
     // select quadrature rule
     auto geo = eg.geometry();
@@ -124,13 +126,13 @@ public:
         // transform gradients of shape functions to real element
         const auto S = geo.jacobianInverseTransposed(ip.position());
         auto gradphi = makeJacobianContainer(lfsu0);
-        for (size_t i=0; i<lfsu0.size(); i++)
+        for (std::size_t i=0; i<lfsu0.size(); i++)
           S.mv(gradphihat[i][0],gradphi[i][0]);
 
         // integrate both equations
         RF factor = ip.weight() * geo.integrationElement(ip.position());
-        for (size_t j=0; j<lfsu0.size(); j++)
-          for (size_t i=0; i<lfsu0.size(); i++) {
+        for (std::size_t j=0; j<lfsu0.size(); j++)
+          for (std::size_t i=0; i<lfsu0.size(); i++) {
             mat.accumulate(lfsu0,i,lfsu0,j,c*c*(gradphi[j][0]*gradphi[i][0])*factor);
             mat.accumulate(lfsu1,i,lfsu1,j,-phihat[j]*phihat[i]*factor);
           }
@@ -173,8 +175,8 @@ class WaveL2
     public Dune::PDELab::InstationaryLocalOperatorDefaultMethods<double>
 {
   // types
-  typedef typename FEM::Traits::FiniteElementType::Traits::LocalBasisType LocalBasis;
-  typedef typename LocalBasis::Traits::RangeFieldType RF;
+  using LocalBasis = typename FEM::Traits::FiniteElementType::Traits::LocalBasisType;
+  using RF = typename LocalBasis::Traits::RangeFieldType;
 
   // private data members
   Dune::PDELab::LocalBasisCache<LocalBasis> cache; // a cache for local basis evaluations
@@ -191,8 +193,9 @@ public:
   void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
   {
     // select the two components (assume Galerkin scheme U=V)
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
     // select quadrature rule
     auto geo = eg.geometry();
@@ -207,7 +210,7 @@ public:
 
         // evaluate u0
         RF u0=0.0, u1=0.0;
-        for (size_t i=0; i<lfsu0.size(); i++) {
+        for (std::size_t i=0; i<lfsu0.size(); i++) {
           u0 += x(lfsu0,i)*phihat[i];
           u1 += x(lfsu1,i)*phihat[i];
         }
@@ -216,7 +219,7 @@ public:
         RF factor = ip.weight() * geo.integrationElement(ip.position());
 
         // integrate u*phi_i
-        for (size_t i=0; i<lfsu0.size(); i++) {
+        for (std::size_t i=0; i<lfsu0.size(); i++) {
           r.accumulate(lfsu0,i,u1*phihat[i]*factor);
           r.accumulate(lfsu1,i,u0*phihat[i]*factor);
         }
@@ -229,8 +232,9 @@ public:
                         M& mat) const
   {
     // get first child, assuming PowerGridFunctionSpace
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
     // select quadrature rule
     auto geo = eg.geometry();
@@ -247,8 +251,8 @@ public:
         RF factor = ip.weight() * geo.integrationElement(ip.position());
 
         // loop over all components
-        for (size_t j=0; j<lfsu0.size(); j++)
-          for (size_t i=0; i<lfsu0.size(); i++) {
+        for (std::size_t j=0; j<lfsu0.size(); j++)
+          for (std::size_t i=0; i<lfsu0.size(); i++) {
             mat.accumulate(lfsu0,i,lfsu1,j,phihat[j]*phihat[i]*factor);
             mat.accumulate(lfsu1,i,lfsu0,j,phihat[j]*phihat[i]*factor);
           }
@@ -275,5 +279,3 @@ public:
     alpha_volume(eg,lfsu,x,lfsv,r);
   }
 };
-
-

@@ -4,31 +4,33 @@
 /********************************************************/
 
 template<typename GV, typename FEM>
-void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
+void driver (const GV& gv, const FEM& fem,
+             Dune::ParameterTree& ptree)
 {
   // dimension and important types
   const int dim = GV::dimension;
-  typedef double RF;                   // type for computations
+  using RF = double;                   // type for computations
 
   // Make grid function space used per component
-  typedef Dune::PDELab::ConformingDirichletConstraints CON;
-  typedef Dune::PDELab::istl::VectorBackend<> VBE0;
-  typedef Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE0> GFS0;
+  using CON = Dune::PDELab::ConformingDirichletConstraints;
+  using VBE0 = Dune::PDELab::istl::VectorBackend<>;
+  using GFS0 = Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE0>;
   GFS0 gfs0(gv,fem);
 
   // Make grid function space for the system
-  typedef Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::fixed> VBE;
-  typedef Dune::PDELab::EntityBlockedOrderingTag OrderingTag;
-  typedef Dune::PDELab::PowerGridFunctionSpace<GFS0,2,VBE,OrderingTag> GFS;
+  using VBE =
+    Dune::PDELab::istl::VectorBackend<
+      Dune::PDELab::istl::Blocking::fixed
+    >;
+  using OrderingTag = Dune::PDELab::EntityBlockedOrderingTag;
+  using GFS =
+    Dune::PDELab::PowerGridFunctionSpace<GFS0,2,VBE,OrderingTag>;
   GFS gfs(gfs0);
 
-  // subspaces
-  typedef Dune::PDELab::GridFunctionSubSpace
-    <GFS,Dune::TypeTree::TreePath<0> > U0SUB;
-  U0SUB u0sub(gfs);
-  typedef Dune::PDELab::GridFunctionSubSpace
-    <GFS,Dune::TypeTree::TreePath<1> > U1SUB;
-  U1SUB u1sub(gfs);
+  // Add names to the components for VTK output
+  using namespace Dune::TypeTree::Indices;
+  gfs.child(_0).name("u0");
+  gfs.child(_1).name("u1");
 
   // define the initial condition
   auto ulambda = [dim](const auto& x){
@@ -37,19 +39,12 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
     rv[0] = std::max(0.0,1.0-8.0*sqrt(rv[0]));
     return rv;
   };
-  
   auto u = Dune::PDELab::makeGridFunctionFromCallable(gv,ulambda);
 
   // set up coefficient vector filled with initial condition
   using Z = Dune::PDELab::Backend::Vector<GFS,RF>;
   Z z(gfs); // initial value
   Dune::PDELab::interpolate(u,gfs,z);
-
-  // Make discrete grid functions for components
-  typedef Dune::PDELab::DiscreteGridFunction<U0SUB,Z> U0DGF;
-  U0DGF u0dgf(u0sub,z);
-  typedef Dune::PDELab::DiscreteGridFunction<U1SUB,Z> U1DGF;
-  U1DGF u1dgf(u1sub,z);
 
   // assemble constraints
   auto b0lambda = [](const auto& x){return true;};
@@ -58,9 +53,12 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   auto b1lambda = [](const auto& x){return true;};
   auto b1 = Dune::PDELab::
     makeBoundaryConditionFromCallable(gv,b1lambda);
-  typedef Dune::PDELab::CompositeConstraintsParameters<decltype(b0),decltype(b1)> B;
+  using B = Dune::PDELab::CompositeConstraintsParameters<
+    decltype(b0),decltype(b1)
+    >;
   B b(b0,b1);
-  typedef typename GFS::template ConstraintsContainer<RF>::Type CC;
+
+  using CC = typename GFS::template ConstraintsContainer<RF>::Type;
   CC cc;
   Dune::PDELab::constraints(b,gfs,cc);
   std::cout << "constrained dofs=" << cc.size() << " of "
@@ -69,57 +67,52 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
 
   // prepare VTK writer and write first file
   int subsampling=ptree.get("output.subsampling",(int)0);
-  typedef Dune::SubsamplingVTKWriter<GV> VTKWRITER;
+  using VTKWRITER = Dune::SubsamplingVTKWriter<GV>;
   VTKWRITER vtkwriter(gv,subsampling);
-  //std::string filename=ptree.get("output.filename","output");
-  std::string filename=ptree.get("output.filename","output") +ptree.get("grid.dim","grid") + "d";
-
+  std::string filename=ptree.get("output.filename","output") + ptree.get("grid.dim","grid") + "d";
   struct stat st;
   if( stat( filename.c_str(), &st ) != 0 )
     {
       int stat = 0;
-      stat = mkdir( filename.c_str(), S_IRWXU | S_IRWXG | S_IRWXO );
+      stat = mkdir(filename.c_str(),S_IRWXU|S_IRWXG|S_IRWXO);
       if( stat != 0 && stat != -1)
         std::cout << "Error: Cannot create directory "
                   << filename << std::endl;
     }
-  typedef Dune::VTKSequenceWriter<GV> VTKSEQUENCEWRITER;
+  using VTKSEQUENCEWRITER = Dune::VTKSequenceWriter<GV>;
   VTKSEQUENCEWRITER vtkSequenceWriter(
     std::make_shared<VTKWRITER>(vtkwriter),filename,filename,"");
-  typedef Dune::PDELab::VTKGridFunctionAdapter<U0DGF> VTKF0;
-  vtkSequenceWriter.addVertexData(std::shared_ptr<VTKF0>(new VTKF0(u0dgf,"u0")));
-  typedef Dune::PDELab::VTKGridFunctionAdapter<U1DGF> VTKF1;
-  vtkSequenceWriter.addVertexData(std::shared_ptr<VTKF1>(new VTKF1(u1dgf,"u1")));
+  // add data field for all components of the space to the VTK writer
+  Dune::PDELab::addSolutionToVTKWriter(vtkSequenceWriter,gfs,z);
   vtkSequenceWriter.write(0.0,Dune::VTK::appendedraw);
 
   // Make instationary grid operator
   double speedofsound=ptree.get("problem.speedofsound",(double)1.0);
-  typedef WaveFEM<FEM> LOP;
-  //typedef WaveFEMElip<FEM> LOP;
+  using LOP = WaveFEM<FEM>;
+  // using LOP = WaveFEMElip<FEM>;
   LOP lop(speedofsound);
-  typedef WaveL2<FEM> TLOP;
-  //typedef WaveElip<FEM> TLOP;
+  using TLOP = WaveL2<FEM>;
+  // using TLOP = WaveElip<FEM>;
   TLOP tlop;
-  typedef Dune::PDELab::istl::BCRSMatrixBackend<> MBE;
+  using MBE = Dune::PDELab::istl::BCRSMatrixBackend<>;
   int degree = ptree.get("fem.degree",(int)1);
   MBE mbe((int)pow(1+2*degree,dim));
-  typedef Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,RF,RF,RF,CC,CC> GO0;
+  using GO0 = Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,RF,RF,RF,CC,CC>;
   GO0 go0(gfs,cc,gfs,cc,lop,mbe);
-  typedef Dune::PDELab::GridOperator<GFS,GFS,TLOP,MBE,RF,RF,RF,CC,CC> GO1;
+  using GO1 = Dune::PDELab::GridOperator<GFS,GFS,TLOP,MBE,RF,RF,RF,CC,CC>;
   GO1 go1(gfs,cc,gfs,cc,tlop,mbe);
-  typedef Dune::PDELab::OneStepGridOperator<GO0,GO1> IGO;
+  using IGO = Dune::PDELab::OneStepGridOperator<GO0,GO1>;
   IGO igo(go0,go1);
 
   // Linear problem solver
-  typedef Dune::PDELab::ISTLBackend_SEQ_BCGS_SSOR LS;
+  using LS = Dune::PDELab::ISTLBackend_SEQ_BCGS_SSOR;
   LS ls(5000,false);
-  typedef Dune::PDELab::
-    StationaryLinearProblemSolver<IGO,LS,Z> SLP;
+  using SLP = Dune::PDELab::StationaryLinearProblemSolver<IGO,LS,Z>;
   SLP slp(igo,ls,1e-8);
 
   // select and prepare time-stepping scheme
   int torder = ptree.get("fem.torder",(int)1);
-  Dune::PDELab::OneStepThetaParameter<RF> method1(1.);
+  Dune::PDELab::OneStepThetaParameter<RF> method1(1.0);
   Dune::PDELab::Alexander2Parameter<RF> method2;
   Dune::PDELab::Alexander3Parameter<RF> method3;
   Dune::PDELab::TimeSteppingParameterInterface<RF>* pmethod=&method1;
@@ -129,6 +122,20 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   if (torder<1||torder>3) std::cout<<"torder should be in [1,3]"<<std::endl;
   Dune::PDELab::OneStepMethod<RF,IGO,SLP,Z,Z> osm(*pmethod,igo,slp);
   osm.setVerbosityLevel(2);
+
+
+  // subspaces
+  using U0SUB = Dune::PDELab::GridFunctionSubSpace<GFS,Dune::TypeTree::TreePath<0> >;
+  U0SUB u0sub(gfs);
+  using U1SUB = Dune::PDELab::GridFunctionSubSpace<GFS,Dune::TypeTree::TreePath<1> >;
+  U1SUB u1sub(gfs);
+
+  // Make discrete grid functions for components
+  using U0DGF = Dune::PDELab::DiscreteGridFunction<U0SUB,Z>;
+  U0DGF u0dgf(u0sub,z);
+  using U1DGF = Dune::PDELab::DiscreteGridFunction<U1SUB,Z>;
+  U1DGF u1dgf(u1sub,z);
+
 
   // initialize simulation time
   RF time = 0.0;
@@ -145,8 +152,8 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
       // accept time step
       z = znew;
       time+=dt;
-      //exercise 5: put your code here
 
+      //exercise 5: put your code here
 
       // output to VTK file
       vtkSequenceWriter.write(time,Dune::VTK::appendedraw);
