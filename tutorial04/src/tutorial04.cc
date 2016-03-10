@@ -11,32 +11,23 @@
 // C includes
 #include<sys/stat.h>
 // C++ includes
-#include<math.h>
+#include<cmath>
 #include<iostream>
 // dune-common includes
 #include<dune/common/parallel/mpihelper.hh>
 #include<dune/common/parametertreeparser.hh>
 #include<dune/common/timer.hh>
-// dune-geometry includes
-#include<dune/geometry/referenceelements.hh>
-#include<dune/geometry/quadraturerules.hh>
 // dune-grid includes
 #include<dune/grid/onedgrid.hh>
 #include<dune/grid/yaspgrid.hh>
 #include<dune/grid/utility/structuredgridfactory.hh>
-#include<dune/grid/io/file/vtk.hh>
-#include<dune/grid/io/file/gmshreader.hh>
-#if HAVE_UG
-#include<dune/grid/uggrid.hh>
-#endif
-#if HAVE_DUNE_ALUGRID
-#include<dune/alugrid/grid.hh>
-#include<dune/grid/io/file/dgfparser/dgfalu.hh>
-#include<dune/grid/io/file/dgfparser/dgfparser.hh>
-#endif
+#include<dune/grid/io/file/vtk/subsamplingvtkwriter.hh>
+#include<dune/grid/io/file/vtk/vtksequencewriter.hh>
 // dune-istl included by pdelab
 // dune-pdelab includes
 #include<dune/pdelab/common/function.hh>
+#include<dune/pdelab/common/quadraturerules.hh>
+#include<dune/pdelab/common/referenceelements.hh>
 #include<dune/pdelab/common/vtkexport.hh>
 #include<dune/pdelab/finiteelementmap/pkfem.hh>
 #include<dune/pdelab/finiteelementmap/qkfem.hh>
