@@ -54,8 +54,9 @@ public:
   void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
   {
     // select the two components (but assume Galerkin scheme U=V)
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
     // types & dimension
     const int dim = EG::Entity::dimension;
@@ -104,8 +105,9 @@ public:
                         M& mat) const
   {
     // select the two components (assume Galerkin scheme U=V)
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
     // select quadrature rule
     auto geo = eg.geometry();
@@ -173,8 +175,8 @@ class WaveL2
     public Dune::PDELab::InstationaryLocalOperatorDefaultMethods<double>
 {
   // types
-  typedef typename FEM::Traits::FiniteElementType::Traits::LocalBasisType LocalBasis;
-  typedef typename LocalBasis::Traits::RangeFieldType RF;
+  using LocalBasis = typename FEM::Traits::FiniteElementType::Traits::LocalBasisType;
+  using RF = typename LocalBasis::Traits::RangeFieldType;
 
   // private data members
   Dune::PDELab::LocalBasisCache<LocalBasis> cache; // a cache for local basis evaluations
@@ -191,8 +193,9 @@ public:
   void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
   {
     // select the two components (assume Galerkin scheme U=V)
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
     // select quadrature rule
     auto geo = eg.geometry();
@@ -229,8 +232,9 @@ public:
                         M& mat) const
   {
     // get first child, assuming PowerGridFunctionSpace
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
     // select quadrature rule
     auto geo = eg.geometry();
@@ -275,5 +279,3 @@ public:
     alpha_volume(eg,lfsu,x,lfsv,r);
   }
 };
-
-

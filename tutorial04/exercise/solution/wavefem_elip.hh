@@ -21,8 +21,8 @@ class WaveFEMElip :
   public Dune::PDELab::InstationaryLocalOperatorDefaultMethods<double>
 {
   // types
-  typedef typename FEM::Traits::FiniteElementType::Traits::LocalBasisType LocalBasis;
-  typedef typename LocalBasis::Traits::RangeFieldType RF;
+  using LocalBasis = typename FEM::Traits::FiniteElementType::Traits::LocalBasisType;
+  using RF = typename LocalBasis::Traits::RangeFieldType;
 
   // private data members
   Dune::PDELab::LocalBasisCache<LocalBasis> cache; // a cache for local basis evaluations
@@ -43,8 +43,9 @@ public:
   void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
   {
     // select the two components (but assume Galerkin scheme U=V)
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
     // types & dimension
     const int dim = EG::Entity::dimension;
@@ -67,7 +68,7 @@ public:
         // evaluate gradient of shape functions
         auto& gradphihat = cache.evaluateJacobian(ip.position(),lfsu0.finiteElement().localBasis());
 		//gradphihat.bar();
-        
+
 		// transform gradients of shape functions to real element
         const auto S = geo.jacobianInverseTransposed(ip.position());
         auto gradphi = makeJacobianContainer(lfsu0);
@@ -101,8 +102,9 @@ public:
                         M& mat) const
   {
     // select the two components (assume Galerkin scheme U=V)
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
     // select quadrature rule
     auto geo = eg.geometry();
@@ -170,8 +172,8 @@ class WaveElip
     public Dune::PDELab::InstationaryLocalOperatorDefaultMethods<double>
 {
   // types
-  typedef typename FEM::Traits::FiniteElementType::Traits::LocalBasisType LocalBasis;
-  typedef typename LocalBasis::Traits::RangeFieldType RF;
+  using LocalBasis = typename FEM::Traits::FiniteElementType::Traits::LocalBasisType;
+  using RF = typename LocalBasis::Traits::RangeFieldType;
 
   // private data members
   Dune::PDELab::LocalBasisCache<LocalBasis> cache; // a cache for local basis evaluations
@@ -188,8 +190,9 @@ public:
   void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
   {
     // select the two components (assume Galerkin scheme U=V)
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
 
 	// types & dimension
@@ -246,8 +249,9 @@ public:
                         M& mat) const
   {
     // get first child, assuming PowerGridFunctionSpace
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
     // select quadrature rule
     auto geo = eg.geometry();
@@ -269,7 +273,7 @@ public:
 		// transform gradients of shape functions to real element
         const auto S = geo.jacobianInverseTransposed(ip.position());
         auto gradphi = makeJacobianContainer(lfsu0);
-        
+
 		for (size_t i=0; i<lfsu0.size(); i++)
           S.mv(gradphihat[i][0],gradphi[i][0]);
         // loop over all components
