@@ -19,7 +19,9 @@ void driver (const GV& gv, const FEM& fem,
 
   // Make grid function space for the system
   using VBE =
-    Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::fixed>;
+    Dune::PDELab::istl::VectorBackend<
+      Dune::PDELab::istl::Blocking::fixed
+    >;
   using OrderingTag = Dune::PDELab::EntityBlockedOrderingTag;
   using GFS =
     Dune::PDELab::PowerGridFunctionSpace<GFS0,2,VBE,OrderingTag>;
@@ -55,6 +57,7 @@ void driver (const GV& gv, const FEM& fem,
     decltype(b0),decltype(b1)
     >;
   B b(b0,b1);
+
   using CC = typename GFS::template ConstraintsContainer<RF>::Type;
   CC cc;
   Dune::PDELab::constraints(b,gfs,cc);

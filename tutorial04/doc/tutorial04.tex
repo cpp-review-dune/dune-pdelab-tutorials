@@ -232,7 +232,7 @@ backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 The next step is to set up the product space containing
 two components. This is done by the following code section:
-\lstinputlisting[linerange={21-26},
+\lstinputlisting[linerange={21-28},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -243,6 +243,13 @@ of \textit{identical} function spaces (\lstinline{GFS0} here)
 which may only differ in the constraints. With the
 class template \lstinline{CompositeGridFunctionSpace} you can create
 a product space where all components might be different spaces.
+
+We also have to set up names for the child spaces to facilitate VTK output later on:
+\lstinputlisting[linerange={31-33},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
 
 An important aspect of product spaces is the ordering of the corresponding degrees
 of freedom. Often the solvers need to exploit an underlying block structure
@@ -270,7 +277,7 @@ for higher polynomial degree!
 In order to define a function that specifies the initial value we can
 use the same techniques as in the scalar case. We first define a lambda
 closure
-\lstinputlisting[linerange={29-34},
+\lstinputlisting[linerange={35-41},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -278,46 +285,46 @@ now returning two components in a \lstinline{FieldVector}.
 The first component is the initial value for $u$ and the second component
 is the initial value for $\partial_t u$. Then a PDELab grid function
 can be constructed from the lambda closure
-\lstinputlisting[linerange={35-35},
+\lstinputlisting[linerange={42-42},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 Using the grid function a coefficient vector can now be initialized:
-\lstinputlisting[linerange={38-40},
+\lstinputlisting[linerange={45-48},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
-Given a product function space it is also possible to
-extract the individual component spaces from the product
-space. This is done by the following code section:
-\lstinputlisting[linerange={43-48},
-basicstyle=\ttfamily\small,
-frame=single,
-backgroundcolor=\color{listingbg}]{../src/driver.hh}
-In fact, one could have a tree-structured function space and
-extract an arbitrary node as a function space.
+% Given a product function space it is also possible to
+% extract the individual component spaces from the product
+% space. This is done by the following code section:
+% \lstinputlisting[linerange={43-48},
+% basicstyle=\ttfamily\small,
+% frame=single,
+% backgroundcolor=\color{listingbg}]{../src/driver.hh}
+% In fact, one could have a tree-structured function space and
+% extract an arbitrary node as a function space.
 
-The component spaces can now be used to build
-up discrete grid functions for the two solution components:
-\lstinputlisting[linerange={51-54},
-basicstyle=\ttfamily\small,
-frame=single,
-backgroundcolor=\color{listingbg}]{../src/driver.hh}
-Note that the full solution vector \lstinline{z} is passed as an argument.
-The subspace automatically extracts the required components from the solution vector.
+% The component spaces can now be used to build
+% up discrete grid functions for the two solution components:
+% \lstinputlisting[linerange={51-54},
+% basicstyle=\ttfamily\small,
+% frame=single,
+% backgroundcolor=\color{listingbg}]{../src/driver.hh}
+% Note that the full solution vector \lstinline{z} is passed as an argument.
+% The subspace automatically extracts the required components from the solution vector.
 
 The next step is to assemble the constraints container for the composite
 function space. Unfortunately there is currently no way to define the
 constraints for both components in one go. We need to
 set up a separate lambda closure for each component:
-\lstinputlisting[linerange={57-62},
+\lstinputlisting[linerange={50-55},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 and then combine it using:
-\lstinputlisting[linerange={63-65},
+\lstinputlisting[linerange={56-59},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -325,10 +332,20 @@ Note that you could define different constraints for each component
 space although it is the same underlying function space.
 
 Now the constraints container can be assembled as before:
-\lstinputlisting[linerange={66-69},
+\lstinputlisting[linerange={61-63},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
+As we do not want to manually extract the subspaces for $u_0$ and $u_1$ from the
+overall space to add to them to the VTK writer, we call a PDELab helper function that
+handles this automatically:
+\lstinputlisting[linerange={86-86},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+Note that in order to use this function, we have to set the names of the subspaces,
+as we did earlier in the tutorial.
 
 The rest of the driver is the same as for tutorial 03 except that
 a linear solver is used instead of Newton's method.
@@ -358,7 +375,7 @@ they consist of two components.
 (up to constraints) and that also both components are identical!}
 
 The two components can be extracted with the following code
-\lstinputlisting[linerange={59-61},
+\lstinputlisting[linerange={60-62},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
@@ -366,12 +383,12 @@ The function spaces \lstinline{lfsu0} and \lstinline{lfsu1} are
 now scalar spaces (which we assume to be identical).
 
 After extracting the dimension
-\lstinputlisting[linerange={64-64},
+\lstinputlisting[linerange={65-65},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
 we select a quadrature rule
-\lstinputlisting[linerange={67-69},
+\lstinputlisting[linerange={68-70},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
@@ -379,38 +396,38 @@ and may now loop over the quadrature points.
 
 For each quadrature point, evaluate the basis function
 of the first component:
-\lstinputlisting[linerange={75-76},
+\lstinputlisting[linerange={76-77},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
 As the components are identical we need only evaluate the basis once
 and can compute the value of $u_1$ at the quadrature point
-\lstinputlisting[linerange={79-81},
+\lstinputlisting[linerange={80-82},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
 Then we evaluate the gradients of the basis functions
-\lstinputlisting[linerange={84-85},
+\lstinputlisting[linerange={85-86},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
 transform them from the reference element to the real element
-\lstinputlisting[linerange={88-92},
+\lstinputlisting[linerange={89-93},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
 and compute the gradient of $u_0$:
-\lstinputlisting[linerange={95-97},
+\lstinputlisting[linerange={96-98},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
 With the integration factor
-\lstinputlisting[linerange={100-101},
+\lstinputlisting[linerange={101-102},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
 the residuals can now be accumulated:
-\lstinputlisting[linerange={102-105},
+\lstinputlisting[linerange={103-106},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
@@ -421,7 +438,7 @@ As the problem is linear it is advisable to also implement the
 \lstinline{jacobian_volume} method for efficiency and accuracy.
 
 The interface is the same as in the scalar case:
-\lstinputlisting[linerange={110-113},
+\lstinputlisting[linerange={111-114},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
@@ -429,7 +446,7 @@ backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
 Component selection, quadrature rule selection and
 basis evaluation are the same as in \lstinline{alpha_volume}.
 We only consider the accumulation of the Jacobian entries here:
-\lstinputlisting[linerange={140-148},
+\lstinputlisting[linerange={141-149},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
@@ -454,7 +471,7 @@ to the one in the spatial operator, except that the value of $u_0$
 is needed instead of the gradient.
 
 Here we just show the residual accumulation:
-\lstinputlisting[linerange={231-235},
+\lstinputlisting[linerange={233-237},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
@@ -465,7 +482,7 @@ and vice versa.
 
 The corresponding Jacobian entries are accumulated in the
 \lstinline{jacobian_volume} method:
-\lstinputlisting[linerange={262-269},
+\lstinputlisting[linerange={264-271},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/wavefem.hh}
