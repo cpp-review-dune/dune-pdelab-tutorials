@@ -1,7 +1,7 @@
-/********************************************************/
-// Beware of line number changes, they may corrupt docu!
-//! \brief Driver function to set up and solve the problem
-/********************************************************/
+#define _STRINGIZE(STR) #STR
+#define STRINGIZE(STR) _STRINGIZE(STR)
+
+
 
 template<typename GV, typename FEM>
 void driver (const GV& gv, const FEM& fem,
@@ -69,7 +69,7 @@ void driver (const GV& gv, const FEM& fem,
   int subsampling=ptree.get("output.subsampling",(int)0);
   using VTKWRITER = Dune::SubsamplingVTKWriter<GV>;
   VTKWRITER vtkwriter(gv,subsampling);
-  std::string filename=ptree.get("output.filename","output") + ptree.get("grid.dim","grid") + "d";
+  std::string filename=ptree.get("output.filename","output") + STRINGIZE(GRIDDIM) "d";
   struct stat st;
   if( stat( filename.c_str(), &st ) != 0 )
     {
