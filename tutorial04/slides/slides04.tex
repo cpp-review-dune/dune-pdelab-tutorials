@@ -14,7 +14,7 @@
 \usepackage{amsmath,amssymb,amsfonts}
 
 
-% only presentation 
+% only presentation
 \mode<presentation>
 {
   \usetheme{default}
@@ -29,15 +29,15 @@
 }
 
 % all after
-\usepackage{tikz} 
+\usepackage{tikz}
 \usetikzlibrary{patterns}
 \usepackage{pgfplots,adjustbox}
-\usepackage{eurosym} 
+\usepackage{eurosym}
 \usepackage{graphicx}
 \usepackage{multimedia}
 \usepackage{psfrag}
 \usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily, 
+\lstset{language=C++, basicstyle=\ttfamily,
   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
 \usepackage{curves}
@@ -88,7 +88,7 @@
 %\setbeamertemplate{blocks}[rounded][shadow=true]
 %\setbeamertemplate{itemize items}[square]
 
-\mode<presentation> 
+\mode<presentation>
 {
 \theoremstyle{definition}
 }
@@ -120,9 +120,9 @@
 % Title definition
 \mode<presentation>
 {
-  \title{DUNE PDELab Tutorial 03\\
-  {\small  Conforming Finite Elements for a Nonlinear Heat Equation}}
-  \author{Peter Bastian}
+  \title{DUNE PDELab Tutorial 04\\
+  {\small Finite Elements for the Wave Equation}}
+  \author{Peter Bastian \and Steffen Müthing}
   \institute[]
   {
    Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
@@ -174,230 +174,290 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
 \begin{frame}
-\frametitle{PDE Problem}
-This tutorial extends the problem from tutorial 01 to the instationary setting: 
+\frametitle{Example Problem}
+ In this tutorial we solve the wave equation formulated as a first order
+in time system. This way the example serves as a model for the
+treatment of systems of partial differential equations in PDELab.
+
+\begin{subequations}
+\label{eq:WaveEquation}
+\begin{align}
+\partial_{tt} u-c^2\Delta u  &= 0 &&\text{in $\Omega\times\Sigma$},\\
+u &= 0 &&\text{on $\partial\Omega$},\\
+u &= q &&\text{at $t=0$},\\
+\partial_t u &= w &&\text{at $t=0$},
+\end{align}
+\end{subequations}
+where $c$ is the speed of sound.
+\end{frame}
+\begin{frame}
+Renaming $u_0=u$ and introducing $u_1=\partial_t u_0 =\partial_t u$ we can write the wave equation as a system of two equations:
+\begin{subequations}
+\label{eq:SystemForm1}
+\begin{align}
+\partial_t u_1 - c^2\Delta u_0 &=0 &&\text{in $\Omega\times\Sigma$}, \label{eq:2a}\\
+\partial_t u_0 - u_1 &=0 &&\text{in $\Omega\times\Sigma$}, \label{eq:2b}\\
+u_0 &= 0 &&\text{on $\partial\Omega$},\\
+u_1 &= 0 &&\text{on $\partial\Omega$},\\
+u_0 &= q &&\text{at $t=0$},\\
+u_1 &= w &&\text{at $t=0$}.
+\end{align}
+\end{subequations}
+Since $u_0=u=0$ on the boundary we also have $\partial_t u = u_1 = 0$ on the boundary.
+Alternatively, omit the boundary condition on $u_1$.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Alternative Formulations (I)}
+Eriksson et al. in \cite{Eriksson} apply the Laplacian to
+equation \eqref{eq:2b}
+\begin{equation}
+\Delta \partial_t u_0 - \Delta u_1 = 0
+\end{equation} \label{eq:Eriksson}
+which has advantages for energy conservation but requires additional smoothness
+properties.
+\end{frame}
+
+\begin{frame}
+\frametitle{Alternative Formulations (II)}
+Introduce the abbreviations
+$q=\partial_t u$ and $w=-\nabla u$, so $\partial_{tt} u - c^2 \Delta u =
+\partial_{tt} u - c^2 \nabla\cdot\nabla u = \partial_{t} q + c^2 \nabla\cdot w = 0$.
+Taking partial derivatives of the introduced variables we obtain $\partial_{x_i} q=
+\partial_{x_i} \partial_t u = \partial_t \partial_{x_i}  u = - \partial_t w_i$. This results
+in a first-order hyperbolic system of PDEs for $q$ and $w$
 \begin{align*}
-\partial_t u -\Delta u + q(u) &= f &&\text{in $\Omega\times\Sigma$},\\
-u &= g &&\text{on $\Gamma_D\subseteq\partial\Omega$},\\
--\nabla u\cdot \nu &= j &&\text{on $\Gamma_N=\partial\Omega\setminus\Gamma_D$},\\
-u &= u_0 &&\text{at $t=0$}.
+\partial_t q + c^2 \nabla\cdot w &= 0\\
+\partial_t w + \nabla q &= 0
 \end{align*}
-\textit{Weak formulation:} Find $u\in L_2(t_0,t_0+T;u_g+V(t))$:
-\begin{equation*}
-\frac{d}{dt} \int_\Omega u v \,dx+ \int_\Omega \nabla u \cdot \nabla v
-+ q(u) v - f v \, dx + \int_{\Gamma_N} jv \, ds = 0 \qquad
-\begin{array}{l}
-\forall v \in V(t),\\
-t \in \Sigma,
-\end{array}
-\end{equation*}
-where $V(t) = \{v\in H^1(\Omega)\,:\, \text{$v=0$ on $\Gamma_D(t)$}\}$
-and $H^1(\Omega)\ni u_g(t)|_{\Gamma_D}=g$. 
+which are called equations of linear acoustics \cite{LeVeque}. This formulation
+is physically more relevant. It can be modified to handle discontinuous material
+properties and supports upwind finite volume methods.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Weak Formulation}
+
+Multiplying \eqref{eq:2a}
+with the test function $v_0$ and \eqref{eq:2b} with the test function $v_1$
+and using integration by parts we arrive at the weak formulation: Find $(u_0(t),u_1(t))\in
+U_0\times U_1$ s.t.
+\begin{align}
+  d_t (u_1,v_0)_{0,\Omega} + c^2 (\nabla u_0, \nabla v_0)_{0,\Omega} &=
+  0 \quad \forall v_0 \in U_0 \notag \\
+  d_t (u_0,v_1)_{0,\Omega} - (u_1,v_1)_{0,\Omega} &= 0 \quad \forall
+  v_1 \in U_1 \label{eq:WeakFormSystem}
+\end{align}
+where we used the notation of the $L^2$ inner product $(u,v)_{0,\Omega} = \int_\Omega
+u v \, dx$.
 \end{frame}
 
 \begin{frame}
-\frametitle{Residual Forms}
-\textit{Introduce the residual forms:} Find $u\in L_2(t_0,t_0+T;u_g+V(t))$:
-\begin{equation*}
-\frac{d}{dt} m^{\text{L2}}(u,v) + r^{\text{NLP}}(u,v) = 0 \quad \forall v \in V(t), t \in \Sigma.
-\end{equation*}
-with the \textit{temporal residual form}
-\begin{equation*}
-m^{\text{L2}}(u,v) = \int_\Omega u v \,dx
-\end{equation*}
-and the \textit{spatial residual form}
-\begin{equation*}
-r^{\text{NLP}}(u,v) = \int_\Omega \nabla u \cdot \nabla v + (q(u)-f)v\,dx + \int_{\Gamma_N} jv\,ds ,
-\end{equation*}
-\end{frame}
-
-\begin{frame}
-\frametitle{Method of Lines}
-\begin{enumerate}[1)]
-\item Discretize in space with conforming finite elements, i.e. choose a 
-finite-dimensional test space $V_h(t)\subset V(t)$. 
-\item Results in a system of ordinary differential equations (ODEs) for the time-dependent
-coefficient vector $z(t)$
-\item Choose an appropriate method to integrate the ODE system
-\item Other schemes can be implemented in PDELab as well, e.g. space-time methods
-\end{enumerate}
-\end{frame}
-
-\begin{frame}
-\frametitle{One Step $\theta$ Method}
-Subdivide time interval
-\begin{equation*}
-\overline{\Sigma} = \{t^{0}\} \cup (t^0,t^1] \cup \ldots \cup (t^{N-1},t^N]
-\end{equation*}
-Set  $\Delta t^k=t^{k+1}-t^k$; 
-Find $u_h^{k+1}\in U_h(t^{k+1})$ s.t.:
-\begin{equation*}
+An equivalent formulation to (\ref{eq:WeakFormSystem}) that
+hides the system structure reads as follows:
+\begin{equation}
+\label{eq:WeakForm}
 \begin{split}
-\frac{1}{\Delta t_k}(&m_h^\text{L2}(u_h^{k+1},v;t^{k+1})-m_h^\text{L2}(u_h^{k},v;t^{k})) + \\
-&\theta r_h^\text{NLP}(u_h^{k+1},v;t^{k+1}) + (1-\theta) r_h^\text{NLP}(u_h^{k},v;t^{k}) = 0
-\quad \forall v\in V_h(t^{k+1})
+d_t &\left[ (u_0,v_1)_{0,\Omega} + (u_1,v_0)_{0,\Omega}\right] \\
+&\hspace{6mm}+ \left[ c^2 (\nabla u_0,\nabla v_0)_{0,\Omega} -(u_1,v_1)_{0,\Omega} \right] = 0
+\quad \forall (v_0,v_1)\in U_0\times U_1
 \end{split}
-\end{equation*}
-\hrule
-\smallskip
-Reformulated this formally corresponds in each time step to the nonlinear problem
-\begin{equation*}
-\text{Find $u_h^{k+1}\in U_h(t^{k+1})$ s.t.:}
-\quad r_h^{\theta,k} (u_h^{k+1},v) + s_h^{\theta,k}(v) = 0
-\quad \forall v\in V_h(t^{k+1})
-\end{equation*}
-where
-\begin{align*}
-r^{\theta,k}_h(u,v) &= m_h^\text{L2}(u,v;t^{k+1})+\Delta t^k \theta r_h^\text{NLP}(u,v;t^{k+1}) ,\\
-s^{\theta,k}_h(v) &= -m_h^\text{L2}(u^k_h,v;t^k) + \Delta t^k (1-\theta) r_h^\text{NLP}(u_h^k,v;t^k)
-\end{align*}
+\end{equation}
+With the latter we readily identify the temporal and spatial residual
+forms:
+\begin{align}
+m^{\text{WAVE}}((u_0,u_1),(v_0,v_1)) &= (u_0,v_1)_{0,\Omega} + (u_1,v_0)_{0,\Omega},
+\label{eq:TemporalResForm}\\
+r^{\text{WAVE}}((u_0,u_1),(v_0,v_1)) &= c^2 (\nabla u_0,\nabla
+v_0)_{0,\Omega} - (u_1,v_1)_{0,\Omega} \; . \label{eq:SpatialResForm}
+\end{align}
 \end{frame}
 
-\begin{frame}
-\frametitle{Runge-Kutta Methods}
-in Shu-Osher form:
-\begin{enumerate}
-\item $u_h^{(0)} = u_h^{k}$.
-\item For $i=1,\ldots,s\in\mathbb{N}$, find $u_h^{(i)}\in u_{h,g}(t^k+d_i \Delta t^k)
-+ V_h(t^{k+1})$:
-\begin{equation*}
-\begin{split}
-\sum\limits_{j=0}^{s} \bigl[a_{ij} m_h&\left(u_h^{(j)},v;t^k+d_j \Delta t^k\right) \\
-&+ b_{ij} \Delta t^k r_h\left(u_h^{(j)}, v;t^k+d_j \Delta t^k\right) \bigr] = 0
-\qquad \forall v\in V_h(t^{k+1})
-\end{split}
-\end{equation*}
-\item $u_h^{k+1} = u_h^{(s)}$.
-\end{enumerate}
-An $s$-stage scheme is given by the parameters
-\begin{equation*}
-A = \left[\begin{array}{ccc}
-a_{10} & \ldots & a_{1s}\\
-\vdots &  & \vdots\\
-a_{s0} & \ldots & a_{ss}
-\end{array}\right],
-\quad B = \left[\begin{array}{ccc}
-b_{10} & \ldots & b_{1s}\\
-\vdots &  & \vdots\\
-b_{s0} & \ldots & b_{ss}
-\end{array}\right],
-\quad d = \left(
-d_{0}, \ldots, d_{s}
-\right)^T
-\end{equation*}
-Consider explicit and diagonally implicit schemes
-\end{frame}
 
-\begin{frame}
-\frametitle{Examples}
+\begin{frame}{Trees of Function spaces}
+  \begin{columns}
+    \begin{column}{0.6\textwidth}
+$U = \bigl(V(\Omega_S)\bigr)^d \times P(\Omega_S) \times \Phi(\Omega_D)$
+
 \begin{itemize}
-\item One step $\theta$ scheme (introduced above):
+\item Computer science way of representing mathematical  expressions: \structure{Trees}
+\item Expose internal nodes to users
+  \begin{itemize}
+  \item {\small Enable recursive bottom-up construction}
+  \item {\small Extract subtrees to pass to legacy subproblem code}
+  \end{itemize}
+\item Tree structure mostly static after construction
+  \begin{itemize}
+  \item {\small Nodes are C++ templates with children as template arguments}
+  \item {\small Allows extensive compiler optimizations, including inlining of tree traversals}
+  \end{itemize}
+\end{itemize}
+
+    \end{column}
+    \begin{column}{0.4\textwidth}
+\begin{tikzpicture}
+    \scoped[every node/.style={draw=niceblue,fill=niceblue!20, text height=\heightof{$A_1$},text depth=\depthof{$A_1$},minimum width=.7cm}]
+  \node {$U$}
+  child {
+    node {TH}
+      child {
+        node  {$V$}
+        child {
+          node  {$V_x$}
+        }
+        child {
+          node  {$V_y$}
+        }
+        child {
+          node  {$V_z$}
+        }
+      }
+      child {
+        node  {$P$}
+      }
+    }
+  child {
+    node {$\Phi$}
+  };
+\end{tikzpicture}
+
+    \end{column}
+  \end{columns}
+
+
+\end{frame}
+
+\begin{frame}{Linear Algebra}
+
+    Given an assembled residual $r = \mathcal{R}(\vec{u_0})$ and its Jacobian $A = \nabla\mathcal{R}_h$, we have to solve the linear problem
+    \begin{equation*}
+      A z = r
+    \end{equation*}
+    to obtain a correction and calculate $u = u_0 - z$.\\
+  \emph{Several options}
+  \begin{description}
+  \item[Monolithic solve] of $A z = r$
+  \end{description}
+  \begin{itemize}
+  \item No stability problems
+  \item Often very difficult with standard iterative solvers
+  \end{itemize}
+  \begin{description}
+  \item[Subdomain Iteration] Exploit problem structure
+  \end{description}
 \begin{equation*}
-A = \left[\begin{array}{cc}
--1 & 1
-\end{array}\right],
-\quad B = \left[\begin{array}{cc}
-1-\theta & \theta
-\end{array}\right],
-\quad d = \left(
-0, 1
-\right)^T.
+  \begin{pmatrix}
+    A_L & 0 \\
+    0  & A_R \\
+  \end{pmatrix}
+  \begin{pmatrix}
+    z_L \\ z_R \\
+  \end{pmatrix}
+  =
+  \begin{pmatrix}
+    r_L \\ r_R \\
+  \end{pmatrix}
 \end{equation*}
-Explicit/implicit Euler ($\theta\in\{0,1\}$), Crank-Nicolson ($\theta=\nicefrac12$).
-\item Heun's second order explicit method
-\begin{equation*}
-A = \left[\begin{array}{ccc}
--1 & 1 & 0\\
--\nicefrac12 & -\nicefrac12 & 1\\
-\end{array}\right],
-\quad B = \left[\begin{array}{ccc}
-1 & 0 & 0\\
-0 & \nicefrac12 & 0\\
-\end{array}\right],
-\quad d = \left(
-0, 1, 1
-\right)^T.
-\end{equation*}
-\item Alexander's two-stage second order strongly S-stable scheme
-{\footnotesize\begin{equation*}
-A = \left[\begin{array}{ccc}
--1 & 1 & 0\\
--1 & 0 & 1\\
-\end{array}\right],
-\quad B = \left[\begin{array}{ccc}
-0 & \alpha     & 0\\
-0 & 1-\alpha & \alpha\\
-\end{array}\right],
-\quad d = \left(
-0, \alpha, 1
-\right)^T
-\end{equation*}}
-with $\alpha=1-\nicefrac{\sqrt{2}}{2}$.
-\item Fractional step $\theta$, three stage second order strongly A-stable
-{\footnotesize\begin{equation*}
-A = \left[\begin{array}{rrrr}
--1 & 1 & 0 & 0\\
-0  & -1 & 1 & 0\\
-0  & 0 & -1 & 1\\
-\end{array}\right],
-\quad B = \left[\begin{array}{rrrr}
-\theta \theta' & 2\theta^2 & 0 & 0\\
-0 & 2\theta\theta' & 2\theta^2 & 0\\
-0 & 0 & \theta\theta' & 2\theta^2
-\end{array}\right],
-\quad d = \left(
-0, \theta, 1-\theta, 1
-\right)^T
-\end{equation*}}
-with $\theta=1-\nicefrac{\sqrt{2}}{2}$, $\theta' = 1-2\theta = \sqrt{2}-1$.
+\begin{itemize}
+\item Stability can be problematic
+\item Does not require monolithic code base
+\item Matrix / vector data structures must contain structure for good performance
 \end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{Note on Explicit Schemes}
-Example: Explicit Euler method ($\theta=0$)
-results in: Find $u_h^{k+1}\in U_h(t^{k+1})$ s.t.:
+
+
+\begin{frame}{Index Merging -- Example}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+      \item Two $Q_1$ spaces on common mesh
+      \item Each space has canonical order defined by vertex iteration
+      \item Two merging strategies
+        \structure{Lexicographic:} Preserve structure of individual problems, separate matrix blocks for coupling\\
+        \structure{Interleaved:} Regard problem as vector-valued version of scalar problem
+      \end{itemize}
+% \tikzexternalenable
+% \resizebox{\textwidth}{!}{
+% \input{tikz/dofs/lexicographicmatrix.tex}
+% \input{tikz/dofs/interleavedmatrix.tex}
+% }
+% \tikzexternaldisable
+
+    \end{column}
+    \begin{column}{0.5\textwidth}
+{\Large
 \begin{equation*}
- m_h^\text{L2}(u_h^{k+1},v;t)-m_h^\text{L2}(u_h^{k},v;t) +
-\Delta t^k r_h^\text{NLP}(u_h^{k},v;t) = 0
-\quad \forall v\in V_h(t^{k+1})
-\end{equation*}
-Appropriate spatial discretization results in diagonal mass matrix:
-\begin{equation*}
-Dz^{k+1} = s^k - \Delta t^k q^k.
-\end{equation*}
-Requires stability condition for $\Delta t^k$.\\
-\smallskip
-Use follwing algorithm:
-\begin{enumerate}[i)]
-\item While traversing the mesh assemble the vectors $s^k$ and
-$q^k$ separately and compute the maximum time step $\Delta t^k$.
-\item Form the right hand side $b^k=s^k - \Delta t^k q^k$ and ``solve'' the
-diagonal system $Dz^{k+1} = b^k$ (can be done in one step).
-\end{enumerate}
-Extends to strong stability preserving Runge-Kutta methods
+U = U_1 \times U_2
+\end{equation*}}\vspace*{.5em}
+\resizebox{\textwidth}{!}{
+\input{tikz/dofs/lexicographic.tex}
+}
+
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}{Merging + Blocking}
+  \begin{columns}
+    \begin{column}{0.6\textwidth}
+      \begin{itemize}
+      \item Merging can be repeated at every tree node\\
+{\small $\Rightarrow$ recursive construction of index structure from function space structure}
+\item Also support \structure{blocking} during merging
+{\small
+  \begin{itemize}
+  \item Large blocks for extracting subproblem matrices
+  \item Small blocks for block-aware preconditioners and
+    reduced memory usage
+  \end{itemize}
+}
+      \end{itemize}
+%\vspace*{2em}
+\resizebox{\textwidth}{!}{
+\input{tikz/dofs/lexicographicmatrix.tex}
+\input{tikz/dofs/interleavedmatrix.tex}
+}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+\resizebox{0.8\textwidth}{!}{
+  \input{tikz/dofs/dgentity-unblocked-matrix}
+}
+\ \\[1em]
+\resizebox{0.8\textwidth}{!}{
+  \input{tikz/dofs/dgentity-blocked-matrix}
+}
+
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}
 \frametitle{Realization in PDELab}
 \begin{enumerate}[1)]
 \item The ini-file
-\lstinline{tutorial03.ini} holds parameters 
+\lstinline{tutorial04.ini} holds parameters
 controlling the execution.
-\item Main file \lstinline{tutorial03.cc} includes the necessary C++,
+\item Main file \lstinline{tutorial04.cc} includes the necessary C++,
 DUNE and PDELab header files;
 contains \lstinline{main} function;
 instantiates DUNE grid objects and calls the \lstinline{driver} function
-\item Function \lstinline{driver} in file \lstinline{driver.hh} instantiates 
+\item Function \lstinline{driver} in file \lstinline{driver.hh} instantiates
 the necessary PDELab classes and finally solves the problem.
-\item File \lstinline{nonlinearheatfem.hh} contains the local operator classes
-\lstinline{NonlinearHeatFEM} and \lstinline{L2} realizing the spatial
+\item File \lstinline{wavefem.hh} contains the local operator classes
+\lstinline{WaveFEM} and \lstinline{WaveL2} realizing the spatial
 and temporal residual forms.
-\item File \lstinline{problem.hh} contains a parameter class which
-encapsulates the user-definable part of the PDE problem.
 \end{enumerate}
 \end{frame}
 
-\end{document}
+\begin{frame}
+\bibliographystyle{plain}
+\bibliography{slides04.bib}
+\end{frame}
 
+\end{document}
