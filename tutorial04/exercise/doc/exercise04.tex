@@ -78,8 +78,11 @@ Alternatively, one may also simply omit the boundary condition on $u_1$.
     your build directory} by typing make:
   \begin{lstlisting}
   [user@localhost]$ cd release-build/dune-pdelab-tutorials/tutorial04/exercise/src
-  [user@localhost]$ make
+  [user@localhost]$ make clean && make
   \end{lstlisting}
+
+  Note that in contrast to earlier exercises, three different executables are built from the same source files,
+  one each for 1D, 2D and 3D, in order to reduce compile times and compiler memory usage.
 
   The structure of the code is very similar to the previous tutorials and
   consists of the following files:
