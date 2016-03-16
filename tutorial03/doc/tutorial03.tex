@@ -196,11 +196,10 @@ Without loss of generality it can be assumed that $a_{ii}=1$. Moreover,
 some diagonally implicit schemes, in particular all those implemented in PDELab right
 now, satisfy $b_{ii}=b\,\forall i$. This means that in case of a linear problem the matrix is the
 same in all steps and needs to be assembled only once.
-PDELab allows you to easily add new schemes by specifying $A$, $B$ and $d$.
+PDELab allows you to add new schemes by specifying $A$, $B$ and $d$.
 All explicit Runge-Kutta methods and most implicit Runge-Kutta methods
 can be brought to the Shu-Osher form.
-
-Some examples of schemes are:
+Some examples are:
 \begin{itemize}
 \item One step $\theta$ scheme (introduced above):
 \begin{equation*}
@@ -244,7 +243,7 @@ A = \left[\begin{array}{ccc}
 \right)^T
 \end{equation*}
 with $\alpha=1-\nicefrac{\sqrt{2}}{2}$.
-\item Fractional step $\theta$ scheme, a three stage second order strongly A-stable scheme:
+\item Fractional step $\theta$ \cite{Meidner201545}, three stage second order strongly A-stable scheme:
 \begin{equation*}
 A = \left[\begin{array}{rrrr}
 -1 & 1 & 0 & 0\\
@@ -252,15 +251,16 @@ A = \left[\begin{array}{rrrr}
 0  & 0 & -1 & 1\\
 \end{array}\right],
 \quad B = \left[\begin{array}{rrrr}
-\theta \theta' & 2\theta^2 & 0 & 0\\
-0 & 2\theta\theta' & 2\theta^2 & 0\\
-0 & 0 & \theta\theta' & 2\theta^2
+\theta (1-\alpha) & \theta\alpha & 0 & 0\\
+0 & \theta'\alpha & \theta' (1-\alpha) & 0\\
+0 & 0 & \theta(1-\alpha) & \theta\alpha
 \end{array}\right],
 \quad d = \left(
 0, \theta, 1-\theta, 1
 \right)^T
 \end{equation*}
-with $\theta=1-\nicefrac{\sqrt{2}}{2}$, $\theta' = 1-2\theta = \sqrt{2}-1$.
+with $\theta=1-\nicefrac{\sqrt{2}}{2}$, $\alpha=2\theta$, $\theta' = 1-2\theta = 1-\alpha = \sqrt{2}-1$.
+Note also that $\theta\alpha= \theta' (1-\alpha) = 2\theta^2$.
 \end{itemize}
 
 
