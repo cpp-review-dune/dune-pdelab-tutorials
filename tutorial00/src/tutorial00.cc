@@ -53,7 +53,7 @@
 #include"poissonp1.hh"
 #include"driver.hh"
 
-#undef HAVE_DUNE_ALUGRID
+//#undef HAVE_DUNE_ALUGRID
 //===============================================================
 // Main program with grid setup
 //===============================================================
