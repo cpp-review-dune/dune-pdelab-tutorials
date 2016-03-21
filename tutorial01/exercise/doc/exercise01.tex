@@ -54,7 +54,7 @@ nonlinearity can easily be changed.
 
 In this exercise you will get to know the code, play around with
 different settings and implement a different way to handle the
-Dirichlet boundary.
+Dirichlet boundary condition.
 
 
 \begin{Exercise}{Warming Up}
@@ -107,12 +107,6 @@ subsampling=0
 
   \item It is easy to implement different nonlinearities.  Use
     $q(u)=\exp(au)$ by adjusting the file \lstinline{problem.hh}.
-    Don't forget to change the derivative $q'(u)$ given by the
-    function
-    \begin{lstlisting}
-//! derivative of nonlinearity
-Number qprime (Number u) const
-    \end{lstlisting}
 
   \item Go back to $q(u)=\eta u^2$.  Now we want to see how good our
     approximation is.  Change the function $f(x)$ in the file
