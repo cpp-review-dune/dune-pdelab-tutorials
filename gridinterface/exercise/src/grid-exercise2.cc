@@ -5,9 +5,13 @@
 #include <dune/common/fvector.hh>
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/grid/yaspgrid.hh>
+#if HAVE_UG
 #include <dune/grid/uggrid.hh>
+#endif
 #include <dune/grid/onedgrid.hh>
+#if HAVE_DUNE_ALUGRID
 #include <dune/alugrid/grid.hh>
+#endif
 #include <dune/grid/utility/structuredgridfactory.hh>
 #include <dune/grid/utility/tensorgridfactory.hh>
 #include <dune/grid/io/file/gmshreader.hh>
