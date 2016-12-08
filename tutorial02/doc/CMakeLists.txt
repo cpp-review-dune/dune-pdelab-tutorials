@@ -5,6 +5,5 @@ dune_symlink_to_source_files(FILES ../src/driver.hh
                                    ../src/tutorial02.ini)
 add_latex_document(tutorial02.tex
                    IMAGE_DIRS .
-                   DEFAULT_PDF
-                   MANGLE_TARGET_NAMES
+                   FORCE_PDF
                   )
