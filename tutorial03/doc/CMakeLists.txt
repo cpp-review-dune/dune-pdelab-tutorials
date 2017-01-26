@@ -5,9 +5,8 @@ dune_symlink_to_source_files(FILES ../src/tutorial03.cc
 ../src/tutorial03.ini
 )
 
-add_latex_document(tutorial03.tex
+add_latex_document(tutorial03.tex TARGET_NAME tutorial03_pdf
                    BIBFILES tutorial03.bib
                    IMAGE_DIRS .
-                   DEFAULT_PDF
-                   MANGLE_TARGET_NAMES
+                   FORCE_PDF
                   )

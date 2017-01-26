@@ -1,5 +1,4 @@
-add_latex_document(exercise03.tex
+add_latex_document(exercise03.tex TARGET_NAME exercise03_pdf
                    IMAGE_DIRS .
-                   DEFAULT_PDF
-                   MANGLE_TARGET_NAMES
+                   FORCE_PDF
                    )

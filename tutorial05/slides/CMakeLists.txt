@@ -1,5 +1,4 @@
-add_latex_document(slides05.tex
+add_latex_document(slides05.tex TARGET_NAME slides05_pdf
                    IMAGE_DIRS .
-                   DEFAULT_PDF
-                   MANGLE_TARGET_NAMES
+                   FORCE_PDF
                   )

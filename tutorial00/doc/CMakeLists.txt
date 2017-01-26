@@ -3,10 +3,9 @@ dune_symlink_to_source_files(FILES ../src/tutorial00.cc
                                    ../src/driver.hh
                                    ../src/poissonp1.hh)
 
-add_latex_document(tutorial00.tex
+add_latex_document(tutorial00.tex TARGET_NAME tutorial00_pdf
                    BIBFILES tutorial00.bib
                    IMAGE_DIRS .
-                   DEFAULT_PDF
-                   MANGLE_TARGET_NAMES
+                   FORCE_PDF
                   )
 
