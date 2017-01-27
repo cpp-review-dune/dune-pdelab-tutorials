@@ -30,7 +30,7 @@
 #endif
 #if HAVE_DUNE_ALUGRID
 #include<dune/alugrid/grid.hh>
-#include<dune/grid/io/file/dgfparser/dgfalu.hh>
+#include<dune/alugrid/dgf.hh>
 #include<dune/grid/io/file/dgfparser/dgfparser.hh>
 #endif
 // dune-istl included by pdelab
