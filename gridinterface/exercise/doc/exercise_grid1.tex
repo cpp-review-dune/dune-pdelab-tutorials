@@ -39,12 +39,12 @@
 
 First, you should start a fresh terminal and switch to the working directory of this exercise:
 \begin{lstlisting}
-  [user@dune-vm ~]$ cd iwr-course-2016
-  [user@dune-vm iwr-course-2016]$ cd release-build
+  [user@dune-vm ~]$ cd course
+  [user@dune-vm course]$ cd release-build
   [user@dune-vm release-build]$ cd dune-pdelab-tutorials
   [user@dune-vm dune-pdelab-tutorials]$ cd gridinterface
   [user@dune-vm gridinterface]$ cd exercise
-  [user@dune-vm exercise]$ cd src
+  [user@dune-vm exercise]$ cd task
 \end{lstlisting}
 
 This is the build directory, so typing \lstinline!make! will build three executables.
@@ -60,7 +60,7 @@ visualization after a succesful run of the executable \lstinline!grid-exercise1!
 with:
 
 \begin{lstlisting}
-  [user@dune-vm src]$ ristretto printgrid_0.png
+  [user@dune-vm task]$ ristretto printgrid_0.png
 \end{lstlisting}
 
 By default, a 4x4 grid is generated. You can change this to some
@@ -153,7 +153,7 @@ condition $c_\text{in}$, depending on the location of $e$.
   an additional file \lstinline!concentration.pvd! that contains information
   about the whole time series. Open that file by calling
 \begin{lstlisting}
-  [user@dune-vm src]$ paraview --data=concentration.pvd &
+  [user@dune-vm task]$ paraview --data=concentration.pvd &
 \end{lstlisting}
   to load the complete output of the program. ParaView will be explained in more
   detail in the second part of the grid tutorial, but for now just click the

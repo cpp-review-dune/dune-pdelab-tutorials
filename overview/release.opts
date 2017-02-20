@@ -1,5 +1,4 @@
 CMAKE_FLAGS="
--DUG_ROOT=/path/to/dune/modules/external/ug
 -DCMAKE_C_COMPILER='/usr/bin/gcc'
 -DCMAKE_CXX_COMPILER='/usr/bin/g++'
 -DCMAKE_CXX_FLAGS_RELEASE='-O3 -DNDEBUG -g0 -Wno-deprecated-declarations -funroll-loops'

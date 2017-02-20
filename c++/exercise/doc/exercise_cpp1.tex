@@ -30,12 +30,12 @@
 \begin{Exercise}{Editing and compiling a program}
 First, you should start a fresh terminal and switch to the working directory of this exercise:
 \begin{lstlisting}
-  [user@dune-vm ~]$ cd iwr-course-2016
-  [user@dune-vm iwr-course-2016]$ cd dune
+  [user@dune-vm ~]$ cd course
+  [user@dune-vm course]$ cd dune
   [user@dune-vm dune]$ cd dune-pdelab-tutorials
   [user@dune-vm dune-pdelab-tutorials]$ cd c++
   [user@dune-vm gridinterface]$ cd exercise
-  [user@dune-vm exercise]$ cd src
+  [user@dune-vm exercise]$ cd task
 \end{lstlisting}
 
 This is the source directory, so you cannot use \lstinline!make! to build the programs in this exercise.
@@ -45,7 +45,7 @@ In order to compile an exercise program (in this case \lstinline!task1.cc!), run
 the special flag to switch the compiler to C++14 mode):
 
 \begin{lstlisting}
-  [user@dunevm src]$ g++ -Wall -std=c++14 -o task1 task1.cc
+  [user@dunevm task]$ g++ -Wall -std=c++14 -o task1 task1.cc
 \end{lstlisting}
 
 This command will attempt to compile the source code in \lstinline!task1.cc! and create an executable called \lstinline!task1! in the current directory.
@@ -53,7 +53,7 @@ This command will attempt to compile the source code in \lstinline!task1.cc! and
 However, the compiler does output an error message and fails to create the program. Try to understand the compiler error, open the source file in an editor and fix the problem. Afterwards, try to compile and run the program again.
 
 In this case, the error is due to the fact that the compiler sees two functions called \texttt{min()}. How
-can you fix this problem? If you get stuck, you can look at the solution in the \lstinline!solution! directory next to the \lstinline!src! directory. You can get there by entering \lstinline!cd ../solution!.
+can you fix this problem? If you get stuck, you can look at the solution in the \lstinline!solution! directory next to the \lstinline!task! directory. You can get there by entering \lstinline!cd ../solution!.
 
 \end{Exercise}
 

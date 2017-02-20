@@ -14,7 +14,7 @@
 \usepackage{amsmath,amssymb,amsfonts}
 
 
-% only presentation 
+% only presentation
 \mode<presentation>
 {
   \usetheme{default}
@@ -29,15 +29,15 @@
 }
 
 % all after
-\usepackage{tikz} 
+\usepackage{tikz}
 \usetikzlibrary{patterns}
 \usepackage{pgfplots,adjustbox}
-\usepackage{eurosym} 
+\usepackage{eurosym}
 \usepackage{graphicx}
 \usepackage{multimedia}
 \usepackage{psfrag}
 \usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily, 
+\lstset{language=C++, basicstyle=\ttfamily,
   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
 \usepackage{curves}
@@ -88,7 +88,7 @@
 %\setbeamertemplate{blocks}[rounded][shadow=true]
 %\setbeamertemplate{itemize items}[square]
 
-\mode<presentation> 
+\mode<presentation>
 {
 \theoremstyle{definition}
 }
@@ -126,7 +126,7 @@
   \institute[]
   {
    Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
-   Im Neuenheimer Feld 368, D-69120 Heidelberg \\[6pt]
+   Im Neuenheimer Feld 205, D-69120 Heidelberg \\[6pt]
   }
   \date[\today]{\today}
 }
@@ -176,7 +176,7 @@
 
 \begin{frame}
 \frametitle{PDE Problem}
-This tutorial extends the problem from tutorial 01 to the instationary setting: 
+This tutorial extends the problem from tutorial 01 to the instationary setting:
 \begin{align*}
 \partial_t u -\Delta u + q(u) &= f &&\text{in $\Omega\times\Sigma$},\\
 u &= g &&\text{on $\Gamma_D\subseteq\partial\Omega$},\\
@@ -193,7 +193,7 @@ t \in \Sigma,
 \end{array}
 \end{equation*}
 where $V(t) = \{v\in H^1(\Omega)\,:\, \text{$v=0$ on $\Gamma_D(t)$}\}$
-and $H^1(\Omega)\ni u_g(t)|_{\Gamma_D}=g$. 
+and $H^1(\Omega)\ni u_g(t)|_{\Gamma_D}=g$.
 \end{frame}
 
 \begin{frame}
@@ -215,8 +215,8 @@ r^{\text{NLP}}(u,v) = \int_\Omega \nabla u \cdot \nabla v + (q(u)-f)v\,dx + \int
 \begin{frame}
 \frametitle{Method of Lines}
 \begin{enumerate}[1)]
-\item Discretize in space with conforming finite elements, i.e. choose a 
-finite-dimensional test space $V_h(t)\subset V(t)$. 
+\item Discretize in space with conforming finite elements, i.e. choose a
+finite-dimensional test space $V_h(t)\subset V(t)$.
 \item Results in a system of ordinary differential equations (ODEs) for the time-dependent
 coefficient vector $z(t)$
 \item Choose an appropriate method to integrate the ODE system
@@ -230,7 +230,7 @@ Subdivide time interval
 \begin{equation*}
 \overline{\Sigma} = \{t^{0}\} \cup (t^0,t^1] \cup \ldots \cup (t^{N-1},t^N]
 \end{equation*}
-Set  $\Delta t^k=t^{k+1}-t^k$; 
+Set  $\Delta t^k=t^{k+1}-t^k$;
 Find $u_h^{k+1}\in U_h(t^{k+1})$ s.t.:
 \begin{equation*}
 \begin{split}
@@ -383,13 +383,13 @@ Extends to strong stability preserving Runge-Kutta methods
 \frametitle{Realization in PDELab}
 \begin{enumerate}[1)]
 \item The ini-file
-\lstinline{tutorial03.ini} holds parameters 
+\lstinline{tutorial03.ini} holds parameters
 controlling the execution.
 \item Main file \lstinline{tutorial03.cc} includes the necessary C++,
 DUNE and PDELab header files;
 contains \lstinline{main} function;
 instantiates DUNE grid objects and calls the \lstinline{driver} function
-\item Function \lstinline{driver} in file \lstinline{driver.hh} instantiates 
+\item Function \lstinline{driver} in file \lstinline{driver.hh} instantiates
 the necessary PDELab classes and finally solves the problem.
 \item File \lstinline{nonlinearheatfem.hh} contains the local operator classes
 \lstinline{NonlinearHeatFEM} and \lstinline{L2} realizing the spatial
@@ -400,4 +400,3 @@ encapsulates the user-definable part of the PDE problem.
 \end{frame}
 
 \end{document}
-

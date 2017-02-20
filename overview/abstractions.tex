@@ -8,12 +8,12 @@
 \usepackage{amsthm}
 \usepackage{amscd}
 \usepackage{grffile}
-\usepackage{tikz} 
-\usepackage{eurosym} 
+\usepackage{tikz}
+\usepackage{eurosym}
 \usepackage{graphicx}
 \usepackage{color}
 \usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily, 
+\lstset{language=C++, basicstyle=\ttfamily,
   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
   commentstyle=\itshape, extendedchars=true, escapeinside={/*@}{@*/}}
 \usepackage{paralist}
@@ -38,7 +38,7 @@ Mathematical Abstractions for the Numerical Solution of Partial Differential Equ
 \author{Peter Bastian\\
   Universität Heidelberg, \\
   Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
-  Im Neuenheimer Feld 368, D-69120 Heidelberg\\
+  Im Neuenheimer Feld 205, D-69120 Heidelberg\\
   \url{Peter.Bastian@iwr.uni-heidelberg.de}
 }
 \date{\today}
@@ -75,7 +75,7 @@ of methods for problems from different application areas with the orthogonality
 of concepts in mind. This means that the different aspects listed above
 can be combined in an arbitrary way allowing huge flexibility.
 Flexibility, however, comes at a price: it requires the problem to
-be stated in its most abstract way to identify commonalities and differences. 
+be stated in its most abstract way to identify commonalities and differences.
 This little note describes
 these mathematical abstractions seperate from implementation
 aspects to highlight their interplay without cluttering the description
@@ -83,7 +83,7 @@ with unnecessary detail.
 
 \section{Stationary Nonlinear Problems}\label{Sec:BasicBuildingBlock}
 
-The basic building block in PDELab is the solution of 
+The basic building block in PDELab is the solution of
 a stationary, nonlinear partial differential equation.
 The idea is to write the discretization scheme in a weighted residual formulation:
 \begin{equation}
@@ -91,8 +91,8 @@ The idea is to write the discretization scheme in a weighted residual formulatio
 \label{Eq:BasicBuildingBlock}
 \end{equation}
 Here $U_h$ and $V_h$ are finite-dimensional function spaces of dimension $n$ and $m$
-and $r_h: U_h\times V_h\to\mathbb{K}$ ($\mathbb{K}=\mathbb{R}$ or 
-$\mathbb{C}$) is the residual form. The residual 
+and $r_h: U_h\times V_h\to\mathbb{K}$ ($\mathbb{K}=\mathbb{R}$ or
+$\mathbb{C}$) is the residual form. The residual
 form is always linear in the second argument and it may be linear or nonlinear in the first
 argument. The subscript $h$ on the residual form indicates that its evaluation may be mesh dependent.
 It turns out that a large class of finite element and finite volume schemes
@@ -145,7 +145,7 @@ reformulate the problem as
 \Leftrightarrow{} && r_h\left(\sum_{j=1}^n (z)_j\phi_j,\psi_i\right) &= 0 &&\forall i=1,\ldots,m\\
 \Leftrightarrow{} && R(z) = 0,
 \end{align*}
-where $R: \mathbb{K}^n \to \mathbb{K}^m$ given by 
+where $R: \mathbb{K}^n \to \mathbb{K}^m$ given by
 $R_i(z) = r_h\left(\sum_{j=1}^n (z)_j\phi_j,\psi_i\right)$ is a nonlinear, vector-valued function.
 
 The solution of the nonlinear algebraic equation $R(z)=0$ is typically computed
@@ -154,7 +154,7 @@ in an iterative fashion using e.g. a fixed-point iteration of the form
 z^{(k+1)} = G(z^{(k)}) = z^{(k)} - W(z^{(k)}) R(z^{(k)}) .
 \end{equation}
 Here $W(z^{(k)})$ is a preconditioner matrix, e.g. in Newton's method one
-has 
+has
 \begin{equation*}
 W(z^{(k)}) = (J(z^{(k)}))^{-1} \quad \text{where $(J(z^{(k)}))_{i,j} = \frac{\partial R_i}{\partial z_j}
 (z^{(k)})$}
@@ -177,14 +177,14 @@ solution procedure.
 As illustrated in example \ref{Exm:NonlinearPoisson} the function spaces
 involved are often subspaces of a larger function space. PDELab provides
 a general approach to building a subspace of a given function space through
-the application of constraints. 
+the application of constraints.
 
-In order to construct a subspace $\tilde{U}_h$ 
-of $U_h = \text{span}\left\{\phi_j \,:\, j\in J_h=\{1,\ldots,n\}\right\}$ 
+In order to construct a subspace $\tilde{U}_h$
+of $U_h = \text{span}\left\{\phi_j \,:\, j\in J_h=\{1,\ldots,n\}\right\}$
 \begin{enumerate}[i)]
 \item select a subset of indices $\tilde{J}_h\subset J_h$
-\item and set $\tilde{U}_h = \text{span}\left\{\tilde\phi_j \,:\, j\in \tilde{J}_h\right\}$ 
-where the new basis functions have the form 
+\item and set $\tilde{U}_h = \text{span}\left\{\tilde\phi_j \,:\, j\in \tilde{J}_h\right\}$
+where the new basis functions have the form
 \begin{equation*}
 \tilde\phi_j = \phi_j + \sum_{l\in J_h\setminus\tilde{J}_h} (B)_{j,l} \phi_l \quad \forall j\in \tilde{J}_h.
 \end{equation*}
@@ -202,16 +202,16 @@ the condition on linearity with respect to the second argument.
 Finite element and finite volume methods, however, are defined via
 appropriate weak formulations which involve integrals where the domain
 of integration naturally decomposes into subdomains and basis functions
-have local support. 
+have local support.
 
 To that end assume that the domain $\Omega$ is covered by a mesh
 $\mathcal{T}_h = \{T_1, \ldots, T_M\}$ consisting of elements
 which are closed point sets satisfying
 \begin{equation}
-\bigcup_{T\in \mathcal{T}_h} T = \overline{\Omega}, \quad 
+\bigcup_{T\in \mathcal{T}_h} T = \overline{\Omega}, \quad
 \forall T, T' \in \mathcal{T}_h, T\neq T' : \mathring{T} \cap \mathring{T}' = \emptyset .
 \end{equation}
-The nonempty intersections $F = T_F^-\cap T_F^+$ 
+The nonempty intersections $F = T_F^-\cap T_F^+$
 of codimension 1 form the interior skeleton $\mathcal{F}_h^i=\{F_1,\ldots,F_N\}$.
 Each intersection is equipped with a unit normal vector $\nu_F$ pointing from $T_F^-$ to $T_F^+$.
 The intersections of an element $F=T_F^-\cap\partial\Omega$ with the domain
@@ -230,8 +230,8 @@ With that notation in place PDELab assumes that the residual form has
 the following general structure:
 \begin{equation}
 \begin{split}
-r(u,v) &= 
-\sum_{T\in\mathcal{T}_h} \alpha_T^V(R_T u, R_T v) 
+r(u,v) &=
+\sum_{T\in\mathcal{T}_h} \alpha_T^V(R_T u, R_T v)
 + \sum_{T\in\mathcal{T}_h} \lambda_T^V(R_T v) \\
 &\qquad+ \sum_{F\in\mathcal{F}_h^i} \alpha_F^S(R_{T_F^-} u,R_{T_F^+} u, R_{T_F^-} v, R_{T_F^+} v)\\
 &\qquad+ \sum_{F\in\mathcal{F}_h^{\partial\Omega}} \alpha_F^B(R_{T_F^-} u, R_{T_F^-} v)
@@ -247,9 +247,9 @@ depend on the test function and involve the data of the PDE.
 The residual form from example \ref{Exm:NonlinearPoisson} can be cast into the
 following form:
 \begin{equation*}
-r^{\text{NLP}}(u,v) = 
+r^{\text{NLP}}(u,v) =
 \sum_{T\in\mathcal{T}_h} \int_T \nabla u \cdot \nabla v + q(u)v \,dx
-- \sum_{T\in\mathcal{T}_h} \int_T fv \,dx 
+- \sum_{T\in\mathcal{T}_h} \int_T fv \,dx
 + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_N} \int_{F} jv\,ds
 \end{equation*}
 and involves $\alpha_T^V$, $\lambda_T^V$ and $\lambda_F^B$. \hfill$\Box$
@@ -266,15 +266,15 @@ W_h = \{w\in L^2(\Omega) \,:\,  \text{$w|_T=$ const for all $T\in\mathcal{T}_h$}
 and the residual form reads:
 \begin{equation*}
 \begin{split}
-r_h^{\text{CCFV}}(u_h,v) 
+r_h^{\text{CCFV}}(u_h,v)
 & = \sum_{T\in\mathcal{T}_h} q(u_h(x_T)) v(x_T) |T|
 - \sum_{T\in\mathcal{T}_h} f(x_T) v(x_T) |T|\\
-&\ - \sum_{F\in\mathcal{F}_h^i} 
+&\ - \sum_{F\in\mathcal{F}_h^i}
 \frac{u_h(x_{T_F^+})-u_h(x_{T_F^-})}{\|x_{T_F^+} - x_{T_F^-}\|}
 \bigl(v(x_{T_F^-}) - v(x_{T_F^+})\bigr) |F|\\
-&\ + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D} 
+&\ + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D}
 \frac{u_h(x_{T_F^-})}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F| \\
-&\ - \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D} 
+&\ - \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D}
 \frac{g(x_{F}))}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F|
 + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_N} j(x_{F}) v(x_{T_F^-}) |F| .
 \end{split}
@@ -283,11 +283,11 @@ The cell-centered finite volume method in this form is applicable on
 axi-parallel meshes and is based in applying Gauss' theorem, approximating
 the derivative in normal direction by a finite difference (two-point
 flux approximation) and approximating integrals by the mid-point rule
-($x_T$, $x_F$ denotes the center point of an element or face and 
+($x_T$, $x_F$ denotes the center point of an element or face and
 $|T|$, $|F|$ denote the measure of an element or face).
 In this case all five different terms of the residual form are involved.
 Note that both terms in the last line are part of $\lambda_F^B$ as
-they do not involve the unknown function $u_h$. 
+they do not involve the unknown function $u_h$.
 Also note that here no constraints on the function space are necessary.
 Dirichlet as well as Neumann boundary conditions are built into the
 residual form.\hfill$\Box$
@@ -317,24 +317,24 @@ $u_h$ now amounts to solving the linear system $Az=b$.
 PDELab assumes that an instationary (nonlinear) problem can be cast into the
 general form
 \begin{equation}
-\text{Find $u_h(t)\in U_h$ s.t.:} 
-\quad d_t m_h(u_h(t),v;t) + r_h(u_h(t),v;t) = 0 
+\text{Find $u_h(t)\in U_h$ s.t.:}
+\quad d_t m_h(u_h(t),v;t) + r_h(u_h(t),v;t) = 0
 \quad \forall v\in V_h
 \label{Eq:Instationary}
 \end{equation}
 after semi-discretization in space (method of lines approach).
-One way to arrive at a fully discrete scheme is now to 
+One way to arrive at a fully discrete scheme is now to
 apply the one-step-$\theta$ rule which reads:
 \begin{equation}
 \label{Eq:InstationaryProblem}
 \begin{split}
-\text{Find $u_h^{k+1}\in U_h$ s.t.:} 
+\text{Find $u_h^{k+1}\in U_h$ s.t.:}
 \quad \frac{1}{\Delta t_k}&(m_h(u_h^{k+1},v;t^{k+1})-m_h(u_h^{k},v;t^k)) + \\
-&\theta r_h(u_h^{k+1},v;t^{k+1}) + (1-\theta) r_h(u_h^{k},v;t^k) = 0 
+&\theta r_h(u_h^{k+1},v;t^{k+1}) + (1-\theta) r_h(u_h^{k},v;t^k) = 0
 \quad \forall v\in V_h.
 \end{split}
 \end{equation}
-Here, $0=t^0 < t^1 < \ldots < t^K=t_F$ is a subdivision of the 
+Here, $0=t^0 < t^1 < \ldots < t^K=t_F$ is a subdivision of the
 time interval $\Sigma=(0,t_F)$, $\Delta t_k = t^{k+1}-t^k$ is the time step
 and $u_h^{k}$ is an approximation of $u_h(t^k)$. For $\theta=1$
 we obtain the implicit Euler method, for $\theta=1/2$ the Crank-Nicolson method
@@ -343,7 +343,7 @@ and $u_h^{k+1}$ unknown, the left hand side of equation \eqref{Eq:InstationaryPr
 can be considered a new residual form built up from a linear combination of the
 temporal residual form $m_h(u_h,v;t)$ and the spatial residual form $r_h(u_h,v;t)$
 evaluated at different points in time.
-Various explicit and diagonally implicit Runge-Kutta \cite{alexander:77} 
+Various explicit and diagonally implicit Runge-Kutta \cite{alexander:77}
 methods result in variants of
 equation \eqref{Eq:InstationaryProblem} which yield higher-order accuracy in
 time under appropriate stability properties.
@@ -359,7 +359,7 @@ u &= u_0 &&\text{at $t=0$}.
 Here, the parameter functions $f$, $g$, $j$ may also depend on time
 (and, with some restrictions, the subdivision into Dirichlet and Neumann boundary
 can be time-dependent). The initial
-condition $u_0$ is a function of $x\in\Omega$. Then the residual forms 
+condition $u_0$ is a function of $x\in\Omega$. Then the residual forms
 involved in the conforming finite element method are
 \begin{align*}
 m^{\text{NLH}}(u,v) &= \int_\Omega u v \,dx, \\
@@ -370,7 +370,7 @@ which allows for a very easy implementation. \hfill$\Box$
 \end{exm}
 
 All considerations of Section \ref{Sec:BasicBuildingBlock} apply here as well.
-The nonlinear solver can be applied to the new residual form and for 
+The nonlinear solver can be applied to the new residual form and for
 linear problems a linear algebraic problem is obtained in each time step.
 
 \subsection*{Explicit Time Stepping Schemes}
@@ -378,9 +378,9 @@ linear problems a linear algebraic problem is obtained in each time step.
 Considering the case of the explicit Euler method in \eqref{Eq:InstationaryProblem}
 results in
 \begin{equation*}
-\text{Find $u_h^{k+1}\in U_h$ s.t.:} 
+\text{Find $u_h^{k+1}\in U_h$ s.t.:}
 \quad m_h(u_h^{k+1},v;t)-m_h(u_h^{k},v;t) +
-\Delta t_k r_h(u_h^{k},v;t) = 0 
+\Delta t_k r_h(u_h^{k},v;t) = 0
 \quad \forall v\in V_h.
 \end{equation*}
 For certain spatial schemes, e.g. finite volume or discontinuous Galerkin,
@@ -389,14 +389,14 @@ to be solved is diagonal:
 \begin{equation}
 Dz^{k+1} = s^k - \Delta t^k q^k.
 \end{equation}
-Moreover, a stability condition restricting the time step $\Delta t^k$ 
+Moreover, a stability condition restricting the time step $\Delta t^k$
 has to be obeyed. The maximum allowable time step can be computed
 explicitly for the simplest schemes but depends on the mesh $\mathcal{T}_h$.
 For explicit time-stepping schemes therefore the following algorithm is employed:
 \begin{enumerate}[i)]
 \item While traversing the mesh assemble the vectors $s^k$ and
 $q^k$ separately and compute the maximum time step $\Delta t^k$.
-\item Form the right hand side $b^k=s^k - \Delta t^k q^k$ and ``solve'' the 
+\item Form the right hand side $b^k=s^k - \Delta t^k q^k$ and ``solve'' the
 diagonal system $Dz^{k+1} = b^k$ (can be done in one step).
 \end{enumerate}
 This procedure can be applied also to more general time-stepping schemes
@@ -408,7 +408,7 @@ All the considerations above carry over to the case of systems of
 partial differential equations when Cartesian products of
 functions spaces are introduced, i.e. the abstract stationary problem then reads
 \begin{equation}
-\text{Find $u_h\in U_h=U_h^1\times \ldots \times U_h^s$ s.t.:} \quad r_h(u_h,v)=0 
+\text{Find $u_h\in U_h=U_h^1\times \ldots \times U_h^s$ s.t.:} \quad r_h(u_h,v)=0
 \quad \forall v\in V_h=V_h^1\times\ldots\times V_h^s
 \label{Eq:BasicSystemBuildingBlock}
 \end{equation}
@@ -425,7 +425,7 @@ u &= 0 &&\text{on $\partial\Omega$},\\
 u &= q &&\text{at $t=0$},\\
 \partial_t u &= w &&\text{at $t=0$}.
 \end{align*}
-Renaming $u_0=u$ and introducing $u_1=\partial_t u_0 =\partial_t u$ we can write the wave equation 
+Renaming $u_0=u$ and introducing $u_1=\partial_t u_0 =\partial_t u$ we can write the wave equation
 as a system of two equations:
 \begin{align*}
 \partial_t u_1 - c^2\Delta u_0 &=0 &&\text{in $\Omega\times\Sigma$},\\
@@ -437,17 +437,17 @@ u_1 &= w &&\text{at $t=0$}.
 Note that there are no constraints on the function space for $u_1$
 and neither are there boundary conditions for the equation $u_1=\partial_t u_0$.
 We note that different formulations of the wave equation as a system are
-possible. \cite{Eriksson} uses $\Delta u_1 = \Delta \partial_t u_0$ as 
+possible. \cite{Eriksson} uses $\Delta u_1 = \Delta \partial_t u_0$ as
 an equation to define $u_1$ and the formulation as a first order hyperbolic
 system in the equations of linear acoustics allows the use of appropriate
-upwinding techniques \cite{LeVeque}. 
+upwinding techniques \cite{LeVeque}.
 
 Multiplying the first equation with test function $v_0$ and the second with test function $v_1$
 and using integration by parts we arrive at the weak formulation: Find $(u_0(t),u_1(t))\in
 U_0\times U_1$ s.t.
 \begin{equation*}
 d_t \left[ (u_0,v_1)_{0,\Omega} + (u_1,v_0)_{0,\Omega}\right]
-+ \left[ c^2 (\nabla u_0,\nabla v_0)_{0,\Omega} -(u_1,v_1)_{0,\Omega} \right] = 0 
++ \left[ c^2 (\nabla u_0,\nabla v_0)_{0,\Omega} -(u_1,v_1)_{0,\Omega} \right] = 0
 \quad \forall (v_0,v_1)\in U_0\times U_1
 \end{equation*}
 where we readily identify the temporal and spatial residual forms:
@@ -473,12 +473,12 @@ U_h = U_{h,1} + \ldots  + U_{h,p}
 \label{eq:SubspaceSplitting}
 \end{equation}
 The subspaces may overlap, i.e. the splitting of any function $u_h = u_{h,1} + \ldots + u_{h,p}$
-is not unique. 
+is not unique.
 
 Given such a splitting of the trial space as well as the test space the additive subspace
 correction method \cite{Xu:1992:IMS:146428.146431} computes a new iterate as
 \begin{equation*}
-u_h^{k+1} = u_h^k + \sum_{i=1}^p w_{h,i}, \quad r_h(u_h^k+w_{h,i},v_i) = 0 \qquad \forall 
+u_h^{k+1} = u_h^k + \sum_{i=1}^p w_{h,i}, \quad r_h(u_h^k+w_{h,i},v_i) = 0 \qquad \forall
 v_i\in V_{h,i}.
 \end{equation*}
 A particular choice for the space splitting is the overlapping domain decomposition
@@ -489,8 +489,8 @@ an overlapping domain decomposition $\Omega = \bigcup_{i=1}^p \Omega_i$ where
 $\Omega_i = \bigcup_{j\in I_{h,i}} \text{supp}(\phi_j)$. Even if the splitting of the
 index set is nonoverlapping (which corresponds to a block Jacobi solver) the domain
 decomposition is overlapping. In terms of the underlying matrices the subspace correction
-approach corresponds to a rowwise decomposition of the matrix. 
-An advantage of the overlapping formulation is that the evaluation of the 
+approach corresponds to a rowwise decomposition of the matrix.
+An advantage of the overlapping formulation is that the evaluation of the
 residual \eqref{eq:GeneralResidualForm} can be performed without
 communication when $u_h$ is known in each subdomain.
 
@@ -507,7 +507,7 @@ This is accomplished naturally by a nonoverlapping partitioning of the mesh:
 The corresponding subdomains $\overline{\Omega}_i= \bigcup_{T\in\mathcal{T}_{h,i}} T$
 are then nonoverlapping. The evaluation of the skeleton terms
 in the general residual form \eqref{eq:GeneralResidualForm} requires some additional thought
-and can be either achieved through communication during evaluation of the residual 
+and can be either achieved through communication during evaluation of the residual
 or through the introduction of additional overlap solely for this purpose (ghost cells
 in DUNE's data decomposition model). The splitting of the residual form \eqref{eq:ResidualFormSplitting}
 naturally carries over to an additive splitting of the Jacobian matrix.

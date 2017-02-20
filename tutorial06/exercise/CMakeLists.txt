@@ -1,3 +1,3 @@
 add_subdirectory(doc)
-add_subdirectory(src)
+add_subdirectory(task)
 add_subdirectory(solution)

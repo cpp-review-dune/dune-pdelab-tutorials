@@ -37,25 +37,24 @@ learn how to build and run the code from the tutorials and exercises.
 First you need to install all the necessary Dune modules.  The
 dependencies for installing DUNE can be found in the installation
 notes
-\footnote{\href{http://www.dune-project.org/doc/installation-notes.html}{http://www.dune-project.org/doc/installation-notes.html}}.
+\footnote{\href{http://www.dune-project.org/doc/installation/}{http://www.dune-project.org/doc/installation/}}.
 You will need the core modules
-\footnote{\href{http://www.dune-project.org/download.html}{http://www.dune-project.org/download.html}}
+\footnote{\href{http://www.dune-project.org/releases/}{http://www.dune-project.org/releases/}}
 and the dune-pdelab and dune-typetree modules
-\footnote{\href{http://www.dune-project.org/pdelab/index.html}{http://www.dune-project.org/pdelab/index.html}}
+\footnote{\href{http://www.dune-project.org/modules/dune-pdelab/}{http://www.dune-project.org/modules/dune-pdelab/}}
 for discretization.  If you are familiar with git you can instead
 clone the git repositories
-\footnote{\href{http://www.dune-project.org/downloadgit.html}{http://www.dune-project.org/downloadgit.html}}
-\footnote{\href{http://www.dune-project.org/pdelab/index.html\#ToC14}{http://www.dune-project.org/pdelab/index.html\#ToC14}}
+\footnote{\href{http://www.dune-project.org/dev/downloadgit}{http://www.dune-project.org/dev/downloadgit/}}
+\footnote{\href{http://www.dune-project.org/modules/dune-pdelab/}{http://www.dune-project.org/modules/dune-pdelab/}}
 from the DUNE homepage.  Besides these dune-modules many examples need
-ALUGrid or UGGrid for grid creation.  Dune-alugrid
-\footnote{\href{https://gitlab.dune-project.org/extensions/dune-alugrid}{https://gitlab.dune-project.org/extensions/dune-alugrid}}
-can be downlodaded like all other dune-modules.  UGGrid is not a
-dune-module and you need to download and build it by yourself.
-Download
-\footnote{\href{http://www.dune-project.org/external\_libraries/install_ug.html}{http://www.dune-project.org/external\_libraries/install\_ug.html}}
-the tarball and extract it next to your other dune-modules.  If you
-enter a terminal and go to your dune-modules you should see the
-following: \lstset{language=bash} % Lots of bash examples from now on
+ALUGrid or UGGrid for grid creation.  Both modules can be downlodaded
+through our gitlab instance
+\footnote{\href{https://gitlab.dune-project.org/extensions/dune-alugrid}{https://gitlab.dune-project.org/extensions/du
+ne-alugrid}}
+\footnote{\href{https://gitlab.dune-project.org/staging/dune-uggrid}{https://gitlab.dune-project.org/staging/dune-uggrid}}
+. If you enter a terminal and go to your dune-modules you should see
+the following:
+\lstset{language=bash} % Lots of bash examples from now on
 \begin{lstlisting}
 [user@localhost]$ cd path/to/dune/folder
 [user@localhost]$ ls
@@ -67,22 +66,11 @@ dune-istl
 dune-localfunctions
 dune-pdelab
 dune-typetree
-ug-3.12.1
-ug-3.12.1.tar.gz
+dune-uggrid
 \end{lstlisting}
-After that you need to following (we use ug version ug-3.12.1 as an
-example):
-\begin{lstlisting}
-[user@localhost]$ mkdir external
-[user@localhost]$ mkdir external/ug
-[user@localhost]$ cd ug-3.12.1
-[user@localhost]$ ./configure MPICC=$MPICC CC=$CXX --prefix=/absolute/path/to/dune/modules/external/ug CXXFLAGS="$CXXFLAGS" --enable-parallel --enable-dune && make $MAKE_FLAGS && make install
-\end{lstlisting}
-Here you have to set the absolute path to the \lstinline{ug} folder
-you created before.
 
 After downloading all dune-modules and installing the dependencies we
-wan't to build the dune-pdelab-tutorials module.  In the following we
+want to build the dune-pdelab-tutorials module.  In the following we
 will describe a simple setup that should work in most cases.  If you
 have problems you should first refer to the installation instructions
 referenced above and see if you can find help there.
@@ -95,12 +83,12 @@ used for debugging and release build:
 
 \lstinputlisting[caption="Opts file for debuging."]{debug.opts}
 \lstinputlisting[caption="Opts file with optimization."]{release.opts}
-You once again have to set the absolute path to your \lstinline{ug}
-folder.  If you want to use a different compiler just change the
-corresponding paths in your opts files.
 
-If you save these two files as debug.opts and release.opts in your
-dunefolder you can use dune-common to build your sources:
+If you want to use a different compiler just change the corresponding
+paths in your opts files.  If you save these two files as debug.opts
+and release.opts in your dunefolder you can use dune-common to build
+your sources:
+
 \begin{lstlisting}
 [user@localhost]$ ./dune-common/bin/dunecontroll --opts=debug.opts --builddir=release-build --module=dune-pdelab-tutorials all
 [user@localhost]$ ./dune/dune-common/bin/dunecontrol --opts=debug.opts -builddir=debug-build --module=dune-pdelab-tutorials all
