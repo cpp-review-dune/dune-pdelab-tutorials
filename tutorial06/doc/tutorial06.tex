@@ -8,12 +8,12 @@
 \usepackage{amsthm}
 \usepackage{amscd}
 \usepackage{grffile}
-\usepackage{tikz} 
-\usepackage{eurosym} 
+\usepackage{tikz}
+\usepackage{eurosym}
 \usepackage{graphicx}
 \usepackage{color}
 \usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily, 
+\lstset{language=C++, basicstyle=\ttfamily,
   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
   commentstyle=\itshape, extendedchars=true, escapeinside={/*@}{@*/}}
 \usepackage{paralist}
@@ -30,13 +30,13 @@
 
 \definecolor{listingbg}{gray}{0.95}
 
-\title{DUNE PDELab Tutorial 00 \\ 
+\title{DUNE PDELab Tutorial 00 \\
 Piecewise Linear Finite Elements for the\\
 Poisson Equation on Simplices}
 \author{Peter Bastian\\
   Universität Heidelberg, \\
   Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
-  Im Neuenheimer Feld 368, D-69120 Heidelberg\\
+  Im Neuenheimer Feld 205, D-69120 Heidelberg\\
   \url{Peter.Bastian@iwr.uni-heidelberg.de}
 }
 \date{\today}
@@ -49,8 +49,8 @@ Poisson Equation on Simplices}
 
 \section{Introduction}
 
-In this tutorial we solve Poisson's equation with piecewise linear conforming 
-finite elements on simplicial elements in one, two and three space dimensions. 
+In this tutorial we solve Poisson's equation with piecewise linear conforming
+finite elements on simplicial elements in one, two and three space dimensions.
 This can be considered as the ``hello world''
 example in the numerical solution of partial differential equations which
 every software should be able to solve easily (well, there are codes which have
@@ -73,26 +73,26 @@ u &= g \qquad\text{on $\partial\Omega$},\label{eq:1b}
 \end{subequations}
 where $\Omega\subset\mathbb{R}^d$ (domains are open and connected sets)
 is a given, polyhedral domain (elements with curved
-boundaries are possible in DUNE but will not be considered here). 
+boundaries are possible in DUNE but will not be considered here).
 The problem with homogeneous right hand side $f\equiv 0$ is sometimes called
-{\em Laplace equation}. This problem 
+{\em Laplace equation}. This problem
 is one of the basic equations of mathematical physics which describes gravitational
 and electric potential as well as stationary heat or groundwater flow.
 Poisson's equation is an instance of an {\em elliptic partial differential equation}.
 More about modelling with partial differential equations can be found in \cite{Eriksson,BastianII}.
 
-A function $u\in C^2(\Omega)\cap C^0(\bar\Omega)$ 
+A function $u\in C^2(\Omega)\cap C^0(\bar\Omega)$
 (the space of twice continuously differentiable functions in $\Omega$ which are continuous
 up to the boundary)
 is called a {\em strong solution}
-if it satisfies equations \eqref{eq:1a}, \eqref{eq:1b} pointwise. 
+if it satisfies equations \eqref{eq:1a}, \eqref{eq:1b} pointwise.
 Condition \eqref{eq:1b} is called a {\em Dirichlet boundary condition}. Boundary conditions
 are necessary to render the solution unique and sometimes one speaks also
 of a {\em boundary value problem}.
 Formally, one often reduces \eqref{eq:1a}, \eqref{eq:1b}
 to a problem with homogeneous Dirichlet boundary conditions $g\equiv 0$ as the
 starting point for theoretical considerations. We will deliberately not do this
-here as it is also not done in the computer implementation of the method. 
+here as it is also not done in the computer implementation of the method.
 
 \subsection{Weak Formulation}
 
@@ -100,12 +100,12 @@ Existence, uniqeness and stability of solutions, i.e. well-posedness in the
 sense of Hadamard, is easier to prove for so-called weak solutions. As the weak
 formulation is also the basis of the finite element method we explain it here.
 
-To start with, suppose $u$ is a strong solution of \eqref{eq:1a}, \eqref{eq:1b} and take 
+To start with, suppose $u$ is a strong solution of \eqref{eq:1a}, \eqref{eq:1b} and take
 {\em any } function
 $v\in C^1(\Omega)\cap C^0(\bar\Omega)$ with $v=0$ on $\partial\Omega$ then we
 have by integration by parts:
 \begin{equation*}
-\int_\Omega (-\Delta u) v \,dx = 
+\int_\Omega (-\Delta u) v \,dx =
 \int_\Omega \nabla u \cdot \nabla v \,dx= \int_\Omega fv \,dx.
 \end{equation*}
 Observe that the boundary integral $\int_{\partial\Omega} \nabla u\cdot n v\,dx$ vanishes
@@ -117,8 +117,8 @@ Introducing the abbreviations
 a(u,v) = \int_\Omega \nabla u \cdot \nabla v \,dx, \qquad l(v) = \int_\Omega fv \,dx
 \end{equation}
 one can on the other hand ask the question: Is there a class,
-more specific a vector space, of functions $V$ with $V_g=\{v\in V : 
-\text{$v=g$ on $\partial\Omega$}\}$ and $V_0=\{v\in V : 
+more specific a vector space, of functions $V$ with $V_g=\{v\in V :
+\text{$v=g$ on $\partial\Omega$}\}$ and $V_0=\{v\in V :
 \text{$v=0$ on $\partial\Omega$}\}$ such that
 the problem
 \begin{equation}
@@ -128,8 +128,8 @@ has a unique solution. The answer is yes and in particular one can prove the fol
 \begin{enumerate}[i)]
 \item With $V=H^1(\Omega)$, the Sobolev space of functions with square integrable
 weak derivatives, the problem \eqref{eq:weakform} has a unique solution provided
-the bilinear form $a : V\times V \to \mathbb{R}$ is continuous and coercive on the 
-subspace $V_0\subset V$ and the linear form $l: V \to \mathbb{R}$ is also continuous. 
+the bilinear form $a : V\times V \to \mathbb{R}$ is continuous and coercive on the
+subspace $V_0\subset V$ and the linear form $l: V \to \mathbb{R}$ is also continuous.
 Coercivity on $V_0$ follows from Friedrich's inequality and for the continuity of the right hand
 side functional $f\in L^2(\Omega)$ is a sufficient condition.
 \item If in addition $u\in C^2(\Omega)\cap C^0(\bar\Omega)$, then the solution
@@ -143,7 +143,7 @@ of the problem.
 \section{The Finite Element Method}
 
 The (conforming) finite element method, in a nutshell, is based on the weak formulation where
-the function space $V$ is replaced by a subspace $V_h\subset V$ 
+the function space $V$ is replaced by a subspace $V_h\subset V$
 which is {\em finite dimensional}. Here, the subscript $h$ relates to the dimension of the
 function space. One major part of the finite element method is to construct such
 so-called {\em finite element spaces}.
@@ -164,14 +164,14 @@ The finite element mesh consists of an ordered set
 \begin{equation}
 \mathcal{X}_h = \{x_1,\ldots,x_N\}
 \end{equation}
-of points in $\mathbb{R}^d$ called {\em vertices} and an ordered set 
+of points in $\mathbb{R}^d$ called {\em vertices} and an ordered set
 \begin{equation}
 \mathcal{T}_h = \{T_1, \ldots, T_M\}
 \end{equation}
 of $d$-simplices called {\em elements}.
 The elements form a partition of the polygonal domain $\Omega$
 \begin{equation}
-\bigcup_{T\in \mathcal{T}_h} T = \overline{\Omega}, \quad 
+\bigcup_{T\in \mathcal{T}_h} T = \overline{\Omega}, \quad
 \forall T, T' \in \mathcal{T}_h, T\neq T' : \mathring{T} \cap \mathring{T}' = \emptyset,
 \end{equation}
 and where each of the vertices $x_{T,0},\ldots,x_{T,d}$  of a $d$-simplex $T\in\mathcal{T}_h$
@@ -182,13 +182,13 @@ A simplicial mesh is called {\em conforming} if
 the intersection of two different elements, $T\cap T'$, is either
 empty or a facet (a simplex of lower dimension, i.e. a vertex, edge, face) of {\em both} elements.
 
-The association of the local numbering of vertices within each element 
+The association of the local numbering of vertices within each element
 and the global numbering of vertices in the vertex set is facilitated
 via the {\em local to global map} defined by:
 \begin{equation}
 \forall T\in\mathcal{T}_h, 0\leq i \leq d: g(T,l) = j \Leftrightarrow x_{T,l} = x_{j} .
 \end{equation}
-The map $g:\mathcal{T}_h\times\{0,\ldots,d\}\to\mathcal{N}$ 
+The map $g:\mathcal{T}_h\times\{0,\ldots,d\}\to\mathcal{N}$
 plays also a very important role in the implementation of the finite element method.
 Note also that the symbol $g$ is used for the local to global map and the Dirichlet
 boundary conditions but it should always be clear from the context which function is meant.
@@ -201,7 +201,7 @@ It can be partitioned into indices of interior and boundary vertices:
 \quad \mathcal{I}_h^{\partial\Omega} = \{i\in \mathcal{I}_h\,:\, x_i\in\partial\Omega\}.
 \end{equation*}
 
-In order to illustrate the notation introduced, 
+In order to illustrate the notation introduced,
 Figure \ref{fig:femesh} shows an example of a conforming finite element
 mesh in two space dimensions with its numbering of vertices and elements,
 as well as the local to global map.
@@ -242,7 +242,7 @@ we denote the {\em mesh size}.
 \node at (3.9,3.5) {$2$};
 \node at (4.5,3.5) {$2$};
 \node at (10,0) {$%
-\begin{array}{lll} 
+\begin{array}{lll}
 g(T_1,0) = 2, & g(T_1,1) = 3, & g(T_1,2) = 1, \\
 g(T_2,0) = 2, & g(T_2,1) = 1, & g(T_2,2) = 4, \\
 g(T_3,0) = 1, & g(T_3,1) = 3, & g(T_3,2) = 5, \\
@@ -261,12 +261,12 @@ The geometry of the mesh elements can be described more easily by
 reference elements and an element transformation map. To that end, the
 reference $d$-simplex is defined by
 \begin{equation*}
-\hat T^d = 
+\hat T^d =
 \left\{ x\in\mathbb{R}^d \,:\, 0\leq \sum_{i=0}^d (x)_i \leq 1 \wedge \forall i: (x)_i\geq 0 \right \}.
 \end{equation*}
 The vertices of the reference $d$ simplex are given by
 \begin{equation*}
-\hat x_0^d = (0,\ldots,0)^T, 
+\hat x_0^d = (0,\ldots,0)^T,
 \quad \forall i,j \in \{ 1,\ldots,d\} : (\hat x_i^d)_j = \delta_{i,j}.
 \end{equation*}
 Figure \ref{fig:refelems} shows the reference elements of dimension 1, 2 and 3
@@ -316,7 +316,7 @@ is provided by the {\em element transformation maps}.
 For each element $T\in\mathcal{T}$ there is a map
 $$\mu_T : \hat T \to T$$ which maps points of the reference element to the
 given element $T$. In an {\em affine} mesh the map $\mu_T$ is affine linear, i.e. it
-has the form 
+has the form
 \begin{equation*}
 \mu_T(\hat x) = B_T \hat x + a_T
 \end{equation*}
@@ -330,7 +330,7 @@ Given a conforming, simplicial and affine finite element mesh in $d$ dimensions 
 now can define the space of piecewise linear finite element functions $V_h$.
 It is given by
 \begin{equation}
-V_h(\mathcal{T}_h) = \{ v\in C^0(\overline{\Omega}) \,:\, 
+V_h(\mathcal{T}_h) = \{ v\in C^0(\overline{\Omega}) \,:\,
 \forall T\in\mathcal{T}_h : v|_T\in\mathbb{P}_1^d\}
 \label{eq:Vh}
 \end{equation}
@@ -343,10 +343,10 @@ However, for the practical computations one requires a basis for the
 finite element space. Analysis reveals that the dimension of the finite element
 space $V_h$ is related to the number of vertices of the mesh:
 $$\text{dim} V_h = N = \text{dim} \mathcal{X}_h.$$
-Therefore, one may construct a basis $\Phi_h=\{\phi_1,\ldots,\phi_N\}$ of $V_h$ 
+Therefore, one may construct a basis $\Phi_h=\{\phi_1,\ldots,\phi_N\}$ of $V_h$
 where each basis function $\phi_i$ is related to vertex $x_i\in\mathcal{X}_h$ in the following way:
 \begin{equation*}
-\forall i,j\in\mathcal{I}_h \,:\, \phi_i(x_j) = \delta_{i,j}. 
+\forall i,j\in\mathcal{I}_h \,:\, \phi_i(x_j) = \delta_{i,j}.
 \end{equation*}
 A basis with this property is called a {\em Lagrange basis}.
 Exploiting this property of the basis we may define the subspace of
@@ -369,7 +369,7 @@ Twodimensional Lagrange basis functions are illustrated in FIgure \ref{fig:p1bas
 \includegraphics[width=0.4\textwidth]{p1_1}\hspace{0.1\textwidth}
 \includegraphics[width=0.4\textwidth]{p1_2}
 \end{center}
-\caption{Illustration of piecewise linear Lagrange basis functions in 2d. Left one 
+\caption{Illustration of piecewise linear Lagrange basis functions in 2d. Left one
 corresponds to an interior vertex, right to a boundary vertex.}
 \label{fig:p1basis}
 \end{figure}
@@ -386,16 +386,16 @@ u_h\in V_{h,g} : \quad a(u_h,v) = l(v) \quad \forall v\in V_{h,0} .
 Using the Lagrange basis defined above we may expand $u_h\in V_h$ as
 \begin{equation*}
 u_h = \sum_{j=1}^N (z)_j \phi_j
-\end{equation*} 
+\end{equation*}
 with coefficient vector $z\in\mathbb{R}^N$. Inserting into the
 discrete weak formulation \eqref{eq:discrete_weak} yields:
 \begin{align}
 a(u_h,v) &= l(v) \quad \forall v\in V_{h,0} &&\text{(discrete weak problem)},\nonumber \\
-\Leftrightarrow 
-a\left(\sum_{j=1}^N (z)_j \phi_j,\phi_i\right) &= l(\phi_i) \quad \forall i\in \mathcal{I}_h^{int} 
+\Leftrightarrow
+a\left(\sum_{j=1}^N (z)_j \phi_j,\phi_i\right) &= l(\phi_i) \quad \forall i\in \mathcal{I}_h^{int}
 &&\text{(insert basis, linearity)}, \nonumber \\
-\Leftrightarrow 
-\sum_{j=1}^N (z)_j a\left( \phi_j,\phi_i\right) &= l(\phi_i) \quad \forall i\in \mathcal{I}_h^{int} 
+\Leftrightarrow
+\sum_{j=1}^N (z)_j a\left( \phi_j,\phi_i\right) &= l(\phi_i) \quad \forall i\in \mathcal{I}_h^{int}
 &&\text{(linearity)}. \label{eq:linear1}
 \end{align}
 The condition $u_h\in V_{h,g}$ can be formulated as a set of equations
@@ -450,11 +450,11 @@ It can be observed that the matrix $A$ is only involved in matrix-vector
 products in lines 2 and 6, an observation that is true for most iterative
 solvers. This operation can effectively take into account the sparsity structure
 of the matrix and only computations for non-zero elements are necessary.
-Thus, one iteration can be implemented with effort $O(N)$. 
+Thus, one iteration can be implemented with effort $O(N)$.
 The other major factor in the total work is then the number
 of iterations needed to achieve the convergence criterion. To keep this
 number to an acceptable level effective preconditioners are required.
-We do ignore any discussions on effective preconditioners here but they may require 
+We do ignore any discussions on effective preconditioners here but they may require
 a major portion of the total work.
 
 Matrix-vector products $y=Az$, require between one and three memory accessess for two
@@ -464,14 +464,14 @@ dense and sparse matrices). This fact leads to a very low floating point perform
 on modern processors which are much better at computations than at memory access.
 A possibility out of this dilemma is to perform the matrix-vector  product in a
 {\em matrix-free} fashion, i.e. to recompute the matrix elements while performing
-the matrix-vector product instead of storing them. This may lead to a faster 
+the matrix-vector product instead of storing them. This may lead to a faster
 execution of this operation, especially for certain high-order elements.
-Let us consider the matrix-free execution of the matrix-vector product, 
+Let us consider the matrix-free execution of the matrix-vector product,
 better called {\em operator evaluation}, in more detail.
 For $i\in\mathcal{I}_h^{int}$ we get
 \begin{equation}
-(Az)_i = \sum_{j=1}^N (A)_{i,j} (z)_j = \sum_{j=1}^N a(\phi_j,\phi_i) (z)_j = 
- a\left(\sum_{j=1}^N (z)_j\phi_j,\phi_i\right) = a(u_h,\phi_i) 
+(Az)_i = \sum_{j=1}^N (A)_{i,j} (z)_j = \sum_{j=1}^N a(\phi_j,\phi_i) (z)_j =
+ a\left(\sum_{j=1}^N (z)_j\phi_j,\phi_i\right) = a(u_h,\phi_i)
 \label{eq:opeval}
 \end{equation}
 where $u_h$ is the finite element function with the coefficients $z$. On the other
@@ -479,7 +479,7 @@ hand, for $i\in\mathcal{I}_h^{\partial\Omega}$ we have
 \begin{equation*}
 (Az)_i = \sum_{j=1}^N \delta_{i,j} (z)_j = (z)_i .
 \end{equation*}
-We may summarize the typical steps needed to solve the 
+We may summarize the typical steps needed to solve the
 finite element problem as follows:
 \begin{enumerate}[1)]
 \item Assembling the matrix $A$. This mainly involves the computation of the matrix
@@ -509,14 +509,14 @@ where $\hat S_d$ is the center of mass of the reference simplex $\hat T^d$
 and $w_d$ is the volume of $\hat T^d$. This quadrature formula is exact for linear
 functions.
 \item Shape functions. On the reference simplex the linear Lagrange
-basis functions are $\hat\phi_i(\hat x) = (\hat x)_i$ for $i>0$ and 
+basis functions are $\hat\phi_i(\hat x) = (\hat x)_i$ for $i>0$ and
 $\hat\phi_0(\hat x) = 1-\sum_{i=1}^d (\hat x)_i$. The basis functions
 on a general element $T$ can then be defined via transformation
 \begin{equation*}
 \phi_{T,i}(\mu_T(\hat x)) = \hat\phi_i(\hat x) .
 \end{equation*}
 This construction principle can be extend to any function defined on the
-reference element. Given $\hat w(\hat x)$ then 
+reference element. Given $\hat w(\hat x)$ then
 \begin{equation}
 w(\mu_T(\hat x))=\hat w(\hat x)
 \label{eq:tranformedfunction}
@@ -538,7 +538,7 @@ and more general element transformations.
 \subsubsection*{Assembly of the Right Hand Side}
 
 We start with the assembly of the right hand side vector $b$
-defined in equation \eqref{eq:systemdetail}. Since there are typically much more 
+defined in equation \eqref{eq:systemdetail}. Since there are typically much more
 interior vertices than boundary vertices we may first compute $(b)_i = l(\phi_i)$
 for {\em all} $i\in\mathcal{I}_h$ and then overwrite the entries on the boundary
 with $(b)_i = g(x_i)$. Moreover, when considering the global index $i$
@@ -548,10 +548,10 @@ contribute to the computation which can carried out in the following way:
 \begin{align*}
 (b)_i &= l(\phi_i) = \int_\Omega f \phi_i\,dx &&\text{(definition)} \\
 &= \sum_{T\in\mathcal{T}_h} \int_T f \phi_i\,dx &&\text{(use mesh)} \\
-&= \sum_{(T,m)\in C(i)} \int_{\hat T} f(\mu_T(\hat x)) \hat\phi_m(\hat x) \det B_T\,dx 
+&= \sum_{(T,m)\in C(i)} \int_{\hat T} f(\mu_T(\hat x)) \hat\phi_m(\hat x) \det B_T\,dx
 &&\text{(localize)} \\
-&= \sum_{(T,m)\in C(i)} 
-f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) \det B_T w_d \, + \text{error}. &&\text{(employ quadrature)} 
+&= \sum_{(T,m)\in C(i)}
+f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) \det B_T w_d \, + \text{error}. &&\text{(employ quadrature)}
 \end{align*}
 Note that for general $f$ the integral cannot be computed exactly. The
 quadrature formula here only yields exact results for elementwise constant
@@ -564,7 +564,7 @@ These computations at element $T$ are:
 (b_T)_m =  f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) \det B_T w_d \quad \forall m=0,\ldots,d .
 \label{eq:lambda_volume}
 \end{equation}
-Then define the restriction matrix 
+Then define the restriction matrix
 $R_T : \mathbb{R}^N \to \mathbb{R}^{d+1}$ as
 \begin{equation}
 (R_T x)_m = (x)_i \quad \forall \,0\leq m \leq d, \,g(T,m)=i,
@@ -585,7 +585,7 @@ boundary conditions. In the computation of $(A)_{i,j}$ only the triples
 $$C(i,j) = \{(T,m,n)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g(T,m)=i \wedge g(T,n)=j\}$$
 are involved due to the locality of the Lagrange basis functions:
 \begin{align*}
-(A)_{i,j} &= a(\phi_j,\phi_i) = \int_\Omega \nabla \phi_j \cdot \nabla \phi_i \,dx 
+(A)_{i,j} &= a(\phi_j,\phi_i) = \int_\Omega \nabla \phi_j \cdot \nabla \phi_i \,dx
 &&\text{(definition)}\\
 &= \sum_{T\in\mathcal{T}_h} \int_T \nabla \phi_j \cdot \nabla \phi_i \,dx
 &&\text{(use mesh)}\\
@@ -609,7 +609,7 @@ of position) are collected in the $d\times d+1$ matrix
 The matrix $\hat G$ need only be computed once as it does not depend on the
 particular element.
 With the matrix of transformed gradients $G=B_T^{-T} \hat G$
-all computations at element $T$ are 
+all computations at element $T$ are
 combined in the so-called {\em local stiffness matrix} given by
 \begin{equation}
 A_T = G^T G \det B_T w_d .
@@ -627,11 +627,11 @@ Finally, the considerations above can be applied to the matrix-free operator
 evaluation \eqref{eq:opeval}:
 \begin{align*}
 (Az)_i  &= a(u_h,\phi_i) =  \int_\Omega \nabla u_h \cdot \nabla \phi_i \,dx =
-&&\text{(definition)} \\ 
+&&\text{(definition)} \\
 &= \sum_{T\in\mathcal{T}_h} \int_T \nabla u_h \cdot \nabla \phi_i \,dx
 &&\text{(use mesh)}\\
 &= \sum_{(T,m)\in C(i)}
-\int_{\hat T} 
+\int_{\hat T}
 \left(\sum_{n=0}^d (z)_{g(T,n)} B_T^{-T} \hat\nabla\phi_n\right)
 \cdot (B_T^{-T} \hat\nabla\phi_m) \det B_T \,d\hat x &&\text{(localize)}\\
 &= \sum_{(T,m)\in C(i)}
@@ -680,19 +680,19 @@ implementation is an important aspect of this example.
 The main file is \lstinline{tutorial00.cc} which includes several other files containing different
 solution components:
 \begin{enumerate}[1)]
-\item The files \lstinline{ffunction.hh} and \lstinline{gfunction.hh} 
-contain the classes \lstinline{FFunction} and \lstinline{GFunction} 
+\item The files \lstinline{ffunction.hh} and \lstinline{gfunction.hh}
+contain the classes \lstinline{FFunction} and \lstinline{GFunction}
 implementing the functions $f$ and $g$ in the PDE definition.
 \item File \lstinline{bctype.hh} contains the class \lstinline{BCType}
 describing where Dirichlet conditions are to be applied.
-\item File \lstinline{poissonp1.hh} contains the class \lstinline{PoissonP1} 
+\item File \lstinline{poissonp1.hh} contains the class \lstinline{PoissonP1}
 realizing the element-local computations
 comprising the piecewise linear finite element method as described
 in Subsection \ref{subs:impl}.
 \item File \lstinline{driver.hh} contains the function
 \lstinline{driver} setting up and solving the finite element problem
 on a particular grid.
-\item And finally the file \lstinline{tutorial00.cc} 
+\item And finally the file \lstinline{tutorial00.cc}
 includes all the other files and contains the \lstinline{main} function which reads the user
 parameters, creates a finite element mesh and calls the \lstinline{driver}
 function to solve the problem on the given mesh.
@@ -734,16 +734,16 @@ named \lstinline{ptree}:
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
-It is customary that the input file has the same name as the 
+It is customary that the input file has the same name as the
 main file of the application with the extension \lstinline{.ini}.
 Here is the contents of the file \lstinline{tutorial00.ini}:
 \lstinputlisting[basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial00.ini}
-The parameter file is structured hierarchically into 
+The parameter file is structured hierarchically into
 sections beginning with the section name in square brackets.
 Within each section names can be associated with strings which
-can be interpreted in various ways. 
+can be interpreted in various ways.
 E.g. the following two lines from the \lstinline{main} function read the grids
 dimension and number of global refinements from the block \lstinline{[grid]}:
 \lstinputlisting[linerange={80-81},
@@ -754,7 +754,7 @@ backgroundcolor=\color{listingbg}]{../src/tutorial00.cc}
 The rest of the main function creates meshes in 1, 2 and 3 dimensions
 and calls the function \lstinline{driver}. Since the grid dimension is a template
 parameter but we want to select the dimension at run-time all three variants
-need to be compiled. 
+need to be compiled.
 
 For the one-dimensional case we use the \lstinline{OneDGrid} implementation
 of the DUNE grid interface and construct the initial grid from the user data
@@ -817,7 +817,7 @@ grid in any space dimension. A grid view is a subset of a hierarchical finite el
 mesh as it is provided by the DUNE grid interface. A leaf grid view provides the
 finest mesh defined in the hierarchy and here it represents the mesh $\mathcal{T}_h$
 on which we want to solve the finite element problem.
-The second argument provides a 
+The second argument provides a
 parameter tree containing user data. Currently only the output file name is
 taken from the parameter tree.
 
@@ -839,7 +839,7 @@ backgroundcolor=\color{listingbg}]{../src/driver.hh}
 Instances of the classes \lstinline{FFunction} and \lstinline{GFunction}
 provide the right hand side function $f$ and the Dirichlet boundary
 data $g$ respectively. Actually, $g$ is not only defined on $\partial\Omega$
-but on the whole domain $\overline{\Omega}$. Thus it can be used 
+but on the whole domain $\overline{\Omega}$. Thus it can be used
 to provide e.g. the exact solution of the problem for testing purposes
 or an initial guess for the iterative solvers.
 The instance of the class \lstinline{BCType} provides
@@ -855,11 +855,11 @@ backgroundcolor=\color{listingbg}]{../src/driver.hh}
 is to set up a grid function space represented by the type \lstinline{GFS}.
 It can be considered to represent the finite element space $V_h$, i.e.
 it knows about the dimension of the space, the basis functions as well
-as the local to global map. 
+as the local to global map.
 
 The first two lines set up a finite element map of type
 \lstinline{PkLocalFiniteElementMap}. A finite element map associates
-finite element basis functions, defined on the corresponding reference element, 
+finite element basis functions, defined on the corresponding reference element,
 with each element of the mesh. In our
 simple case every element of the mesh is supposed to have
 the same basis functions but in general, e.g. in $hp$ finite element methods,
@@ -910,7 +910,7 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 The type \lstinline{Z} representing the $\mathbb{R}^N$ is extracted from
 the vector backend of the grid function space while we are still
-able to specify the type \lstinline{RF} for each component of the 
+able to specify the type \lstinline{RF} for each component of the
 solution vector.
 
 The finite element isomorphism $\text{FE}_h : \mathbb{R}^N \to V_h$,
@@ -928,14 +928,14 @@ coefficient vector then also the function changes.
 
 Often one wants to fill a coefficient vector such that $\text{FE}_h(z)$ approximates
 a given function, say $w$. In general, $w$ is not a finite element function, but if it
-is, then $w=\text{FE}(z)$ should hold. So what we seek is $z=FE_h^{-1}(P(w))$ where $P$ is 
+is, then $w=\text{FE}(z)$ should hold. So what we seek is $z=FE_h^{-1}(P(w))$ where $P$ is
 a projection into the finite element space. This is provided by the following line:
 \lstinputlisting[linerange={46-46},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 In this case the projection $P$ provided by the function \lstinline{interpolate} is
-the Lagrange interpolation of the function $g$: 
+the Lagrange interpolation of the function $g$:
 $$P(g) = \sum_{j=1}^N g(x_j) \phi_j,$$ i.e. $(z)_j = g(x_j)$ where $x_j$
 are the mesh vertices.
 The projection to  be used depends on the finite element space and is
@@ -949,10 +949,10 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 then sets all interior degrees of freedom to zero.
 
-As pointed out in Subsection \ref{subs:impl} the assembly of the 
+As pointed out in Subsection \ref{subs:impl} the assembly of the
 right hand side $b$ and the matrix $A$ as well as matrix-free computation of $Az$
-can be seperated into a generic part looping over the finite element mesh 
-and doing element-local computations. This seperation is represented in the code 
+can be seperated into a generic part looping over the finite element mesh
+and doing element-local computations. This seperation is represented in the code
 by first setting up a {\em local operator}, here of the type \lstinline{LOP}
 \lstinputlisting[linerange={50-51},
 basicstyle=\ttfamily\small,
@@ -991,7 +991,7 @@ backgroundcolor=\color{listingbg}]{../src/driver.hh}
 Since we used the ISTL backends for vectors and matrices we need to
 select a solver from the ISTL library. Complete solvers are packaged
 by PDELab for sequential and parallel computations. Here we select
-the conjugate gradient method with algebraic multigrid as preconditioner 
+the conjugate gradient method with algebraic multigrid as preconditioner
 and symmetric successive overrelaxation as smoother in multigrid in
 its sequential implementation. The linear solver object \lstinline{ls} is initialized
 with the maximum number of iterations and a verbose parameter.
@@ -1040,7 +1040,7 @@ The output file is written when the \lstinline{write} method is called.
 
 \subsection{Local Operator \lstinline{PoissonP1}}
 
-The finite element method itself is implemented in the 
+The finite element method itself is implemented in the
 so-called {\em local operator} realized by the class template \lstinline{PoissonP1}
 in file \lstinline{poissonp1.hh}. It provides all the necessary
 element-local computations as described in Subsection \ref{subs:impl}
@@ -1084,8 +1084,8 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 
 DUNE thinks of basis functions on the reference element to be of
-the most general form 
-$$\hat\phi : \mathbb{A}^d \to \mathbb{B}^k, \quad 
+the most general form
+$$\hat\phi : \mathbb{A}^d \to \mathbb{B}^k, \quad
 \nabla\hat\phi : \mathbb{A}^d \to \mathbb{B}^{k\times d},$$
 i.e. they may be vector-valued. The following type definitions
 \lstinputlisting[linerange={23-30},
@@ -1098,7 +1098,7 @@ evaluations. \lstinline{DomainType} represents $\mathbb{A}^d$,
 represents $\mathbb{R}^k$ and finally \lstinline{JacobianType}
 represents $\mathbb{B}^{k\times d}$.
 
-Next, we extract some important constants, the dimension 
+Next, we extract some important constants, the dimension
 of the grid and the number of basis functions:
 \lstinputlisting[linerange={33-34},
 basicstyle=\ttfamily\small,
@@ -1132,7 +1132,7 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 These constants are evaluated at {\em compile time} and tell
 the grid operator class which methods have been implemented
-in the local operator by the user. Actually, the base class 
+in the local operator by the user. Actually, the base class
 \lstinline{LocalOperatorDefaultFlags} provides all possible flags
 with the value \lstinline{false} and we just need to overwrite the
 ones that are needed.
@@ -1148,9 +1148,9 @@ finite element solution $u_h$ and a right hand side integral which
 does not involve the finite element solution.
 
 Setting \lstinline{doAlphaVolume} to true implies that the local operator
-class implements the methods \lstinline{alpha_volume}, 
+class implements the methods \lstinline{alpha_volume},
 \lstinline{jacobian_apply_volume} and \lstinline{jacobian_volume}.
-Setting \lstinline{doLambdaVolume} to true implies that 
+Setting \lstinline{doLambdaVolume} to true implies that
 the method \lstinline{lambda_volume} must be implemented.
 
 \subsubsection*{Constructor}
@@ -1189,7 +1189,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 Now the basis functions can be evaluated at the quadrature
-point in the reference element and the results are stored in the 
+point in the reference element and the results are stored in the
 data members of the class:
 \lstinputlisting[linerange={71-73},
 basicstyle=\ttfamily\small,
@@ -1201,11 +1201,11 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 Note that the last index loops over the number of basis
-functions. 
+functions.
 
 \subsubsection*{Method \lstinline{lambda_volume}}
 
-This method computes the contributions $b_T$ to the right hand side 
+This method computes the contributions $b_T$ to the right hand side
 vector for a given element as given in Eq.\eqref{eq:lambda_volume}.
 It has the follwowing signature:
 \lstinputlisting[linerange={84-86},
@@ -1241,14 +1241,14 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 Here it is important to note the minus sign because PDELab
-actually solves the weak formulation as 
+actually solves the weak formulation as
 $$r(u_h,v) = a(u_h,v)-l(v) = 0 \quad \forall v\in V$$
 since this is more appropriate in the case of nonlinear partial
 differential equations.
 
 \subsubsection*{Method \lstinline{jacobian_volume}}
 
-Next we need to compute the element contributions to the 
+Next we need to compute the element contributions to the
 stiffness matrix as described in Eq.\eqref{eq:jacobian_volume}.
 This is done by the method \lstinline{jacobian_volume} with
 the following interface:
@@ -1258,7 +1258,7 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 Its arguments are: \lstinline{eg} providing the wrapped codim 0 entity $T$,
 \lstinline{lfsu} providing the basis functions of the ansatz space,
-\lstinline{x} providing the coefficients of the current iterate 
+\lstinline{x} providing the coefficients of the current iterate
 of the finite element solution, \lstinline{lfsv} providing the test functions
 and \lstinline{mat} a container to store the result.
 
@@ -1284,7 +1284,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 
-Now form the matrix of transformed gradients $G=B_T^{-T} \hat G$ 
+Now form the matrix of transformed gradients $G=B_T^{-T} \hat G$
 and store it in \lstinline{grad}:
 \lstinputlisting[linerange={109-113},
 basicstyle=\ttfamily\small,
@@ -1316,7 +1316,7 @@ frame=single,
 backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 Its arguments are: \lstinline{eg} providing the wrapped codim 0 entity $T$,
 \lstinline{lfsu} providing the basis functions of the ansatz space,
-\lstinline{x} providing the coefficients of the current iterate 
+\lstinline{x} providing the coefficients of the current iterate
 of the finite element solution, \lstinline{lfsv} providing the test functions
 and \lstinline{r} a container to store the result.
 
@@ -1348,7 +1348,7 @@ backgroundcolor=\color{listingbg}]{../src/poissonp1.hh}
 \subsubsection*{Method \lstinline{jacobian_apply_volume}}
 
 In the case of a {\em nonlinear} partial differential equation
-the finite element method results in a weak form 
+the finite element method results in a weak form
 $$u_h \in V_h \ : \quad r(u_h,v) = \alpha(u_h,v) - \lambda(v) = 0 \quad \forall v\in V_h$$
 which is {\em nonlinear} in its {\em first} argument. Inserting
 the finite element basis results in a nonlinear algebraic problem
@@ -1357,15 +1357,15 @@ with $(R(z))_i = r(\text{FE}_h(z),\phi_i)$ which is typically solved by Newton's
 or some other iterative method. In case of Newton's method, each step
 involves the solution of a {\em linear} system of the form
 $$J(z)\, w = R(z)$$
-where $(J(z))_{i,j} = \frac{(\partial R(z))_i}{\partial z_j} = 
-\frac{\partial \alpha(\text{FE}_h(z),\phi_i)}{\partial z_j}$ is the Jacobian of 
+where $(J(z))_{i,j} = \frac{(\partial R(z))_i}{\partial z_j} =
+\frac{\partial \alpha(\text{FE}_h(z),\phi_i)}{\partial z_j}$ is the Jacobian of
 the nonlinear map $R$.
 
 Naturally, the nonlinear case also includes the linear case described in this tutorial
 by setting $r(u,v) = a(u,v)-l(v)$. Then, due to the linearity of $a$ in its first
-argument, one can show that $J(z) = A$ and 
+argument, one can show that $J(z) = A$ and
 $$(J(z)\, w)_i = (Aw)_i = a(\text{FE}_h(w),\phi_i).$$
-This is {\em not} true in the nonlinear case. There, the evaluation 
+This is {\em not} true in the nonlinear case. There, the evaluation
 of the form $\alpha(\text{FE}_h(w),\phi_i)$ and the application of the Jacobian $J w$
 are different operations. Therefore, PDELab provides two functions with
 the application of the Jacobian implemented in \lstinline{jacobian_apply_volume}
@@ -1400,13 +1400,13 @@ at element boundaries. This must be taken into account when integrating or
 differentiating functions.
 Therefore it is advantageous to define functions
 with respect to the finite element mesh, i.e. $$f(x) = f_T(x) \quad x\in\mathring{T}.$$
-In the case of discontinuous functions appropriate measures then have to be taken 
+In the case of discontinuous functions appropriate measures then have to be taken
 at the intersection of two elements.
 \item As illustrated above, functions on an element are often defined via element
 transformation: $$f_T(\mu_T(\hat x)) = \hat f_T(\hat x) .$$
 \end{enumerate}
 The class \lstinline{Dune::PDELab::GridFunctionBase} in PDELab provides a
-general interface to functions with these features where the 
+general interface to functions with these features where the
 mesh $\mathcal{T}_h$, the size $n$ as well as the
 types for $\mathbb{B}$ and $\mathbb{B}^n$ can be given as template parameters.
 
@@ -1437,7 +1437,7 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/gfunction.hh}
 
-The function itself is supposed to be defined element-wise on the 
+The function itself is supposed to be defined element-wise on the
 corresponding reference element. The evaluation is performed by the
 method \lstinline{evaluate} with the following interface:
 \lstinputlisting[linerange={24-26},
@@ -1471,7 +1471,7 @@ Now we can run the tutorial and look at the results.
 One may check that $u(x) = \sum_{i=1}^d (x)_i^2$ is
 solves the PDE $-\Delta u = -2d$ in $d$ dimensions
 (in $d=1$ this is not a PDE but a two-point boundary value problem).
-So we provide the exact solution as Dirichlet boundary data and set $f=-2d$. 
+So we provide the exact solution as Dirichlet boundary data and set $f=-2d$.
 
 The program can be run by typing
 
@@ -1523,15 +1523,15 @@ backgroundcolor=\color{listingbg}]
 === matrix assembly (max) 0.012634 s
 === residual assembly (max) 0.009034 s
 \end{lstlisting}
-The solver is started, in this case using the conjugate gradient method 
+The solver is started, in this case using the conjugate gradient method
 with an algebraic multigrid preconditioner. This preconditioner needs
 a set up phase which produces the following output:
 \begin{lstlisting}[basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]
-=== solving (reduction: 1e-10) 
+=== solving (reduction: 1e-10)
 Using a direct coarse solver (UMFPACK)
-Building hierarchy of 2 levels (inclusive coarse solver) took 
+Building hierarchy of 2 levels (inclusive coarse solver) took
 0.022688 seconds.
 \end{lstlisting}
 Finally, the solver prints some statistics about the convergence:
@@ -1555,7 +1555,7 @@ vertices of the coarse mesh.
 \includegraphics[width=0.49\textwidth]{error}
 \end{center}
 \caption{Finite element solution $u_h$ (left)
-and absolute error $|u-u_h|$ (right) visualized as surface for a 
+and absolute error $|u-u_h|$ (right) visualized as surface for a
 two-dimensional simulation.}
 \label{fig:solution}
 \end{figure}
@@ -1583,7 +1583,7 @@ Other, more involved options which will be covered in further tutorials are:
 \begin{itemize}
 \item Implementation of Neumann type boundary conditions involving
 boundary integrals.
-\item Extension of the finite element method to cube elements using 
+\item Extension of the finite element method to cube elements using
 multi-linear basis functions.
 \item Extension of the finite element method to higher order polynomials.
 \end{itemize}

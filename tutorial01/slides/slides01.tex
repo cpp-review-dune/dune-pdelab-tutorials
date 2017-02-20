@@ -14,7 +14,7 @@
 \usepackage{amsmath,amssymb,amsfonts}
 
 
-% only presentation 
+% only presentation
 \mode<presentation>
 {
   \usetheme{default}
@@ -29,14 +29,14 @@
 }
 
 % all after
-\usepackage{tikz} 
+\usepackage{tikz}
 \usepackage{pgfplots,adjustbox}
-\usepackage{eurosym} 
+\usepackage{eurosym}
 \usepackage{graphicx}
 \usepackage{multimedia}
 \usepackage{psfrag}
 \usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily, 
+\lstset{language=C++, basicstyle=\ttfamily,
   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
 \usepackage{curves}
@@ -87,7 +87,7 @@
 %\setbeamertemplate{blocks}[rounded][shadow=true]
 %\setbeamertemplate{itemize items}[square]
 
-\mode<presentation> 
+\mode<presentation>
 {
 \theoremstyle{definition}
 }
@@ -125,7 +125,7 @@
   \institute[]
   {
    Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
-   Im Neuenheimer Feld 368, D-69120 Heidelberg \\[6pt]
+   Im Neuenheimer Feld 205, D-69120 Heidelberg \\[6pt]
   }
   \date[\today]{\today}
 }
@@ -213,7 +213,7 @@ with the continuous residual form
 r^{\text{NLP}}(u,v) = \int_\Omega \nabla u \cdot \nabla v + (q(u)-f)v\,dx + \int_{\Gamma_N} jv\,ds
 \label{eq:ResidualForm}
 \end{equation*}
-and the function spaces 
+and the function spaces
 \begin{itemize}
 \item $U= \{v\in H^1(\Omega) \,:\, \text{``$v=g$'' on $\Gamma_D$}\}$ (affine space)
 \item $V= \{v\in H^1(\Omega) \,:\, \text{``$v=0$'' on $\Gamma_D$}\}$
@@ -228,14 +228,14 @@ $\to$ Solve weak formulation in finite-dimensional spaces
 U_h=\text{span}\{\phi_1,\ldots,\phi_n\}, \quad V_h=\text{span}\{\psi_1,\ldots,\psi_m\}
 \end{equation*}
 
-Expanding the solution $u_h=\sum_{j=1}^n (z)_j\phi_j$ 
+Expanding the solution $u_h=\sum_{j=1}^n (z)_j\phi_j$
 results in an algebraic equation for $z\in\mathbb{R}^n$:
 \begin{align*}
 \text{Find $u_h\in U_h$ s.t.:} && r(u_h,v)&=0 && \forall v\in V_h\\
 \Leftrightarrow{} && r\left(\sum_{j=1}^n (z)_j\phi_j,\psi_i\right) &= 0 &&\forall i=1,\ldots,m\\
 \Leftrightarrow{} && R(z) = 0,
 \end{align*}
-where $R: \mathbb{R}^n \to \mathbb{R}^m$ given by 
+where $R: \mathbb{R}^n \to \mathbb{R}^m$ given by
 $R_i(z) = r_h\left(\sum_{j=1}^n (z)_j\phi_j,\psi_i\right)$ is a nonlinear, vector-valued function.
 \end{frame}
 
@@ -248,7 +248,7 @@ z^{(k+1)} = G(z^{(k)}) = z^{(k)} - \lambda^{k} W(z^{(k)}) R(z^{(k)}) .
 \vspace{-5mm}
 \begin{itemize}
 \item $\lambda^{k}$ is a damping factor
-\item $W(z^{(k)})$ is a preconditioner matrix, e.g. in Newton's method one has 
+\item $W(z^{(k)})$ is a preconditioner matrix, e.g. in Newton's method one has
 \begin{equation*}
 W(z^{(k)}) = (J(z^{(k)}))^{-1} \quad \text{where $(J(z^{(k)}))_{i,j} = \frac{\partial R_i}{\partial z_j}
 (z^{(k)})$}
@@ -267,21 +267,21 @@ The following algorithmic building blocks are required:
 \frametitle{Note on Matrix-free Evaluation}
 \textbf{Nonlinear case:}
 \begin{equation*}
-(J(z) w)_i = \sum_{j=1}^n (J(z))_{i,j} (w)_j = \sum_{j=1}^n 
+(J(z) w)_i = \sum_{j=1}^n (J(z))_{i,j} (w)_j = \sum_{j=1}^n
 \frac{\partial}{\partial z_j} r_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j .
 \end{equation*}
 \textbf{Linear case:} $r_h(u,v)=a(u,v)-l(v)$, $a$ BLF, $l$ LF
 \begin{equation*}
 \begin{split}
-(J(z) w)_i &= \sum_{j=1}^n 
+(J(z) w)_i &= \sum_{j=1}^n
 \frac{\partial}{\partial z_j} r_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j \\
-&= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left( 
+&= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left(
 a_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) - l_h(\psi_i)\right) (w)_j \\
-&= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left( 
+&= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left(
 \sum_{l=1}^n (z)_l a_h(\phi_l,\psi_i) \right)  (w)_j \\
 &= \sum_{j=1}^n a_h(\phi_j,\psi_i) (w)_j =
 a_h\left( \sum_{j=1}^n (w)_j \phi_j,\psi_i\right) =
-(A w)_i 
+(A w)_i
 \end{split}
 \end{equation*}
 \end{frame}
@@ -297,8 +297,8 @@ $$\mathcal{X}_h = \{x_1,\ldots,x_N\}, \quad\mathcal{T}_h = \{T_1, \ldots, T_M\}$
 \mathcal{I}_h^{int} = \{i\in \mathcal{I}_h\,:\, x_i\in\Omega\},
 \quad \mathcal{I}_h^{\partial\Omega} = \{i\in \mathcal{I}_h\,:\, x_i\in\partial\Omega\}.
 \end{equation*}
-\item For every element $T\in\mathcal{T}_h$ a local-to-global map 
-$$g_T:\{0,\ldots,n_T-1\}\to\mathcal{I}_h$$ 
+\item For every element $T\in\mathcal{T}_h$ a local-to-global map
+$$g_T:\{0,\ldots,n_T-1\}\to\mathcal{I}_h$$
 \item For every element $T\in\mathcal{T}_h$ an element transformation map
 $$\mu_T : \hat T \to T$$
 $\mu_T$ is differentiable with invertible Jacobian and consistent with $g_T$:
@@ -310,7 +310,7 @@ $$\forall i\in\{0,\ldots,n_T-1\} : \mu_T(\hat x_i) = x_{g_T(i)}$$
 \frametitle{Conforming Finite Element Space}
 with \textbf{polynomial degree} $k$ in \textbf{dimension} $d$ on \textbf{mesh} $\mathcal{T}_h$:
 \begin{equation*}
-V_h^{k,d}(\mathcal{T}_h) = \left\{ v\in C^0(\overline{\Omega}) \,:\, 
+V_h^{k,d}(\mathcal{T}_h) = \left\{ v\in C^0(\overline{\Omega}) \,:\,
 \forall T\in\mathcal{T}_h : v|_T = \mu_T \circ p_T \wedge p_T\in\mathbb{P}_T^{k,d}\right\}
 \end{equation*}
 where the multivariate polynomials $\mathbb{P}$ depend on element type:
@@ -319,12 +319,12 @@ where the multivariate polynomials $\mathbb{P}$ depend on element type:
 \left\{ p\,:\, p(x_1,\ldots,x_d) = \sum\limits_{0\leq\|\alpha\|_1\leq k} c_\alpha
 x_1^{\alpha_1}\cdot\ldots\cdot x_d^{\alpha_d}\right\} & \text{$\hat T = \hat S$ (simplex)}, \\
 \left\{ p\,:\, p(x_1,\ldots,x_d) = \sum\limits_{0\leq\|\alpha\|_\infty\leq k} c_\alpha
-x_1^{\alpha_1}\cdot\ldots\cdot x_d^{\alpha_d}\right\} & \text{$\hat T = \hat C$ (cube)} 
+x_1^{\alpha_1}\cdot\ldots\cdot x_d^{\alpha_d}\right\} & \text{$\hat T = \hat C$ (cube)}
 \end{array}\right .
 \end{equation*}}
 The dimension of $\mathbb{P}^{k,d}_T$ is:
 \begin{equation*}
-n_{\hat C}^{k,d} = (k+1)^d \text{ (cube) },  \ 
+n_{\hat C}^{k,d} = (k+1)^d \text{ (cube) },  \
 n_{\hat S}^{k,d} = \left\{ \begin{array}{ll}
 1 & k=0 \vee d=0\\
 \sum\limits_{i=0}^k n_{\hat S}^{i,d-1} &\text{else}
@@ -454,22 +454,22 @@ x_i=\mu_T(\hat x^{\hat T}_{m})  \wedge (T,m)\in C(i) \right\}
 \frametitle{Dirichlet Boundary Conditions}
 Indices of Lagrange points on the Dirichlet boundary are:
 \begin{equation*}
-\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right) = 
+\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right) =
 \left\{ i\in\mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right)  \,:\,
-x_i\in\mathcal{X}_h^{k,d} \cap\Gamma_D  
+x_i\in\mathcal{X}_h^{k,d} \cap\Gamma_D
 \right\} .
 \end{equation*}
 Then the test space with zero Dirichlet condition is:
 \begin{equation*}
-V_{h,0}^{k,d}(\mathcal{T}_{h}) = \left\{ 
-v\in V_{h}^{k,d}(\mathcal{T}_{h}) \,:\, v(x_i) = 0 
+V_{h,0}^{k,d}(\mathcal{T}_{h}) = \left\{
+v\in V_{h}^{k,d}(\mathcal{T}_{h}) \,:\, v(x_i) = 0
 \quad \forall i\in\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right)
  \right\}
 \end{equation*}
 For the trial space choose any extension
 \begin{equation*}
 u_{h,g} = \sum_{i\in \mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right)}
-u_g(x_i) \phi_i \qquad \text{$u_g(x_i)=g(x_i) \ \forall i\in 
+u_g(x_i) \phi_i \qquad \text{$u_g(x_i)=g(x_i) \ \forall i\in
 \mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right)$}
 \end{equation*}
 Then
@@ -489,7 +489,7 @@ This is how it is done in PDELab:
 \item Assume $U_h=\text{span}\{\phi_i \,:\, i\in J_h\}$
 \item Select a subset of indices $\tilde{J}_h\subset J_h$
 \item Set $\tilde{U}_h = \text{span}\left\{\tilde\phi_j \,:\, j\in \tilde{J}_h\right\}$,
-where the new basis functions have the form 
+where the new basis functions have the form
 \begin{equation*}
 \tilde\phi_j = \phi_j + \sum_{l\in J_h\setminus\tilde{J}_h} (B)_{j,l} \phi_l \quad \forall j\in \tilde{J}_h.
 \end{equation*}
@@ -501,8 +501,8 @@ Any subspace is thus characterized by $C=(\tilde{J}_h,B)$
 \frametitle{Element-wise Computations}
 Come back to the residual form which is element-wise
 \begin{equation*}
-r^{\text{NLP}}\left(u,v\right) =  
-\sum_{T\in\mathcal{T}_h} \alpha_T^V(u,v) 
+r^{\text{NLP}}\left(u,v\right) =
+\sum_{T\in\mathcal{T}_h} \alpha_T^V(u,v)
   + \sum_{T\in\mathcal{T}_h} \lambda_T^V(v)
  + \sum_{F\in\mathcal{F}_h^{\partial\Omega}}\lambda_F^B(v)
 \end{equation*}
@@ -513,7 +513,7 @@ with
 \lambda_F^B(v) &= \int_{F\cap\Gamma_N} j v\,ds
 \end{align*}
 $\mathcal{F}_h^{\partial\Omega}$: intersections of
-elements with the domain boundary, i.e. 
+elements with the domain boundary, i.e.
 $$F=T_F^-\cap\partial\Omega$$
 with $T_F^-\in\mathcal{T}_h$ the ``minus'' element associated with $F$
 \end{frame}
@@ -523,7 +523,7 @@ with $T_F^-\in\mathcal{T}_h$ the ``minus'' element associated with $F$
 For any $(T,m)\in C(i)$ we obtain
 \begin{equation*}
 \begin{split}
-\lambda_T^V(\phi_i) &= - \int_T f \phi_i \,dx = 
+\lambda_T^V(\phi_i) &= - \int_T f \phi_i \,dx =
 - \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x) |\text{det} J_{\mu_T}(\hat x)|\, d\hat x .
 \end{split}
 \end{equation*}
@@ -533,7 +533,7 @@ This integral is computed using numerical quadrature\\
 \medskip
 Collect all contributions of $T$ in a small vector:
 \begin{equation*}
-(\mathcal{L}_T^V)_m = - \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x) 
+(\mathcal{L}_T^V)_m = - \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x)
 |\text{det} J_{\mu_T}(\hat x)|\, d\hat x.
 \end{equation*}
 \end{frame}
@@ -544,8 +544,8 @@ For $F\in\mathcal{F}_h^{\partial\Omega}$ with $F\subseteq\Gamma_N$
 and $(T_F^-,m)\in C(i)$ we obtain
 \begin{equation*}
 \begin{split}
-\lambda_T^B(\phi_i) &= \int_{F} j v\,ds = 
-\int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x)) 
+\lambda_T^B(\phi_i) &= \int_{F} j v\,ds =
+\int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x))
 \sqrt{|\text{det} (J^T_{\mu_F}(\hat x)J_{\mu_F}(\hat x))|} \,ds
 \end{split}
 \end{equation*}
@@ -557,8 +557,8 @@ element of the face to reference element of $T_F^-$
 \end{itemize}
 Collect all contributions of $F$ in a small vector:
 \begin{equation*}
-(\mathcal{L}_T^B)_m = 
-\int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x)) 
+(\mathcal{L}_T^B)_m =
+\int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x))
 \sqrt{|\text{det} J^T_{\mu_T}(\hat x)J_{\mu_T}(\hat x)|} \,ds .
 \end{equation*}
 Numerical quadrature is applied to compute the integral
@@ -570,11 +570,11 @@ For any $(T,m)\in C(i)$ we get
 \begin{equation*}
 \begin{split}
 \alpha_T^V(u_h,\phi_i) &= \int_T \nabla u \cdot \nabla \phi_i + q(u) \phi_i \,dx, \\
-&= \int_T \sum_j (z)_j \left(\nabla \phi_j \cdot \nabla \phi_i \right) 
+&= \int_T \sum_j (z)_j \left(\nabla \phi_j \cdot \nabla \phi_i \right)
 + q\left( \sum_j (z)_j \phi_j \right) \phi_i \,dx,\\
 &= \int_{\hat T} \sum_{n} (z)_{g_T(n)} (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_n^{\hat T}(\hat x) )
 \cdot (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_m^{\hat T}(\hat x) ) \\
-&\hspace{10mm}+ q\left( \sum_n (z)_{g_T(n)} p_n^{\hat T}(\hat x) \right) p_m^{\hat T}(\hat x) 
+&\hspace{10mm}+ q\left( \sum_n (z)_{g_T(n)} p_n^{\hat T}(\hat x) \right) p_m^{\hat T}(\hat x)
 |\text{det} J_{\mu_T}(\hat x)| \,dx
 \end{split}
 \end{equation*}
@@ -590,7 +590,7 @@ and again collect all contributions from $T$ in a small vector:
 \frametitle{Putting It All Together}
 With these local contributions the evaluation of the algebraic residual is
 \begin{equation*}
-R(z) = 
+R(z) =
 \sum_{T\in\mathcal{T}_h} R_T^T \mathcal{R}_T^V(R_T z)
   + \sum_{T\in\mathcal{T}_h} R_T^T \mathcal{L}_T^V
  + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_N} R_T^T \mathcal{L}_F^B
@@ -606,7 +606,7 @@ The Jacobian of $R$ is
 Note that:
 \begin{enumerate}[i)]
 \item Entries of the Jacobian can be computed element by element.
-\item The derivative is independent of the $\lambda$-terms 
+\item The derivative is independent of the $\lambda$-terms
 \item Jacobian entries may be computed by numerical differentiation
 \end{enumerate}
 \end{frame}
@@ -618,7 +618,7 @@ Note that:
 \item \lstinline{tutorial01.cc} includes the necessary C++,
 DUNE and PDELab header files; contains \lstinline{main} function calling
 \lstinline{driver}
-\item Function \lstinline{driver} in \lstinline{driver.hh} instantiates the necessary PDELab classes 
+\item Function \lstinline{driver} in \lstinline{driver.hh} instantiates the necessary PDELab classes
 for solving a nonlinear stationary problem and finally solves the problem.
 \item File \lstinline{nonlinearpoissonfem.hh} contains class
 \lstinline{NonlinearPoissonFEM} realizing a PDELab local operator
@@ -629,4 +629,3 @@ encapsulates the user-definable part of the PDE problem
 \end{frame}
 
 \end{document}
-
