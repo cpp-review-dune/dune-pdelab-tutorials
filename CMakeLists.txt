@@ -23,6 +23,8 @@ dune_require_cxx_standard(MODULE "dune-pdelab-tutorials" VERSION 14)
 
 dune_enable_all_packages()
 
+add_subdirectory(cmake/modules)
+
 add_subdirectory(overview)
 add_subdirectory(c++)
 add_subdirectory(gridinterface)
