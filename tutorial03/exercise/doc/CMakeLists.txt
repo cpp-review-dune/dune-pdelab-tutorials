@@ -1,4 +1,1 @@
-add_latex_document(exercise03.tex TARGET_NAME exercise03_pdf
-                   IMAGE_DIRS .
-                   FORCE_PDF
-                   )
+add_latexmk_document(SOURCE exercise03.tex)
