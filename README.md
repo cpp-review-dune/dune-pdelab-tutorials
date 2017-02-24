@@ -18,13 +18,13 @@ Dependencies
 The current development version of dune-pdelab-tutorials depends on the following software:
 
 * PDELab and DUNE core libraries (dune-common, dune-geometry, dune-grid, dune-istl,
-  dune-localfunctions, dune-typetree, dune-pdelab) version 2.4.1, and their respective
+  dune-localfunctions, dune-typetree, dune-functions, dune-pdelab) version 2.5.0, and their respective
   dependencies.
 
-* The [UG][4] grid library. Note that it has to be configured for parallel computations
-  and that the dune-grid module has to be compiled with the UG bindings.
+* The [dune-uggrid][4] module (specifically the releases/2.5 branch).
+  This supersedes the old external library UG.
 
-* The [dune-alugrid][5] library (specifically the releases/2.4 branch), and its respective
+* The [dune-alugrid][5] library (specifically the releases/2.5 branch), and its respective
   dependencies.
 
 * A compiler with support for C++14, at least GCC 4.9 or clang 3.5.
@@ -51,6 +51,6 @@ Links
  [1]: http://www.dune-project.org
  [2]: http://lists.dune-project.org/mailman/listinfo/dune-pdelab
  [3]: https://gitlab.dune-project.org/pdelab/dune-pdelab-tutorials/issues
- [4]: https://gitlab.dune-project.org/ug/ug
+ [4]: https://gitlab.dune-project.org/staging/dune-uggrid
  [5]: https://gitlab.dune-project.org/extensions/dune-alugrid
  [6]: LICENSE.md
