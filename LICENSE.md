@@ -7,6 +7,7 @@ Copyright holders
 | Year       | Name                            |
 |------------|---------------------------------|
 | 2015--2016 | Peter Bastian                   |
+| 2016       | Markus Blatt                    |
 | 2015--2016 | René Heß                        |
 | 2015--2016 | Dominic Kempf                   |
 | 2015--2016 | Ole Klein                       |
