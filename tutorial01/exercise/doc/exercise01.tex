@@ -36,8 +36,6 @@
 \exerciselabel{Exercise}
 
 
-
-
 \begin{document}
 
 \exerciseheader
@@ -48,9 +46,10 @@ The code of tutorial 01 solves the problem
   u &= g &&\text{on $\Gamma_D\subseteq\partial\Omega$},\\
   -\nabla u\cdot \nu &= j &&\text{on $\Gamma_N=\partial\Omega\setminus\Gamma_D$}
 \end{align*}
-with the nonlinear function $q(u)=\eta u^2$.  It is written in such
-a way that dimension, degree of the discretization or the
-nonlinearity can easily be changed.
+with the nonlinear function $q(u)=\eta u^2$.  Compared to the tutorial
+code this exercise covers less variability (e.g. only 2D) for
+increased compilation speed. Still degree of the discretization, the
+grid or the nonlinearity can easily be changed.
 
 In this exercise you will get to know the code, play around with
 different settings and implement a different way to handle the
@@ -60,35 +59,31 @@ Dirichlet boundary condition.
 \begin{Exercise}{Warming Up}
   First we want to get familiar with the code.
   \begin{enumerate}
-  \item Try out different dimensions, grids, polynomial degrees and
-    values for $\eta$.  All these settings can be modified through the
-    ini file \lstinline{tutorial01.ini} and can be tested without
+  \item Try out different grids, polynomial degrees and values for
+    $\eta$.  All these settings can be modified through the ini file
+    \lstinline{tutorial01.ini} and can be tested without
     rebuilding your program.  Here are some suggestions that could be
     interesting:
     \begin{itemize}
     \item Use higher values for $\eta$.
-    \item Go to 3 dimensions and use the contour filter in parview to
-      visualize your results.  Hint: Add a range.
-    \end{itemize}
-    %\begin{figure}[h]
-      \begin{center}
-        \includegraphics[width=0.9\textwidth]{nonlinear_poisson_contour.png}
-      \end{center}
-      % \caption{Contour plot of numerical solution in three dimensions
-      %   and $\eta=100$.}
-    %\end{figure}
 
-  \item Run the code with the following setting:
-    \begin{lstlisting}
+    \item Run the code with the following setting:
+      \begin{lstlisting}
 [grid]
-dim=2        # set to 1 | 2 | 3
-manager=yasp # set to ug | alu | yasp
+manager=yasp # set to ug | yasp
 refinement=1 # be careful
 
-...
+[grid.structured]
+LX=1.0
+LY=1.0
+NX=2
+NY=2
+
+[grid.twod]
+filename=unitsquare.msh
 
 [fem]
-degree=1 # oned: 1..4, ug|alu: 1..3, yasp: 1..2
+degree=1 # set to 1 | 2
 
 [problem]
 eta=2.0
@@ -96,14 +91,15 @@ eta=2.0
 [output]
 filename=degree1_subsampling0
 subsampling=0
-\end{lstlisting}
-    Try all combinations of \lstinline{degree=1|2} and
-    \lstinline{subsampling=1|2} with appropriate
-    \lstinline{filename}.  Look at your solutions using paraview and the
-    \lstinline{warp by scalar} filter.  You can see the underlying grid
-    by choosing \lstinline{surface with edges} instead of
-    \lstinline{surface} in the parview drop down menu.  How does
-    subsampling change the output?
+      \end{lstlisting}
+      Try all combinations of \lstinline{degree=1|2} and
+      \lstinline{subsampling=1|2} with appropriate
+      \lstinline{filename}.  Look at your solutions using paraview and
+      the \lstinline{warp by scalar} filter.  You can see the
+      underlying grid by choosing \lstinline{surface with edges}
+      instead of \lstinline{surface} in the parview drop down menu.
+      How does subsampling change the output?
+    \end{itemize}
 
   \item It is easy to implement different nonlinearities.  Use
     $q(u)=\exp(au)$ by adjusting the file \lstinline{problem.hh}.
@@ -134,9 +130,9 @@ filename=yasp_ref_0
 subsampling=0
     \end{lstlisting}
     Use paraview to see how the maximal error $\max|u-u_h|$ behaves
-    for diferent refienements \lstinline{refinement=1|...|5}.  Then
-    try again for \lstinline{degree=2}.  What happens here?  Does the
-    behaviour change when you use \lstinline{alu} instead of
+    for diferent refienement levels \lstinline{refinement=1|...|5}.
+    Then try again for \lstinline{degree=2}.  What happens here?  Does
+    the behaviour change when you use \lstinline{ug} instead of
     \lstinline{yasp}?
   \end{enumerate}
 \end{Exercise}
@@ -145,7 +141,7 @@ subsampling=0
     conditions}
   In this exercise we want to implement Dirichlet boundary conditions
   in a weak sense by using Nitsche's method.  Instead of
-  incorporating the Dirichlet bounday condition into the Ansatzspace
+  incorporating the Dirichlet boundary condition into the Ansatzspace
   we modify the residual:
   \begin{align*}
     r^{\text{Nitsche}}(u,v) &= \int_\Omega \nabla u \cdot \nabla v + (q(u)-f)v\,dx + \int_{\Gamma_N} jv\,ds \\
@@ -163,7 +159,7 @@ subsampling=0
     \lstinline{nitschenonlinearpoissonfem} instead of
     \lstinline{nonlinearpoissonfem}.
   \item In the file \lstinline{driver.hh} you have to turn of the
-    constraints.  The code is already ther you just have to
+    constraints.  The code is already there you just have to
     comment/uncomment the parts marked with
     \begin{lstlisting}
 //== Exercise 2 {
