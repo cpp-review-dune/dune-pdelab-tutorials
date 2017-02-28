@@ -15,10 +15,14 @@
 
 \usepackage{listings}
 \definecolor{listingbg}{gray}{0.95}
-\lstset{language=C++,basicstyle=\ttfamily\small,frame=single,backgroundcolor=\color{listingbg}}
-% \lstset{language=C++, basicstyle=\ttfamily,
-%   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-%   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
+\lstset{
+  language=c++,
+  basicstyle=\ttfamily\small,
+  frame=single,
+  backgroundcolor=\color{listingbg},
+  breaklines=true,
+  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
+}
 
 
 \newcommand{\vx}{\vec x}
@@ -34,8 +38,6 @@
 \title{\textbf{Exercises for Tutorial00}}
 \subtitle{Poisson Equation}
 \exerciselabel{Exercise}
-
-
 
 
 \begin{document}
@@ -68,81 +70,54 @@ In this exercise you will:
   \end{align*}
 
   First of all check that $u(x) = \sum_{i=1}^d (x)_i^2$ is a solution
-  in any dimension $d$.
+  for any dimension $d$.
 
-  For general instructions how to modify the sources and rebuilding
-  the program see the exercise-workflow in the \lstinline{overview}
-  folder.  We now want to run the program for different grid
-  refinement levels.  The source file for this exercise is called
-  \lstinline{exercise0.cc}.  What the program does is controlled by
-  the file \lstinline{tutorial00.ini}:
-  \lstinputlisting[language=bash]{../../src/tutorial00.ini}
-
-  Here you may change the dimension, the number of mesh refinements
-  and the names of the input and output files. In dimension 1 the
-  extension \lstinline{.vtp} is added and in dimension 2 and 3
-  \lstinline{.vtu} is added.
-
-  In order to generate a set of output files you may set
+  This program solves this equation for $d=2$. The executable can be
+  found in the build directory of this exercise:
   \begin{lstlisting}
-refinement=0
+cd course/release-build/dune-pdelab-tutorials/tutorial00/exercise/task
   \end{lstlisting}
-  and
-  \begin{lstlisting}
-[output]
-filename=solution_0
-  \end{lstlisting}
-  and then
-  \begin{lstlisting}
-refinement=1
-  \end{lstlisting}
-  and
-  \begin{lstlisting}
-[output]
-filename=solution_1
-  \end{lstlisting}
-  and so on.  You don't have to rebuild your program after changing
-  the ini file.
+  You can run the program with \lstinline{./exercise00}.  Some
+  parameters of the program are controlled by the ini file
+  \lstinline{src_dir/tutorial00.ini}:
+  \lstinputlisting[language=bash]{../task/tutorial00.ini}
 
-  Now run the program for these settings. The solutions can be
-  visualized using ParaView.  Note that you must press the
-  \lstinline{Apply} button in the paraview user interface to see the
-  loaded vtu/vtp files.  Use the Calculator filter to visualize the
-  difference $|u-u_h|$ and determine the maximum error. Note that $u$
-  and $u_h$ are called \lstinline{exact} and \lstinline{fesol} in
-  the parview output.
+  Here you may set the mesh refinement and the names of the input and
+  output files. Run the program in with different refinement
+  levels. Visualize the solution in ParaView use the Calculator filter
+  to visualize the difference $|u-u_h|$ and determine the maximum
+  error. Note that $u$ and $u_h$ are called \lstinline{exact} and
+  \lstinline{fesol} in the parview output.
 
-\item {\sc Solving a new problem}:
-
+\item {\sc Solving a new problem}:\\
   Now consider
   \begin{align}
     f(x) =  -\sum_{i=1}^d 6(x)_i \quad\text{and}\quad  g(x) = \sum_{i=1}^d (x)_i^3
   \end{align}
   and check that $u(x)=\sum_{i=1}^d (x)_i^3$ solves the PDE. Implement
-  the new $f$ and $g$ functions. Recompile and run the program accordingly.
+  the new $f$ and $g$, rebuild and rerun your program.
 
-\item {\sc Analysis of finite element error}:
+\item {\sc Analysis of finite element error}:\\
+  Produce a sequence of output files for different levels of mesh
+  refinements $0, 1, 2, \ldots$ with suitable output
+  filenames. Visualize the error $|u-u_h|$ in Para\-View and determine
+  the maximum error on each level.  Determine the convergence rate.
 
-  Produce now a sequence of output files for different levels of mesh
-  refinements $0, 1, 2, \ldots$. Visualize the error $|u-u_h|$ in
-  ParaView and determine the maximum error on each level.  Make a
-  table and determine the convergence rate.
-
-\item {\sc Use a different solver}:
-
-You may also try to exchange the iterative linear solver by
-replacing it with the following lines:
-\begin{lstlisting}
+\item {\sc Use a different solver}:\\
+  You may also try to exchange the iterative linear solver by
+  replacing it with the following lines int the source file
+  \lstinline{exercise00.cc}:
+  \begin{lstlisting}
 typedef Dune::PDELab::ISTLBackend_SEQ_BCGS_SSOR LS;
 LS ls(5000,true);
-\end{lstlisting}
-Compare the number of iterations which is given by the following lines
-in the output (here we have 12 iterations):
-\begin{lstlisting}
+  \end{lstlisting}
+  Compare the number of iterations which is given by the following lines
+  in the output (here we have 12 iterations):
+  \begin{lstlisting}
 === CGSolver
-   12       1.9016e-09
+12       1.9016e-09
 === rate=0.144679, T=0.02362, TIT=0.00196833, IT=12
-\end{lstlisting}
+  \end{lstlisting}
 \end{enumerate}
 \end{Exercise}
 
@@ -163,8 +138,8 @@ with scalar functions $k(x)$, $a(x)$.
   \begin{align}
     a(u,v) = \int_\Omega k(x) \nabla u(x) \cdot \nabla v(x) + a(x) u(x) v(x) \,dx .
   \end{align}
-\item The main work is now to extend the local operator given by the
-  class \lstinline{PoissonP1}. This is done in several steps:
+\item The main work is to extend the local operator given by the class
+  \lstinline{PoissonP1}. This can be done in several steps:
   \begin{itemize}
   \item Copy the class \lstinline{PoissonP1} to a new file and rename it.
   \item Provide analytic functions for $k(x)$ and $a(x)$ and pass

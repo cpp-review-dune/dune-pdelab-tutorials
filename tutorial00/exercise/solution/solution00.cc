@@ -82,73 +82,28 @@ int main(int argc, char** argv)
     ptreeparser.readOptions(argc,argv,ptree);
 
     // make grid
-    const int dim = ptree.get("grid.dim",(int)2);
+    const int dim = 2;
     const int refinement = ptree.get<int>("grid.refinement");
-    if (dim==1)
-      {
-        // read grid parameters from input file
-        typedef Dune::OneDGrid::ctype ctype;
-        const ctype a = ptree.get<ctype>("grid.oned.a");
-        const ctype b = ptree.get<ctype>("grid.oned.b");
-        const unsigned int N = ptree.get<int>("grid.oned.elements");
-
-        // create equidistant intervals
-        typedef std::vector<ctype> Intervals;
-        Intervals intervals(N+1);
-        for(unsigned int i=0; i<N+1; ++i)
-          intervals[i] = a + ctype(i)*(b-a)/ctype(N);
-
-        // Construct grid
-        typedef Dune::OneDGrid Grid;
-        Grid grid(intervals);
-        grid.globalRefine(refinement);
-
-        // call generic function
-        driver(grid.leafGridView(),ptree);
-      }
-    if (dim==2)
-      {
 #if HAVE_DUNE_ALUGRID
-  typedef Dune::ALUGrid<2,2,Dune::simplex,
-                        Dune::nonconforming> Grid;
+    typedef Dune::ALUGrid<dim,dim,Dune::simplex,
+                          Dune::nonconforming> Grid;
 #elif HAVE_UG
-  typedef Dune::UGGrid<2> Grid;
+    typedef Dune::UGGrid<dim> Grid;
 #else  // ! (HAVE_UG || HAVE_DUNE_ALUGRID)
-  std::cout << "Example requires a simplex grid!" << std::endl;
+    std::cout << "Example requires a simplex grid!" << std::endl;
 #endif
 #if (HAVE_UG || HAVE_DUNE_ALUGRID)
-  std::string filename = ptree.get("grid.twod.filename",
-                                   "unitsquare.msh");
-  Dune::GridFactory<Grid> factory;
-  Dune::GmshReader<Grid>::read(factory,filename,true,true);
-  std::shared_ptr<Grid> gridp(factory.createGrid());
-  Dune::Timer timer;
-  gridp->globalRefine(refinement);
-  std::cout << "Time for mesh refinement " << timer.elapsed()
-            << " seconds" << std::endl;
-  driver(gridp->leafGridView(),ptree);
+    std::string filename = ptree.get("grid.twod.filename",
+                                     "unitsquare.msh");
+    Dune::GridFactory<Grid> factory;
+    Dune::GmshReader<Grid>::read(factory,filename,true,true);
+    std::shared_ptr<Grid> gridp(factory.createGrid());
+    Dune::Timer timer;
+    gridp->globalRefine(refinement);
+    std::cout << "Time for mesh refinement " << timer.elapsed()
+              << " seconds" << std::endl;
+    driver(gridp->leafGridView(),ptree);
 #endif
-      }
-    if (dim==3)
-      {
-#if HAVE_DUNE_ALUGRID
-        typedef Dune::ALUGrid<3,3,Dune::simplex,Dune::nonconforming> Grid;
-#elif HAVE_UG
-        typedef Dune::UGGrid<3> Grid;
-#else  // ! (HAVE_UG || HAVE_DUNE_ALUGRID)
-        std::cout << "This example requires a simplex grid!" << std::endl;
-#endif
-#if (HAVE_UG || HAVE_DUNE_ALUGRID)
-        std::string filename = ptree.get("grid.threed.filename","unitcube.msh");
-        Dune::GridFactory<Grid> factory;
-        Dune::GmshReader<Grid>::read(factory,filename,true,true);
-        std::shared_ptr<Grid> gridp(factory.createGrid());
-        Dune::Timer timer;
-        gridp->globalRefine(refinement);
-        std::cout << "Time for mesh refinement " << timer.elapsed() << " seconds" << std::endl;
-        driver(gridp->leafGridView(),ptree);
-#endif
-      }
   }
   catch (Dune::Exception &e){
     std::cerr << "Dune reported error: " << e << std::endl;
