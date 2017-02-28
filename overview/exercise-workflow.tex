@@ -34,6 +34,8 @@ You will learn here how to get and build all necessary dune-modules
 for building the dune-pdelab-tutorials module.  Besides that you will
 learn how to build and run the code from the tutorials and exercises.
 
+\section{Installation}
+
 First you need to install all the necessary Dune modules.  The
 dependencies for installing DUNE can be found in the installation
 notes
@@ -69,6 +71,8 @@ dune-typetree
 dune-uggrid
 \end{lstlisting}
 
+\section{Building dune-pdelab-tutorials}
+
 After downloading all dune-modules and installing the dependencies we
 want to build the dune-pdelab-tutorials module.  In the following we
 will describe a simple setup that should work in most cases.  If you
@@ -93,18 +97,47 @@ your sources:
 [user@localhost]$ ./dune-common/bin/dunecontroll --opts=debug.opts --builddir=release-build --module=dune-pdelab-tutorials all
 [user@localhost]$ ./dune/dune-common/bin/dunecontrol --opts=debug.opts -builddir=debug-build --module=dune-pdelab-tutorials all
 \end{lstlisting}
-Dune uses cmake as build system that generates out of source builds.
-In our case we specified the two build directories
+
+\section{How to run and change the code}
+
+Dune uses cmake as a build system.  This generates out of source
+builds, in our case we specified the two build directories
 \lstinline{release-build} and \lstinline{debug-build}.  In these
 directories the whole structure of your modules is reproduced with
-your build targets instead of the sources.  In order to run the
-code for tutorial00 use:
+your build targets instead of the sources.
+
+In the following we will use the exercise of tutorial00 as an example
+for basic build system usage. If we want to run the code we have to go
+to the build directory of this exercise:
 \begin{lstlisting}
-[user@localhost]$ cd release-build/dune-pdelab-tutorials/tutorial00/exercise
+[user@localhost]$ cd release-build/dune-pdelab-tutorials/tutorial00/task
 [user@localhost]$ ./exercise00
 \end{lstlisting}
-\todo[inline]{Name anpassen} If you made some changes to exercise00
-\todo{Name anpassen} you can simply type \lstinline{make} to rebuild
-your executable.
 
+This program uses an ini file to set some program parameters. If we
+want to change some parameters we can do that by going to the source
+directory and changing the \lstinline{tutorial00.ini} file:
+\begin{lstlisting}
+[user@localhost]$ cd src\_dir
+[user@localhost]$ gedit tutorial00.ini
+\end{lstlisting}
+After changing the ini file we can rerun the program:
+\begin{lstlisting}
+[user@localhost]$ cd ..
+[user@localhost]$ ./exercise00
+\end{lstlisting}
+
+We can also change the sources of the program by modifying the file
+\lstinline{exercise00} or one of the \lstinline{.hh} file.
+\begin{lstlisting}
+[user@localhost]$ cd src\_dir
+[user@localhost]$ gedit exercise00.cc
+\end{lstlisting}
+After changing the source you need to rebuild your program before
+running it:
+\begin{lstlisting}
+[user@localhost]$ cd ..
+[user@localhost]$ make
+[user@localhost]$ ./exercise00
+\end{lstlisting}%$
 \end{document}
