@@ -47,10 +47,13 @@
 In this exercise you will:
 \begin{itemize}
 \item Work on the problem presented in \lstinline{tutorial04}.
-\item Try various time integrators, in particular the Crank-Nicolson method.
-\item Explore polynomial degrees greater than $2$ by changing the blocking
-to \lstinline{none}.
-\item Implement your own local operator that switches to an elliptic projection method (see the tutorial notes and Eriksson et al. \cite{Eriksson})
+\item Try various time integrators, in particular the Crank-Nicolson
+  method.
+\item Explore polynomial degrees greater than $2$ by changing the
+  blocking to \lstinline{none}.
+\item Implement your own local operator that switches to an elliptic
+  projection method (see the tutorial notes and Eriksson et
+  al. \cite{Eriksson})
 \item Check the energy conservation property in the numerical scheme.
 \end{itemize}
 
@@ -135,12 +138,11 @@ Dune::PDELab::Alexander2Parameter<RF> pmethod;
   before "Plot Over Line". Do not forget to change the parameter
   \lstinline!torder! in \lstinline!exercise04.ini! in order to get the
   correct scheme.
+
+  \textbf{Remark} You can decide which dimension to investigate. A 2D
+  simulation will give you nicer pictures at the cost of longer run
+  times.
 \end{Exercise}
-
-
-\textbf{Remark} You can decide about the domain dimension, see
-\lstinline!exercise04.ini!. A 2D simulation will give you nicer
-pictures at the cost of longer run times.
 
 
 \begin{Exercise}{Explore polynomial degrees greater than $2$ by
