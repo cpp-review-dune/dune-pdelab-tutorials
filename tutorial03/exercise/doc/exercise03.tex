@@ -41,9 +41,7 @@
 \exerciseheader
 
 \begin{Exercise}{Getting to Know the Code}
-
   \lstset{language=bash}
-
   The code of tutorial03 solves the problem
   \begin{align}
     \partial_t u-\Delta u+q(u) &= f && \text{in }\Omega\times\Sigma =
@@ -97,11 +95,10 @@
   One big advantage of this approach is that the physical time can be
   printed out. This can be achieved by using the ``AnnotateTimeFiler``
   in ParaView.
-
 \end{Exercise}
 
 \begin{Exercise}{Making Discretizations Easily Exchangeable}
-
+  \vspace{-2em}
   \paragraph{Step 1: Switching to the linear heat equation}
   For the rest of the exercise we want to consider the linear heat
   equation. Therefore the reaction term has to be set to $q =
@@ -237,7 +234,6 @@
   make the time steps to get smooth solutions with Fractional Step $\theta$?
 
   Can you get the Crank-Nicolson scheme to produce smooth solutions as well?
-
 \end{Exercise}
 
 \begin{Exercise}{Time Dependent $g$ and $j$}
