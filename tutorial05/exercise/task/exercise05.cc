@@ -88,8 +88,10 @@ int main(int argc, char** argv)
     ptreeparser.readOptions(argc,argv,ptree);
 
     // read ini file
-    const int dim = ptree.get<int>("grid.dim");
-    std::string gridmanager = ptree.get("grid.manager","ug");
+    const int dim = 2;
+    std::string gridmanager = "ug";
+    // const int dim = ptree.get<int>("grid.dim");
+    // std::string gridmanager = ptree.get("grid.manager","ug");
     const int degree = ptree.get<int>("fem.degree");
 
     // use UG grid if available and selected
@@ -113,27 +115,6 @@ int main(int argc, char** argv)
 #endif
       }
 
-
-    if (dim==2 && gridmanager=="alu")
-      {
-#if HAVE_DUNE_ALUGRID
-        typedef Dune::ALUGrid<2,2,Dune::simplex,
-                              Dune::conforming> Grid;
-        std::string filename = ptree.get("grid.twod.filename",
-                                         "ldomain.msh");
-        Dune::GridFactory<Grid> factory;
-        Dune::GmshReader<Grid>::read(factory,filename,true,true);
-        std::shared_ptr<Grid> gridp(factory.createGrid());
-        if (degree==1) driver<Grid,1>(*gridp,ptree);
-        if (degree==2) driver<Grid,2>(*gridp,ptree);
-        if (degree==3) driver<Grid,3>(*gridp,ptree);
-        if (degree==4) driver<Grid,4>(*gridp,ptree);
-#else
-        std::cout << "You selected alugrid as grid manager "
-          << "but alugrid was not found during installation"
-          << std::endl;
-#endif
-      }
 
     if (!(gridmanager=="ug") && !(gridmanager=="alu"))
       std::cout << "Example requires an unstructured grid!" << std::endl;

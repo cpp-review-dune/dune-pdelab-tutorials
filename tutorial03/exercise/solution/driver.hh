@@ -76,7 +76,11 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   PDESOLVER slp(igo,ls,z,1e-10);
 
   // select and prepare time-stepping scheme
-  Dune::PDELab::Alexander2Parameter<RF> pmethod;
+  // Dune::PDELab::Alexander2Parameter<RF> pmethod;
+  // Dune::PDELab::ImplicitEulerParameter<RF> pmethod;
+  // Dune::PDELab::OneStepThetaParameter<RF> pmethod(0.5);
+  Dune::PDELab::FractionalStepParameter<RF> pmethod;
+
   typedef Dune::PDELab::OneStepMethod<RF,IGO,PDESOLVER,Z,Z> OSM;
   OSM  osm(pmethod,igo,slp);
   osm.setVerbosityLevel(2);

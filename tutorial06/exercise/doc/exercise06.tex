@@ -84,7 +84,7 @@ mpirun -np 2 ./exercise06-1
     to take the maximum time from all processes. This means we have to
     make a global communication. The easiest way to do this is to use
     the \lstinline{CollectiveCommunication}
-    \footnote{\href{http://www.dune-project.org/doc-pdelab-master/doxygen/html/classDune\_1\_1CollectiveCommunication.html}{http://www.dune-project.org/doc-pdelab-master/doxygen/html/classDune\_1\_1CollectiveCommunication.html}}
+    \footnote{\href{https://www.dune-project.org/doxygen/pdelab/master/classDune\_1\_1CollectiveCommunication.html}{https://www.dune-project.org/doxygen/pdelab/master/classDune\_1\_1CollectiveCommunication.html}}
     from the \lstinline{GridView}:
     \begin{lstlisting}
 auto maxTime = gv.comm().max(time);
