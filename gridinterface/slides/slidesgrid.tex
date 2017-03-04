@@ -103,13 +103,27 @@
 % \newtheorem{Prp}[Def]{Proposition}
 % \newtheorem{Lst}[Def]{Listing}
 
-\newenvironment{codebox}{%
+\newenvironment{codeblock}{%
   \begin{tcolorbox}[size=small,oversize,boxrule=0pt,colframe=white]}{%
   \end{tcolorbox}}
-\newenvironment{cppcode}[1]
-   {\begin{coebox}%
-    \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]}
-  {\end{lstlisting}\end{codebox}}
+\usepackage{verbatim}
+\makeatletter
+\newwrite\lstvrb@out
+\newenvironment{cppcode}{%
+  \begingroup
+  \@bsphack
+  \immediate\openout\lstvrb@out\jobname.lst
+  \let\do\@makeother\dospecials\catcode`\^^M\active
+  \def\verbatim@processline{%
+    \immediate\write\lstvrb@out{\the\verbatim@line}}%
+  \verbatim@start}{%
+  \immediate\closeout\lstvrb@out
+  \@esphack
+  \endgroup
+  \begin{codeblock}
+    \lstinputlisting[basicstyle=\scriptsize\ttfamily]{\jobname.lst}
+  \end{codeblock}}
+\makeatother
 \newcommand{\rightarrownice}{\tikz{%
     \draw[-latex,line width=2pt, color=structure.fg]   (0pt,0pt) -- +(2em,0) node[thin,right] {};}}
 
@@ -267,8 +281,6 @@
 
 \begin{frame}
   \frametitle<presentation>{Designed to support a wide range of Grids}
-  \frametitle<article>{DUNE is designed to support a wide range of Grids:}
-  \only<article>{\vspace*{2ex}}
   \includegraphics[width=\linewidth]{grids}
 \end{frame}
 
@@ -321,48 +333,37 @@ implementations (YaspGrid, FoamGrid).
       \end{itemize}
     \end{column}
   \end{columns}
-  \only<article>{
-    \begin{center}
-      \includegraphics[width=0.5\linewidth]{hierref}\\
-      \tiny Hierarchic Grid
-    \end{center}
-  }
   \pause
-  \only<presentation>{\vspace*{5mm}
+  \vspace*{5mm}
   \emph{Within todays excercises we will always assume $d=w$ and we will
-    ignore the hierarchic structure of the grids we deal with.}}
+    ignore the hierarchic structure of the grids we deal with.}
 \end{frame}
 
 \begin{frame} \frametitle{The Grid\ldots A Container of Entities\ldots}
 
+  \setbeamertemplate{itemize/enumerate body begin}{\setlength{\leftmargini}{0pt}}
+
   In the DUNE sense a \emph{Grid} is a container of entities:
 
-  \only<presentation>{\vspace*{5mm}}
-  \begin{columns}
-    \begin{column}{5mm}
-    \end{column}
-    \begin{column}{0.5\linewidth-5mm}
-      \begin{onlyenv}<presentation>
-        \includegraphics<1-2>[width=\linewidth]{entities}
-        \includegraphics<3->[width=\linewidth]{entities_cd}
-      \end{onlyenv}
-      \begin{onlyenv}<article>
-        \vspace*{2ex}
-        ~\hfill\includegraphics[width=0.4\linewidth]{entities}\hfill
-        \includegraphics[width=0.4\linewidth]{entities_cd}\hfill~
-      \end{onlyenv}
-    \end{column}\hfill
-    \begin{column}{0.5\linewidth}
-      \begin{itemize}
-      \item vertices \only<3->{\emph{(Entity codim = $d$)}},
-      \item edges \only<3->{\emph{(Entity codim = $d-1$)}},
-      \item faces \only<3->{\emph{(Entity codim = $1$)}},
-      \item cells \only<3->{\emph{(Entity codim = $0$)}}, \ldots{}
-      \end{itemize}
-    \end{column}
-  \end{columns}
-  \only<presentation>{\vspace*{5mm}}
-
+  \medskip
+  \begin{overlayarea}{\linewidth}{0.4\textheight}
+    \begin{columns}
+      \begin{column}{5mm}
+      \end{column}
+      \begin{column}{0.5\linewidth-3mm}
+        \includegraphics<1-2>[width=1\linewidth]{entities}
+        \includegraphics<3->[width=1\linewidth]{entities_cd}
+      \end{column}\hfill
+      \begin{column}{0.5\linewidth}
+        \begin{itemize}
+        \item vertices \only<3->{\emph{(Entity codim = $d$)}},
+        \item edges \only<3->{\emph{(Entity codim = $d-1$)}},
+        \item faces \only<3->{\emph{(Entity codim = $1$)}},
+        \item cells \only<3->{\emph{(Entity codim = $0$)}}, \ldots{}
+        \end{itemize}
+      \end{column}
+    \end{columns}
+  \end{overlayarea}
   \pause{In order to do dimension independent programming, we need a
     dimension independent naming for different entities.}
   \only<presentation>{\par}
@@ -377,8 +378,7 @@ implementations (YaspGrid, FoamGrid).
   The DUNE Grid Interface is a collection of classes and methods
 
   \only<presentation>{\vfill}
-\begin{codebox}
-\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+\begin{cppcode}
 #include <dune/grid/yaspgrid.hh>
 
 ...
@@ -389,19 +389,15 @@ auto gv = grid.leafGridView();
 for (const auto& cell : elements(gv)) {
   // do something
 }
-\end{lstlisting}
-\end{codebox}
+\end{cppcode}
 
   \only<presentation>{\vfill}
-  %The grid will provide typedefs for all these classes.
 
   \pause
   \only<presentation>{\vfill}
   \emph{We will now get to know the most important classes and see how they
   interact.}
 \end{frame}
-
-\end{document}
 
 \begin{frame} \frametitle{Modifying a Grid}
   The DUNE Grid interface follows the \emph{View-only} Concept.
@@ -412,7 +408,7 @@ for (const auto& cell : elements(gv)) {
   \item Views offer (read-only) access to the data
     \begin{itemize}
     \item Read-only access to grid entities allow the consequent use of
-      \cpp!const!.
+      \lstinline!const!.
     \item Access to entities is only through iterators for a
       certain view.
       \begin{itemize}
@@ -442,15 +438,8 @@ for (const auto& cell : elements(gv)) {
   \only<presentation>{\vspace*{5mm}}
   \begin{columns}
     \begin{column}{0.5\linewidth}
-      \begin{onlyenv}<presentation>
-        \includegraphics<1-2>[width=\linewidth]{views}
-        \includegraphics<3->[width=\linewidth]{views2}
-      \end{onlyenv}
-      \begin{onlyenv}<article>
-        \begin{center}
-          \includegraphics[width=0.7\linewidth]{views2}
-        \end{center}
-      \end{onlyenv}
+      \includegraphics<1-2>[width=\linewidth]{views}
+      \includegraphics<3->[width=\linewidth]{views2}
     \end{column}
     \begin{column}{0.5\linewidth}
       \structure{levelwise:}\\
@@ -476,22 +465,22 @@ for (const auto& cell : elements(gv)) {
   \framesubtitle{Dune::GridView}
 
   \begin{itemize}
-  \item The \cpp!Dune::GridView!  class consolidates all
+  \item The \lstinline!Dune::GridView!  class consolidates all
     information depending on the current View.
     \pause
   \item Every Grid must provide
     \begin{itemize}
-    \item \cpp!Grid::LeafGridView! and
-    \item \cpp!Grid::LevelGridView!.
+    \item \lstinline!Grid::LeafGridView! and
+    \item \lstinline!Grid::LevelGridView!.
     \end{itemize}
     \pause
 
-  \item The \cpp!Grid! creates a new view every time you ask it for one, so you need
+  \item The \lstinline!Grid! creates a new view every time you ask it for one, so you need
     to store a copy of it.
   \item Accessing the Views:
     \begin{itemize}
-    \item \cpp!Grid::leafGridView()! and
-    \item \cpp!Grid::levelGridView(int level)!.
+    \item \lstinline!Grid::leafGridView()! and
+    \item \lstinline!Grid::levelGridView(int level)!.
     \end{itemize}
   \end{itemize}
 \end{frame}
@@ -501,45 +490,44 @@ for (const auto& cell : elements(gv)) {
 Typically, most code uses the grid to iterate over some of its entities (e.g.\ cells) and perform
 some calculations with each of those entities.
 \begin{itemize}
-\item \cpp!GridView! supports iteration over all entities of one codimension.
+\item \lstinline!GridView! supports iteration over all entities of one codimension.
 \item Iteration uses C++11 range-based for loops:
   \begin{cppcode}
-    for (const auto& cell : elements(gv)) {
-      // do some work with cell
-    }
+for (const auto& cell : elements(gv)) {
+  // do some work with cell
+}
   \end{cppcode}
-\item The type in front of \cpp!cell! is important:
+\item The type in front of \lstinline!cell! is important:
   \begin{itemize}
-  \item If you create an entity in a range-based for loop, use \cpp!const auto&!.
-  \item In \emph{all} other cases, use plain \cpp!auto!!
+  \item If you create an entity in a range-based for loop, use \lstinline!const auto&!.
+  \item In \emph{all} other cases, use plain \lstinline!auto!!
   \end{itemize}
   If you do not follow this advice, your program may crash in unpredictable ways.
 \end{itemize}
 \end{frame}
 
-
 \begin{frame}[fragile]
   \frametitle{Iteration functions}
   \begin{cppcode}
-    for (const auto& cell : elements(gv)) {
-      // do some work with cell
-    }
+for (const auto& cell : elements(gv)) {
+  // do some work with cell
+}
   \end{cppcode}
   Depending on the entities you are interested in, you can use one of the following functions:
   \begin{cppcode}
-    // Iterates over cells   (codim = 0)
-    for (const auto& c : elements(gv))
-    // Iterates over vertices  (dim = 0)
-    for (const auto& v : vertices(gv))
-    // Iterates over facets  (codim = 1)
-    for (const auto& f : facets(gv))
-    // Iterates over edges     (dim = 1)
-    for (const auto& e : edges(gv))
+// Iterates over cells   (codim = 0)
+for (const auto& c : elements(gv))
+// Iterates over vertices  (dim = 0)
+for (const auto& v : vertices(gv))
+// Iterates over facets  (codim = 1)
+for (const auto& f : facets(gv))
+// Iterates over edges     (dim = 1)
+for (const auto& e : edges(gv))
 
-    // Iterates over entities with a given codimension (here: 2)
-    for (const auto& e : entities(gv,Dune::Codim<2>{}))
-    // Iterates over entities with a given dimension (here: 3)
-    for (const auto& e : entities(gv,Dune::Dim<2>{}))
+// Iterates over entities with a given codimension (here: 2)
+for (const auto& e : entities(gv,Dune::Codim<2>{}))
+// Iterates over entities with a given dimension (here: 3)
+for (const auto& e : entities(gv,Dune::Dim<2>{}))
   \end{cppcode}
 \end{frame}
 
@@ -622,7 +610,7 @@ some calculations with each of those entities.
 
   \only<presentation>{\vfill}
   \pause
-  \cpp!GridView::Codim<c>::Entity!
+  \lstinline!GridView::Codim<c>::Entity!
   implements the entity concept.
 
 \end{frame}
@@ -633,7 +621,7 @@ some calculations with each of those entities.
   \vfill
 
   \pause
-  \cpp!GridView::Codim<c>::Entity!
+  \lstinline!GridView::Codim<c>::Entity!
   \begin{itemize}
   \item Entities can be copied and stored like any normal object.
   \item Important: There can be \emph{multiple} entity objects for a single logical grid entity (because they can be copied)
@@ -644,7 +632,7 @@ some calculations with each of those entities.
 
   \pause
 
-  \cpp!GridView::Codim<c>::EntitySeed!
+  \lstinline!GridView::Codim<c>::EntitySeed!
 
 
   \begin{itemize}
@@ -653,7 +641,7 @@ some calculations with each of those entities.
     \begin{cppcode}
       auto entity_seed = entity.seed();
     \end{cppcode}
-  \item The grid can create a new \cpp!Entity! object from an \cpp!EntitySeed!:
+  \item The grid can create a new \lstinline!Entity! object from an \lstinline!EntitySeed!:
     \begin{cppcode}
       auto entity = grid.entity(entity_seed);
     \end{cppcode}
@@ -789,15 +777,15 @@ some calculations with each of those entities.
   \begin{itemize}
   \item Obtain Geometry from entity
     \begin{cppcode}
-      auto geo = entity.geometry();
+auto geo = entity.geometry();
     \end{cppcode}
   \item Convert local coordinate to global coordinate
     \begin{cppcode}
-      auto x_global = geo.global(x_local);
+auto x_global = geo.global(x_local);
     \end{cppcode}
   \item Convert global coordinate to local coordinate
     \begin{cppcode}
-      auto x_local = geo.local(x_global);
+auto x_local = geo.local(x_global);
     \end{cppcode}
   \end{itemize}
 \end{frame}
@@ -807,39 +795,38 @@ some calculations with each of those entities.
   \begin{itemize}
   \item Get center of geometry in global coordinates
     \begin{cppcode}
-      auto center = geo.center();
+auto center = geo.center();
     \end{cppcode}
   \item Get number of corners of the geometry (e.g. 3 for a triangle)
     \begin{cppcode}
-      auto num_corners = geo.corners();
+auto num_corners = geo.corners();
     \end{cppcode}
-  \item Get global coordinates of $i$-th geometry corner ($0 \leq i < \cpp!geo.corners()!$)
+  \item Get global coordinates of $i$-th geometry corner ($0 \leq i < $\lstinline!geo.corners()!)
     \begin{cppcode}
-      auto corner_global = geo.corner(i);
+auto corner_global = geo.corner(i);
     \end{cppcode}
   \end{itemize}
 \end{frame}
-
 
 \begin{frame}[fragile]
   \begin{itemize}
   \item Get type of reference element
     \begin{cppcode}
-      auto geometry_type = geo.type(); // e.g. square, triangle, ...
+auto geometry_type = geo.type(); // e.g. square, triangle, ...
     \end{cppcode}
   \item Find out whether geometry is affine
     \begin{cppcode}
-      if (geo.affine()) {
-        // do something optimized
-      }
+if (geo.affine()) {
+  // do something optimized
+}
     \end{cppcode}
   \item Get volume of geometry in global coordinate system
     \begin{cppcode}
-      auto volume = geo.volume();
+auto volume = geo.volume();
     \end{cppcode}
   \item Get integration element for a local coordinate (required for numerical integration)
     \begin{cppcode}
-      auto mu = geo.integrationElement(x_local);
+auto mu = geo.integrationElement(x_local);
     \end{cppcode}
   \end{itemize}
 \end{frame}
@@ -850,16 +837,16 @@ some calculations with each of those entities.
   \begin{equation*}
     f : \Omega \rightarrow \R
   \end{equation*}
- evaluated on a cell $E$, i.e.\ $f\bigl(T_E(\hat{x})bigr)$.\\[1em] The gradient of $f$ is then given by
+ evaluated on a cell $E$, i.e.\ $f\bigl(T_E(\hat{x})\bigr)$.\\[1em] The gradient of $f$ is then given by
  \begin{equation*}
    J_T^{-T}(\hat{x})\hat{\nabla}f\bigl(T_E(\hat{x})\bigr):
  \end{equation*}
   \begin{cppcode}
-    auto x_global = geo.global(x_local);
-    auto J_inv = geo.jacobianInverseTransposed(x_local);
-    auto tmp = gradient(f)(x_global); // gradient(f) supplied by user
-    auto gradient = tmp;
-    J_inv.mv(tmp,gradient);
+auto x_global = geo.global(x_local);
+auto J_inv = geo.jacobianInverseTransposed(x_local);
+auto tmp = gradient(f)(x_global); // gradient(f) supplied by user
+auto gradient = tmp;
+J_inv.mv(tmp,gradient);
   \end{cppcode}
 \end{frame}
 
@@ -867,24 +854,21 @@ some calculations with each of those entities.
 \frametitle{Example: Average of a function f on a GridView}
 $\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x \approx \frac{1}{\sum_{E \in GV} |e|}\sum_{E \in GV}\sum_{i \in QR} f(T_e(x_i)) w_i |\det J_E^T(x_i)|^{1/2}$
   \begin{cppcode}
-    double value = 0.0, volume = 0.0;
-    for (const auto& cell : elements(gv)) {
-      auto geo = cell.geometry();
-      // integrate with numerical quadrature
-      for (auto& ip : Dune::QuadratureRules<double,2>::general(geo.type(),2)) {
-        auto x_local = ip.position();
-        auto x_global = geo.global(x_local);
-        // accumulate integral contribution
-        value += f(x_global) * ip.weight() * geo.integrationElement(x_local);
-      }
-      volume += geo.volume();
-    }
-    std::cout << "Average: " << value / volume << std::endl;
+double value = 0.0, volume = 0.0;
+for (const auto& cell : elements(gv)) {
+  auto geo = cell.geometry();
+  // integrate with numerical quadrature
+  for (auto& ip : Dune::QuadratureRules<double,2>::general(geo.type(),2)) {
+    auto x_local = ip.position();
+    auto x_global = geo.global(x_local);
+    // accumulate integral contribution
+    value += f(x_global) * ip.weight() * geo.integrationElement(x_local);
+  }
+  volume += geo.volume();
+}
+std::cout << "Average: " << value / volume << std::endl;
   \end{cppcode}
 \end{frame}
-
-%\only<article>{\newpage}
-
 
 \subsection{Intersections}
 \begin{frame}[fragile] \only<presentation>{\frametitle{Intersections}}
@@ -894,7 +878,7 @@ $\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x \approx \frac{1}{\sum_{E \in GV} |
       \begin{itemize}
       \item Grids may be non conforming.
       \item Entities can intersect with neighbours and boundary.
-      \item Represented by \cpp!Intersection! objects.
+      \item Represented by \lstinline!Intersection! objects.
       \item Intersections hold topological and
         geometrical information.
       \item Intersections depend on the view:
@@ -961,7 +945,7 @@ $\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x \approx \frac{1}{\sum_{E \in GV} |
 \end{frame}
 
 % \begin{frame} \frametitle{Intersection Interface}
-%   Dereferencing \cpp!IntersectionIterator! yields \cpp!Intersection!:
+%   Dereferencing \lstinline!IntersectionIterator! yields \lstinline!Intersection!:
 %   \begin{columns}
 %     \begin{column}{0.4\linewidth}
 %       \begin{center}
@@ -1013,20 +997,20 @@ $\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x \approx \frac{1}{\sum_{E \in GV} |
   \begin{itemize}
   \item Is this an intersection with the domain boundary?
     \begin{cppcode}
-      bool b = intersection.boundary();
+bool b = intersection.boundary();
     \end{cppcode}
   \item Is there an entity on the outside of the intersection?
     \begin{cppcode}
-      bool b = intersection.neighbor();
+bool b = intersection.neighbor();
     \end{cppcode}
   \item Get the cell on the inside
     \begin{cppcode}
-      auto inside_cell = intersection.inside();
+auto inside_cell = intersection.inside();
     \end{cppcode}
   \item Get the cell on the outside
     \begin{cppcode}
-      // Only do this if intersection.neighbor() == true
-      auto outside_cell = intersection.outside();
+// Only do this if intersection.neighbor() == true
+auto outside_cell = intersection.outside();
     \end{cppcode}
   \end{itemize}
 
@@ -1040,15 +1024,18 @@ $\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x \approx \frac{1}{\sum_{E \in GV} |
       \begin{itemize}
       \item Get mapping from intersection reference element to global coordinates
         \begin{cppcode}
-          auto world_geo = intersection.geometry();
+auto world_geo = 
+    intersection.geometry();
         \end{cppcode}
       \item Get mapping from intersection reference element to reference element of inside cell
         \begin{cppcode}
-          auto inside_geo = intersection.geometryInInside();
+auto inside_geo = 
+    intersection.geometryInInside();
         \end{cppcode}
       \item Get mapping from intersection reference element to reference element of outside cell
         \begin{cppcode}
-          auto outside_geo = intersection.geometryInOutside();
+auto outside_geo = 
+    intersection.geometryInOutside();
         \end{cppcode}
       \end{itemize}
     \end{column}
@@ -1117,15 +1104,18 @@ $\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x \approx \frac{1}{\sum_{E \in GV} |
       \begin{itemize}
       \item Get unit outer normal for local coordinate.
         \begin{cppcode}
-          auto unit_outer_normal = intersection.unitOuterNormal(x_local);
+auto unit_outer_normal = 
+    intersection.unitOuterNormal(x_local);
         \end{cppcode}
       \item Get unit outer normal for center of intersection (good for affine geometries).
         \begin{cppcode}
-          auto unit_outer_normal = intersection.centerUnitOuterNormal();
+auto unit_outer_normal = 
+    intersection.centerUnitOuterNormal();
         \end{cppcode}
       \item Get unit outer normal scaled with integration element (convenient for numerical quadrature).
         \begin{cppcode}
-          auto integration_outer_normal = intersection.integrationOuterNormal(x_local);
+auto integration_outer_normal = 
+    intersection.integrationOuterNormal(x_local);
         \end{cppcode}
       \end{itemize}
     \end{column}
@@ -1190,9 +1180,9 @@ $\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x \approx \frac{1}{\sum_{E \in GV} |
 
 \begin{frame}[fragile] \frametitle{Example: Iterating over intersections}
 In order to iterate over the intersections of a given grid cell with respect to some
-\cpp!GridView!, use a range-based for loop with the argument \cpp!intersections(gv,cell)!.\\[.5em]
-The following code iterates over all cells in a \cpp!GridView! and over all intersections of each cell:
-  \begin{cppcode}
+\lstinline!GridView!, use a range-based for loop with the argument \lstinline!intersections(gv,cell)!.\\[.5em]
+The following code iterates over all cells in a \lstinline!GridView! and over all intersections of each cell:
+\begin{cppcode}
 for (const auto& cell : elements(gv))
   for (const auto& is : intersections(gv,cell)) {
     if (is.boundary()) {
@@ -1202,11 +1192,11 @@ for (const auto& cell : elements(gv))
       // code for Discontinuous Galerkin or Finite Volume
     }
   }
-  \end{cppcode}
+\end{cppcode}
 \end{frame}
 
 % \begin{frame} \frametitle{Example II}
-%   \lstinputlisting[basicstyle=\scriptsize\ttfamily]{src_samples/dune_grid/intersection2.cc}
+%   \lstinputlisting[basicstyle=\scriptsize\ttfamily]{snippets/intersection2.cc}
 % \end{frame}
 
 % \only<presentation>{
@@ -1294,13 +1284,13 @@ for (const auto& cell : elements(gv))
   \item obtain the index of a grid entity from an index set and use it to store associated data.
   \end{itemize}
   \begin{cppcode}
-    auto& index_set = gv.indexSet();
-    // Create a vector with one entry for each edge
-    auto edge_lengths = std::vector<double>(gv.indexSet().size(1));
-    // Loop over all edges and store their length
-    for (const auto& edge : edges(gv))
-      lengths[index_set.index(edge)] = edge.geometry().volume();
-  \end{cppcode}
+auto& index_set = gv.indexSet();
+// Create a vector with one entry for each edge
+auto edge_lengths = std::vector<double>(index_set.size(1));
+// Loop over all edges and store their length
+for (const auto& edge : edges(gv))
+  lengths[index_set.index(edge)] = edge.geometry().volume();
+\end{cppcode}
 \end{frame}
 
 \begin{frame}
@@ -1389,29 +1379,21 @@ for (const auto& cell : elements(gv))
 
   You will be using the
   \footnotesize
-  \cpp!Dune::MultipleCodimMultipleGeomTypeMapper<GridView,Layout>!.
+  \lstinline!Dune::MultipleCodimMultipleGeomTypeMapper<GridView,Layout>!.
 \end{frame}
-
- \only<article>{\newpage}
 
 \begin{frame} \frametitle{Example}
 \scriptsize
 \begin{codeblock}
-\inputminted[lastline=20]{c++}{src_samples/dune_grid/indizes_cxx11.cc}
+  \lstinputlisting[lastline=20, basicstyle=\scriptsize\ttfamily]{snippets/indizes_cxx11.cc}
 \end{codeblock}
-  % \only<presentation>{
-  %   \lstinputlisting[lastline=20, basicstyle=\scriptsize\ttfamily]{src_samples/dune_grid/indizes_cxx11.cc}
-  % }
-  % \only<article>{
-  %   \lstinputlisting[basicstyle=\scriptsize\ttfamily]{src_samples/dune_grid/indizes_cxx11.cc}
-  % }
 \end{frame}
 
 \begin{onlyenv}<presentation>
 \begin{frame} \frametitle{Example II}
 \scriptsize
 \begin{codeblock}
-\inputminted[firstline=17]{c++}{src_samples/dune_grid/indizes_cxx11.cc}
+  \lstinputlisting[firstline=17, basicstyle=\scriptsize\ttfamily]{snippets/indizes_cxx11.cc}
 \end{codeblock}
 \end{frame}
 \end{onlyenv}
@@ -1453,3 +1435,4 @@ Scientific Computing.
 \end{frame}
 
 \end{document}
+
