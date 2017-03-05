@@ -8,7 +8,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass[ignorenonframetext,11pt]{beamer}
 %\usepackage[ngerman]{babel}
-%\usepackage[T1]{fontenc}
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage{tcolorbox}
@@ -83,6 +83,10 @@
 \definecolor{niceblueLight}{HTML}{91CAFB}
 \definecolor{niceblueVeryLight}{HTML}{DDEFFF}
 
+\usepackage{lmodern}
+\usepackage{inconsolata}
+\usepackage{nimbusmononarrow}
+%\renewcommand*\ttdefault{txtt}
 \usepackage{dsfont}
 
 \mode<presentation>
@@ -121,7 +125,9 @@
   \@esphack
   \endgroup
   \begin{codeblock}
+    \vspace*{-1ex}
     \lstinputlisting[basicstyle=\scriptsize\ttfamily]{\jobname.lst}
+    \vspace*{-1ex}
   \end{codeblock}}
 \makeatother
 \newcommand{\rightarrownice}{\tikz{%
@@ -557,9 +563,9 @@ for (const auto& e : entities(gv,Dune::Dim<2>{}))
   \structure{Iterating over a grid view, we get access to the entities.}
 
   \begin{cppcode}
-    for (const auto& cell : elements(gv)) {
-      cell.?????(); // what can we do here?
-    }
+for (const auto& cell : elements(gv)) {
+  cell.?????(); // what can we do here?
+}
   \end{cppcode}
 
   \pause
@@ -773,7 +779,7 @@ for (const auto& e : entities(gv,Dune::Dim<2>{}))
 
 
 \begin{frame}[fragile]
-  \frametitle{Geometry II}
+  \frametitle{Geometry Interface (I)}
   \begin{itemize}
   \item Obtain Geometry from entity
     \begin{cppcode}
@@ -792,6 +798,7 @@ auto x_local = geo.local(x_global);
 
 
 \begin{frame}[fragile]
+  \frametitle{Geometry Interface (II)}
   \begin{itemize}
   \item Get center of geometry in global coordinates
     \begin{cppcode}
@@ -809,10 +816,11 @@ auto corner_global = geo.corner(i);
 \end{frame}
 
 \begin{frame}[fragile]
+  \frametitle{Geometry Interface (III)}
   \begin{itemize}
   \item Get type of reference element
     \begin{cppcode}
-auto geometry_type = geo.type(); // e.g. square, triangle, ...
+auto geometry_type = geo.type(); // square, triangle, ...
     \end{cppcode}
   \item Find out whether geometry is affine
     \begin{cppcode}
@@ -850,24 +858,41 @@ J_inv.mv(tmp,gradient);
   \end{cppcode}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}
+  \frametitle{Quadrature Rules}
+  TODO
+\end{frame}
+
+\begin{frame}[fragile,fragile]
 \frametitle{Example: Average of a function f on a GridView}
-$\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x \approx \frac{1}{\sum_{E \in GV} |e|}\sum_{E \in GV}\sum_{i \in QR} f(T_e(x_i)) w_i |\det J_E^T(x_i)|^{1/2}$
+%$\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x$\\~\hfill$\approx\frac{1}{\sum_{E \in GV} |e|}\sum_{E \in GV}\sum_{i \in QR} f(T_e(x_i)) w_i |\det J_E^T(x_i)|^{1/2}$
+\begin{equation*}
+\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x\approx\frac{1}{\sum_{E \in GV} |e|}\sum_{E \in GV}\sum_{i \in QR} f(T_e(x_i)) w_i |\det J_E^T(x_i)|^{1/2}
+\end{equation*}
   \begin{cppcode}
 double value = 0.0, volume = 0.0;
 for (const auto& cell : elements(gv)) {
   auto geo = cell.geometry();
   // integrate with numerical quadrature
-  for (auto& ip : Dune::QuadratureRules<double,2>::general(geo.type(),2)) {
+  for (auto& ip : Dune::PDELab::quadratureRule(geo,2)) {
     auto x_local = ip.position();
     auto x_global = geo.global(x_local);
     // accumulate integral contribution
-    value += f(x_global) * ip.weight() * geo.integrationElement(x_local);
+    value += f(x_global) * 
+             ip.weight() * geo.integrationElement(x_local);
   }
   volume += geo.volume();
 }
 std::cout << "Average: " << value / volume << std::endl;
-  \end{cppcode}
+\end{cppcode}
+
+\pause
+\em
+\footnotesize
+Note: \lstinline!Dune::PDELab::quadratureRule! is defined in
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+#include <dune/pdelab/common/quadraturerules.hh>
+\end{lstlisting}
 \end{frame}
 
 \subsection{Intersections}
@@ -1009,7 +1034,7 @@ auto inside_cell = intersection.inside();
     \end{cppcode}
   \item Get the cell on the outside
     \begin{cppcode}
-// Only do this if intersection.neighbor() == true
+// Do this only if intersection.neighbor() == true
 auto outside_cell = intersection.outside();
     \end{cppcode}
   \end{itemize}
@@ -1294,8 +1319,7 @@ for (const auto& edge : edges(gv))
 \end{frame}
 
 \begin{frame}
-  \frametitle{Example}
-  \framesubtitle{2D Multi-Element Grid -- Indices}
+  \frametitle{Example: 2D Multi-Element Grid -- Indices}
 
   \begin{onlyenv}<presentation>
     \structure{Locally refined grid:}
@@ -1382,7 +1406,7 @@ for (const auto& edge : edges(gv))
   \lstinline!Dune::MultipleCodimMultipleGeomTypeMapper<GridView,Layout>!.
 \end{frame}
 
-\begin{frame} \frametitle{Example}
+\begin{frame} \frametitle{Example: Mapper (I)}
 \scriptsize
 \begin{codeblock}
   \lstinputlisting[lastline=20, basicstyle=\scriptsize\ttfamily]{snippets/indizes_cxx11.cc}
@@ -1390,7 +1414,7 @@ for (const auto& edge : edges(gv))
 \end{frame}
 
 \begin{onlyenv}<presentation>
-\begin{frame} \frametitle{Example II}
+\begin{frame} \frametitle{Example: Mapper (II)}
 \scriptsize
 \begin{codeblock}
   \lstinputlisting[firstline=17, basicstyle=\scriptsize\ttfamily]{snippets/indizes_cxx11.cc}
@@ -1405,10 +1429,15 @@ for (const auto& edge : edges(gv))
     \frametitle{Further Reading}
     \only<presentation>{\framesubtitle{What we didn't discuss\dots{}}}
     \begin{itemize}
-    \item Grid Adaptation
-    \item Parallelization
-    \item IO
-    \item More specialized methods
+    \item grid creation
+      \medskip
+    \item I/O
+      \medskip
+    \item grid adaptation
+      \medskip
+    \item parallelization
+      \medskip
+    \item further specialized methods
     \end{itemize}
   \end{frame}
 \end{onlyenv}

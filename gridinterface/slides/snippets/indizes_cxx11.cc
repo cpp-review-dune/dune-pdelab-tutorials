@@ -20,16 +20,15 @@ Mapper mapper(gridview);
 
 /* setup sparsity pattern */
 // iterate over the leaf
-for (auto it = gridview.template begin<0>();
-     it != gridview.template end<0>(); ++it)
+for (const auto& entity : cells(gridview))
 {
-    int index = mapper.index(*it);
-
-    for (auto iit = gridview.ibegin(*it);
-         iit != gridview.iend(*it);; ++iit) {
+    int index = mapper.index(entity);
+    // iterate over all intersections of this cell
+    for (const auto& i : intersections(gridview,entity))
+    {
         // neighbor intersection
-        if (iit->neighbor()) {
-            int nindex = mapper.index(*(iit->outside()));
+        if (i.neighbor()) {
+            int nindex = mapper.index(i.outside());
             matrix[index].insert(nindex);
         }
     }
