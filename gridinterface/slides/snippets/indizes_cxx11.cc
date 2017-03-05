@@ -23,13 +23,13 @@ Mapper mapper(gridview);
 for (auto it = gridview.template begin<0>();
      it != gridview.template end<0>(); ++it)
 {
-    int index = mapper.map(*it);
+    int index = mapper.index(*it);
 
     for (auto iit = gridview.ibegin(*it);
          iit != gridview.iend(*it);; ++iit) {
         // neighbor intersection
         if (iit->neighbor()) {
-            int nindex = mapper.map(*(iit->outside()));
+            int nindex = mapper.index(*(iit->outside()));
             matrix[index].insert(nindex);
         }
     }
