@@ -242,10 +242,10 @@
   Consider now the initial and boundary conditions
   (\ref{ch1:first})--(\ref{ch1:last}) time dependent:
   \begin{align}
-    \label{ch2:first}
+    \label{ch3:first}
     \Gamma_D &= \{ x\in\partial\Omega \mid x_0 = 0 \} \\
     g(x,t) &= t/10 \\
-    \label{ch2:last}
+    \label{ch3:last}
     j(x,t) &= -(0.5 + \cos(t)/2) .
   \end{align}
   Incorporating the time dependence into the functions $g$ and $j$ is
@@ -259,7 +259,7 @@
     }
   \end{lstlisting}
   by means of which the correct time is always available. Please
-  implement the conditions (\ref{ch2:first})--(\ref{ch2:last}), compile
+  implement the conditions (\ref{ch3:first})--(\ref{ch3:last}), compile
   and rerun the program. You might also want to increase the final time
   of the simulation. Examine the results in ParaView with the ``Warp by
   Scalar'' filter.
