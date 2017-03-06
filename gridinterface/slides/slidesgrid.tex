@@ -1125,12 +1125,41 @@ J_inv.mv(tmp,gradient);
   \end{cppcode}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Quadrature Rules}
-  TODO
-\end{frame}
 
-\begin{frame}[fragile,fragile]
+  \begin{itemize}
+  \item guarantees exact integration of polynomial functions of order $k$.
+  \item Part of dune-geometry
+  \item Given
+    \lstinline!Geometry! and quadrature
+    order, we obtain the \lstinline!QuadratureRule!.
+  \item A \lstinline!QuadratureRule! is a range of
+    \lstinline!QuadraturePoint!.
+  \item \lstinline!QuadraturePoint! gives weight an position:\\
+    \lstinline!QuadraturePoint::weight()!\hfill
+    \lstinline!QuadraturePoint::position()!
+  \end{itemize}
+
+  \pause\footnotesize
+  \em Note: Simple access to \lstinline!QuadratureRule! provided by
+  dune-pdelab\em
+\begin{cppcode}
+#include <dune/pdelab/common/quadraturerules.hh>
+
+...
+
+auto quad = Dune::PDELab::quadratureRule(geometry,order);
+for (const auto& qp : quad)
+{
+    auto x_local = qp.position();
+    auto w = qp.weight();
+}
+\end{cppcode}
+
+  \end{frame}
+
+\begin{frame}[fragile]
 \frametitle{Example: Average of a function f on a GridView}
 %$\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x$\\~\hfill$\approx\frac{1}{\sum_{E \in GV} |e|}\sum_{E \in GV}\sum_{i \in QR} f(T_e(x_i)) w_i |\det J_E^T(x_i)|^{1/2}$
 \begin{equation*}
@@ -1142,24 +1171,17 @@ for (const auto& cell : elements(gv)) {
   auto geo = cell.geometry();
   // integrate with numerical quadrature
   for (auto& ip : Dune::PDELab::quadratureRule(geo,2)) {
-    auto x_local = ip.position();
+    auto x_local = qp.position();
     auto x_global = geo.global(x_local);
     // accumulate integral contribution
     value += f(x_global) *
-             ip.weight() * geo.integrationElement(x_local);
+             qp.weight() * geo.integrationElement(x_local);
   }
   volume += geo.volume();
 }
 std::cout << "Average: " << value / volume << std::endl;
 \end{cppcode}
 
-\pause
-\em
-\footnotesize
-Note: \lstinline!Dune::PDELab::quadratureRule! is defined in
-\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
-#include <dune/pdelab/common/quadraturerules.hh>
-\end{lstlisting}
 \end{frame}
 
 \subsection{Intersections}
