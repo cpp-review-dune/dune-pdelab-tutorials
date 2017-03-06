@@ -118,8 +118,10 @@
     PDESOLVER pdesolver(igo,z,ls);
     ...
   \end{lstlisting}
-  and change to the \lstinline!StationaryLinearProblemSolver!. Compile
-  and run again. The program reports the status of the solver. Get used
+  and change to the \lstinline!StationaryLinearProblemSolver!. It has the
+  same template arguments as the Newton solver. In order to set up an instance
+  of this class consider for example the code in the driver of tutorial00.
+  Compile and run again. The program reports the status of the solver. Get used
   to these different two outputs.
 
   As a next step we want to use two spatial discretizations,
