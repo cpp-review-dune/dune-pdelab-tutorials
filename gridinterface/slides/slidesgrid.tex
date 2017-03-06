@@ -44,14 +44,14 @@
 %   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
 \lstset{language=C++, basicstyle=\small\ttfamily,
   keywordstyle=\bfseries, tabsize=4, stringstyle=\ttfamily,morekeywords={decltype},
-  commentstyle=\itshape, extendedchars=true, escapeinside={/*@}{@*/}}
+  extendedchars=true, escapeinside={/*@}{@*/}}
 \definecolor{darkgray}{gray}{0.4}
-\lstset{keywordstyle=\color{violet},
-  commentstyle=\color{darkgray},
-  stringstyle=\color{orange},
-  emph={bool,int,unsigned,char,true,false,void}, emphstyle=\color{blue},
-  emph={[2]\#include,\#define,\#ifdef,\#endif}, emphstyle={[2]\color{violet}},
-  emph={[3]Dune,Grid,SomeGrid,TheGrid,LeafIterator,LevelIterator,LeafIntersectionIterator,LevelIntersectionIterator,Geometry,Entity,EntityPointer,Codim,FieldVector,FieldMatrix}, emphstyle={[3]\color{blue}}
+\lstset{keywordstyle=\color{green!40!black},
+  commentstyle=\itshape\color{blue!30!black!40!white},
+  stringstyle=\color{blue!60!black!60!white},
+  emph={bool,int,unsigned,char,true,false,void}, emphstyle=\color{red!80!black},
+  emph={[2]\#include,\#define,\#ifdef,\#endif}, emphstyle={[2]\color{green!60!black}},
+  emph={[3]Dune,Grid,SomeGrid,TheGrid,LeafIterator,LevelIterator,LeafIntersectionIterator,LevelIntersectionIterator,Geometry,GeometryType,QuadraturePoint,QuadratureRule,PDELab,Entity,EntityPointer,Codim,FieldVector,FieldMatrix}, emphstyle={[3]\color{blue!60!black}}
 }
 \usepackage{curves}
 %\usepackage{epic}
@@ -114,7 +114,7 @@
 % \newtheorem{Lst}[Def]{Listing}
 
 \newenvironment{codeblock}{%
-  \begin{tcolorbox}[size=small,oversize,boxrule=0pt,colframe=white]}{%
+  \begin{tcolorbox}[size=small,oversize,boxrule=0pt,opacityframe=0,colback=blue!30!black!5!white]}{%
   \end{tcolorbox}}
 \usepackage{verbatim}
 \makeatletter
@@ -914,11 +914,11 @@ for (const auto& cell : elements(gv)) {
   \item Store minimal information to find an entity again.
   \item Create like this:
     \begin{cppcode}
-      auto entity_seed = entity.seed();
+auto entity_seed = entity.seed();
     \end{cppcode}
   \item The grid can create a new \lstinline!Entity! object from an \lstinline!EntitySeed!:
     \begin{cppcode}
-      auto entity = grid.entity(entity_seed);
+auto entity = grid.entity(entity_seed);
     \end{cppcode}
   \item \emph{Memory efficient, but run-time overhead to recreate entity.}
   \end{itemize}
