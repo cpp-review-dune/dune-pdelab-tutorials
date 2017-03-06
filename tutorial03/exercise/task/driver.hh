@@ -73,18 +73,18 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
 
   // solve nonlinear problem
   typedef Dune::PDELab::Newton<IGO,LS,Z> PDESOLVER;
-  PDESOLVER newton(igo,z,ls);
-  newton.setReassembleThreshold(0.0);
-  newton.setVerbosityLevel(2);
-  newton.setReduction(1e-8);
-  newton.setMinLinearReduction(1e-4);
-  newton.setMaxIterations(25);
-  newton.setLineSearchMaxIterations(10);
+  PDESOLVER pdesolver(igo,z,ls);
+  pdesolver.setReassembleThreshold(0.0);
+  pdesolver.setVerbosityLevel(2);
+  pdesolver.setReduction(1e-8);
+  pdesolver.setMinLinearReduction(1e-4);
+  pdesolver.setMaxIterations(25);
+  pdesolver.setLineSearchMaxIterations(10);
 
   // select and prepare time-stepping scheme
   Dune::PDELab::Alexander2Parameter<RF> pmethod;
   typedef Dune::PDELab::OneStepMethod<RF,IGO,PDESOLVER,Z,Z> OSM;
-  OSM  osm(pmethod,igo,newton);
+  OSM  osm(pmethod,igo,pdesolver);
   osm.setVerbosityLevel(2);
 
   // prepare VTK writer and write first file

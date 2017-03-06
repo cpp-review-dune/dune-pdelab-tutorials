@@ -73,7 +73,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
 
   // solve nonlinear problem
   typedef Dune::PDELab::StationaryLinearProblemSolver<IGO,LS,Z> PDESOLVER;
-  PDESOLVER slp(igo,ls,z,1e-10);
+  PDESOLVER pdesolver(igo,ls,z,1e-10);
 
   // select and prepare time-stepping scheme
   // Dune::PDELab::Alexander2Parameter<RF> pmethod;
@@ -82,7 +82,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   Dune::PDELab::FractionalStepParameter<RF> pmethod;
 
   typedef Dune::PDELab::OneStepMethod<RF,IGO,PDESOLVER,Z,Z> OSM;
-  OSM  osm(pmethod,igo,slp);
+  OSM osm(pmethod,igo,pdesolver);
   osm.setVerbosityLevel(2);
 
   // prepare VTK writer and write first file
