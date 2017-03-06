@@ -42,7 +42,7 @@
 
 \begin{Exercise}{Getting to Know the Code}
   \lstset{language=bash}
-  The code of tutorial03 solves the problem
+  The code of \lstinline!tutorial03! solves the problem
   \begin{align}
     \partial_t u-\Delta u+q(u) &= f && \text{in }\Omega\times\Sigma =
     (0,1)^d \times (t_0, T], \\
@@ -89,9 +89,9 @@
 
   The program writes output with the extension \lstinline!pvd!. This is one
   of several ways to write VTK output for the instationary case,
-  c.f. the documentation of the tutorial03. The \lstinline!pvd!-file can
-  be visualized by ParaView and it consists of a collection of the
-  corresponding \lstinline!vtu!-files.
+  c.f. the documentation of the \lstinline!tutorial03!. The
+  \lstinline!pvd!-file can be visualized by ParaView and it consists of
+  a collection of the corresponding \lstinline!vtu!-files.
   One big advantage of this approach is that the physical time can be
   printed out. This can be achieved by using the ``AnnotateTimeFiler``
   in ParaView.
@@ -118,11 +118,15 @@
     PDESOLVER pdesolver(igo,z,ls);
     ...
   \end{lstlisting}
-  and change to the \lstinline!StationaryLinearProblemSolver!. It has the
-  same template arguments as the Newton solver. In order to set up an instance
-  of this class consider for example the code in the driver of tutorial00.
-  Compile and run again. The program reports the status of the solver. Get used
-  to these different two outputs.
+  and change to the \lstinline!StationaryLinearProblemSolver!.
+
+  It has the same template arguments as the Newton solver. Give the
+  instance of the class \lstinline!StationaryLinearProblemSolver! also
+  the name \lstinline!pdesolver!. If you have problems with the
+  construction of this solver consider for example the code in the
+  driver of \lstinline!tutorial00!. Compile and run again. The program
+  reports the status of the solver. Get used to these different two
+  outputs.
 
   As a next step we want to use two spatial discretizations,
   i.e. $\mathcal{Q}_1$ and $\mathcal{Q}_2$ elements. The degree of the
