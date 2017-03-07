@@ -801,7 +801,7 @@ for (const auto& e : edges(gv))
 
 // Iterates over entities with a given codimension (here: 2)
 for (const auto& e : entities(gv,Dune::Codim<2>{}))
-// Iterates over entities with a given dimension (here: 3)
+// Iterates over entities with a given dimension (here: 2)
 for (const auto& e : entities(gv,Dune::Dim<2>{}))
   \end{cppcode}
 \end{frame}
@@ -1172,7 +1172,7 @@ double value = 0.0, volume = 0.0;
 for (const auto& cell : elements(gv)) {
   auto geo = cell.geometry();
   // integrate with numerical quadrature
-  for (auto& ip : Dune::PDELab::quadratureRule(geo,2)) {
+  for (auto& qp : Dune::PDELab::quadratureRule(geo,2)) {
     auto x_local = qp.position();
     auto x_global = geo.global(x_local);
     // accumulate integral contribution

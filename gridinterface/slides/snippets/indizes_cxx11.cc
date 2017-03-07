@@ -20,7 +20,7 @@ Mapper mapper(gridview);
 
 /* setup sparsity pattern */
 // iterate over the leaf
-for (const auto& entity : cells(gridview))
+for (const auto& entity : elements(gridview))
 {
     int index = mapper.index(entity);
     // iterate over all intersections of this cell
