@@ -1159,15 +1159,14 @@ for (const auto& qp : quad)
 }
 \end{cppcode}
 
-  \end{frame}
+\end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Example: Average of a function f on a GridView}
-%$\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x$\\~\hfill$\approx\frac{1}{\sum_{E \in GV} |e|}\sum_{E \in GV}\sum_{i \in QR} f(T_e(x_i)) w_i |\det J_E^T(x_i)|^{1/2}$
 \begin{equation*}
 \frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x\approx\frac{1}{\sum_{E \in GV} |e|}\sum_{E \in GV}\sum_{i \in QR} f(T_e(x_i)) w_i |\det J_E^T(x_i)|^{1/2}
 \end{equation*}
-  \begin{cppcode}
+\begin{cppcode}
 double value = 0.0, volume = 0.0;
 for (const auto& cell : elements(gv)) {
   auto geo = cell.geometry();
@@ -1187,7 +1186,8 @@ std::cout << "Average: " << value / volume << std::endl;
 \end{frame}
 
 \subsection{Intersections}
-\begin{frame}[fragile] \only<presentation>{\frametitle{Intersections}}
+\begin{frame}[fragile]
+  \only<presentation>{\frametitle{Intersections}}
 
   \begin{columns}
     \begin{column}{0.75\linewidth}
