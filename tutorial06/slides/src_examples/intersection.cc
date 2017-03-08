@@ -1,16 +1,21 @@
-auto it = gridview.template begin<0>();
-
-// iterate over intersection of current entity
-for (auto iit = gridview.ibegin(*it); iit != gridview.iend(*it); ++iit)
-{
-  // neighbor intersection
-  if (iit->neighbor())
+for (const auto &cell : elements(gv,Dune::Partitions::InteriorBorder))
+  for(const auto &is : intersections(gv,cell))
   {
-      // do something ...
+    // evaluate fluxes
+    Dune::FieldVector<ctype, dim> center = is.geometry().center();
+    // neighbor intersection
+    if (is.neighbor())
+    {
+        // mean flux
+        flux = ( myshapefkt.gradient(center)
+               - nbshapefkt.gradient(center) )
+               * is.centerUnitOuterNormal()
+               * is.geometry().volume();
+    }
+    // boundary intersection
+    else if (is.boundary())
+    {
+        // neumann boundary condition
+        flux = j(center);
+    }
   }
-  // boundary intersection
-  if (iit->boundary())
-  {
-      // do something else ...
-  }
-}

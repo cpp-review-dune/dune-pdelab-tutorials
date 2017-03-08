@@ -530,12 +530,6 @@ by the method\\
   \end{columns}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Example}
-    \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
-  \lstinputlisting[breaklines=true]{iterators.cc}
-\end{frame}
-
 \begin{frame} \frametitle{Entities}
 
   \structure{Iterating over a grid view, we get access to the entities.}
@@ -547,8 +541,8 @@ by the method\\
 
 %  \pause
   \begin{itemize}
-  \item Entities can not be modified.
-  \item Entities can not be stored.
+  \item Entities cannot be modified.
+  \item Entities can be copied and stored (but copies may be expensive).
 %    \pause
   \item Entities provide topological and geometrical information.
   \end{itemize}
@@ -601,32 +595,33 @@ by the method\\
 \begin{frame}[fragile]
   \frametitle<presentation>{Iterators in a parallel Grid}
   \small
-  Dune offers Iterators which only iterate over elements with certain partition types:\\
-\only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
-\begin{lstlisting}
-Grid::template Codim<c>::template Partition<ptype>::Iterator it
-                             = gridView.template begin<c,ptype>();
+  Dune offers Iterators which only iterate over elements with certain partition types. The partition type can be specified as additional parameter in the range based for loop, e.g.
+\begin{lstlisting}[breaklines=true,basicstyle=\ttfamily\small]
+    for (const auto &cell : elements(gv,Dune::Partitions::Interior) {
+    ...
+    }
 \end{lstlisting}
-\only<presentation>{\lstset{basicstyle=\normalsize\ttfamily}}
 
-\lstinline!ptype! is one of:
-  \begin{center}
+\lstinline!Dune::Partitions! contains the following partitions:\smallskip\\
+
     \begin{tabular}{ll}
-      \texttt{Interior\_Partition} & interior entities only\\
-      \texttt{InteriorBorder\_Partition} & interior entities plus border (identical to \\
-                                         & \texttt{Interior\_Partition} for entities of \\
-                                         & codimension==0)\\
-      \texttt{Overlap\_Partition} & overlap entities only\\
-      \texttt{OverlapFront\_Partition} & overlap entities plus front (identical to \\
-                                       & \texttt{Overlap\_Partition} for entities of \\
-                                       & codimension==0)\\
-      \texttt{Ghost\_Partition} & ghost entities only\\
-      \texttt{All\_Partition} & all entities available to the process
+      \lstinline!Interior! & interior entities only\\
+      \lstinline!Border! & border entities only\\
+      \lstinline!Overlap! & overlap entities only\\
+      \lstinline!Front! & front entities only\\
+      \lstinline!InteriorBorder! & interior entities plus border (identical to \\
+     & \lstinline!Interior! for entities of  codimension==0)\\
+      \lstinline!InteriorBorderOverlap! & interior, border and overlap entities\\
+      \lstinline!InteriorBorderOverlapFront! & interior, border, overlap and front entities \\
+      \lstinline!Ghost! & ghost entities only\\
+      \lstinline!All! & all entities available to the process
     \end{tabular}
-  \end{center}
-%   \item<2>[\em Note:] \emph{The index set always contains indices for all
-%     entities in the \lstinline!All_Partition!.}
-%   \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example}
+    \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
+  \lstinputlisting[breaklines=true]{iterators.cc}
 \end{frame}
 
 \begin{frame} \only<presentation>{\frametitle{Intersections}}
@@ -647,12 +642,6 @@ Grid::template Codim<c>::template Partition<ptype>::Iterator it
       \item Intersections hold topological and
         geometrical information.
       \item Intersections depend on the view:
-      \lstset{basicstyle=\ttfamily\footnotesize}
-        \begin{itemize}
-        \item \lstinline!GridView::IntersectionIterator!
-        \item \lstinline!GridView::ibegin(entity)!
-          \\\hspace*{1.2cm}and \lstinline!iend(entity)!
-        \end{itemize}
       \item \textbf{Note:} Intersections are always of
         codimension 1!
       \end{itemize}
@@ -662,7 +651,7 @@ Grid::template Codim<c>::template Partition<ptype>::Iterator it
 \end{frame}
 
 \begin{frame} \frametitle{Intersection Interface}
-  Dereferencing an \lstinline!IntersectionIterator! obtained in Entity \lstinline!E! yields \lstinline!Intersection!:\bigskip
+  Iterating over intersections in entity $E$ yields an \lstinline!Intersection! to $E'$ with the methods:\bigskip
 
   \begin{columns}
     \begin{column}{0.4\linewidth}
@@ -716,11 +705,6 @@ neighbor available on the same process (even if it is a ghost).
   \lstinputlisting[breaklines=true]{intersection.cc}
 \end{frame}
 
-\begin{frame} \frametitle{Example II}
-\only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
-  \lstinputlisting[breaklines=true]{intersection2.cc}
-\end{frame}
-
 \subsection{Load-Balancing and Adaptation}
 \begin{frame}[fragile]
   \frametitle<presentation>{Load-Balancing}
@@ -747,7 +731,7 @@ With YaspGrid you can determine how the grid is partitioned (adaptive grid refin
 \lstinline!Dune::YLoadBalance<dim>!
 
 \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
-\begin{lstlisting}
+\begin{lstlisting}[breaklines=true]
 template<int dim>
 class YaspPartition : public Dune::YLoadBalance<dim>
 {
@@ -766,16 +750,14 @@ class YaspPartition : public Dune::YLoadBalance<dim>
 \begin{frame}[fragile]
   \frametitle<presentation>{Grid-Distribution with YaspGrid}
 Now you can pass the object to the constructor during grid creation
-\only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
 \begin{lstlisting}[breaklines=true]
 Dune::FieldVector<int,2> n(10);
 Dune::FieldVector<double,2> upper(1.0);
 Dune::FieldVector<bool,2> periodic(false);
 int overlap = 1;
 YaspPartition<2> yp;
-YaspGrid<2> grid(mpiHelper.getCommunicator(), upper, n, periodic,overlap, &yp );
+YaspGrid<2> grid(upper,n,periodic,overlap,&yp);
 \end{lstlisting}
-\only<presentation>{\lstset{basicstyle=\normalsize\ttfamily}}
 \end{frame}
 
 \section{Communicating Data with Dune}
@@ -786,7 +768,7 @@ YaspGrid<2> grid(mpiHelper.getCommunicator(), upper, n, periodic,overlap, &yp );
 
   \begin{itemize}
   \item Data is associated with grid entities using an \texttt{IndexSet}.
-  \item The index set provides indices for all entities stored by the process (i.e. the \texttt{All\_Partition})
+  \item The index set provides indices for all entities stored by the process (i.e. the \lstinline!Dune::Partitions::All!)
   \item Data is stored locally.
   \item Algorithms may require data exchange e.g. for synchronization or the calculation of updates
   \item Dune provides methods for the communication of data and methods for collective communication
@@ -803,16 +785,16 @@ YaspGrid<2> grid(mpiHelper.getCommunicator(), upper, n, periodic,overlap, &yp );
 \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
     \begin{lstlisting}
 template<class DHImp, class DataType>
-void communicate ( CommDataHandleIF<DHImp, DataType> &datahandle,
-                   InterfaceType interface,
-                   CommunicationDirection dir ) const;
+void communicate (CommDataHandleIF<DHImp, DataType> &datahandle,
+                  InterfaceType interface,
+                  CommunicationDirection dir) const;
     \end{lstlisting}
 \only<presentation>{\lstset{basicstyle=\normalsize\ttfamily}}
 where
     \begin{itemize}
     \item \lstinline!CommDataHandleIF!\\
       is a user defined class describing what data should be communicated. The class has to provide methods to assemble the data on the
-      source process and write distribute the data on the target process.
+      source process and write distribute the data on the target process (see exercises).
     \end{itemize}
 \end{frame}
 
@@ -883,6 +865,7 @@ The class  \lstinline!Dune::Grid::CollectiveCommunication! provides comfortable 
 \only<presentation>{\lstset{basicstyle=\small\ttfamily}}
 \lstinputlisting[lastline=12]{communicate.cc}
 \end{frame}
+
 \subsection{MPIHelper}
 \begin{frame}[fragile]
   \frametitle<presentation>{MPIHelper}
@@ -892,7 +875,7 @@ is finished in a defined way. It is called \lstinline!MPIHelper!. It has to be
 created at the very beginning of the program
 using the \lstinline!instance! method of the \lstinline!Dune::MPIHelper! class.
 \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily,breaklines=true}}
-\lstinputlisting[lastline=12]{example01_main.hh}
+\lstinputlisting[lastline=12,breaklines=true]{example01_main.hh}
 
 \end{frame}
 
@@ -927,6 +910,39 @@ without MPI support
  \end{itemize}
 \end{frame}
 
+\subsection{Norms and Scalar-Products on Parallel Grids}
+
+\begin{frame}[fragile]
+  \frametitle<presentation>{Norms and Scalar-Products on Parallel Grids}
+If you have a parallel grid and for some reason want to calculate norms or scalar products of vectors associated with degrees of freedom, you cannot calculate them directly, as border entities exist on more than one process. 
+
+For an overlapping grid you need the class \lstinline!OverlappingScalarProduct!. Additionally you need the auxiliary class \lstinline!ISTL::ParallelHelper!. 
+\only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
+\begin{lstlisting}[breaklines=true]
+std::vector<double> dataVector(gv.indexSet().size(dim));
+// obtain data from some calculations
+Dune::PDELab::ISTL::ParallelHelper<GFS> parHelper(gfs);
+Dune::PDELab::OverlappingScalarProduct<GFS,std::vector<double>> ovlpScalProd(gfs,parHelper);
+// calculate norm
+norm=ovlpScalProd.norm(dataVector);
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle<presentation>{Norms and Scalar-Products on Parallel Grids}
+For a non-overlapping grid the respective class is 
+\lstinline!NonoverlappingScalarProduct!:
+\only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
+\begin{lstlisting}[breaklines=true]
+std::vector<double> dataVector(gv.indexSet().size(dim));
+// obtain data from some calculations
+Dune::PDELab::ISTL::ParallelHelper<GFS> parHelper(gfs);
+Dune::PDELab::NonoverlappingScalarProduct<GFS,std::vector<double>> novlpScalProd(gfs,parHelper);
+// calculate norm via scalar product
+double norm=sqrt(novlpScalProd.dot(dataVector,dataVector));
+\end{lstlisting}
+\end{frame}
+
 
 \section{Parallel PDELab}
 
@@ -938,7 +954,7 @@ Parallel computing in PDELab is very easy.
     \begin{enumerate}
     \item a suitable parallel grid,
     \item the correct constraints for the discretization of
-      the PDE (either \lstinline!OverlappingConformingDirichletConstraints! or \lstinline!NonoverlappingConformingDirichletConstraints<GV>!) , and
+      the PDE (either\newline \lstinline!OverlappingConformingDirichletConstraints! or\newline \lstinline!NonoverlappingConformingDirichletConstraints<GV>!) , and
     \item a suitable and matching parallel solver backend of the
       PDELab backend.
     \end{enumerate}
@@ -963,8 +979,8 @@ a \lstinline!ScalarProduct!. The versions of these components have to fit togeth
 are chosen matching the type of domain decomposition.
 \item Different solver backends are provided for overlapping and nonoverlapping domain
 decomposition.
-\item The parallel solver backends can be found in the headers\newline \lstinline!dune/pdelab/backend/ovlpistlsolverbackend.hh! and \newline
-\lstinline!dune/pdelab/backend/novlpistlsolverbackend.hh!,\newline 
+\item The parallel solver backends can be found in the headers\newline \lstinline!dune/pdelab/backend/istl/ovlpistlsolverbackend.hh! and \newline
+\lstinline!dune/pdelab/backend/istl/novlpistlsolverbackend.hh!,\newline 
 which are automatically included by \lstinline!istl.hh!.
 \end{itemize}
 
@@ -1026,7 +1042,7 @@ Dune::FieldVector<double,2> L(1.0);
 Dune::FieldVector<int,2> N(16);
 Dune::FieldVector<bool,2> periodic(false);
 !\color{red}int overlap=2;!
-Dune::YaspGrid<2> grid(helper.getCommunicator(),L,N,periodic!\color{red},overlap);!
+Dune::YaspGrid<2> grid(L,N,periodic!\color{red},overlap!);
 typedef Dune::YaspGrid<2>::LeafGridView GV;
 const GV& gv=grid.leafView();
 
@@ -1093,7 +1109,7 @@ solver backend & smoother & linear solver\\\hline
 \lstinline!ISTLBackend_NOVLP_CG_SSORk<GO>! & SSOR & CG\\\hline
 \lstinline!ISTLBackend_NOVLP_CG_AMG_SSOR<GO>! & AMG & CG\\\hline
 \lstinline!ISTLBackend_NOVLP_BCGS_NOPREC<GFS>! & -- & BiCGStab\\\hline
-\lstinline!ISTLBackend_NOVLP_CG_Jacobi<GFS>! & Jacobi & BiCGStab\\\hline
+\lstinline!ISTLBackend_NOVLP_BCGS_Jacobi<GFS>! & Jacobi & BiCGStab\\\hline
 \lstinline!ISTLBackend_NOVLP_BCGS_SSORk<GO>! & SSOR & BiCGStab\\\hline
 \lstinline!ISTLBackend_NOVLP_BCGS_AMG_SSOR<GO>! & AMG & BiCGStab\\\hline
 \end{tabular}}\medskip
@@ -1113,7 +1129,7 @@ Dune::FieldVector<double,2> L(1.0);
 Dune::FieldVector<int,2> N(16);
 Dune::FieldVector<bool,2> periodic(false);
 !\color{red}int overlap=0; // overlap 0 as overlap elements are not assembled!
-Dune::YaspGrid<2> grid(helper.getCommunicator(),L,N,periodic!\color{red},overlap);!
+Dune::YaspGrid<2> grid(L,N,periodic!\color{red},overlap!);
 typedef Dune::YaspGrid<2>::LeafGridView GV;
 const GV& gv=grid.leafView();
 
