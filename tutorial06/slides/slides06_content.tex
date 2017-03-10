@@ -113,20 +113,23 @@
 
 The worlds three fastest computers have 
 \begin{itemize}
-\item 10'649'600 cores: SW26010 processors, 260 cores\\
-(Sunway TaihuLight, Wuxi, China)\\
-\item 3'120'000 cores
+\item Sunway TaihuLight, Wuxi, China: 93.0 PFlop/s\\
+10'649'600 cores: 
+\begin{itemize}
+\item 40'960 SW26010 processors, 260 cores\\
+\end{itemize}
+\item Tianhe-2, Guangzhou, China: 33.8 PFlop/s\\
+3'120'000 cores:
 \begin{itemize}
 \item 32'000 Intel Xeon 12-core processors
 \item 48'000 Intel Phi 57-core accelerator cards
 \end{itemize}
-(Tianhe-2, Guangzhou, China)\\
-\item 299008 cores
+\item Titan, Oak Ridge National Laboratory, U.S.A.: 17.6 PFlop/s\\
+299'008 cores:
 \begin{itemize}
 \item 18'688 AMD Opteron 16-core processors
 \item 18'688 NVIDIA Kepler K20X GPU accelerator cards
 \end{itemize}
-(Titan, Oak Ridge National Laboratory, U.S.A.)
 \end{itemize}
 
 \end{frame}
@@ -139,13 +142,16 @@ The worlds three fastest computers have
 \begin{itemize}
 \item Shared-memory computing: all cores have access to the whole memory
 \begin{itemize}
-\item Uniform memory access architecture (UMA): access to every memory location from every process takes the
+\item Uniform memory access architecture (UMA): \\
+ access to every memory location from every process takes the
 same amount of time (some multi-core CPUs)
-\item Non-uniform memory access architecture (NUMA): memory is associated with processors or a group of processor cores but address space is
+\item Non-uniform memory access architecture (NUMA): \\
+memory is associated with a processor or a group of processor cores but address space is
 global. Local memory can be accessed faster than memory attached
 to other processes (some multi-core CPUs, multi-processor servers)
 \end{itemize}
-\item Message passing architecture (MP): each process can only access local memory, information is exchanged
+\item Message passing architecture (MP): \\
+ each process can only access local memory, information is exchanged
 between processes with messages send over a network (computer clusters, super computer)
 \end{itemize}
 \end{frame}
@@ -154,11 +160,11 @@ between processes with messages send over a network (computer clusters, super co
 \begin{frame}
 \frametitle{Comparison of Architectures by Example}
 \begin{itemize}
-\item Given vectors $x,y\in\mathbb{R}^N$, compute scalar product $s =
-  \sum_{i=0}^{N-1} x_i y_i$:
+\item Given vectors $\mathbf{x},\mathbf{y}\in\mathbb{R}^N$, compute scalar product $s =
+  \sum_{i=0}^{N-1} \mathbf{x}_i \, \mathbf{y}_i$:
 \begin{itemize}
 \item[(1)] Subdivide index set into $P$ pieces.
-\item[(2)] Compute $s_p=\sum_{i=pN/P}^{(p+1)N/P-1} x_i y_i$ in
+\item[(2)] Compute $s_p=\sum_{i=pN/P}^{(p+1)N/P-1} \mathbf{x}_i \, \mathbf{y}_i$ in
   parallel.
 \item[(3)] Compute $s = \sum_{i=0}^{P-1} s_i$.
 \end{itemize}
@@ -208,7 +214,7 @@ between processes with messages send over a network (computer clusters, super co
 \item Portable Library with functions for message exchange between processes
 \item Developed 1993-94 by a international board
 \item Available on nearly all computer platforms
-\item Free Implementations also for LINUX Clusters: {\bfseries MPICH}
+\item Free Implementations also for Linux Clusters: {\bfseries MPICH}
  and {\bfseries OpenMPI} \footnote{\tiny \url{http://www-unix.mcs.anl.gov/mpi/mpich} and \url{http://www.open-mpi.org/}}
 \item Properties of MPI:
 \begin{itemize}
@@ -219,11 +225,6 @@ between processes with messages send over a network (computer clusters, super co
 \item subset formation and topologies possible
 \end{itemize}
 \end{itemize}
-\begin{footnotesize}\textit{Remark:} There is a special MPICH version for shared-memory machines using memory copy operations instead of slower message passing algorithms.
-OpenMPI can even distinguish between processes which share the same address space and
-processes on remote machines and use either memory copy or message passing.
-
-\end{footnotesize}
 \end{frame}
 
 \subsection{Strong Scalability Example}
@@ -317,7 +318,7 @@ Machine  & Cells & Time steps & Newton steps & $T_{total}$ \\
       \item partition $\Omega$ into \emph{non-overlapping}
         sub-domains:
         \[
-        \Omega_i\colon\quad \bigcup_{i=1}^p \overline{\Omega_i} = \overline{\Omega}, \quad
+        \Omega_i\colon\quad \bigcup_{i=1}^p \overline{\Omega}_i = \overline{\Omega}, \quad
         \Omega_i\cap\Omega_j=\emptyset \;\forall i\ne j.
         \]
       \end{itemize}
@@ -419,6 +420,90 @@ Machine  & Cells & Time steps & Newton steps & $T_{total}$ \\
 
 \end{frame}
 
+\begin{frame}
+  \frametitle{Recapitulation: Iterators}
+  Access to the entities of a grid is given by iterators provided by a \lstinline!GridView!. DUNE provides
+  appropriate iterators for both \lstinline!LeafGridView! and \lstinline!LevelGridView!.
+  \begin{columns}
+    \begin{column}{0.47\linewidth}
+      \begin{center}
+        \begin{onlyenv}<article>
+          \includegraphics[width=0.7\linewidth]{iterators}
+        \end{onlyenv}
+      \end{center}
+      \begin{onlyenv}<presentation>
+        \includegraphics[width=\linewidth]{iterators}
+      \end{onlyenv}
+    \end{column}
+    \begin{column}{0.53\linewidth}
+      \lstinline!GridView::Codim<c>::Iterator!\\ iterates over codimension
+        $c$ entities on a given view.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame} \frametitle{Recapitulation: Entities}
+
+  \structure{Iterating over a grid view, we get access to the entities.}
+
+%  \begin{block}{}%
+    \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
+      \lstinputlisting[breaklines=true]{entity.cc}%
+%  \end{block}
+
+%  \pause
+  \begin{itemize}
+  \item Entities cannot be modified.
+  \item Entities can be copied and stored (but copies may be expensive).
+%    \pause
+  \item Entities provide topological and geometrical information.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle<presentation>{Recapitulation: Entities}
+
+  \structure{An Entity $E$ provides both topological information}
+  \begin{itemize}
+  \item Type of the entity (triangle, quadrilateral, etc.).
+  \item Relations to other entities.
+  \end{itemize}
+  \structure{and geometrical information}
+  \begin{itemize}
+  \item Position of the entity in the grid.
+  \end{itemize}
+
+  \only<presentation>{\vfill}
+%  \pause
+  \begin{columns}
+    \begin{column}{5mm}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \begin{center}
+        \visible<presentation|1->{
+          \includegraphics[width=\linewidth]{refelem-mapping}}\\
+        \begin{onlyenv}<article>
+          \includegraphics[width=0.6\linewidth]{refelem-mapping}\\
+        \end{onlyenv}
+        \centerline{\tiny Mapping from $\hat{\Omega}$ into global coordinates.}
+      \end{center}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \structure{Entity $E$ is defined by\dots{}}
+        \begin{itemize}
+        \item Reference Element $\hat{\Omega}$
+        \item Transformation $T_E$
+        \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \only<presentation>{\vfill}
+%  \pause
+  \lstinline!GridView::Codim<c>::Entity!
+  implements the entity concept.
+
+\end{frame}
+
 \subsection{Partition Types}
 \begin{frame}[fragile]
 \frametitle<presentation>{Partition Types}
@@ -490,107 +575,23 @@ by the method\\
       \begin{itemize}
       \item unstructured
       \item 2D/3D
-      \item multi-element (e.g. tetrahedrons, pyramids, prisms and hexahedrons in 3D)
+      \item multi-element (e.g. tetrahedrons, pyramids, prisms and hexahedrons simultaneously in 3D)
       \item non-conforming/conforming refinement
       \item ghost cells
       \end{itemize}
   \item<3-> \lstinline!ALUGrid!
       \begin{itemize}
       \item unstructured
-      \item 3D
-      \item tetrahedral or hexahedral elements
-      \item non-conforming/conforming bisection refinement
-      \item ghost cells (non-conforming only)
+      \item 2D/3D
+      \item either tetrahedral or hexahedral elements
+      \item non-conforming refinement, conforming bisection refinement for 3D tetrahedral grid
+      \item ghost cells (non-conforming grids only)
       \item full load-balancing
       \end{itemize}
   \end{itemize}
 \end{frame}
 
-\subsection{Iterators in a Parallel Grid}
-
-\begin{frame}
-  \frametitle{Recapitulation: Iterators}
-  Access to the entities of a grid is given by iterators provided by a \lstinline!GridView!. DUNE provides
-  appropriate iterators for both \lstinline!LeafGridView! and \lstinline!LevelGridView!.
-  \begin{columns}
-    \begin{column}{0.47\linewidth}
-      \begin{center}
-        \begin{onlyenv}<article>
-          \includegraphics[width=0.7\linewidth]{iterators}
-        \end{onlyenv}
-      \end{center}
-      \begin{onlyenv}<presentation>
-        \includegraphics[width=\linewidth]{iterators}
-      \end{onlyenv}
-    \end{column}
-    \begin{column}{0.53\linewidth}
-      \lstinline!GridView::Codim<c>::Iterator!\\ iterates over codimension
-        $c$ entities on a given view.
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame} \frametitle{Entities}
-
-  \structure{Iterating over a grid view, we get access to the entities.}
-
-%  \begin{block}{}%
-    \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
-      \lstinputlisting[breaklines=true]{entity.cc}%
-%  \end{block}
-
-%  \pause
-  \begin{itemize}
-  \item Entities cannot be modified.
-  \item Entities can be copied and stored (but copies may be expensive).
-%    \pause
-  \item Entities provide topological and geometrical information.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Entities}
-
-  \structure{An Entity $E$ provides both topological information}
-  \begin{itemize}
-  \item Type of the entity (triangle, quadrilateral, etc.).
-  \item Relations to other entities.
-  \end{itemize}
-  \structure{and geometrical information}
-  \begin{itemize}
-  \item Position of the entity in the grid.
-  \end{itemize}
-
-  \only<presentation>{\vfill}
-%  \pause
-  \begin{columns}
-    \begin{column}{5mm}
-    \end{column}
-    \begin{column}{0.4\textwidth}
-      \begin{center}
-        \visible<presentation|1->{
-          \includegraphics[width=\linewidth]{refelem-mapping}}\\
-        \begin{onlyenv}<article>
-          \includegraphics[width=0.6\linewidth]{refelem-mapping}\\
-        \end{onlyenv}
-        \centerline{\tiny Mapping from $\hat{\Omega}$ into global coordinates.}
-      \end{center}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \structure{Entity $E$ is defined by\dots{}}
-        \begin{itemize}
-        \item Reference Element $\hat{\Omega}$
-        \item Transformation $T_E$
-        \end{itemize}
-    \end{column}
-  \end{columns}
-
-  \only<presentation>{\vfill}
-%  \pause
-  \lstinline!GridView::Codim<c>::Entity!
-  implements the entity concept.
-
-\end{frame}
+\subsection{Iterators on a Parallel Grid}
 
 \begin{frame}[fragile]
   \frametitle<presentation>{Iterators in a parallel Grid}
@@ -624,7 +625,7 @@ by the method\\
   \lstinputlisting[breaklines=true]{iterators.cc}
 \end{frame}
 
-\begin{frame} \only<presentation>{\frametitle{Intersections}}
+\begin{frame} \frametitle{Repetition: Intersections}
 
   \begin{columns}
     \begin{column}{0.4\linewidth}
@@ -705,7 +706,7 @@ neighbor available on the same process (even if it is a ghost).
   \lstinputlisting[breaklines=true]{intersection.cc}
 \end{frame}
 
-\subsection{Load-Balancing and Adaptation}
+\subsection{Grid-Distribution and Load-Balancing}
 \begin{frame}[fragile]
   \frametitle<presentation>{Load-Balancing}
   \begin{itemize}
@@ -837,11 +838,20 @@ data communicate and only the entities present on both processes are included in
   \item You can get a collective communicator object by the following method of a \lstinline!GridView!:
     \lstinline!  const CollectiveCommunication & comm () const;!
   \end{itemize}
+\vfill
+\vfill
+\vfill
+\vfill
+\vfill
+\vfill
 
-The class  \lstinline!Dune::Grid::CollectiveCommunication! provides comfortable access to a lot of MPI methods, e.g.
+\end{frame}
 
-    \resizebox{0.9\textwidth}{!}{
-    \begin{tabular}{l|l}
+\begin{frame}[fragile]
+  \frametitle<presentation>{Collective Communication}
+The class  \lstinline!Dune::Grid::CollectiveCommunication! provides comfortable access to a lot of MPI methods, e.g.\medskip
+
+    \begin{tabular}{l|p{7cm}}
       \hline
       Method name & Description\\\hline
       \lstinline!rank! & obtain number (rank) of this process\\
@@ -856,7 +866,7 @@ The class  \lstinline!Dune::Grid::CollectiveCommunication! provides comfortable 
       \lstinline!scatter! & scatter individual data from root process to all other tasks\\
       \lstinline!gather, allgather! & gather data on root process (and distribute it to all other tasks)\\
       \hline
-    \end{tabular}}
+    \end{tabular}
 
 \end{frame}
 
@@ -885,17 +895,18 @@ using the \lstinline!instance! method of the \lstinline!Dune::MPIHelper! class.
   \item MPIHelper provides the methods\medskip
 
     \only<presentation>{\scriptsize}
-    \begin{tabular}{l|l}
+\only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}    \begin{tabular}{l|l}
       \hline
       Method name & Description\\\hline
       \lstinline!rank! & obtain number (rank) of this process\\
       \lstinline!size! & obtain number of processes \\
       \hline
     \end{tabular}\medskip
+    \only<presentation>{\normalsize}
   \item MPIHelper provides the static methods\medskip
-
-    \resizebox{0.9\textwidth}{!}{
-    \begin{tabular}{l|l}
+  
+    \only<presentation>{\scriptsize}
+\only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}    \begin{tabular}{l|p{6cm}}
       \hline
       Method name & Description\\\hline
       \lstinline!getCommunicator! & get communicator to exchange data
@@ -904,7 +915,8 @@ using the \lstinline!instance! method of the \lstinline!Dune::MPIHelper! class.
       \lstinline!getCollectiveCommunication! & get collective communication object for \lstinline!MPI_COMM_WORLD!\\
       \lstinline!instance! & get access to the helper singleton\\
       \hline
-    \end{tabular} }\medskip
+    \end{tabular} \medskip
+    \only<presentation>{\normalsize}
    \item MPIHelper additionally provides an \lstinline!enum! \lstinline!isFake! which is \lstinline!true! if the program was compiled
 without MPI support
  \end{itemize}
@@ -995,11 +1007,11 @@ which are automatically included by \lstinline!istl.hh!.
 products and scalar products.
 \item As parallel preconditioners to the CG and BiCGStab solvers additive Schwarz methods can be used:
 \begin{itemize}
-\item In this schemes the local subproblem on each process is solved
+\item In this schemes a local subproblem on each process is solved
 where the values of the last iteration are used as Dirichlet constraints at the process boundary.
-\item Different solvers can be choosen for the local problems (e.g. a direct solver like SuperLU or some steps of an
+\item Different solvers can be choosen for the local problems\\ (e.g. a direct solver like SuperLU or some steps of an
 iterative solver like SSOR).
-\item In an overlapping decomposition corrections are computed for the overlap at more than one process. The sum of the corrections multiplied with a relaxation
+\item In an overlapping decomposition the corrections are computed for the overlap at more than one process. The sum of the corrections multiplied with a relaxation
 coefficient is applied.
 \item With an overlapping Schwarz method the convergence is better the larger the overlap.
 \end{itemize}
