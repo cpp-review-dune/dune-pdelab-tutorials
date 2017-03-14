@@ -78,19 +78,10 @@ mpirun -np 2 ./exercise06-1
   \item First run the code from \lstinline{exercise06-1} and try out
     different settings. Don't forget to use \lstinline{mpirun} if you
     want to use more than one process.
-  \item Add a timer to the program and measure how long it takes to
-    solve the nonlinear system with newton. In tutorial00 you can see
-    how to use \lstinline{Dune::Timer}. In the parallel case we want
-    to take the maximum time from all processes. This means we have to
-    make a global communication. The easiest way to do this is to use
-    the \lstinline{CollectiveCommunication}
+  \item Right now the program calculates the squared L2 error for
+    on every process. Use \lstinline{CollectiveCommunication}
     \footnote{\href{https://www.dune-project.org/doxygen/pdelab/master/classDune\_1\_1CollectiveCommunication.html}{https://www.dune-project.org/doxygen/pdelab/master/classDune\_1\_1CollectiveCommunication.html}}
-    from the \lstinline{GridView}:
-    \begin{lstlisting}
-auto maxTime = gv.comm().max(time);
-    \end{lstlisting}
-    This takes the maximum of the values of time from all
-    processes. Compare parallel and sequential times.
+    to calculate the sum over the local L2 errors (squared).
   \item You could also try different solver backends.
   \end{enumerate}
 \end{Exercise}

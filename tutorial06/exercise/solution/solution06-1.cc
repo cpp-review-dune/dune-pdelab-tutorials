@@ -34,6 +34,7 @@
 #endif
 // dune-istl included by pdelab
 // dune-pdelab includes
+#include<dune/pdelab/common/functionutilities.hh>
 #include<dune/pdelab/common/function.hh>
 #include<dune/pdelab/common/vtkexport.hh>
 #include<dune/pdelab/finiteelementmap/pkfem.hh>
@@ -42,6 +43,7 @@
 #include<dune/pdelab/constraints/common/constraintsparameters.hh>
 #include<dune/pdelab/constraints/conforming.hh>
 #include<dune/pdelab/function/callableadapter.hh>
+#include <dune/pdelab/gridfunctionspace/gridfunctionadapter.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspace.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspaceutilities.hh>
 #include<dune/pdelab/gridfunctionspace/interpolate.hh>

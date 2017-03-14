@@ -82,14 +82,18 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   newton.setMinLinearReduction(1e-4);
   newton.setMaxIterations(25);
   newton.setLineSearchMaxIterations(10);
-
-  // meassure time
-  Dune::Timer timer;
   newton.apply();
-  auto time = timer.elapsed();
-  auto maxTime = gv.comm().max(time);
+
+  // Calculate l2 error squared (on every rank seperated)
+  typedef DifferenceSquaredAdapter<ZDGF,decltype(g)> DifferenceSquared;
+  DifferenceSquared differencesquared(zdgf,g);
+  typename DifferenceSquared::Traits::RangeType l2errorsquared(0.0);
+  Dune::PDELab::integrateGridFunction(differencesquared,l2errorsquared,10);
+  std::cout << std::endl << "l2 error squared: " << l2errorsquared << std::endl;
+
+  auto suml2error = gv.comm().sum(l2errorsquared);
   if (gv.comm().rank()==0){
-    std::cout << std::endl << "Maximal time for solving with newton: " << maxTime << std::endl;
+    std::cout << std::endl << "Added l2error: " << suml2error << std::endl;
   }
 
   // Write VTK output file

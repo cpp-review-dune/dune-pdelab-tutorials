@@ -84,6 +84,13 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   newton.setLineSearchMaxIterations(10);
   newton.apply();
 
+  // Calculate l2 error squared (on every rank seperated)
+  typedef DifferenceSquaredAdapter<ZDGF,decltype(g)> DifferenceSquared;
+  DifferenceSquared differencesquared(zdgf,g);
+  typename DifferenceSquared::Traits::RangeType l2errorsquared(0.0);
+  Dune::PDELab::integrateGridFunction(differencesquared,l2errorsquared,10);
+  std::cout << std::endl << "l2 error squared: " << l2errorsquared << std::endl;
+
   // Write VTK output file
   Dune::SubsamplingVTKWriter<GV> vtkwriter(gv,ptree.get("output.subsampling",(int)0));
   typedef Dune::PDELab::VTKGridFunctionAdapter<ZDGF> VTKF;

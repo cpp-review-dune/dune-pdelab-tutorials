@@ -62,7 +62,8 @@ int main(int argc, char** argv)
                 auto fgeo_self = is.geometryInInside();
 
                 std::cout << " Intersection endpoints: ";
-                // Output the *global* corner and center coordinates of the intersection
+                // Output the corner and center coordinates of the intersection
+                // (the methods cornor and center return global coordinates)
 
                 for (int i = 0; i < fgeo.corners(); ++i)
                     std::cout << "(" << fgeo.corner(i) << ") ";
