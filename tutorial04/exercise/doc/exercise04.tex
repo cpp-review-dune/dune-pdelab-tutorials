@@ -49,8 +49,8 @@ In this exercise you will:
 \item Work on the problem presented in \lstinline{tutorial04}.
 \item Try various time integrators, in particular the Crank-Nicolson
   method.
-\item Explore polynomial degrees greater than $2$ by changing the
-  blocking to \lstinline{none}.
+\item Explore polynomial degrees greater than $2$ (remember to change the
+  blocking to \lstinline{none}!).
 \item Implement your own local operator that switches to an elliptic
   projection method (see the tutorial notes and Eriksson et
   al. \cite{Eriksson})
@@ -79,7 +79,7 @@ In this exercise you will:
   also simply omit the boundary condition on $u_1$.
 
 
-  The code forthis exercise can be recompiled individually \textbf{in
+  The code for this exercise can be recompiled individually \textbf{in
     your build directory} by typing make:
   \begin{lstlisting}
 [user@localhost]$ cd release-build/dune-pdelab-tutorials/tutorial04/exercise/task
@@ -199,7 +199,7 @@ Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::none> VBE;
   \item Copy the file \lstinline{wavefem.hh} to a new file and rename
     it.
   \item Rename the local operators in the new file, e.g.~change
-    \lstinline{waveL2} to \lstinline{WaveElip}.
+    \lstinline{WaveL2} to \lstinline{WaveElip}.
   \item Include your new file in \lstinline{exercise04.cc} and change
     the types of \lstinline{LOP} and \lstinline{TLOP} in
     \lstinline{driver.hh}.
@@ -270,8 +270,8 @@ Dune::PDELab::SqrGridFunctionAdapter
   \end{lstlisting}
 
   If you have problems with this task check the online documentation
-  at \url{https://www.dune-project.org/doxygen/2.5.0/modules.html} or
-  the solution.
+  \url{https://www.dune-project.org/doxygen/pdelab/master/} or the
+  solution.
 \end{Exercise}
 
 
