@@ -4,7 +4,7 @@
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{url}
 
-% only presentation 
+% only presentation
 \mode<presentation>
 {
   \usetheme{default}
@@ -19,7 +19,7 @@
 \usepackage{calc}
 \usepackage{lmodern}
 \usepackage{expl3,xparse}
-\usepackage{lstlinebgrd} 
+\usepackage{lstlinebgrd}
 
 \ExplSyntaxOn
 \NewDocumentCommand \lstcolorlines { O{green} m }
@@ -98,7 +98,7 @@
 \begin{itemize}
 \item Power wall
 \item Memory wall
-\item Instruction level parallelism (ILP) wall 
+\item Instruction level parallelism (ILP) wall
 \end{itemize}
 \item However, the number of cores is increasing. Quad-cores are the rule, up to 260-core processors are available
 \item Several multi-core processors can be used on one mainboard (e.g. two 10-core processors)
@@ -111,10 +111,10 @@
 \begin{frame}
 \frametitle<presentation>{Why Parallel Computing?}
 
-The worlds three fastest computers have 
+The worlds three fastest computers have
 \begin{itemize}
 \item Sunway TaihuLight, Wuxi, China: 93.0 PFlop/s\\
-10'649'600 cores: 
+10'649'600 cores:
 \begin{itemize}
 \item 40'960 SW26010 processors, 260 cores\\
 \end{itemize}
@@ -568,7 +568,7 @@ by the method\\
   \item<1-> \lstinline!YaspGrid!
       \begin{itemize}
       \item structured
-      \item 2D/3D
+      \item nD
       \item arbitrary overlap
       \end{itemize}
   \item<2-> \lstinline!UGGrid!
@@ -737,8 +737,8 @@ template<int dim>
 class YaspPartition : public Dune::YLoadBalance<dim>
 {
   public:
-    typedef Dune::FieldVector<int, dim>  iTupel;
-    void loadbalance (const iTupel& size, int P, iTupel& dims) const
+    typedef Dune::FieldVector<int, dim>  iTuple;
+    void loadbalance (const iTuple& size, int P, iTuple& dims) const
     {
       dims[0] = 1;
       dims[1] = P;
@@ -752,9 +752,10 @@ class YaspPartition : public Dune::YLoadBalance<dim>
   \frametitle<presentation>{Grid-Distribution with YaspGrid}
 Now you can pass the object to the constructor during grid creation
 \begin{lstlisting}[breaklines=true]
-Dune::FieldVector<int,2> n(10);
-Dune::FieldVector<double,2> upper(1.0);
-Dune::FieldVector<bool,2> periodic(false);
+const int dim=2;
+Dune::FieldVector<double,dim> upper(1.0);
+std::array<int,dim> n(Dune::fill_array<int,dim>(10));
+std::bitset<dim> periodic(false);
 int overlap = 1;
 YaspPartition<2> yp;
 YaspGrid<2> grid(upper,n,periodic,overlap,&yp);
@@ -904,7 +905,7 @@ using the \lstinline!instance! method of the \lstinline!Dune::MPIHelper! class.
     \end{tabular}\medskip
     \only<presentation>{\normalsize}
   \item MPIHelper provides the static methods\medskip
-  
+
     \only<presentation>{\scriptsize}
 \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}    \begin{tabular}{l|p{6cm}}
       \hline
@@ -926,9 +927,9 @@ without MPI support
 
 \begin{frame}[fragile]
   \frametitle<presentation>{Norms and Scalar-Products on Parallel Grids}
-If you have a parallel grid and for some reason want to calculate norms or scalar products of vectors associated with degrees of freedom, you cannot calculate them directly, as border entities exist on more than one process. 
+If you have a parallel grid and for some reason want to calculate norms or scalar products of vectors associated with degrees of freedom, you cannot calculate them directly, as border entities exist on more than one process.
 
-For an overlapping grid you need the class \lstinline!OverlappingScalarProduct!. Additionally you need the auxiliary class \lstinline!ISTL::ParallelHelper!. 
+For an overlapping grid you need the class \lstinline!OverlappingScalarProduct!. Additionally you need the auxiliary class \lstinline!ISTL::ParallelHelper!.
 \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
 \begin{lstlisting}[breaklines=true]
 std::vector<double> dataVector(gv.indexSet().size(dim));
@@ -942,7 +943,7 @@ norm=ovlpScalProd.norm(dataVector);
 
 \begin{frame}[fragile]
   \frametitle<presentation>{Norms and Scalar-Products on Parallel Grids}
-For a non-overlapping grid the respective class is 
+For a non-overlapping grid the respective class is
 \lstinline!NonoverlappingScalarProduct!:
 \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
 \begin{lstlisting}[breaklines=true]
@@ -992,7 +993,7 @@ are chosen matching the type of domain decomposition.
 \item Different solver backends are provided for overlapping and nonoverlapping domain
 decomposition.
 \item The parallel solver backends can be found in the headers\newline \lstinline!dune/pdelab/backend/istl/ovlpistlsolverbackend.hh! and \newline
-\lstinline!dune/pdelab/backend/istl/novlpistlsolverbackend.hh!,\newline 
+\lstinline!dune/pdelab/backend/istl/novlpistlsolverbackend.hh!,\newline
 which are automatically included by \lstinline!istl.hh!.
 \end{itemize}
 
@@ -1009,7 +1010,7 @@ products and scalar products.
 \begin{itemize}
 \item In this schemes a local subproblem on each process is solved
 where the values of the last iteration are used as Dirichlet constraints at the process boundary.
-\item Different solvers can be choosen for the local problems\\ (e.g. a direct solver like SuperLU or some steps of an
+\item Different solvers can be chosen for the local problems\\ (e.g. a direct solver like SuperLU or some steps of an
 iterative solver like SSOR).
 \item In an overlapping decomposition the corrections are computed for the overlap at more than one process. The sum of the corrections multiplied with a relaxation
 coefficient is applied.
@@ -1051,8 +1052,8 @@ constraints container (usually \lstinline!OverlappingConformingDirichletConstrai
   \begin{lstlisting}[breaklines=true,escapechar=!]
 // 1. Create an overlapping grid
 Dune::FieldVector<double,2> L(1.0);
-Dune::FieldVector<int,2> N(16);
-Dune::FieldVector<bool,2> periodic(false);
+std::array<int,2> N(Dune::fill_array<int,2>(16));
+std::bitset<2> periodic (false);
 !\color{red}int overlap=2;!
 Dune::YaspGrid<2> grid(L,N,periodic!\color{red},overlap!);
 typedef Dune::YaspGrid<2>::LeafGridView GV;
@@ -1115,7 +1116,7 @@ using the respective smoother.\medskip
 
 \resizebox{0.9\textwidth}{!}{
 \begin{tabular}{|l|l|l|}\hline
-solver backend & smoother & linear solver\\\hline
+nnsolver backend & smoother & linear solver\\\hline
 \lstinline!ISTLBackend_NOVLP_CG_NOPREC<GFS>! & -- & CG\\\hline
 \lstinline!ISTLBackend_NOVLP_CG_Jacobi<GFS>! & Jacobi & CG\\\hline
 \lstinline!ISTLBackend_NOVLP_CG_SSORk<GO>! & SSOR & CG\\\hline
@@ -1136,10 +1137,10 @@ The template parameter is either \lstinline!GFS! the grid function space or \lst
   \frametitle{Nonoverlapping example}
 \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
   \begin{lstlisting}[breaklines=true,escapechar=!]
-// 1. Create an non-overlapping grid
+// 1. Create an overlapping grid
 Dune::FieldVector<double,2> L(1.0);
-Dune::FieldVector<int,2> N(16);
-Dune::FieldVector<bool,2> periodic(false);
+std::array<int,2> N(Dune::fill_array<int,2>(16));
+std::bitset<2> periodic (false);
 !\color{red}int overlap=0; // overlap 0 as overlap elements are not assembled!
 Dune::YaspGrid<2> grid(L,N,periodic!\color{red},overlap!);
 typedef Dune::YaspGrid<2>::LeafGridView GV;
@@ -1200,4 +1201,3 @@ LS ls(go,5000,3,2);
 \end{frame}
 
 \end{document}
-
