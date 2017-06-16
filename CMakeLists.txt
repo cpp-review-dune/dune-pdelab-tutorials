@@ -35,6 +35,7 @@ add_subdirectory(tutorial03)
 add_subdirectory(tutorial04)
 add_subdirectory(tutorial05)
 add_subdirectory(tutorial06)
+add_subdirectory(tutorial07)
 
 # finalize the dune project, e.g. generating config.h etc.
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
