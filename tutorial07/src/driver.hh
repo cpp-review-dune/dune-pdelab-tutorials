@@ -1,154 +1,8 @@
 // -*- tab-width: 4; indent-tabs-mode: nil -*-
-/** \file
-    \brief Acoustic wave propagation in a simple 2D cavity
-
-    Example 4 from "L. Krivodonova, J. Xin, J.-F. Remacle, N. Chevaugeon, J.E. Flaherty:
-    Shock detection and limiting with discontinuous Galerkin methods for hyperbolic
-    conservation laws. Applied Numerical Mathematics, 48, 323-338, 2004.
-*/
-
-//==============================================================================
-// Parameter class for the linear acoustics problem
-//==============================================================================
-
-template<typename GV, typename RF>
-class Krivodonova4Problem
-{
-public:
-  typedef Dune::PDELab::LinearAcousticsParameterTraits<GV,RF> Traits;
-
-  Krivodonova4Problem ()
-    : pi(3.141592653589793238462643), time(0.0)
-  {
-  }
-
-  //! speed of sound
-  typename Traits::RangeFieldType
-  c (const typename Traits::ElementType& e, const typename Traits::DomainType& x) const
-  {
-    return 340.0;
-  }
-
-  //! Dirichlet boundary condition value
-  typename Traits::StateType
-  g (const typename Traits::IntersectionType& is, const typename Traits::IntersectionDomainType& x, const typename Traits::StateType& s) const
-  {
-    typename Traits::DomainType xglobal = is.geometry().global(x);
-    if (xglobal[0]<1e-6)
-      {
-        typename Traits::StateType u(0.0);
-        u[1] = 1.224*(1+0.5*sin(2*pi*1500.0*time));
-        return u;
-      }
-    if (xglobal[0]>1.0-1e-6)
-      {
-        typename Traits::StateType u(0.0);
-        return u;
-      }
-    typename Traits::StateType u(0.0);
-    u[2] = 0.0;
-    return u;
-  }
-
-  //! right hand side
-  typename Traits::StateType
-  q (const typename Traits::ElementType& e, const typename Traits::DomainType& x) const
-  {
-    typename Traits::StateType rhs(0.0);
-    return rhs;
-  }
-
-  //! initial value
-  typename Traits::StateType
-  u0 (const typename Traits::ElementType& e, const typename Traits::DomainType& x) const
-  {
-    typename Traits::StateType u(0.0);
-    return u;
-  }
-
-  //! set time for subsequent evaluation
-  void setTime (RF t)
-  {
-    time = t;
-  }
-
-private:
-  double pi;
-  RF time;
-};
-
-
-template<typename GV, typename RF>
-class RiemannProblem
-{
-public:
-  typedef Dune::PDELab::LinearAcousticsParameterTraits<GV,RF> Traits;
-
-  RiemannProblem ()
-    : time(0.0),  pi(3.141592653589793238462643)
-  {
-  }
-
-  //! speed of sound
-  typename Traits::RangeFieldType
-  c (const typename Traits::ElementType& e, const typename Traits::DomainType& x) const
-  {
-    typename Traits::DomainType xglobal = e.geometry().global(x);
-    if ( xglobal[1] < 1-(0.6/0.9)*(xglobal[0]-0.1) ) return 1.0;
-    //    if (xglobal[0]>0.5) return 2.0;
-    return 0.5;
-  }
-
-  //! Dirichlet boundary condition value
-  typename Traits::StateType
-  g (const typename Traits::IntersectionType& is, const typename Traits::IntersectionDomainType& x, const typename Traits::StateType& s) const
-  {
-    typename Traits::StateType u(0.0);
-    u[0] = s[0];
-    u[1] = -s[1];
-    u[2] = -s[2];
-    return u;
-  }
-
-  //! right hand side
-  typename Traits::StateType
-  q (const typename Traits::ElementType& e, const typename Traits::DomainType& x) const
-  {
-    typename Traits::StateType rhs(0.0);
-    return rhs;
-  }
-
-  //! initial value
-  typename Traits::StateType
-  u0 (const typename Traits::ElementType& e, const typename Traits::DomainType& x) const
-  {
-    typename Traits::DomainType xglobal = e.geometry().global(x);
-    typename Traits::StateType u(0.0);
-    if (xglobal[0]>0.45 && xglobal[0]<0.55 && xglobal[1]>0.3 && xglobal[1]<0.4)
-      {
-        u[0] = sin(pi*(xglobal[0]-0.45)/0.1)*sin(pi*(xglobal[0]-0.45)/0.1)*sin(pi*(xglobal[1]-0.3)/0.1)*sin(pi*(xglobal[1]-0.3)/0.1);
-        u[1] = 0;
-        u[2] = 0;
-      }
-    return u;
-  }
-
-  //! set time for subsequent evaluation
-  void setTime (RF t)
-  {
-    time = t;
-  }
-
-private:
-  RF time;
-  RF pi;
-};
-
 
 //===============================================================
 // driver for general pouropse hyperbolic solver
 //===============================================================
-
 
 template<typename GV, typename FEMDG>
 void driver (const GV& gv, const FEMDG& femdg, Dune::ParameterTree& ptree)
@@ -159,8 +13,25 @@ void driver (const GV& gv, const FEMDG& femdg, Dune::ParameterTree& ptree)
   using RF = double;                   // type for computations
   const int dim = GV::dimension;
 
-  //it woudl be better to extract it from fem
+  //Minak it woudl be better to extract it from fem
   //int degree = ptree.get("fem.degree",(int)1);
+
+  // make PDE parameter class
+
+  typedef RiemannProblem<GV,RF> Param;
+  Param param;
+
+  //minak: no need for dirichlet BC
+  //auto glambda = [&](const auto& e, const auto& x)
+  //  {return param.g(e,x);};
+  //auto g = Dune::PDELab::
+  //  makeBaundaryConditionsFromCallable(gv,glambda);
+
+  //initial condition
+  auto u0lambda = [&](const auto& i, const auto& x)
+    {return param.u0(i,x);};
+  auto u0 = Dune::PDELab::
+    makeGridFunctionFromCallable(gv,u0lambda);
 
 
   //TODO figure out proper blocksize
@@ -206,9 +77,7 @@ void driver (const GV& gv, const FEMDG& femdg, Dune::ParameterTree& ptree)
   gfs.update(); // initializing the gfs
   std::cout << "degrees of freedom: " << gfs.globalSize() << std::endl;
 
-  // <<<2b>>> define problem parameters
-  typedef RiemannProblem<GV,RF> Param;
-  Param param;
+
 
   // Make instationary grid operator
   using LOP = Dune::PDELab::DGLinearAcousticsSpatialOperator<Param,FEMDG>;
@@ -248,7 +117,7 @@ void driver (const GV& gv, const FEMDG& femdg, Dune::ParameterTree& ptree)
   // <<<5>>> set initial values
   typedef typename IGO::Traits::Domain V;
   V xold(gfs,0.0);
-  Dune::PDELab::LinearAcousticsInitialValueAdapter<Param> u0(gv,param);
+  //Dune::PDELab::LinearAcousticsInitialValueAdapter<Param> u0(gv,param);
 
   Dune::PDELab::interpolate(u0,gfs,xold);
  

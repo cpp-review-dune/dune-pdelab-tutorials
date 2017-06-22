@@ -1,4 +1,4 @@
-// -*- tab-width: 8; indent-tabs-mode: nil -*-
+// -*- tab-width: 4; indent-tabs-mode: nil -*-
 #ifndef DUNE_PDELAB_LOCALOPERATOR_LINEARACOUSTICSDG_HH
 #define DUNE_PDELAB_LOCALOPERATOR_LINEARACOUSTICSDG_HH
 
@@ -18,7 +18,7 @@
 #include<dune/pdelab/localoperator/defaultimp.hh>
 #include<dune/pdelab/finiteelement/localbasiscache.hh>
 
-#include"linearacousticsparameter.hh"
+//#include"linearacousticsparameter.hh"
 
 namespace Dune {
   namespace PDELab {
@@ -170,9 +170,9 @@ namespace Dune {
       public FullSkeletonPattern,
       public FullVolumePattern,
       public LocalOperatorDefaultFlags,
-      public InstationaryLocalOperatorDefaultMethods<typename T::Traits::RangeFieldType>
+      public InstationaryLocalOperatorDefaultMethods<typename T::RangeField>
     {
-      enum { dim = T::Traits::GridViewType::dimension };
+      static constexpr int dim = 2;//T::Traits::GridViewType::dimension };
 
     public:
       // pattern assembly flags
@@ -377,7 +377,7 @@ namespace Dune {
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
             for (size_type k=0; k<dgspace_s.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
-              for (size_type i=0; i<=dim; i++) // loop over all components
+              for (size_type i=0; i<=dim; i++) // loop over all components   i<=dim   @@@@ dim +  1 @@@
                 r_s.accumulate(lfsv_s.child(i),k, f[i]*phi_s[k]*factor);
             for (size_type k=0; k<dgspace_n.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
               for (size_type i=0; i<=dim; i++) // loop over all components
@@ -522,7 +522,7 @@ namespace Dune {
         const int intorder = overintegration+2*order_s;
         for (const auto& ip : quadratureRule(geo,intorder))
           {
-            // Evaluate right hand side
+            // Evaluate right hand side q
             auto q(param.q(cell,ip.position()));
 
             // Evaluate basis functions
@@ -535,33 +535,7 @@ namespace Dune {
                 r.accumulate(lfsv.child(k),i, - q[k]*phi[i]*factor);
           }
       }
-
-      //! set time in parameter class
-      void setTime (typename T::Traits::RangeFieldType t)
-      {
-      }
-
-      //! to be called once before each time step
-      void preStep (typename T::Traits::RangeFieldType time, typename T::Traits::RangeFieldType dt,
-                    int stages)
-      {
-      }
-
-      //! to be called once before each stage
-      void preStage (typename T::Traits::RangeFieldType time, int r)
-      {
-      }
-
-      //! to be called once at the end of each stage
-      void postStage ()
-      {
-      }
-
-      //! to be called once before each stage
-      typename T::Traits::RangeFieldType suggestTimestep (typename T::Traits::RangeFieldType dt) const
-      {
-        return dt;
-      }
+      
 
     private:
       T& param;
@@ -583,9 +557,9 @@ namespace Dune {
     class DGLinearAcousticsTemporalOperator :
       public NumericalJacobianApplyVolume<DGLinearAcousticsTemporalOperator<T,FEM> >,
         public LocalOperatorDefaultFlags,
-        public InstationaryLocalOperatorDefaultMethods<typename T::Traits::RangeFieldType>
+        public InstationaryLocalOperatorDefaultMethods<typename T::RangeField>
     {
-      enum { dim = T::Traits::GridViewType::dimension };
+      static constexpr int dim = 2;//T::Traits::GridViewType::dimension };
     public:
       // pattern assembly flags
       enum { doPatternVolume = true };

@@ -42,18 +42,26 @@
 #include<dune/pdelab/gridfunctionspace/vtk.hh> //added by minak
 #include<dune/pdelab/constraints/common/constraints.hh>
 #include<dune/pdelab/common/function.hh>
+#include<dune/pdelab/common/instationaryfilenamehelper.hh>
 #include<dune/pdelab/common/vtkexport.hh>
 #include<dune/pdelab/gridoperator/gridoperator.hh>
 #include<dune/pdelab/gridoperator/onestep.hh>
 #include<dune/pdelab/backend/istl.hh>
 #include<dune/pdelab/instationary/onestep.hh>
-#include<dune/pdelab/common/instationaryfilenamehelper.hh>
+
+#include<dune/pdelab/function/callableadapter.hh> //make bc from callable
 
 #include<dune/pdelab/gridoperator/onestep.hh>
 #include<dune/pdelab/instationary/onestep.hh>
 #include<dune/pdelab/gridoperator/gridoperator.hh>
 
 #include"linearacousticsdg.hh"
+
+
+//include your problem class
+//#include"problem.hh" TODO problem itself need to be rewriten without traits
+#include"riemannproblem.hh"
+
 #include"driver.hh"
 
 //===============================================================
@@ -84,7 +92,15 @@ int main(int argc, char** argv)
     const int refinement = ptree.get<int>("grid.refinement");
     const int degree = ptree.get<int>("fem.degree");
 
+
+    //make Model
+
+
+    //make problem
  
+
+
+
     // parallel overlapping yaspgrid version
     if (ptree["grid.manager"] == "yasp")
       {
