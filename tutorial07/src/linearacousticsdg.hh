@@ -18,12 +18,11 @@
 #include<dune/pdelab/localoperator/defaultimp.hh>
 #include<dune/pdelab/finiteelement/localbasiscache.hh>
 
-//#include"linearacousticsparameter.hh"
 
 namespace Dune {
   namespace PDELab {
 
-
+#if 1==0    
     template<int dim>
     class LinearAcousticsEigenvectors
     {};
@@ -31,6 +30,7 @@ namespace Dune {
     /** \brief provide matrix which contains rowwise the eigenvectors of linear acoustics problem
         \tparam dim the space dimension
     */
+    
     template<>
     class LinearAcousticsEigenvectors<1>
     {
@@ -142,6 +142,8 @@ namespace Dune {
         RT[0][3] = -1;  RT[1][3] = c*n[0];  RT[2][3] = c*n[1];  RT[3][3] = c*n[2];
       }
     };
+#endif
+
 
     /** Spatial local operator for discontinuous Galerkin method for the equations
         of linear acoustics in conservative form:
@@ -315,7 +317,9 @@ namespace Dune {
 
         // Compute A+ (outgoing waves)
         Dune::FieldMatrix<DF,dim+1,dim+1> RT;
-        LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_s,n_F,RT);
+        //LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_s,n_F,RT);
+        param.model.eigenvectors_transposed(c_s,n_F,RT);
+
         Dune::FieldVector<DF,dim+1> alpha;
         for (int i=0; i<=dim; i++) alpha[i] = RT[dim-1][i]; // row dim-1 corresponds to eigenvalue +c
         Dune::FieldVector<DF,dim+1> unit(0.0);
@@ -328,7 +332,9 @@ namespace Dune {
             A_plus_s[i][j] = c_s*alpha[i]*beta[j];
 
         // Compute A- (incoming waves)
-        LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_n,n_F,RT);
+        //LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_n,n_F,RT);
+        param.model.eigenvectors_transposed(c_n,n_F,RT);
+
         for (int i=0; i<=dim; i++) alpha[i] = RT[dim][i]; // row dim corresponds to eigenvalue -c
         unit = 0.0;
         unit[dim] = 1.0;
@@ -431,7 +437,8 @@ namespace Dune {
 
         // Compute A+ (outgoing waves)
         Dune::FieldMatrix<DF,dim+1,dim+1> RT;
-        LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_s,n_F,RT);
+        //LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_s,n_F,RT);
+        param.model.eigenvectors_transposed(c_s,n_F,RT);
         Dune::FieldVector<DF,dim+1> alpha;
         for (int i=0; i<=dim; i++) alpha[i] = RT[dim-1][i]; // row dim-1 corresponds to eigenvalue +c
         Dune::FieldVector<DF,dim+1> unit(0.0);
@@ -444,7 +451,9 @@ namespace Dune {
             A_plus_s[i][j] = c_s*alpha[i]*beta[j];
 
         // Compute A- (incoming waves)
-        LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_s,n_F,RT);
+        //LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_s,n_F,RT);
+        param.model.eigenvectors_transposed(c_s,n_F,RT); // TODO check this line the same as above
+
         for (int i=0; i<=dim; i++) alpha[i] = RT[dim][i]; // row dim corresponds to eigenvalue -c
         unit = 0.0;
         unit[dim] = 1.0;

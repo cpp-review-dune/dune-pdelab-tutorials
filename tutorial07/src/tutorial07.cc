@@ -58,10 +58,10 @@
 #include"linearacousticsdg.hh"
 
 
-//include your problem class
+//include your model and problem 
 //#include"problem.hh" TODO problem itself need to be rewriten without traits
+#include"model.hh"
 #include"riemannproblem.hh"
-
 #include"driver.hh"
 
 //===============================================================
@@ -93,14 +93,8 @@ int main(int argc, char** argv)
     const int degree = ptree.get<int>("fem.degree");
 
 
-    //make Model
 
-
-    //make problem
  
-
-
-
     // parallel overlapping yaspgrid version
     if (ptree["grid.manager"] == "yasp")
       {
@@ -114,39 +108,41 @@ int main(int argc, char** argv)
         auto upper_right = ptree.get<Dune::array<double,dim> >("grid.L");
         auto cells = ptree.get<Dune::array<unsigned int,dim> >("grid.N");
 
-
-        //TODO: define girid in a new way
-
         // make grid
-        //const Dune::GeometryType::BasicType elemtype = Dune::GeometryType::cube;
-        //typedef Dune::YaspGrid<dim> GM;
-        //typedef Dune::PDELab::StructuredGrid<GM> Grid;
-        //Grid grid(elemtype,lower_left,upper_right,cells);
-        //grid->globalRefine(ptree.get("grid.refinement",(int)0));
+        using GM = Dune::YaspGrid<dim>;
+        GM grid(L,N,periodic,overlap,helper.getCommunicator());
+		    grid.refineOptions(false); // keep overlap in cells
+        grid.globalRefine(ptree.get("grid.refinement",(int)0));
+        // grid view
+        using GV = GM::LeafGridView ;
+        GV gv=grid.leafGridView();
 
-        Dune::YaspGrid<2> grid(L,N,periodic,overlap,helper.getCommunicator());
- 
-        for (int i=0; i<refinement; i++) grid.globalRefine(1);
-        typedef Dune::YaspGrid<2>::LeafGridView GV;
-        const GV& gv=grid.leafGridView();
+				//make Model
+				using MODEL = Model<dim>;
+				MODEL model;
+				//make problem
+				
+				using PROBLEM = RiemannProblem<GV,GV::Grid::ctype,MODEL>;
+				PROBLEM param(model);
+
+
         if (degree==0)
           {
             //const int degree=0;
             typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,0,dim,Dune::GeometryType::cube> FEM;
-			//construct Finite Element map            
-			FEM fem;
-            driver<GV,FEM>(gv,fem,ptree);
+			      //construct Finite Element map            
+	      		FEM fem;
+            driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
           }
         if (degree==1)
           {
             //const int degree=1;
             typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,1,dim,Dune::GeometryType::cube> FEM;
             FEM fem;
-            driver<GV,FEM>(gv,fem,ptree);
+            driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
           }
         return 0;
       }
-
 
   }
   catch (Dune::Exception &e){

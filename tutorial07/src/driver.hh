@@ -4,8 +4,8 @@
 // driver for general pouropse hyperbolic solver
 //===============================================================
 
-template<typename GV, typename FEMDG>
-void driver (const GV& gv, const FEMDG& femdg, Dune::ParameterTree& ptree)
+template<typename GV, typename FEMDG, typename Param>
+void driver (const GV& gv, const FEMDG& femdg, Param& param, Dune::ParameterTree& ptree)
 {
   //std::cout << "using degree " << degree << std::endl;
 
@@ -17,9 +17,8 @@ void driver (const GV& gv, const FEMDG& femdg, Dune::ParameterTree& ptree)
   //int degree = ptree.get("fem.degree",(int)1);
 
   // make PDE parameter class
-
-  typedef RiemannProblem<GV,RF> Param;
-  Param param;
+  //typedef RiemannProblem<GV,RF> Param;
+  //Param param;
 
   //minak: no need for dirichlet BC
   //auto glambda = [&](const auto& e, const auto& x)
@@ -33,11 +32,9 @@ void driver (const GV& gv, const FEMDG& femdg, Dune::ParameterTree& ptree)
   auto u0 = Dune::PDELab::
     makeGridFunctionFromCallable(gv,u0lambda);
 
-
   //TODO figure out proper blocksize
   // <<<2>>> Make grid function space
   //const int blocksize = Dune::PB::PkSize<degree,dim>::value;
-
 
   typedef Dune::PDELab::NoConstraints CON;
   //typedef Dune::PDELab::ISTLVectorBackend

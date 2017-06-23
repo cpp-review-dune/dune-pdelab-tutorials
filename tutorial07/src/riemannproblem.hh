@@ -1,39 +1,21 @@
 #ifndef RIEMANNPROBLEM
 #define RIEMANNPROBLEM
-//template<typename GV, typename Range, typename M>
-template<typename GV, typename Number>
+template<typename GV, typename Number, typename M>
+//template<typename GV, typename Number>
 class RiemannProblem
 {
 public:
-  //typedef Dune::PDELab::LinearAcousticsParameterTraits<GV,Number> Traits;
 
   using RangeField = Number;
-  using Range = Dune::FieldVector<Number,3>;
+  using Range = Dune::FieldVector<Number,M::m>;
 
-
-  //RiemannProblem (M& m)
-  //  : m_(m), time(0.0),  pi(3.141592653589793238462643)
-  //{
-  //}
-  RiemannProblem ()
-    : time(0.0),  pi(3.141592653589793238462643)
+  RiemannProblem (M& m)
+    : model(m), time(0.0),  pi(3.141592653589793238462643)
   {
-    const int dim = 2;
+
   }
 
   
-  //! speed of sound
-  /*
-  typename Traits::RangeFieldType
-  c (const typename Traits::ElementType& e, const typename Traits::DomainType& x) const
-  {
-    typename Traits::DomainType xglobal = e.geometry().global(x);
-    if ( xglobal[1] < 1-(0.6/0.9)*(xglobal[0]-0.1) ) return 1.0;
-    //    if (xglobal[0]>0.5) return 2.0;
-    return 0.5;
-  }
-  */
-
   //! speed of sound
   template<typename E, typename X>
   Number c (const E& e, const X& x) const
@@ -43,8 +25,6 @@ public:
     //    if (xglobal[0]>0.5) return 2.0;
     return 0.5;
   }
-
-
 
   //! Neumann boundary condition
   template<typename I, typename X>
@@ -65,15 +45,6 @@ public:
     return u;
   }
 
-  //! right hand side
-  /*
-  typename Traits::StateType
-  q (const typename Traits::ElementType& e, const typename Traits::DomainType& x) const
-  {
-    typename Traits::StateType rhs(0.0);
-    return rhs;
-  }
-  */
   //! right hand side
   template<typename E, typename X>
   Range q (const E& e, const X& x) const
@@ -104,8 +75,11 @@ public:
     time = t;
   }
 
+	M& model;
+  
+
 private:
-  //M& m_;
+
   Number time;
   Number pi;
 
