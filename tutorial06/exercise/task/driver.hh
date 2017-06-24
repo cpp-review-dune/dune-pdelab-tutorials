@@ -85,7 +85,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   newton.apply();
 
   // Calculate l2 error squared (on every rank seperated)
-  typedef DifferenceSquaredAdapter<ZDGF,decltype(g)> DifferenceSquared;
+  typedef Dune::PDELab::DifferenceSquaredAdapter<ZDGF,decltype(g)> DifferenceSquared;
   DifferenceSquared differencesquared(zdgf,g);
   typename DifferenceSquared::Traits::RangeType l2errorsquared(0.0);
   Dune::PDELab::integrateGridFunction(differencesquared,l2errorsquared,10);
