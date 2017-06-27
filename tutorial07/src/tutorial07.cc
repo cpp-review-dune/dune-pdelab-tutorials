@@ -55,13 +55,13 @@
 #include<dune/pdelab/instationary/onestep.hh>
 #include<dune/pdelab/gridoperator/gridoperator.hh>
 
-#include"linearacousticsdg.hh"
+#include"linearhyperbolicdg.hh"
 
 
 //include your model and problem 
 //#include"problem.hh" TODO problem itself need to be rewriten without traits
-#include"model.hh"
-#include"riemannproblem.hh"
+#include"linearacoustics.hh" //model
+#include"problem.hh"
 #include"driver.hh"
 
 //===============================================================
@@ -92,8 +92,6 @@ int main(int argc, char** argv)
     const int refinement = ptree.get<int>("grid.refinement");
     const int degree = ptree.get<int>("fem.degree");
 
-
-
  
     // parallel overlapping yaspgrid version
     if (ptree["grid.manager"] == "yasp")
@@ -122,7 +120,7 @@ int main(int argc, char** argv)
 				MODEL model;
 				//make problem
 				
-				using PROBLEM = RiemannProblem<GV,GV::Grid::ctype,MODEL>;
+				using PROBLEM = Problem<GV,GV::Grid::ctype,MODEL>;
 				PROBLEM param(model);
 
 

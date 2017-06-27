@@ -1,6 +1,6 @@
-// -*- tab-width: 8; indent-tabs-mode: nil -*-
-#ifndef DUNE_PDELAB_LOCALOPERATOR_LINEARACOUSTICSDG_HH
-#define DUNE_PDELAB_LOCALOPERATOR_LINEARACOUSTICSDG_HH
+// -*- tab-width: 4; indent-tabs-mode: nil -*-
+#ifndef DUNE_PDELAB_LOCALOPERATOR_LINEARHYPERBOLICDG_HH
+#define DUNE_PDELAB_LOCALOPERATOR_LINEARHYPERBOLICDG_HH
 
 #include<vector>
 
@@ -18,130 +18,9 @@
 #include<dune/pdelab/localoperator/defaultimp.hh>
 #include<dune/pdelab/finiteelement/localbasiscache.hh>
 
-#include"linearacousticsparameter.hh"
 
 namespace Dune {
   namespace PDELab {
-
-
-    template<int dim>
-    class LinearAcousticsEigenvectors
-    {};
-
-    /** \brief provide matrix which contains rowwise the eigenvectors of linear acoustics problem
-        \tparam dim the space dimension
-    */
-    template<>
-    class LinearAcousticsEigenvectors<1>
-    {
-      enum { dim = 1 };
-    public:
-      /**
-         \param c speed of sound
-         \param n unit outer normal vector
-         \param RT matrix to be filled
-      */
-      template<typename T1, typename T2, typename T3>
-      static void eigenvectors_transposed (T1 c, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,dim+1,dim+1>& RT)
-      {
-        RT[0][0] =  1; RT[0][1] = c*n[0];
-        RT[1][0] = -1; RT[1][1] = c*n[0];
-      }
-
-      template<typename T1, typename T2, typename T3>
-      static void eigenvectors (T1 c, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,dim+1,dim+1>& RT)
-      {
-        RT[0][0] =  1; RT[1][0] = c*n[0];
-        RT[0][1] = -1; RT[1][1] = c*n[0];
-      }
-
-    };
-
-    /** \brief provide matrix which contains rowwise the eigenvectors of linear acoustics problem
-        \tparam dim the space dimension
-    */
-    template<>
-    class LinearAcousticsEigenvectors<2>
-    {
-      enum { dim = 2 };
-    public:
-      /**
-         \param c speed of sound
-         \param n unit outer normal vector
-         \param RT matrix to be filled
-      */
-      template<typename T1, typename T2, typename T3>
-      static void eigenvectors_transposed (T1 c, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,dim+1,dim+1>& RT)
-      {
-        RT[0][0] =  0; RT[0][1] =  -n[1];  RT[0][2] = n[0];
-        RT[1][0] =  1; RT[1][1] = c*n[0];  RT[1][2] = c*n[1];
-        RT[2][0] = -1; RT[2][1] = c*n[0];  RT[2][2] = c*n[1];
-      }
-
-      template<typename T1, typename T2, typename T3>
-      static void eigenvectors (T1 c, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,dim+1,dim+1>& RT)
-      {
-        RT[0][0] =  0; RT[1][0] =  -n[1];  RT[2][0] = n[0];
-        RT[0][1] =  1; RT[1][1] = c*n[0];  RT[2][1] = c*n[1];
-        RT[0][2] = -1; RT[1][2] = c*n[0];  RT[2][2] = c*n[1];
-      }
-    };
-
-    /** \brief provide matrix which contains rowwise the eigenvectors of linear acoustics problem
-        \tparam dim the space dimension
-    */
-    template<>
-    class LinearAcousticsEigenvectors<3>
-    {
-      enum { dim = 3 };
-    public:
-      /**
-         \param c speed of sound
-         \param n unit outer normal vector
-         \param RT matrix to be filled
-      */
-      template<typename T1, typename T2, typename T3>
-      static void eigenvectors_transposed (T1 c, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,dim+1,dim+1>& RT)
-      {
-        Dune::FieldVector<T2,dim> s;
-        s[0] = n[1]-n[2]; s[1] = n[2]-n[0]; s[2] = n[0]-n[1];
-        if (s.two_norm()<1e-5)
-          {
-            s[0] = n[1]+n[2]; s[1] = n[2]-n[0]; s[2] = -(n[0]+n[1]);
-          }
-
-        Dune::FieldVector<T2,dim> t; // compute cross product s * n
-        t[0] = n[1]*s[2] - n[2]*s[1];
-        t[1] = n[2]*s[0] - n[0]*s[2];
-        t[2] = n[0]*s[1] - n[1]*s[0];
-
-        RT[0][0] =  0;  RT[0][1] =   s[0];  RT[0][2] =   s[1];  RT[0][3] =   s[2];
-        RT[1][0] =  0;  RT[1][1] =   t[0];  RT[1][2] =   t[1];  RT[1][3] =   t[2];
-        RT[2][0] =  1;  RT[2][1] = c*n[0];  RT[2][2] = c*n[1];  RT[2][3] = c*n[2];
-        RT[3][0] = -1;  RT[3][1] = c*n[0];  RT[3][2] = c*n[1];  RT[3][3] = c*n[2];
-      }
-
-      template<typename T1, typename T2, typename T3>
-      static void eigenvectors (T1 c, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,dim+1,dim+1>& RT)
-      {
-        Dune::FieldVector<T2,dim> s;
-        s[0] = n[1]-n[2]; s[1] = n[2]-n[0]; s[2] = n[0]-n[1];
-        if (s.two_norm()<1e-5)
-          {
-            s[0] = n[1]+n[2]; s[1] = n[2]-n[0]; s[2] = -(n[0]+n[1]);
-          }
-
-        Dune::FieldVector<T2,dim> t; // compute cross product s * n
-        t[0] = n[1]*s[2] - n[2]*s[1];
-        t[1] = n[2]*s[0] - n[0]*s[2];
-        t[2] = n[0]*s[1] - n[1]*s[0];
-
-        RT[0][0] =  0;  RT[1][0] =   s[0];  RT[2][0] =   s[1];  RT[3][0] =   s[2];
-        RT[0][1] =  0;  RT[1][1] =   t[0];  RT[2][1] =   t[1];  RT[3][1] =   t[2];
-        RT[0][2] =  1;  RT[1][2] = c*n[0];  RT[2][2] = c*n[1];  RT[3][2] = c*n[2];
-        RT[0][3] = -1;  RT[1][3] = c*n[0];  RT[2][3] = c*n[1];  RT[3][3] = c*n[2];
-      }
-    };
 
     /** Spatial local operator for discontinuous Galerkin method for the equations
         of linear acoustics in conservative form:
@@ -156,23 +35,25 @@ namespace Dune {
         with dim+1 identical components.
         - Assumes Galerkin method, i.e. U=V
 
-        \tparam T parameter class
+        \tparam P parameter class
         \tparam FEM Finite Element Map needed to select the cache
     */
-    template<typename T, typename FEM>
+    template<typename PROBLEM, typename FEM>
     class DGLinearAcousticsSpatialOperator :
-      public NumericalJacobianApplyVolume<DGLinearAcousticsSpatialOperator<T,FEM> >,
-      public NumericalJacobianVolume<DGLinearAcousticsSpatialOperator<T,FEM> >,
-      public NumericalJacobianApplySkeleton<DGLinearAcousticsSpatialOperator<T,FEM> >,
-      public NumericalJacobianSkeleton<DGLinearAcousticsSpatialOperator<T,FEM> >,
-      public NumericalJacobianApplyBoundary<DGLinearAcousticsSpatialOperator<T,FEM> >,
-      public NumericalJacobianBoundary<DGLinearAcousticsSpatialOperator<T,FEM> >,
+      public NumericalJacobianApplyVolume<DGLinearAcousticsSpatialOperator<PROBLEM,FEM> >,
+      public NumericalJacobianVolume<DGLinearAcousticsSpatialOperator<PROBLEM,FEM> >,
+      public NumericalJacobianApplySkeleton<DGLinearAcousticsSpatialOperator<PROBLEM,FEM> >,
+      public NumericalJacobianSkeleton<DGLinearAcousticsSpatialOperator<PROBLEM,FEM> >,
+      public NumericalJacobianApplyBoundary<DGLinearAcousticsSpatialOperator<PROBLEM,FEM> >,
+      public NumericalJacobianBoundary<DGLinearAcousticsSpatialOperator<PROBLEM,FEM> >,
       public FullSkeletonPattern,
       public FullVolumePattern,
       public LocalOperatorDefaultFlags,
-      public InstationaryLocalOperatorDefaultMethods<typename T::Traits::RangeFieldType>
+      public InstationaryLocalOperatorDefaultMethods<typename PROBLEM::RangeField>
     {
-      enum { dim = T::Traits::GridViewType::dimension };
+
+      static constexpr int dim = PROBLEM::Model::dim;
+      static constexpr int m = PROBLEM::Model::m; //number of components
 
     public:
       // pattern assembly flags
@@ -186,7 +67,7 @@ namespace Dune {
       enum { doLambdaVolume  = true };
 
       // ! constructor
-      DGLinearAcousticsSpatialOperator (T& param_, int overintegration_=0)
+      DGLinearAcousticsSpatialOperator (PROBLEM& param_, int overintegration_=0)
         : param(param_), overintegration(overintegration_), cache(20)
       {
       }
@@ -198,13 +79,7 @@ namespace Dune {
         // Get types
         using namespace Indices;
         using DGSpace = TypeTree::Child<LFSV,_0>;
-        using RF = typename DGSpace::Traits::FiniteElementType::
-          Traits::LocalBasisType::Traits::RangeFieldType;
-        using size_type = typename DGSpace::Traits::SizeType;
-
-        // paranoia check number of number of components
-        if (TypeTree::degree(lfsv)!=dim+1)
-          DUNE_THROW(Dune::Exception,"need exactly dim+1 components!");
+        using RF = typename PROBLEM::RangeField; // type for computations
 
         // get local function space that is identical for all components
         const auto& dgspace = child(lfsv,_0);
@@ -225,7 +100,7 @@ namespace Dune {
         typename EG::Geometry::JacobianInverseTransposed jac;
 
         // Initialize vectors outside for loop
-        Dune::FieldVector<RF,dim+1> u(0.0);
+        Dune::FieldVector<RF,m> u(0.0);
         std::vector<Dune::FieldVector<RF,dim> > gradphi(dgspace.size());
 
         // loop over quadrature points
@@ -238,8 +113,8 @@ namespace Dune {
 
             // evaluate u
             u = 0.0;
-            for (size_type k=0; k<=dim; k++) // for all components
-              for (size_type j=0; j<dgspace.size(); j++) // for all basis functions
+            for (size_t k=0; k<m; k++) // for all components
+              for (size_t j=0; j<dgspace.size(); j++) // for all basis functions
                 u[k] += x(lfsv.child(k),j)*phi[j];
             // std::cout << "  u at " << ip.position() << " : " << u << std::endl;
 
@@ -248,22 +123,41 @@ namespace Dune {
 
             // compute global gradients
             jac = geo.jacobianInverseTransposed(ip.position());
-            for (size_type i=0; i<dgspace.size(); i++)
+            for (size_t i=0; i<dgspace.size(); i++)
               jac.mv(js[i][0],gradphi[i]);
+
+            //linear coefficients matrix
+            Dune::FieldMatrix<RF,m,m> B;
+            param.model.coefficients(c2,B);
+
+            //B[0][0] = 0.0; B[0][1] = 1.0; B[0][2] = 1.0;
+            //B[1][0] = c2;  B[1][1] = 0.0; B[1][2] = 0.0;
+            //B[2][0] = c2;  B[2][1] = 0.0; B[2][2] = 0.0;
+
 
             // integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
-            for (size_type k=0; k<dgspace.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
+            for (size_t k=0; k<dgspace.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
               {
+
+                /* Linear acoustic specific                
                 // component i=0
-                for (size_type j=0; j<dim; j++)
+                for (size_t j=0; j<dim; j++)
                   r.accumulate(lfsv.child(0),k, - u[j+1]*gradphi[k][j]*factor);
                 // components i=1...d
-                for (size_type i=1; i<=dim; i++)
+                for (size_t i=1; i<=dim; i++)
                   r.accumulate(lfsv.child(i),k, - c2*u[0]*gradphi[k][i-1]*factor);
+                */
+
+                // Generic - B u \grad phi
+                for (size_t i=0; i<m; i++)
+                  for (size_t j=0; i<m; i++)
+                    r.accumulate(lfsv.child(i),k,  -B[i][j]*u[i]*gradphi[k][j]*factor );               
+
+
               }
             // std::cout << "  residual: ";
-            // for (size_type i=0; i<r.size(); i++) std::cout << r[i] << " ";
+            // for (size_t i=0; i<r.size(); i++) std::cout << r[i] << " ";
             // std::cout << std::endl;
           }
       }
@@ -281,9 +175,7 @@ namespace Dune {
         using DGSpace = TypeTree::Child<LFSV,_0>;
         using DF = typename DGSpace::Traits::FiniteElementType::
           Traits::LocalBasisType::Traits::DomainFieldType;
-        using RF = typename DGSpace::Traits::FiniteElementType::
-          Traits::LocalBasisType::Traits::RangeFieldType;
-        using size_type = typename DGSpace::Traits::SizeType;
+        using RF = typename PROBLEM::RangeField; 
 
         // Get local function space that is identical for all components
         const auto& dgspace_s = child(lfsv_s,_0);
@@ -314,34 +206,36 @@ namespace Dune {
         auto c_n = param.c(cell_outside,local_outside);
 
         // Compute A+ (outgoing waves)
-        Dune::FieldMatrix<DF,dim+1,dim+1> RT;
-        LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_s,n_F,RT);
-        Dune::FieldVector<DF,dim+1> alpha;
-        for (int i=0; i<=dim; i++) alpha[i] = RT[dim-1][i]; // row dim-1 corresponds to eigenvalue +c
-        Dune::FieldVector<DF,dim+1> unit(0.0);
+        Dune::FieldMatrix<DF,m,m> RT;
+        param.model.eigenvectors_transposed(c_s,n_F,RT);
+
+        Dune::FieldVector<DF,m> alpha;
+        for (int i=0; i<m; i++) alpha[i] = RT[dim-1][i]; // row dim-1 corresponds to eigenvalue +c
+        Dune::FieldVector<DF,m> unit(0.0);
         unit[dim-1] = 1.0;
-        Dune::FieldVector<DF,dim+1> beta;
+        Dune::FieldVector<DF,m> beta;
         RT.solve(beta,unit);
-        Dune::FieldMatrix<DF,dim+1,dim+1> A_plus_s;
-        for (int i=0; i<=dim; i++)
-          for (int j=0; j<=dim; j++)
+        Dune::FieldMatrix<DF,m,m> A_plus_s;
+        for (int i=0; i<m; i++)
+          for (int j=0; j<m; j++)
             A_plus_s[i][j] = c_s*alpha[i]*beta[j];
 
         // Compute A- (incoming waves)
-        LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_n,n_F,RT);
-        for (int i=0; i<=dim; i++) alpha[i] = RT[dim][i]; // row dim corresponds to eigenvalue -c
+        param.model.eigenvectors_transposed(c_n,n_F,RT);
+
+        for (int i=0; i<m; i++) alpha[i] = RT[dim][i]; // row dim corresponds to eigenvalue -c
         unit = 0.0;
         unit[dim] = 1.0;
         RT.solve(beta,unit);
-        Dune::FieldMatrix<DF,dim+1,dim+1> A_minus_n;
-        for (int i=0; i<=dim; i++)
-          for (int j=0; j<=dim; j++)
+        Dune::FieldMatrix<DF,m,m> A_minus_n;
+        for (int i=0; i<m; i++)
+          for (int j=0; j<m; j++)
             A_minus_n[i][j] = -c_n*alpha[i]*beta[j];
 
         // Initialize vectors outside for loop
-        Dune::FieldVector<RF,dim+1> u_s(0.0);
-        Dune::FieldVector<RF,dim+1> u_n(0.0);
-        Dune::FieldVector<RF,dim+1> f(0.0);
+        Dune::FieldVector<RF,m> u_s(0.0);
+        Dune::FieldVector<RF,m> u_n(0.0);
+        Dune::FieldVector<RF,m> f(0.0);
 
         // Loop over quadrature points
         const int order_s = dgspace_s.finiteElement().localBasis().order();
@@ -359,15 +253,15 @@ namespace Dune {
 
             // Evaluate u from inside and outside
             u_s = 0.0;
-            for (size_type i=0; i<=dim; i++) // for all components
-              for (size_type k=0; k<dgspace_s.size(); k++) // for all basis functions
+            for (size_t i=0; i<m; i++) // for all components
+              for (size_t k=0; k<dgspace_s.size(); k++) // for all basis functions
                 u_s[i] += x_s(lfsv_s.child(i),k)*phi_s[k];
             u_n = 0.0;
-            for (size_type i=0; i<=dim; i++) // for all components
-              for (size_type k=0; k<dgspace_n.size(); k++) // for all basis functions
+            for (size_t i=0; i<m; i++) // for all components
+              for (size_t k=0; k<dgspace_n.size(); k++) // for all basis functions
                 u_n[i] += x_n(lfsv_n.child(i),k)*phi_n[k];
 
-            // Compute numerical flux at integration point
+            // Compute numerical flux at  the integration point
             f = 0.0;
             A_plus_s.umv(u_s,f);
             // std::cout << "  after A_plus*u_s  " << f << std::endl;
@@ -376,19 +270,19 @@ namespace Dune {
 
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
-            for (size_type k=0; k<dgspace_s.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
-              for (size_type i=0; i<=dim; i++) // loop over all components
+            for (size_t k=0; k<dgspace_s.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
+              for (size_t i=0; i<m; i++) // loop over all components   i<j
                 r_s.accumulate(lfsv_s.child(i),k, f[i]*phi_s[k]*factor);
-            for (size_type k=0; k<dgspace_n.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
-              for (size_type i=0; i<=dim; i++) // loop over all components
+            for (size_t k=0; k<dgspace_n.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
+              for (size_t i=0; i<m; i++) // loop over all components
                 r_n.accumulate(lfsv_n.child(i),k, - f[i]*phi_n[k]*factor);
           }
 
         // std::cout << "  residual_s: ";
-        // for (size_type i=0; i<r_s.size(); i++) std::cout << r_s[i] << " ";
+        // for (size_t i=0; i<r_s.size(); i++) std::cout << r_s[i] << " ";
         // std::cout << std::endl;
         // std::cout << "  residual_n: ";
-        // for (size_type i=0; i<r_n.size(); i++) std::cout << r_n[i] << " ";
+        // for (size_t i=0; i<r_n.size(); i++) std::cout << r_n[i] << " ";
         // std::cout << std::endl;
 
       }
@@ -404,9 +298,7 @@ namespace Dune {
         using DGSpace = TypeTree::Child<LFSV,_0>;
         using DF = typename DGSpace::Traits::FiniteElementType::
           Traits::LocalBasisType::Traits::DomainFieldType;
-        using RF = typename DGSpace::Traits::FiniteElementType::
-          Traits::LocalBasisType::Traits::RangeFieldType;
-        using size_type = typename DGSpace::Traits::SizeType;
+        using RF = typename PROBLEM::RangeField; // type for computations
 
         // Get local function space that is identical for all components
         const auto& dgspace_s = child(lfsv_s,_0);
@@ -430,33 +322,35 @@ namespace Dune {
         auto c_s = param.c(cell_inside,local_inside);
 
         // Compute A+ (outgoing waves)
-        Dune::FieldMatrix<DF,dim+1,dim+1> RT;
-        LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_s,n_F,RT);
-        Dune::FieldVector<DF,dim+1> alpha;
-        for (int i=0; i<=dim; i++) alpha[i] = RT[dim-1][i]; // row dim-1 corresponds to eigenvalue +c
-        Dune::FieldVector<DF,dim+1> unit(0.0);
+        Dune::FieldMatrix<DF,m,m> RT;
+        //LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_s,n_F,RT);
+        param.model.eigenvectors_transposed(c_s,n_F,RT);
+        Dune::FieldVector<DF,m> alpha;
+        for (int i=0; i<m; i++) alpha[i] = RT[dim-1][i]; // row dim-1 corresponds to eigenvalue +c
+        Dune::FieldVector<DF,m> unit(0.0);
         unit[dim-1] = 1.0;
-        Dune::FieldVector<DF,dim+1> beta;
+        Dune::FieldVector<DF,m> beta;
         RT.solve(beta,unit);
-        Dune::FieldMatrix<DF,dim+1,dim+1> A_plus_s;
-        for (int i=0; i<=dim; i++)
-          for (int j=0; j<=dim; j++)
+        Dune::FieldMatrix<DF,m,m> A_plus_s;
+        for (int i=0; i<m; i++)
+          for (int j=0; j<m; j++)
             A_plus_s[i][j] = c_s*alpha[i]*beta[j];
 
         // Compute A- (incoming waves)
-        LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_s,n_F,RT);
-        for (int i=0; i<=dim; i++) alpha[i] = RT[dim][i]; // row dim corresponds to eigenvalue -c
+        param.model.eigenvectors_transposed(c_s,n_F,RT);
+
+        for (int i=0; i<m; i++) alpha[i] = RT[dim][i]; // row dim corresponds to eigenvalue -c
         unit = 0.0;
         unit[dim] = 1.0;
         RT.solve(beta,unit);
-        Dune::FieldMatrix<DF,dim+1,dim+1> A_minus_n;
-        for (int i=0; i<=dim; i++)
-          for (int j=0; j<=dim; j++)
+        Dune::FieldMatrix<DF,m,m> A_minus_n;
+        for (int i=0; i<m; i++)
+          for (int j=0; j<m; j++)
             A_minus_n[i][j] = -c_s*alpha[i]*beta[j];
 
         // Initialize vectors outside for loop
-        Dune::FieldVector<RF,dim+1> u_s(0.0);
-        Dune::FieldVector<RF,dim+1> f(0.0);
+        Dune::FieldVector<RF,m> u_s(0.0);
+        Dune::FieldVector<RF,m> f(0.0);
 
         // Loop over quadrature points
         const int order_s = dgspace_s.finiteElement().localBasis().order();
@@ -471,13 +365,13 @@ namespace Dune {
 
             // Evaluate u from inside and outside
             u_s = 0.0;
-            for (size_type i=0; i<=dim; i++) // for all components
-              for (size_type k=0; k<dgspace_s.size(); k++) // for all basis functions
+            for (size_t i=0; i<m; i++) // for all components
+              for (size_t k=0; k<dgspace_s.size(); k++) // for all basis functions
                 u_s[i] += x_s(lfsv_s.child(i),k)*phi_s[k];
             // std::cout << "  u_s " << u_s << std::endl;
 
             // Evaluate boundary condition
-            Dune::FieldVector<RF,dim+1> u_n(param.g(ig.intersection(),ip.position(),u_s));
+            Dune::FieldVector<RF,m> u_n(param.g(ig.intersection(),ip.position(),u_s));
             // std::cout << "  u_n " << u_n << " bc: " << param.g(ig.intersection(),ip.position(),u_s) << std::endl;
 
             // Compute numerical flux at integration point
@@ -489,13 +383,13 @@ namespace Dune {
 
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
-            for (size_type k=0; k<dgspace_s.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
-              for (size_type i=0; i<=dim; i++) // loop over all components
+            for (size_t k=0; k<dgspace_s.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
+              for (size_t i=0; i<m; i++) // loop over all components
                 r_s.accumulate(lfsv_s.child(i),k, f[i]*phi_s[k]*factor);
           }
 
         // std::cout << "  residual_s: ";
-        // for (size_type i=0; i<r_s.size(); i++) std::cout << r_s[i] << " ";
+        // for (size_t i=0; i<r_s.size(); i++) std::cout << r_s[i] << " ";
         // std::cout << std::endl;
       }
 
@@ -506,7 +400,6 @@ namespace Dune {
         // Get types
         using namespace Indices;
         using DGSpace = TypeTree::Child<LFSV,_0>;
-        using size_type = typename DGSpace::Traits::SizeType;
 
         // Get local function space that is identical for all components
         const DGSpace& dgspace = child(lfsv,_0);
@@ -522,7 +415,7 @@ namespace Dune {
         const int intorder = overintegration+2*order_s;
         for (const auto& ip : quadratureRule(geo,intorder))
           {
-            // Evaluate right hand side
+            // Evaluate right hand side q
             auto q(param.q(cell,ip.position()));
 
             // Evaluate basis functions
@@ -530,47 +423,20 @@ namespace Dune {
 
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
-            for (size_type k=0; k<=dim; k++) // for all components
-              for (size_type i=0; i<dgspace.size(); i++) // for all test functions of this component
+            for (size_t k=0; k<m; k++) // for all components
+              for (size_t i=0; i<dgspace.size(); i++) // for all test functions of this component
                 r.accumulate(lfsv.child(k),i, - q[k]*phi[i]*factor);
           }
       }
-
-      //! set time in parameter class
-      void setTime (typename T::Traits::RangeFieldType t)
-      {
-      }
-
-      //! to be called once before each time step
-      void preStep (typename T::Traits::RangeFieldType time, typename T::Traits::RangeFieldType dt,
-                    int stages)
-      {
-      }
-
-      //! to be called once before each stage
-      void preStage (typename T::Traits::RangeFieldType time, int r)
-      {
-      }
-
-      //! to be called once at the end of each stage
-      void postStage ()
-      {
-      }
-
-      //! to be called once before each stage
-      typename T::Traits::RangeFieldType suggestTimestep (typename T::Traits::RangeFieldType dt) const
-      {
-        return dt;
-      }
+      
 
     private:
-      T& param;
+      PROBLEM& param;
       int overintegration;
       using LocalBasisType = typename FEM::Traits::FiniteElementType::Traits::LocalBasisType;
       using Cache = Dune::PDELab::LocalBasisCache<LocalBasisType>;
       std::vector<Cache> cache;
     };
-
 
 
     /** a local operator for the mass operator of a vector valued lfs (L_2 integral)
@@ -579,13 +445,16 @@ namespace Dune {
      \int_\Omega uv dx
      * \f}
      */
-    template<typename T, typename FEM>
+    template<typename PROBLEM, typename FEM>
     class DGLinearAcousticsTemporalOperator :
-      public NumericalJacobianApplyVolume<DGLinearAcousticsTemporalOperator<T,FEM> >,
+      public NumericalJacobianApplyVolume<DGLinearAcousticsTemporalOperator<PROBLEM,FEM> >,
         public LocalOperatorDefaultFlags,
-        public InstationaryLocalOperatorDefaultMethods<typename T::Traits::RangeFieldType>
+        public InstationaryLocalOperatorDefaultMethods<typename PROBLEM::RangeField>
     {
-      enum { dim = T::Traits::GridViewType::dimension };
+
+      static constexpr int dim = PROBLEM::Model::dim;
+      static constexpr int m = PROBLEM::Model::m;
+
     public:
       // pattern assembly flags
       enum { doPatternVolume = true };
@@ -593,7 +462,7 @@ namespace Dune {
       // residual assembly flags
       enum { doAlphaVolume = true };
 
-      DGLinearAcousticsTemporalOperator (T& param_, int overintegration_=0)
+      DGLinearAcousticsTemporalOperator (PROBLEM& param_, int overintegration_=0)
         : param(param_), overintegration(overintegration_), cache(20)
       {}
 
@@ -602,12 +471,6 @@ namespace Dune {
       void pattern_volume (const LFSU& lfsu, const LFSV& lfsv,
                            LocalPattern& pattern) const
       {
-        // paranoia check number of number of components
-        if (TypeTree::degree(lfsu)!=TypeTree::degree(lfsv))
-          DUNE_THROW(Dune::Exception,"need U=V!");
-        if (TypeTree::degree(lfsv)!=dim+1)
-          DUNE_THROW(Dune::Exception,"need exactly dim+1 components!");
-
         for (size_t k=0; k<TypeTree::degree(lfsv); k++)
           for (size_t i=0; i<lfsv.child(k).size(); ++i)
             for (size_t j=0; j<lfsu.child(k).size(); ++j)
@@ -621,9 +484,7 @@ namespace Dune {
         // get types
         using namespace Indices;
         using DGSpace = TypeTree::Child<LFSV,_0>;
-        using RF = typename DGSpace::Traits::FiniteElementType::
-          Traits::LocalBasisType::Traits::RangeFieldType;
-        using size_type = typename DGSpace::Traits::SizeType;
+        using RF = typename PROBLEM::RangeField; // type for computations
 
         // get local function space that is identical for all components
         const auto& dgspace = child(lfsv,_0);
@@ -632,7 +493,7 @@ namespace Dune {
         auto geo = eg.geometry();
 
         // Initialize vectors outside for loop
-        Dune::FieldVector<RF,dim+1> u(0.0);
+        Dune::FieldVector<RF,m> u(0.0);
 
         // loop over quadrature points
         const int order = dgspace.finiteElement().localBasis().order();
@@ -644,14 +505,14 @@ namespace Dune {
 
             // evaluate u
             u = 0.0;
-            for (size_type k=0; k<=dim; k++) // for all components
-              for (size_type j=0; j<dgspace.size(); j++) // for all basis functions
+            for (size_t k=0; k<m; k++) // for all components
+              for (size_t j=0; j<dgspace.size(); j++) // for all basis functions
                 u[k] += x(lfsv.child(k),j)*phi[j];
 
             // integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
-            for (size_type k=0; k<=dim; k++) // for all components
-              for (size_type i=0; i<dgspace.size(); i++) // for all test functions of this component
+            for (size_t k=0; k<m; k++) // for all components
+              for (size_t i=0; i<dgspace.size(); i++) // for all test functions of this component
                 r.accumulate(lfsv.child(k),i, u[k]*phi[i]*factor);
           }
       }
@@ -664,7 +525,6 @@ namespace Dune {
         // get types
         using namespace Indices;
         using DGSpace = TypeTree::Child<LFSV,_0>;
-        using size_type = typename DGSpace::Traits::SizeType;
 
         // get local function space that is identical for all components
         const auto& dgspace = child(lfsv,_0);
@@ -682,15 +542,15 @@ namespace Dune {
 
             // integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
-            for (size_type k=0; k<=dim; k++) // for all components
-              for (size_type i=0; i<dgspace.size(); i++) // for all test functions of this component
-                for (size_type j=0; j<dgspace.size(); j++) // for all ansatz functions of this component
+            for (size_t k=0; k<m; k++) // for all components
+              for (size_t i=0; i<dgspace.size(); i++) // for all test functions of this component
+                for (size_t j=0; j<dgspace.size(); j++) // for all ansatz functions of this component
                   mat.accumulate(lfsv.child(k),i,lfsu.child(k),j, phi[j]*phi[i]*factor);
           }
       }
 
     private:
-      T& param;
+      PROBLEM& param;
       int overintegration;
       using LocalBasisType = typename FEM::Traits::FiniteElementType::Traits::LocalBasisType;
       using Cache = Dune::PDELab::LocalBasisCache<LocalBasisType>;
@@ -700,5 +560,4 @@ namespace Dune {
   }
 }
 
-#endif // DUNE_PDELAB_LOCALOPERATOR_LINEARACOUSTICSDG_HH
-
+#endif // DUNE_PDELAB_LOCALOPERATOR_LINEARHYPERBOLICDG_HH

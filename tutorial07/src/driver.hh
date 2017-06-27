@@ -4,31 +4,24 @@
 // driver for general pouropse hyperbolic solver
 //===============================================================
 
-template<typename GV, typename FEMDG, typename Param>
-void driver (const GV& gv, const FEMDG& femdg, Param& param, Dune::ParameterTree& ptree)
+template<typename GV, typename FEMDG, typename PROBLEM>
+void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::ParameterTree& ptree)
 {
   //std::cout << "using degree " << degree << std::endl;
 
   // Choose domain and range field type
-  using RF = double;                   // type for computations
-  const int dim = GV::dimension;
+  using RF = typename PROBLEM::RangeField; // type for computations
+  //const int dim = GV::dimension;
+  //const int dim = PROBLEM::M::dim;
+  const int dim = problem.model.dim;
+  const int m = problem.model.m; //number of components
 
   //Minak it woudl be better to extract it from fem
   //int degree = ptree.get("fem.degree",(int)1);
 
-  // make PDE parameter class
-  //typedef RiemannProblem<GV,RF> Param;
-  //Param param;
-
-  //minak: no need for dirichlet BC
-  //auto glambda = [&](const auto& e, const auto& x)
-  //  {return param.g(e,x);};
-  //auto g = Dune::PDELab::
-  //  makeBaundaryConditionsFromCallable(gv,glambda);
-
   //initial condition
   auto u0lambda = [&](const auto& i, const auto& x)
-    {return param.u0(i,x);};
+    {return problem.u0(i,x);};
   auto u0 = Dune::PDELab::
     makeGridFunctionFromCallable(gv,u0lambda);
 
@@ -48,39 +41,25 @@ void driver (const GV& gv, const FEMDG& femdg, Param& param, Dune::ParameterTree
   typedef Dune::PDELab::GridFunctionSpace<GV,FEMDG,CON,VBE0> GFSDG;
   GFSDG gfsdg(gv,femdg);
 
-  //TODO use vector grid function space
-  //typedef Dune::PDELab::PowerGridFunctionSpace
-  //  <GFSDG,dim+1,Dune::PDELab::ISTLVectorBackend<> > GFS;
-
-  typedef Dune::PDELab::PowerGridFunctionSpace<GFSDG,dim+1,VBE,OrderingTag> GFS;
-  GFS gfs(gfsdg);
-
-  /* for the future
+  // Vector Grig Function Space
   typedef Dune::PDELab::VectorGridFunctionSpace
-    <GV,FEMDG,dim,VBE0,VBE,CON> GFS;
+    <GV,FEMDG,m,VBE0,VBE,CON> GFS;
   GFS gfs(gv,femdg);
   gfs.name("u");
-  */
 
-  // Add names to the components for VTK output
-  using namespace Dune::TypeTree::Indices;
-  gfs.child(_0).name("u0");
-  gfs.child(_1).name("u1");
-  gfs.child(_2).name("u2");
-  
+  //TODO maybe it is better to use components as it was before?
+
 
   typedef typename GFS::template ConstraintsContainer<RF>::Type C;
   C cg;
   gfs.update(); // initializing the gfs
   std::cout << "degrees of freedom: " << gfs.globalSize() << std::endl;
 
-
-
   // Make instationary grid operator
-  using LOP = Dune::PDELab::DGLinearAcousticsSpatialOperator<Param,FEMDG>;
-  LOP lop(param);
-  using TLOP = Dune::PDELab::DGLinearAcousticsTemporalOperator<Param,FEMDG>;
-  TLOP tlop(param);
+  using LOP = Dune::PDELab::DGLinearAcousticsSpatialOperator<PROBLEM,FEMDG>;
+  LOP lop(problem);
+  using TLOP = Dune::PDELab::DGLinearAcousticsTemporalOperator<PROBLEM,FEMDG>;
+  TLOP tlop(problem);
 
   using MBE = Dune::PDELab::istl::BCRSMatrixBackend<>;
   MBE mbe(5); // Maximal number of nonzeroes per row can be cross-checked by patternStatistics().
@@ -111,24 +90,19 @@ void driver (const GV& gv, const FEMDG& femdg, Param& param, Dune::ParameterTree
 
   igo.setMethod(*method);
 
-  // <<<5>>> set initial values
+  // set initial values
   typedef typename IGO::Traits::Domain V;
   V xold(gfs,0.0);
-  //Dune::PDELab::LinearAcousticsInitialValueAdapter<Param> u0(gv,param);
 
   Dune::PDELab::interpolate(u0,gfs,xold);
  
-
-  //only interpolate components TODO interpolation of vector function space
-
-
-  // <<<6>>> Make a linear solver backend
+  // Make a linear solver backend
   //typedef Dune::PDELab::ISTLBackend_SEQ_CG_SSOR LS;
   //LS ls(10000,1);
   typedef Dune::PDELab::ISTLBackend_OVLP_ExplicitDiagonal<GFS> LS;
   LS ls(gfs);
 
-  // <<<8>>> time-stepper
+  // time-stepper
   typedef Dune::PDELab::CFLTimeController<RF,IGO> TC;
   TC tc(0.999,igo);
   Dune::PDELab::ExplicitOneStepMethod<RF,IGO,LS,V,V,TC> osm(*method,igo,ls,tc);
