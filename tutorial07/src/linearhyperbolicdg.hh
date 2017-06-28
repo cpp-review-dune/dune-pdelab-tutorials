@@ -152,7 +152,9 @@ namespace Dune {
                 // Generic - B u \grad phi
                 for (size_t i=0; i<m; i++)
                   for (size_t j=0; i<m; i++)
-                    r.accumulate(lfsv.child(i),k,  -B[i][j]*u[i]*gradphi[k][j]*factor );               
+                    r.accumulate(lfsv.child(i),k,  -B[i][j]*u[i]*gradphi[k][j]*factor );//this is a bit lucky        
+
+                // TODO full general case B^(j)ik u_k phi_i,j 
 
 
               }
@@ -205,32 +207,34 @@ namespace Dune {
         auto c_s = param.c(cell_inside,local_inside);
         auto c_n = param.c(cell_outside,local_outside);
 
-        // Compute A+ (outgoing waves)
-        Dune::FieldMatrix<DF,m,m> RT;
-        param.model.eigenvectors_transposed(c_s,n_F,RT);
+        // for now assume that c is constant
+        // the case that non-homogenious coefficient we leave for the future 
+        auto c = c_s;
 
-        Dune::FieldVector<DF,m> alpha;
-        for (int i=0; i<m; i++) alpha[i] = RT[dim-1][i]; // row dim-1 corresponds to eigenvalue +c
-        Dune::FieldVector<DF,m> unit(0.0);
-        unit[dim-1] = 1.0;
-        Dune::FieldVector<DF,m> beta;
-        RT.solve(beta,unit);
-        Dune::FieldMatrix<DF,m,m> A_plus_s;
-        for (int i=0; i<m; i++)
-          for (int j=0; j<m; j++)
-            A_plus_s[i][j] = c_s*alpha[i]*beta[j];
+        Dune::FieldMatrix<DF,m,m> D(0.0);
+        D[1][1] = c; D[2][2] = -c;
+        Dune::FieldMatrix<DF,m,m> Dplus(0.0);
+        Dplus[1][1] = c;
+        Dune::FieldMatrix<DF,m,m> Dminus(0.0);
+        Dminus[2][2] = -c;
+        //optimisation possible        
 
-        // Compute A- (incoming waves)
-        param.model.eigenvectors_transposed(c_n,n_F,RT);
+        // fetch eigenvectors
+        Dune::FieldMatrix<DF,m,m> Rot;
+        param.model.eigenvectors(c,n_F,Rot);
 
-        for (int i=0; i<m; i++) alpha[i] = RT[dim][i]; // row dim corresponds to eigenvalue -c
-        unit = 0.0;
-        unit[dim] = 1.0;
-        RT.solve(beta,unit);
-        Dune::FieldMatrix<DF,m,m> A_minus_n;
-        for (int i=0; i<m; i++)
-          for (int j=0; j<m; j++)
-            A_minus_n[i][j] = -c_n*alpha[i]*beta[j];
+        // compute B+ = RD+R^-1 and B- = RD-R^-1
+        Dune::FieldMatrix<DF,m,m> Bplus(Rot);
+        Dune::FieldMatrix<DF,m,m> Bminus(Rot);
+
+        //multiply by D+-
+        Bplus.rightmultiply(Dplus);
+        Bminus.rightmultiply(Dminus);
+
+        //multiply by R^-1
+        Rot.invert();
+        Bplus.rightmultiply(Rot);
+        Bminus.rightmultiply(Rot);
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
@@ -241,6 +245,7 @@ namespace Dune {
         const int order_s = dgspace_s.finiteElement().localBasis().order();
         const int order_n = dgspace_n.finiteElement().localBasis().order();
         const int intorder = overintegration+1+2*std::max(order_s,order_n);
+
         for (const auto& ip : quadratureRule(geo,intorder))
           {
             // Position of quadrature point in local coordinates of elements
@@ -263,17 +268,15 @@ namespace Dune {
 
             // Compute numerical flux at  the integration point
             f = 0.0;
-            A_plus_s.umv(u_s,f);
-            // std::cout << "  after A_plus*u_s  " << f << std::endl;
-            A_minus_n.umv(u_n,f);
-            // std::cout << "  after A_minus*u_n " << f << std::endl;
+            Bplus.umv(u_s,f);
+            Bminus.umv(u_n,f);
 
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
-            for (size_t k=0; k<dgspace_s.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
-              for (size_t i=0; i<m; i++) // loop over all components   i<j
+            for (size_t k=0; k<dgspace_s.size(); k++) // loop over all vector-valued basis functions
+              for (size_t i=0; i<m; i++) // loop over all components  
                 r_s.accumulate(lfsv_s.child(i),k, f[i]*phi_s[k]*factor);
-            for (size_t k=0; k<dgspace_n.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
+            for (size_t k=0; k<dgspace_n.size(); k++) // loop over all vector-valued basis functions 
               for (size_t i=0; i<m; i++) // loop over all components
                 r_n.accumulate(lfsv_n.child(i),k, - f[i]*phi_n[k]*factor);
           }

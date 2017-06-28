@@ -20,6 +20,7 @@ public:
   static constexpr int dim = 2;
   static constexpr int m = 3;
 
+  //in general transposed are not needed
 	template<typename T1, typename T2, typename T3>
 	static void eigenvectors_transposed (T1 c, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,m,m>& RT)
 	{
@@ -35,6 +36,8 @@ public:
 	  RT[0][1] =  1; RT[1][1] = c*n[0];  RT[2][1] = c*n[1];
 	  RT[0][2] = -1; RT[1][2] = c*n[0];  RT[2][2] = c*n[1];
 	}
+
+  //one can also provide eigenvectors inverse
 
   template<typename RF>
   static void coefficients (RF c2, Dune::FieldMatrix<RF,m,m>& A) 
