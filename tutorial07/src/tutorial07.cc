@@ -59,7 +59,6 @@
 
 
 //include your model and problem 
-//#include"problem.hh" TODO problem itself need to be rewriten without traits
 #include"linearacoustics.hh" //model
 #include"problem.hh"
 #include"driver.hh"

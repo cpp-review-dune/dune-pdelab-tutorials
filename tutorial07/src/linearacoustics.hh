@@ -20,15 +20,6 @@ public:
   static constexpr int dim = 2;
   static constexpr int m = 3;
 
-  //in general transposed are not needed
-	template<typename T1, typename T2, typename T3>
-	static void eigenvectors_transposed (T1 c, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,m,m>& RT)
-	{
-	  RT[0][0] =  0; RT[0][1] =  -n[1];  RT[0][2] = n[0];
-	  RT[1][0] =  1; RT[1][1] = c*n[0];  RT[1][2] = c*n[1];
-	  RT[2][0] = -1; RT[2][1] = c*n[0];  RT[2][2] = c*n[1];
-	}
-
 	template<typename T1, typename T2, typename T3>
 	static void eigenvectors (T1 c, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,m,m>& RT)
 	{
@@ -46,6 +37,17 @@ public:
     A[1][0] = c2;  A[1][1] = 0.0; A[1][2] = 0.0;
     A[2][0] = c2;  A[2][1] = 0.0; A[2][2] = 0.0;
 	}
+
+
+  template<typename RF>
+  static void diagonal (RF c, Dune::FieldMatrix<RF,m,m>& D) 
+  {
+    D[0][0] = 0.0;  D[0][1] = 0.0; D[0][2] = 0.0;
+    D[1][0] = 0.0;  D[1][1] = c  ; D[1][2] = 0.0;
+    D[2][0] = 0.0;  D[2][1] = 0.0; D[2][2] = -c;
+	}
+
+
 
 };
 

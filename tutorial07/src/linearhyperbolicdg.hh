@@ -212,13 +212,15 @@ namespace Dune {
         auto c = c_s;
 
         Dune::FieldMatrix<DF,m,m> D(0.0);
-        D[1][1] = c; D[2][2] = -c;
-        Dune::FieldMatrix<DF,m,m> Dplus(0.0);
-        Dplus[1][1] = c;
-        Dune::FieldMatrix<DF,m,m> Dminus(0.0);
-        Dminus[2][2] = -c;
-        //optimisation possible        
+        // fetch eigenvalues 
+        param.model.diagonal(c,D);
 
+        Dune::FieldMatrix<DF,m,m> Dplus(0.0);
+        Dune::FieldMatrix<DF,m,m> Dminus(0.0);
+        
+        for (size_t i =0 ; i<m;i++) 
+          (D[i][i] > 0) ? Dplus[i][i] = D[i][i] : Dminus[i][i] = D[i][i];
+     
         // fetch eigenvectors
         Dune::FieldMatrix<DF,m,m> Rot;
         param.model.eigenvectors(c,n_F,Rot);
@@ -267,7 +269,7 @@ namespace Dune {
                 u_n[i] += x_n(lfsv_n.child(i),k)*phi_n[k];
 
             // Compute numerical flux at  the integration point
-            f = 0.0;
+            f = 0.0; // f = Bplus*u_s + Bminus*u_n
             Bplus.umv(u_s,f);
             Bminus.umv(u_n,f);
 
@@ -324,32 +326,37 @@ namespace Dune {
         auto local_inside = ref_el_inside.position(0,0);
         auto c_s = param.c(cell_inside,local_inside);
 
-        // Compute A+ (outgoing waves)
-        Dune::FieldMatrix<DF,m,m> RT;
-        //LinearAcousticsEigenvectors<dim>::eigenvectors_transposed(c_s,n_F,RT);
-        param.model.eigenvectors_transposed(c_s,n_F,RT);
-        Dune::FieldVector<DF,m> alpha;
-        for (int i=0; i<m; i++) alpha[i] = RT[dim-1][i]; // row dim-1 corresponds to eigenvalue +c
-        Dune::FieldVector<DF,m> unit(0.0);
-        unit[dim-1] = 1.0;
-        Dune::FieldVector<DF,m> beta;
-        RT.solve(beta,unit);
-        Dune::FieldMatrix<DF,m,m> A_plus_s;
-        for (int i=0; i<m; i++)
-          for (int j=0; j<m; j++)
-            A_plus_s[i][j] = c_s*alpha[i]*beta[j];
 
-        // Compute A- (incoming waves)
-        param.model.eigenvectors_transposed(c_s,n_F,RT);
+        // for now assume that c is constant
+        // the case that non-homogenious coefficient we leave for the future 
+        auto c = c_s;
 
-        for (int i=0; i<m; i++) alpha[i] = RT[dim][i]; // row dim corresponds to eigenvalue -c
-        unit = 0.0;
-        unit[dim] = 1.0;
-        RT.solve(beta,unit);
-        Dune::FieldMatrix<DF,m,m> A_minus_n;
-        for (int i=0; i<m; i++)
-          for (int j=0; j<m; j++)
-            A_minus_n[i][j] = -c_s*alpha[i]*beta[j];
+        Dune::FieldMatrix<DF,m,m> D(0.0);
+        // fetch eigenvalues 
+        param.model.diagonal(c,D);
+
+        Dune::FieldMatrix<DF,m,m> Dplus(0.0);
+        Dune::FieldMatrix<DF,m,m> Dminus(0.0);
+        
+        for (size_t i =0 ; i<m;i++) 
+          (D[i][i] > 0) ? Dplus[i][i] = D[i][i] : Dminus[i][i] = D[i][i];
+     
+        // fetch eigenvectors
+        Dune::FieldMatrix<DF,m,m> Rot;
+        param.model.eigenvectors(c,n_F,Rot);
+
+        // compute B+ = RD+R^-1 and B- = RD-R^-1
+        Dune::FieldMatrix<DF,m,m> Bplus(Rot);
+        Dune::FieldMatrix<DF,m,m> Bminus(Rot);
+
+        //multiply by D+-
+        Bplus.rightmultiply(Dplus);
+        Bminus.rightmultiply(Dminus);
+
+        //multiply by R^-1
+        Rot.invert();
+        Bplus.rightmultiply(Rot);
+        Bminus.rightmultiply(Rot);
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
@@ -362,7 +369,6 @@ namespace Dune {
           {
             // Position of quadrature point in local coordinates of elements
             auto iplocal_s = geo_in_inside.global(ip.position());
-
             // Evaluate basis functions
             auto& phi_s = cache[order_s].evaluateFunction(iplocal_s,dgspace_s.finiteElement().localBasis());
 
@@ -378,11 +384,9 @@ namespace Dune {
             // std::cout << "  u_n " << u_n << " bc: " << param.g(ig.intersection(),ip.position(),u_s) << std::endl;
 
             // Compute numerical flux at integration point
-            f = 0.0;
-            A_plus_s.umv(u_s,f);
-            // std::cout << "  after A_plus*u_s  " << f << std::endl;
-            A_minus_n.umv(u_n,f);
-            // std::cout << "  after A_minus*u_n " << f << std::endl;
+            f = 0.0; // f = Bplus*u_s + Bminus*u_n
+            Bplus.umv(u_s,f);
+            Bminus.umv(u_n,f);
 
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
@@ -390,7 +394,6 @@ namespace Dune {
               for (size_t i=0; i<m; i++) // loop over all components
                 r_s.accumulate(lfsv_s.child(i),k, f[i]*phi_s[k]*factor);
           }
-
         // std::cout << "  residual_s: ";
         // for (size_t i=0; i<r_s.size(); i++) std::cout << r_s[i] << " ";
         // std::cout << std::endl;
