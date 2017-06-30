@@ -47,7 +47,18 @@ public:
     D[2][0] = 0.0;  D[2][1] = 0.0; D[2][2] = -c;
 	}
 
+  //Flux function
+  template<typename RF>
+  static void flux (RF c, Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,dim,m>& F) 
+	{
+    F[0][0] = u[1]    ; F[0][1] = u[2];
+    F[1][0] = c*c*u[0]; F[1][1] = 0.0;
+    F[2][0] = 0.0     ; F[2][1] = c*c*u[0];
+	}
 
+
+  //Numerical flux
+  static 
 
 };
 

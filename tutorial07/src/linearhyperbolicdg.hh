@@ -22,14 +22,12 @@
 namespace Dune {
   namespace PDELab {
 
-    /** Spatial local operator for discontinuous Galerkin method for the equations
-        of linear acoustics in conservative form:
+    /** Spatial local operator for discontinuous Galerkin method 
+        for the system of hyperbolic conservation laws:
 
-        \nabla \cdot \{ w \}  = 0 in \Omega
-        \nabla \{ c^2 \rho \} = 0 in \Omega
-        A^-(x) u = A^-(x) g on \partial\Omega
-
-        Where u = (\rho,w) is the solution with dim+1 components, w = \bar\rho v is the momentum.
+        \nabla \cdot \{ F(u) \}  = 0 in \Omega
+        
+        Where u = (u1,...,um) is the solution with m components
 
         - Assumes that the local function space is a power space
         with dim+1 identical components.
@@ -93,9 +91,8 @@ namespace Dune {
         // evaluate speed of sound (assumed constant per element)
         auto ref_el = referenceElement(geo);
         auto localcenter = ref_el.position(0,0);
-        auto c2 = param.c(cell,localcenter);
-        c2 = c2*c2; // square it
-
+        auto c = param.c(cell,localcenter);
+        
         // Transformation
         typename EG::Geometry::JacobianInverseTransposed jac;
 
@@ -126,37 +123,17 @@ namespace Dune {
             for (size_t i=0; i<dgspace.size(); i++)
               jac.mv(js[i][0],gradphi[i]);
 
-            //linear coefficients matrix
-            Dune::FieldMatrix<RF,m,m> B;
-            param.model.coefficients(c2,B);
-
-            //B[0][0] = 0.0; B[0][1] = 1.0; B[0][2] = 1.0;
-            //B[1][0] = c2;  B[1][1] = 0.0; B[1][2] = 0.0;
-            //B[2][0] = c2;  B[2][1] = 0.0; B[2][2] = 0.0;
-
+            Dune::FieldMatrix<RF,dim,m> F;
+            param.model.flux(c,u,F);
 
             // integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
             for (size_t k=0; k<dgspace.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
               {
-
-                /* Linear acoustic specific                
-                // component i=0
-                for (size_t j=0; j<dim; j++)
-                  r.accumulate(lfsv.child(0),k, - u[j+1]*gradphi[k][j]*factor);
-                // components i=1...d
-                for (size_t i=1; i<=dim; i++)
-                  r.accumulate(lfsv.child(i),k, - c2*u[0]*gradphi[k][i-1]*factor);
-                */
-
-                // Generic - B u \grad phi
+                // - F(u) \grad phi
                 for (size_t i=0; i<m; i++)
-                  for (size_t j=0; i<m; i++)
-                    r.accumulate(lfsv.child(i),k,  -B[i][j]*u[i]*gradphi[k][j]*factor );//this is a bit lucky        
-
-                // TODO full general case B^(j)ik u_k phi_i,j 
-
-
+                  for (size_t j=0; j<dim; j++)
+                    r.accumulate(lfsv.child(i),k, - F[i][j]*gradphi[k][j]*factor );
               }
             // std::cout << "  residual: ";
             // for (size_t i=0; i<r.size(); i++) std::cout << r[i] << " ";

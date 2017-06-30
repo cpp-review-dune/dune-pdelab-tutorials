@@ -118,23 +118,24 @@ int main(int argc, char** argv)
 				using MODEL = Model<dim>;
 				MODEL model;
 				//make problem
-				
 				using PROBLEM = Problem<GV,GV::Grid::ctype,MODEL>;
 				PROBLEM param(model);
 
-
         if (degree==0)
           {
-            //const int degree=0;
             typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,0,dim,Dune::GeometryType::cube> FEM;
-			      //construct Finite Element map            
 	      		FEM fem;
             driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
           }
         if (degree==1)
           {
-            //const int degree=1;
             typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,1,dim,Dune::GeometryType::cube> FEM;
+            FEM fem;
+            driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+          }
+        if (degree==2)
+          {
+            typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,Dune::GeometryType::cube> FEM;
             FEM fem;
             driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
           }
