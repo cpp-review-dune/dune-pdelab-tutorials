@@ -21,6 +21,44 @@
 
 namespace Dune {
   namespace PDELab {
+    
+
+    // NUMERICAL FLUXES
+
+    //flux vector splitting
+    //TODO seperate fluxes
+    /*
+    template<typename RF, >
+    Dune::FieldVector<RF,m> fvs (param, Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,dim,m>& F) 
+	{
+        Dune::FieldMatrix<DF,m,m> D(0.0);
+        // fetch eigenvalues 
+        param.model.diagonal(c,D);
+
+        Dune::FieldMatrix<DF,m,m> Dplus(0.0);
+        Dune::FieldMatrix<DF,m,m> Dminus(0.0);
+        
+        for (size_t i =0 ; i<m;i++) 
+          (D[i][i] > 0) ? Dplus[i][i] = D[i][i] : Dminus[i][i] = D[i][i];
+     
+        // fetch eigenvectors
+        Dune::FieldMatrix<DF,m,m> Rot;
+        param.model.eigenvectors(c,n_F,Rot);
+
+        // compute B+ = RD+R^-1 and B- = RD-R^-1
+        Dune::FieldMatrix<DF,m,m> Bplus(Rot);
+        Dune::FieldMatrix<DF,m,m> Bminus(Rot);
+
+        //multiply by D+-
+        Bplus.rightmultiply(Dplus);
+        Bminus.rightmultiply(Dminus);
+
+        //multiply by R^-1
+        Rot.invert();
+        Bplus.rightmultiply(Rot);
+        Bminus.rightmultiply(Rot);    
+     }
+    */
 
     /** Spatial local operator for discontinuous Galerkin method 
         for the system of hyperbolic conservation laws:
@@ -37,13 +75,13 @@ namespace Dune {
         \tparam FEM Finite Element Map needed to select the cache
     */
     template<typename PROBLEM, typename FEM>
-    class DGLinearAcousticsSpatialOperator :
-      public NumericalJacobianApplyVolume<DGLinearAcousticsSpatialOperator<PROBLEM,FEM> >,
-      public NumericalJacobianVolume<DGLinearAcousticsSpatialOperator<PROBLEM,FEM> >,
-      public NumericalJacobianApplySkeleton<DGLinearAcousticsSpatialOperator<PROBLEM,FEM> >,
-      public NumericalJacobianSkeleton<DGLinearAcousticsSpatialOperator<PROBLEM,FEM> >,
-      public NumericalJacobianApplyBoundary<DGLinearAcousticsSpatialOperator<PROBLEM,FEM> >,
-      public NumericalJacobianBoundary<DGLinearAcousticsSpatialOperator<PROBLEM,FEM> >,
+    class DGLinearHyperbolicSpatialOperator :
+      public NumericalJacobianApplyVolume<DGLinearHyperbolicSpatialOperator<PROBLEM,FEM> >,
+      public NumericalJacobianVolume<DGLinearHyperbolicSpatialOperator<PROBLEM,FEM> >,
+      public NumericalJacobianApplySkeleton<DGLinearHyperbolicSpatialOperator<PROBLEM,FEM> >,
+      public NumericalJacobianSkeleton<DGLinearHyperbolicSpatialOperator<PROBLEM,FEM> >,
+      public NumericalJacobianApplyBoundary<DGLinearHyperbolicSpatialOperator<PROBLEM,FEM> >,
+      public NumericalJacobianBoundary<DGLinearHyperbolicSpatialOperator<PROBLEM,FEM> >,
       public FullSkeletonPattern,
       public FullVolumePattern,
       public LocalOperatorDefaultFlags,
@@ -65,7 +103,7 @@ namespace Dune {
       enum { doLambdaVolume  = true };
 
       // ! constructor
-      DGLinearAcousticsSpatialOperator (PROBLEM& param_, int overintegration_=0)
+      DGLinearHyperbolicSpatialOperator (PROBLEM& param_, int overintegration_=0)
         : param(param_), overintegration(overintegration_), cache(20)
       {
       }
@@ -124,7 +162,7 @@ namespace Dune {
               jac.mv(js[i][0],gradphi[i]);
 
             Dune::FieldMatrix<RF,dim,m> F;
-            param.model.flux(c,u,F);
+            param.model.flux(c,u,F);  //TODO this cannot be dependent on parameter that is problem specific
 
             // integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
@@ -135,6 +173,20 @@ namespace Dune {
                   for (size_t j=0; j<dim; j++)
                     r.accumulate(lfsv.child(i),k, - F[i][j]*gradphi[k][j]*factor );
               }
+
+            /*
+            //RHS - term that is outside divergence no integration by parst needed
+
+            // what follow is maxwell specific - TODO generalise it!
+            // for the first half of the system
+            for (size_type i=0; i<dim; i++)
+              // for all test functions of this component
+              for (size_type k=0; k<dgspace.size(); k++)
+                r.accumulate(lfsv.child(i), k, (sigma/eps)*u[i]*phi[k]*factor);
+            */
+
+
+
             // std::cout << "  residual: ";
             // for (size_t i=0; i<r.size(); i++) std::cout << r[i] << " ";
             // std::cout << std::endl;
@@ -365,6 +417,7 @@ namespace Dune {
             Bplus.umv(u_s,f);
             Bminus.umv(u_n,f);
 
+
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
             for (size_t k=0; k<dgspace_s.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
@@ -429,8 +482,8 @@ namespace Dune {
      * \f}
      */
     template<typename PROBLEM, typename FEM>
-    class DGLinearAcousticsTemporalOperator :
-      public NumericalJacobianApplyVolume<DGLinearAcousticsTemporalOperator<PROBLEM,FEM> >,
+    class DGLinearHyperbolicTemporalOperator :
+      public NumericalJacobianApplyVolume<DGLinearHyperbolicTemporalOperator<PROBLEM,FEM> >,
         public LocalOperatorDefaultFlags,
         public InstationaryLocalOperatorDefaultMethods<typename PROBLEM::RangeField>
     {
@@ -445,7 +498,7 @@ namespace Dune {
       // residual assembly flags
       enum { doAlphaVolume = true };
 
-      DGLinearAcousticsTemporalOperator (PROBLEM& param_, int overintegration_=0)
+      DGLinearHyperbolicTemporalOperator (PROBLEM& param_, int overintegration_=0)
         : param(param_), overintegration(overintegration_), cache(20)
       {}
 

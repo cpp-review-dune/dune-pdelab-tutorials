@@ -57,9 +57,6 @@ public:
 	}
 
 
-  //Numerical flux
-  static 
-
 };
 
 template<>

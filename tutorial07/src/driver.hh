@@ -38,16 +38,32 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
 
   using VBE = Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::fixed>;
   using OrderingTag = Dune::PDELab::EntityBlockedOrderingTag;
-  typedef Dune::PDELab::GridFunctionSpace<GV,FEMDG,CON,VBE0> GFSDG;
+  using GFSDG = Dune::PDELab::GridFunctionSpace<GV,FEMDG,CON,VBE0>;
   GFSDG gfsdg(gv,femdg);
 
-  // Vector Grig Function Space
+  // Vector Grig Function Space This failed with export of more then 3 components
+  //typedef Dune::PDELab::VectorGridFunctionSpace
+  //  <GV,FEMDG,m,VBE0,VBE,CON> GFS;
+  //GFS gfs(gv,femdg);
+  //gfs.name("u");
+
+  using GFS = Dune::PDELab::PowerGridFunctionSpace<GFSDG,m,VBE,OrderingTag>;
+  GFS gfs(gfsdg);
+
+  /* for the future
   typedef Dune::PDELab::VectorGridFunctionSpace
-    <GV,FEMDG,m,VBE0,VBE,CON> GFS;
+    <GV,FEMDG,dim,VBE0,VBE,CON> GFS;
   GFS gfs(gv,femdg);
   gfs.name("u");
+  */
 
-  //TODO maybe it is better to use components as it was before?
+  // TODO Add names to the components for VTK output
+  //using namespace Dune::TypeTree::Indices;
+  //gfs.child(_0).name("u0");
+  //gfs.child(_1).name("u1");
+  //gfs.child(_2).name("u2");
+
+
 
 
   typedef typename GFS::template ConstraintsContainer<RF>::Type C;
@@ -56,9 +72,9 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   std::cout << "degrees of freedom: " << gfs.globalSize() << std::endl;
 
   // Make instationary grid operator
-  using LOP = Dune::PDELab::DGLinearAcousticsSpatialOperator<PROBLEM,FEMDG>;
+  using LOP = Dune::PDELab::DGLinearHyperbolicSpatialOperator<PROBLEM,FEMDG>;
   LOP lop(problem);
-  using TLOP = Dune::PDELab::DGLinearAcousticsTemporalOperator<PROBLEM,FEMDG>;
+  using TLOP = Dune::PDELab::DGLinearHyperbolicTemporalOperator<PROBLEM,FEMDG>;
   TLOP tlop(problem);
 
   using MBE = Dune::PDELab::istl::BCRSMatrixBackend<>;
@@ -106,7 +122,7 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   typedef Dune::PDELab::CFLTimeController<RF,IGO> TC;
   TC tc(0.999,igo);
   Dune::PDELab::ExplicitOneStepMethod<RF,IGO,LS,V,V,TC> osm(*method,igo,ls,tc);
-  osm.setVerbosityLevel(2);
+  osm.setVerbosityLevel(4);
 
   // prepare VTK writer and write first file
   int subsampling=ptree.get("output.subsampling",(int)0);
@@ -128,7 +144,9 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   VTKSEQUENCEWRITER vtkSequenceWriter(
     std::make_shared<VTKWRITER>(vtkwriter),filename,filename,"");
   // add data field for all components of the space to the VTK writer
-  Dune::PDELab::addSolutionToVTKWriter(vtkSequenceWriter,gfs,xold);
+  //Dune::PDELab::addSolutionToVTKWriter(vtkSequenceWriter,gfs,xold);
+  //TODO decite how to create names for components
+  Dune::PDELab::addSolutionToVTKWriter(vtkSequenceWriter,gfs,xold,Dune::PDELab::vtk::DefaultFunctionNameGenerator("u"));
   vtkSequenceWriter.write(0.0,Dune::VTK::appendedraw);
 
   // initialize simulation time

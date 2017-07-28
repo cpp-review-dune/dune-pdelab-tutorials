@@ -59,8 +59,12 @@
 
 
 //include your model and problem 
-#include"linearacoustics.hh" //model
-#include"problem.hh"
+//Linear Acoustics
+//#include"linearacoustics.hh" //model
+//#include"problem.hh"
+//Maxwell
+#include"maxwell.hh" //model
+#include"maxwellproblem.hh"
 #include"driver.hh"
 
 //===============================================================
@@ -87,61 +91,114 @@ int main(int argc, char** argv)
     ptreeparser.readOptions(argc,argv,ptree);
 
     // read ini file
-    const int dim = 2;//ptree.get<int>("grid.dim");
+    const int dim = ptree.get<int>("grid.dim");
     const int refinement = ptree.get<int>("grid.refinement");
     const int degree = ptree.get<int>("fem.degree");
 
  
     // parallel overlapping yaspgrid version
     if (ptree["grid.manager"] == "yasp")
-      {
-        const int dim=2;
-        Dune::FieldVector<double,dim> L(1.0);
-        Dune::array<int,dim> N(Dune::fill_array<int,dim>(20));
-        std::bitset<dim> periodic(false);
-        int overlap=1;
+      /*
+			if (dim == 2)
+		    {
+		      const int dim=2;
+		      Dune::FieldVector<double,dim> L(1.0);
+		      Dune::array<int,dim> N(Dune::fill_array<int,dim>(20));
+		      std::bitset<dim> periodic(false);
+		      int overlap=1;
 
-        Dune::array<double,dim> lower_left; for (int i=0; i<dim; i++) lower_left[i]=0.0;
-        auto upper_right = ptree.get<Dune::array<double,dim> >("grid.L");
-        auto cells = ptree.get<Dune::array<unsigned int,dim> >("grid.N");
+		      Dune::array<double,dim> lower_left; for (int i=0; i<dim; i++) lower_left[i]=0.0;
+		      auto upper_right = ptree.get<Dune::array<double,dim> >("grid.L");
+		      auto cells = ptree.get<Dune::array<unsigned int,dim> >("grid.N");
 
-        // make grid
-        using GM = Dune::YaspGrid<dim>;
-        GM grid(L,N,periodic,overlap,helper.getCommunicator());
-		    grid.refineOptions(false); // keep overlap in cells
-        grid.globalRefine(ptree.get("grid.refinement",(int)0));
-        // grid view
-        using GV = GM::LeafGridView ;
-        GV gv=grid.leafGridView();
+		      // make grid
+		      using GM = Dune::YaspGrid<dim>;
+		      GM grid(L,N,periodic,overlap,helper.getCommunicator());
+				  grid.refineOptions(false); // keep overlap in cells
+		      grid.globalRefine(ptree.get("grid.refinement",(int)0));
+		      // grid view
+		      using GV = GM::LeafGridView ;
+		      GV gv=grid.leafGridView();
 
-				//make Model
-				using MODEL = Model<dim>;
-				MODEL model;
-				//make problem
-				using PROBLEM = Problem<GV,GV::Grid::ctype,MODEL>;
-				PROBLEM param(model);
+					//make Model
+					using MODEL = Model<dim>;
+					MODEL model;
+					//make problem
+					using PROBLEM = Problem<GV,GV::Grid::ctype,MODEL>;
+					PROBLEM param(model);
 
-        if (degree==0)
-          {
-            typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,0,dim,Dune::GeometryType::cube> FEM;
-	      		FEM fem;
-            driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
-          }
-        if (degree==1)
-          {
-            typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,1,dim,Dune::GeometryType::cube> FEM;
-            FEM fem;
-            driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
-          }
-        if (degree==2)
-          {
-            typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,Dune::GeometryType::cube> FEM;
-            FEM fem;
-            driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
-          }
-        return 0;
-      }
+		      if (degree==0)
+		        {
+		          typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,0,dim,Dune::GeometryType::cube> FEM;
+			    		FEM fem;
+		          driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+		        }
+		      if (degree==1)
+		        {
+		          typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,1,dim,Dune::GeometryType::cube> FEM;
+		          FEM fem;
+		          driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+		        }
+		      if (degree==2)
+		        {
+		          typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,Dune::GeometryType::cube> FEM;
+		          FEM fem;
+		          driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+		        }
+		      return 0;
+		    }
+      */
+			if (dim == 3)
+		    {
+		      const int dim=3;
+		      Dune::FieldVector<double,dim> L(1.0);
+		      Dune::array<int,dim> N(Dune::fill_array<int,dim>(4));
+		      std::bitset<dim> periodic(false);
+		      int overlap=1;
 
+		      Dune::array<double,dim> lower_left; for (int i=0; i<dim; i++) lower_left[i]=0.0;
+		      auto upper_right = ptree.get<Dune::array<double,dim> >("grid.L");
+		      auto cells = ptree.get<Dune::array<unsigned int,dim> >("grid.N");
+
+		      // make grid
+		      using GM = Dune::YaspGrid<dim>;
+		      GM grid(L,N,periodic,overlap,helper.getCommunicator());
+				  grid.refineOptions(false); // keep overlap in cells
+		      grid.globalRefine(ptree.get("grid.refinement",(int)0));
+		      // grid view
+		      using GV = GM::LeafGridView ;
+		      GV gv=grid.leafGridView();
+
+					//make Model
+					using MODEL = Model<dim>;
+					MODEL model;
+					//make problem
+					using PROBLEM = Problem<GV,GV::Grid::ctype,MODEL>;
+					PROBLEM param(model);
+
+		      if (degree==0)
+		        {
+		          typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,0,dim,Dune::GeometryType::cube> FEM;
+			    		FEM fem;
+		          driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+		        }
+					/*
+		      if (degree==1)
+		        {
+		          typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,1,dim,Dune::GeometryType::cube> FEM;
+		          FEM fem;
+		          driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+		        }
+		      if (degree==2)
+		        {
+		          typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,Dune::GeometryType::cube> FEM;
+		          FEM fem;
+		          driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+		        }
+          */
+		      return 0;
+		    }
+        //3d
   }
   catch (Dune::Exception &e){
     std::cerr << "Dune reported error: " << e << std::endl;
