@@ -20,12 +20,66 @@ public:
   static constexpr int dim = 3;
   static constexpr int m = 6;
 
-
-  //minak
-  /*
-	template<typename T1, typename T2, typename T3>
-	static void eigenvectors (T1 c, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,m,m>& R)
+  template<typename T1, typename T2, typename T3>
+	static void eigenvectors (T1 cc, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,m,m>& R)
   {
+		int eps = 1.0;
+		int mu  = 1.0;
+
+    auto a=n[0], b=n[1], c=n[2];
+
+		Dune::FieldVector<T2,dim> alpha, beta;
+
+		if (std::abs(c)<0.5)
+		  {
+		    alpha[0]=a*c; alpha[1]=b*c; alpha[2]=c*c-1;
+		    beta[0]=-b;  beta[1]=a;   beta[2]=0;
+		  }
+		else
+		  {
+		    alpha[0]=a*b; alpha[1]=b*b-1; alpha[2]=b*c;
+		    beta[0]=c;  beta[1]=0.0;   beta[2]=-a;
+		  }
+
+		// \lambda_0,1 = s
+		R[0][0] =  alpha[0];   R[0][1] =  -beta[0]; 
+		R[1][0] =  alpha[1];   R[1][1] =  -beta[1];        
+		R[2][0] =  alpha[2];   R[2][1] =  -beta[2];          
+		R[3][0] =  beta[0];    R[3][1] =  alpha[0];          
+		R[4][0] =  beta[1];    R[4][1] =  alpha[1];         
+		R[5][0] =  beta[2];    R[5][1] =  alpha[2];         
+		        
+		// \lambda_2,3 = -s
+		R[0][2] =  beta[0];   R[0][3] =  alpha[0]; 
+		R[1][2] =  beta[1];   R[1][3] =  alpha[1];        
+		R[2][2] =  beta[2];   R[2][3] =  alpha[2];          
+		R[3][2] =  alpha[0];  R[3][3] =  -beta[0];          
+		R[4][2] =  alpha[1];  R[4][3] =  -beta[1];         
+		R[5][2] =  alpha[2];  R[5][3] =  -beta[2];
+
+		// \lambda_4,5 = 0
+		R[0][4] =   a;  R[0][5] =   0;
+		R[1][4] =   b;  R[1][5] =   0;
+		R[2][4] =   c;  R[2][5] =   0;
+		R[3][4] =   0;  R[3][5] =   a;
+		R[4][4] =   0;  R[4][5] =   b;
+		R[5][4] =   0;  R[5][5] =   c;
+
+		// apply scaling
+		T1 weps=sqrt(eps);
+		T1 wmu=sqrt(mu);
+		for (std::size_t i=0; i<3; i++)
+		  for (std::size_t j=0; j<6; j++)
+		    R[i][j] *= weps;
+		for (std::size_t i=3; i<6; i++)
+		  for (std::size_t j=0; j<6; j++)
+		    R[i][j] *= wmu;
+
+		return;
+    //c = sqrtmueps
+		//R *= 1/c;
+
+    /*  
     R[0][0] = 0.0;  R[0][1] = 0.0;  R[0][2] = 0.0;  R[0][3] = 0.0;  R[0][4] = n[2]; R[0][5] =-n[1];
     R[1][0] = 0.0;  R[1][1] = 0.0;  R[1][2] = 0.0;  R[1][3] =-n[2]; R[1][4] = 0.0;  R[1][5] = n[0];
     R[2][0] = 0.0;  R[2][1] = 0.0;  R[2][2] = 0.0;  R[2][3] = n[1]; R[2][4] =-n[0]; R[2][5] = 1.0;
@@ -33,30 +87,15 @@ public:
 		R[4][0] = n[2]; R[4][1] = 0.0;  R[4][2] =-n[0]; R[4][3] = 0.0;  R[4][4] = 1.0;  R[4][5] = 1.0;
 		R[5][0] =-n[1]; R[5][1] = n[0]; R[5][2] = 0.0;  R[5][3] = 0.0;  R[5][4] = 1.0;  R[5][5] = 1.0;
 
-    //c = sqrtmueps
-		R *= 1/c;
-  }
-  */
-
-  //peter
-	template<typename T1, typename T2, typename T3>
-	static void eigenvectors (T1 cc, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,m,m>& R)
-  {
-
-    auto a=n[0], b=n[1], c=n[2];
-
+    peter maple 
     R[0][0] = a*b;  R[0][1] =-c;    R[0][2] = c;    R[0][3] = a*b;  R[0][4] = n[0]; R[0][5] = 0.0;
     R[1][0] = b*b-1;R[1][1] = 0.0;  R[1][2] = 0.0;  R[1][3] = b*b-1;R[1][4] = n[1]; R[1][5] = 0.0;
     R[2][0] = b*c;  R[2][1] = a;    R[2][2] = -a;   R[2][3] = b*c;  R[2][4] = n[2]; R[2][5] = 0.0;
 		R[3][0] = c;    R[3][1] = a*b;  R[3][2] = a*b;  R[3][3] =-c;    R[3][4] = 0.0;  R[3][5] = n[0];
 		R[4][0] = 0.0;  R[4][1] = b*b-1;R[4][2] = b*b-1;R[4][3] = 0.0;  R[4][4] = 0.0;  R[4][5] = n[1];
 		R[5][0] = -a;   R[5][1] = b*c;  R[5][2] = b*c;  R[5][3] = a;    R[5][4] = 0.0;  R[5][5] = n[2];
-
-    //c = sqrtmueps
-		R *= 1/cc;
-  }
-
-
+    */
+	};
   //one can also provide eigenvectors inverse
 
   template<typename RF>
@@ -83,7 +122,7 @@ public:
 
   //Flux function
   template<typename RF>
-  static void flux (RF c, Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,dim,m>& F) 
+  static void flux (RF c, Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F) 
 	{
     RF mu(1.0);
     RF ep(1.0);
@@ -96,6 +135,7 @@ public:
     F[5][0] = 1/ep*u[1]; F[5][1] =-1/ep*u[0]; F[5][2] = 0.0;
 	}
 
-
 };
+
+
 

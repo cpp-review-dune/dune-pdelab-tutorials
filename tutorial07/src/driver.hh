@@ -122,7 +122,7 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   typedef Dune::PDELab::CFLTimeController<RF,IGO> TC;
   TC tc(0.999,igo);
   Dune::PDELab::ExplicitOneStepMethod<RF,IGO,LS,V,V,TC> osm(*method,igo,ls,tc);
-  osm.setVerbosityLevel(4);
+  osm.setVerbosityLevel(2);
 
   // prepare VTK writer and write first file
   int subsampling=ptree.get("output.subsampling",(int)0);

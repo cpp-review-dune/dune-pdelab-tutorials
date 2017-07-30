@@ -49,7 +49,7 @@ public:
 
   //Flux function
   template<typename RF>
-  static void flux (RF c, Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,dim,m>& F) 
+  static void flux (RF c, Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F) 
 	{
     F[0][0] = u[1]    ; F[0][1] = u[2];
     F[1][0] = c*c*u[0]; F[1][1] = 0.0;
@@ -59,6 +59,8 @@ public:
 
 };
 
+/*
+not tested
 template<>
 class Model<1>
 {
@@ -134,4 +136,5 @@ public:
     RT[0][3] = -1;  RT[1][3] = c*n[0];  RT[2][3] = c*n[1];  RT[3][3] = c*n[2];
   }
 };
+*/
 

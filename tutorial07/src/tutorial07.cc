@@ -17,7 +17,7 @@
 #include<dune/common/typetraits.hh>
 #include<dune/common/timer.hh>
 
-#include<dune/grid/io/file/vtk.hh> //added 
+#include<dune/grid/io/file/vtk.hh> 
 #include<dune/grid/io/file/vtk/subsamplingvtkwriter.hh>
 #include<dune/grid/io/file/gmshreader.hh>
 #include<dune/grid/yaspgrid.hh>
@@ -34,12 +34,12 @@
 #include<dune/pdelab/finiteelementmap/opbfem.hh>
 
 #include<dune/pdelab/gridfunctionspace/subspace.hh>
-#include <dune/pdelab/gridfunctionspace/vectorgridfunctionspace.hh> //added by minak
+#include <dune/pdelab/gridfunctionspace/vectorgridfunctionspace.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspace.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspaceutilities.hh>
 #include<dune/pdelab/gridfunctionspace/genericdatahandle.hh>
 #include<dune/pdelab/gridfunctionspace/interpolate.hh>
-#include<dune/pdelab/gridfunctionspace/vtk.hh> //added by minak
+#include<dune/pdelab/gridfunctionspace/vtk.hh> 
 #include<dune/pdelab/constraints/common/constraints.hh>
 #include<dune/pdelab/common/function.hh>
 #include<dune/pdelab/common/instationaryfilenamehelper.hh>
@@ -49,7 +49,7 @@
 #include<dune/pdelab/backend/istl.hh>
 #include<dune/pdelab/instationary/onestep.hh>
 
-#include<dune/pdelab/function/callableadapter.hh> //make bc from callable
+#include<dune/pdelab/function/callableadapter.hh> 
 
 #include<dune/pdelab/gridoperator/onestep.hh>
 #include<dune/pdelab/instationary/onestep.hh>
@@ -58,13 +58,25 @@
 #include"linearhyperbolicdg.hh"
 
 
-//include your model and problem 
+
+//===============================================================
+// Include your hyperbolic model and problem to solve 
+// This tutorial covers
+// - Linear Acoustics in 2d 
+// - Maxwell in 3d
+//===============================================================
+
 //Linear Acoustics
-//#include"linearacoustics.hh" //model
-//#include"problem.hh"
+#if GRIDDIM == 2
+#include"linearacoustics.hh" //model
+#include"linearacousticsproblem.hh"
+#endif
 //Maxwell
+#if GRIDDIM == 3
 #include"maxwell.hh" //model
 #include"maxwellproblem.hh"
+#endif
+
 #include"driver.hh"
 
 //===============================================================
@@ -98,19 +110,22 @@ int main(int argc, char** argv)
  
     // parallel overlapping yaspgrid version
     if (ptree["grid.manager"] == "yasp")
-      /*
+
+#if GRIDDIM == 2
 			if (dim == 2)
 		    {
 		      const int dim=2;
+
 		      Dune::FieldVector<double,dim> L(1.0);
 		      Dune::array<int,dim> N(Dune::fill_array<int,dim>(20));
 		      std::bitset<dim> periodic(false);
 		      int overlap=1;
 
 		      Dune::array<double,dim> lower_left; for (int i=0; i<dim; i++) lower_left[i]=0.0;
+
 		      auto upper_right = ptree.get<Dune::array<double,dim> >("grid.L");
 		      auto cells = ptree.get<Dune::array<unsigned int,dim> >("grid.N");
-
+		      
 		      // make grid
 		      using GM = Dune::YaspGrid<dim>;
 		      GM grid(L,N,periodic,overlap,helper.getCommunicator());
@@ -147,7 +162,9 @@ int main(int argc, char** argv)
 		        }
 		      return 0;
 		    }
-      */
+#endif
+
+#if GRIDDIM == 3
 			if (dim == 3)
 		    {
 		      const int dim=3;
@@ -198,7 +215,7 @@ int main(int argc, char** argv)
           */
 		      return 0;
 		    }
-        //3d
+#endif  //3d
   }
   catch (Dune::Exception &e){
     std::cerr << "Dune reported error: " << e << std::endl;

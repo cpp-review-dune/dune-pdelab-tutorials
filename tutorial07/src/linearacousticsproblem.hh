@@ -1,5 +1,5 @@
-#ifndef RIEMANNPROBLEM
-#define RIEMANNPROBLEM
+#ifndef ACOUSTICS_RIEMANNPROBLEM
+#define ACOUSTICS_RIEMANNPROBLEM
 template<typename GV, typename NUMBER, typename MODEL>
 class Problem
 {
@@ -29,7 +29,6 @@ public:
   {
     return 0.0;
   }
-
 
   //! Boundary condition value - reflecting bc
   template<typename I, typename X, typename R>
@@ -81,4 +80,4 @@ private:
   NUMBER pi;
 
 };
-#endif
+#endif //ACOUSTICS_RIEMANNPROBLEM

@@ -1,5 +1,5 @@
-#ifndef MAXWELLPROBLEM
-#define MAXWELLPROBLEM
+#ifndef MAXWELL_RIEMANNPROBLEM
+#define MAXWELL_RIEMANNPROBLEM
 template<typename GV, typename NUMBER, typename MODEL>
 class Problem
 {
@@ -124,4 +124,4 @@ private:
   NUMBER pi;
 
 };
-#endif //MAXWELLPROBLEM
+#endif //MAXWELL_RIEMANNPROBLEM

@@ -161,7 +161,7 @@ namespace Dune {
             for (size_t i=0; i<dgspace.size(); i++)
               jac.mv(js[i][0],gradphi[i]);
 
-            Dune::FieldMatrix<RF,dim,m> F;
+            Dune::FieldMatrix<RF,m,dim> F;
             param.model.flux(c,u,F);  //TODO this cannot be dependent on parameter that is problem specific
 
             // integrate
@@ -298,7 +298,8 @@ namespace Dune {
                 u_n[i] += x_n(lfsv_n.child(i),k)*phi_n[k];
 
             // Compute numerical flux at  the integration point
-            f = 0.0; // f = Bplus*u_s + Bminus*u_n
+            f = 0.0; 
+            // f = Bplus*u_s + Bminus*u_n
             Bplus.umv(u_s,f);
             Bminus.umv(u_n,f);
 
