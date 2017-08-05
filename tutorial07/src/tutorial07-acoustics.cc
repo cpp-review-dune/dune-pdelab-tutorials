@@ -57,25 +57,13 @@
 
 #include"linearhyperbolicdg.hh"
 
-
-
 //===============================================================
 // Include your hyperbolic model and problem to solve 
-// This tutorial covers
-// - Linear Acoustics in 2d 
-// - Maxwell in 3d
 //===============================================================
 
 //Linear Acoustics
-#if GRIDDIM == 2
 #include"linearacoustics.hh" //model
 #include"linearacousticsproblem.hh"
-#endif
-//Maxwell
-#if GRIDDIM == 3
-#include"maxwell.hh" //model
-#include"maxwellproblem.hh"
-#endif
 
 #include"driver.hh"
 
@@ -99,7 +87,9 @@ int main(int argc, char** argv)
     // open ini file
     Dune::ParameterTree ptree;
     Dune::ParameterTreeParser ptreeparser;
-    ptreeparser.readINITree("tutorial07.ini",ptree);
+
+    ptreeparser.readINITree("tutorial07-acoustics.ini",ptree);
+
     ptreeparser.readOptions(argc,argv,ptree);
 
     // read ini file
@@ -111,7 +101,6 @@ int main(int argc, char** argv)
     // parallel overlapping yaspgrid version
     if (ptree["grid.manager"] == "yasp")
 
-#if GRIDDIM == 2
 			if (dim == 2)
 		    {
 		      const int dim=2;
@@ -162,60 +151,6 @@ int main(int argc, char** argv)
 		        }
 		      return 0;
 		    }
-#endif
-
-#if GRIDDIM == 3
-			if (dim == 3)
-		    {
-		      const int dim=3;
-		      Dune::FieldVector<double,dim> L(1.0);
-		      Dune::array<int,dim> N(Dune::fill_array<int,dim>(4));
-		      std::bitset<dim> periodic(false);
-		      int overlap=1;
-
-		      Dune::array<double,dim> lower_left; for (int i=0; i<dim; i++) lower_left[i]=0.0;
-		      auto upper_right = ptree.get<Dune::array<double,dim> >("grid.L");
-		      auto cells = ptree.get<Dune::array<unsigned int,dim> >("grid.N");
-
-		      // make grid
-		      using GM = Dune::YaspGrid<dim>;
-		      GM grid(L,N,periodic,overlap,helper.getCommunicator());
-				  grid.refineOptions(false); // keep overlap in cells
-		      grid.globalRefine(ptree.get("grid.refinement",(int)0));
-		      // grid view
-		      using GV = GM::LeafGridView ;
-		      GV gv=grid.leafGridView();
-
-					//make Model
-					using MODEL = Model<dim>;
-					MODEL model;
-					//make problem
-					using PROBLEM = Problem<GV,GV::Grid::ctype,MODEL>;
-					PROBLEM param(model);
-
-		      if (degree==0)
-		        {
-		          typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,0,dim,Dune::GeometryType::cube> FEM;
-			    		FEM fem;
-		          driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
-		        }
-					/*
-		      if (degree==1)
-		        {
-		          typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,1,dim,Dune::GeometryType::cube> FEM;
-		          FEM fem;
-		          driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
-		        }
-		      if (degree==2)
-		        {
-		          typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,Dune::GeometryType::cube> FEM;
-		          FEM fem;
-		          driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
-		        }
-          */
-		      return 0;
-		    }
-#endif  //3d
   }
   catch (Dune::Exception &e){
     std::cerr << "Dune reported error: " << e << std::endl;
