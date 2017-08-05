@@ -16,24 +16,14 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   const int dim = problem.model.dim;
   const int m = problem.model.m; //number of components
 
-  //Minak it woudl be better to extract it from fem
-  //int degree = ptree.get("fem.degree",(int)1);
-
   //initial condition
   auto u0lambda = [&](const auto& i, const auto& x)
     {return problem.u0(i,x);};
   auto u0 = Dune::PDELab::
     makeGridFunctionFromCallable(gv,u0lambda);
 
-  //TODO figure out proper blocksize
-  // <<<2>>> Make grid function space
-  //const int blocksize = Dune::PB::PkSize<degree,dim>::value;
-
   typedef Dune::PDELab::NoConstraints CON;
-  //typedef Dune::PDELab::ISTLVectorBackend
-  //  <Dune::PDELab::istl::Parameters::static_blocking,blocksize> VBE;
 
-  // blocking fixed is not allowed???
   using VBE0 = Dune::PDELab::istl::VectorBackend<>;
 
   using VBE = Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::fixed>;
@@ -41,29 +31,9 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   using GFSDG = Dune::PDELab::GridFunctionSpace<GV,FEMDG,CON,VBE0>;
   GFSDG gfsdg(gv,femdg);
 
-  // Vector Grig Function Space This failed with export of more then 3 components
-  //typedef Dune::PDELab::VectorGridFunctionSpace
-  //  <GV,FEMDG,m,VBE0,VBE,CON> GFS;
-  //GFS gfs(gv,femdg);
-  //gfs.name("u");
 
   using GFS = Dune::PDELab::PowerGridFunctionSpace<GFSDG,m,VBE,OrderingTag>;
   GFS gfs(gfsdg);
-
-  /* for the future
-  typedef Dune::PDELab::VectorGridFunctionSpace
-    <GV,FEMDG,dim,VBE0,VBE,CON> GFS;
-  GFS gfs(gv,femdg);
-  gfs.name("u");
-  */
-
-  // TODO Add names to the components for VTK output
-  //using namespace Dune::TypeTree::Indices;
-  //gfs.child(_0).name("u0");
-  //gfs.child(_1).name("u1");
-  //gfs.child(_2).name("u2");
-
-
 
 
   typedef typename GFS::template ConstraintsContainer<RF>::Type C;
@@ -78,7 +48,7 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   TLOP tlop(problem);
 
   using MBE = Dune::PDELab::istl::BCRSMatrixBackend<>;
-  MBE mbe(5); // Maximal number of nonzeroes per row can be cross-checked by patternStatistics().
+  MBE mbe(5); // Maximal number of nonzeroes per row 
 
   using GO0 = Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,RF,RF,RF,C,C>;
   GO0 go0(gfs,cg,gfs,cg,lop,mbe);
@@ -97,11 +67,11 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   Dune::PDELab::RK4Parameter<RF> method4;
   Dune::PDELab::TimeSteppingParameterInterface<RF> *method;
 
-  if (torder==0) {method=&method1; std::cout << "setting explicit Euler" << std::endl;}
-  if (torder==1) {method=&method2; std::cout << "setting Heun" << std::endl;}
-  if (torder==2) {method=&method3; std::cout << "setting Shu 3" << std::endl;}
-  if (torder==3) {method=&method4; std::cout << "setting RK4" << std::endl;}
-  if (torder<1||torder>3) std::cout<<"torder should be in [1,3]"<<std::endl;
+  if (torder==1) {method=&method1; std::cout << "setting explicit Euler" << std::endl;}
+  if (torder==2) {method=&method2; std::cout << "setting Heun" << std::endl;}
+  if (torder==3) {method=&method3; std::cout << "setting Shu 3" << std::endl;}
+  if (torder==4) {method=&method4; std::cout << "setting RK4" << std::endl;}
+  if (torder<1||torder>4) std::cout<<"torder should be in [1,4]"<<std::endl;
 
 
   igo.setMethod(*method);

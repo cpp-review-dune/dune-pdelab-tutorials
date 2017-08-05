@@ -79,10 +79,10 @@ int main(int argc, char** argv)
     if(Dune::MPIHelper::isFake)
       std::cout<< "This is a sequential program." << std::endl;
     else
-	  {
-		if(helper.rank()==0)
-		  std::cout << "parallel run on " << helper.size() << " process(es)" << std::endl;
-	  }
+    {
+    if(helper.rank()==0)
+      std::cout << "parallel run on " << helper.size() << " process(es)" << std::endl;
+    }
 
     // open ini file
     Dune::ParameterTree ptree;
@@ -101,63 +101,61 @@ int main(int argc, char** argv)
     // parallel overlapping yaspgrid version
     if (ptree["grid.manager"] == "yasp")
 
-			if (dim == 3)
-		    {
-		      const int dim=3;
-		      Dune::FieldVector<double,dim> L(1.0);
-		      Dune::array<int,dim> N(Dune::fill_array<int,dim>(4));
-		      std::bitset<dim> periodic(false);
-		      int overlap=1;
+      if (dim == 3)
+        {
+          const int dim=3;
 
-		      Dune::array<double,dim> lower_left; for (int i=0; i<dim; i++) lower_left[i]=0.0;
-		      auto upper_right = ptree.get<Dune::array<double,dim> >("grid.L");
-		      auto cells = ptree.get<Dune::array<unsigned int,dim> >("grid.N");
+          std::bitset<dim> periodic(false);
+          int overlap=1;
+          Dune::array<double,dim> lower_left; for (int i=0; i<dim; i++) lower_left[i]=0.0;
+          auto upper_right = ptree.get<Dune::FieldVector<double,dim> >("grid.L");
+          auto cells = ptree.get<Dune::array<int,dim> >("grid.N");
+          
+          // make grid
+          using GM = Dune::YaspGrid<dim>;
+          GM grid(upper_right,cells,periodic,overlap,helper.getCommunicator());
+          grid.refineOptions(false); // keep overlap in cells
+          grid.globalRefine(ptree.get("grid.refinement",(int)0));
+          // grid view
+          using GV = GM::LeafGridView ;
+          GV gv=grid.leafGridView();
 
-		      // make grid
-		      using GM = Dune::YaspGrid<dim>;
-		      GM grid(L,N,periodic,overlap,helper.getCommunicator());
-				  grid.refineOptions(false); // keep overlap in cells
-		      grid.globalRefine(ptree.get("grid.refinement",(int)0));
-		      // grid view
-		      using GV = GM::LeafGridView ;
-		      GV gv=grid.leafGridView();
+          //make Model
+          using MODEL = Model<dim>;
+          MODEL model;
+          //make problem
+          using PROBLEM = Problem<GV,GV::Grid::ctype,MODEL>;
+          PROBLEM param(model);
 
-					//make Model
-					using MODEL = Model<dim>;
-					MODEL model;
-					//make problem
-					using PROBLEM = Problem<GV,GV::Grid::ctype,MODEL>;
-					PROBLEM param(model);
-
-		      if (degree==0)
-		        {
-		          typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,0,dim,Dune::GeometryType::cube> FEM;
-			    		FEM fem;
-		          driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
-		        }
-					/*
-		      if (degree==1)
-		        {
-		          typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,1,dim,Dune::GeometryType::cube> FEM;
-		          FEM fem;
-		          driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
-		        }
-		      if (degree==2)
-		        {
-		          typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,Dune::GeometryType::cube> FEM;
-		          FEM fem;
-		          driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
-		        }
+          if (degree==0)
+            {
+              typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,0,dim,Dune::GeometryType::cube> FEM;
+              FEM fem;
+              driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+            }
+          /*
+          if (degree==1)
+            {
+              typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,1,dim,Dune::GeometryType::cube> FEM;
+              FEM fem;
+              driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+            }
+          if (degree==2)
+            {
+              typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,Dune::GeometryType::cube> FEM;
+              FEM fem;
+              driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+            }
           */
-		      return 0;
-		    }
+          return 0;
+        }
   }
   catch (Dune::Exception &e){
     std::cerr << "Dune reported error: " << e << std::endl;
-	return 1;
+  return 1;
   }
   catch (...){
     std::cerr << "Unknown exception thrown!" << std::endl;
-	return 1;
+  return 1;
   }
 }
