@@ -11,8 +11,7 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
 
   // Choose domain and range field type
   using RF = typename PROBLEM::RangeField; // type for computations
-  //const int dim = GV::dimension;
-  //const int dim = PROBLEM::M::dim;
+
   const int dim = problem.model.dim;
   const int m = problem.model.m; //number of components
 
@@ -31,10 +30,15 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   using GFSDG = Dune::PDELab::GridFunctionSpace<GV,FEMDG,CON,VBE0>;
   GFSDG gfsdg(gv,femdg);
 
+  //TODO very importat issue to resolve Vector crashes for maxwell
+  //using GFS = Dune::PDELab::PowerGridFunctionSpace<GFSDG,m,VBE,OrderingTag>;
+  //GFS gfs(gfsdg);
 
-  using GFS = Dune::PDELab::PowerGridFunctionSpace<GFSDG,m,VBE,OrderingTag>;
-  GFS gfs(gfsdg);
-
+  // Vector Grig Function Space
+  typedef Dune::PDELab::VectorGridFunctionSpace
+    <GV,FEMDG,m,VBE0,VBE,CON> GFS;
+  GFS gfs(gv,femdg);
+  gfs.name("u");
 
   typedef typename GFS::template ConstraintsContainer<RF>::Type C;
   C cg;
@@ -83,8 +87,6 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   Dune::PDELab::interpolate(u0,gfs,xold);
  
   // Make a linear solver backend
-  //typedef Dune::PDELab::ISTLBackend_SEQ_CG_SSOR LS;
-  //LS ls(10000,1);
   typedef Dune::PDELab::ISTLBackend_OVLP_ExplicitDiagonal<GFS> LS;
   LS ls(gfs);
 
@@ -99,7 +101,7 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   using VTKWRITER = Dune::SubsamplingVTKWriter<GV>;
   VTKWRITER vtkwriter(gv,subsampling);
 
-  std::string filename=ptree.get("output.filename","output"); //+ STRINGIZE(GRIDDIM) "d";
+  std::string filename=ptree.get("output.filename","output");
 
   struct stat st;
   if( stat( filename.c_str(), &st ) != 0 )
@@ -126,6 +128,7 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   RF T = ptree.get("problem.T",(RF)1.0);
   RF dt = ptree.get("fem.dt",(RF)0.1);
   const int every = ptree.get<int>("output.every");
+  int counter = 0;
 
   V x(gfs,0.0);
 
@@ -134,8 +137,9 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
       // do time step
       osm.apply(time,dt,xold,x);
 
-      // TODO output to VTK file every n-th timestep 
-      //if(osm.result().total.timesteps % every == 0)
+      //output to VTK file every n-th timestep 
+      counter++;
+      if(counter % every == 0)
         vtkSequenceWriter.write(time,Dune::VTK::appendedraw);
 
       xold = x;
