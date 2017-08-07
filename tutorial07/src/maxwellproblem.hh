@@ -1,15 +1,20 @@
 #ifndef MAXWELL_RIEMANNPROBLEM
 #define MAXWELL_RIEMANNPROBLEM
-template<typename GV, typename NUMBER, typename MODEL>
+template<typename GV, typename NUMBER>
 class Problem
 {
 public:
-  using Model = MODEL;
-  using RangeField = NUMBER;
-  using Range = Dune::FieldVector<NUMBER,MODEL::m>;
 
-  Problem (MODEL& m)
-    : model(m), time(0.0),  pi(3.141592653589793238462643)
+  using RangeField = NUMBER;
+
+  //problem specification depends on dimension
+  static constexpr int dim = 3;
+  static constexpr int m = 6;
+
+  using Range = Dune::FieldVector<NUMBER,m>;
+
+  Problem ()
+    : time(0.0),  pi(3.141592653589793238462643)
   {
   }
 
@@ -103,10 +108,6 @@ public:
     u[4] += c1*st;   // H_y
     u[5] += s1*ct;   // H_z
 
-
-
-
-
     return u;
   }
 
@@ -115,8 +116,6 @@ public:
   {
     time = t;
   }
-
-	MODEL& model;
 
 private:
 

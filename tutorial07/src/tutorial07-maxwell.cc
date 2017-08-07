@@ -31,7 +31,7 @@
 #include<dune/istl/io.hh>
 #include<dune/istl/superlu.hh>
 
-#include<dune/pdelab/finiteelementmap/opbfem.hh>
+#include<dune/pdelab/finiteelementmap/qkdg.hh>
 
 #include<dune/pdelab/gridfunctionspace/subspace.hh>
 #include <dune/pdelab/gridfunctionspace/vectorgridfunctionspace.hh>
@@ -94,10 +94,9 @@ int main(int argc, char** argv)
 
     // read ini file
     const int dim = ptree.get<int>("grid.dim");
-    const int refinement = ptree.get<int>("grid.refinement");
+    const int refinement = ptree.get<int>("grid.refinement",(int)0);
     const int degree = ptree.get<int>("fem.degree");
 
- 
     // parallel overlapping yaspgrid version
     if (ptree["grid.manager"] == "yasp")
 
@@ -115,38 +114,37 @@ int main(int argc, char** argv)
           using GM = Dune::YaspGrid<dim>;
           GM grid(upper_right,cells,periodic,overlap,helper.getCommunicator());
           grid.refineOptions(false); // keep overlap in cells
-          grid.globalRefine(ptree.get("grid.refinement",(int)0));
+          grid.globalRefine(refinement);
           // grid view
           using GV = GM::LeafGridView ;
           GV gv=grid.leafGridView();
 
-          //make Model
-          using MODEL = Model<dim>;
-          MODEL model;
-          //make problem
-          using PROBLEM = Problem<GV,GV::Grid::ctype,MODEL>;
-          PROBLEM param(model);
+          //create problem (setting)
+          using PROBLEM = Problem<GV,GV::Grid::ctype>;
+          PROBLEM problem;
+
+          //create model on a given setting
+          using MODEL = Model<dim,PROBLEM>;
+          MODEL param(problem);
 
           if (degree==0)
             {
-              typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,0,dim,Dune::GeometryType::cube> FEM;
+              using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,0,dim>;
               FEM fem;
-              driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+              driver<GV,FEM, MODEL>(gv,fem,param,ptree);
             }
-          /*
           if (degree==1)
             {
-              typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,1,dim,Dune::GeometryType::cube> FEM;
+              using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,1,dim>;
               FEM fem;
-              driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+              driver<GV,FEM, MODEL>(gv,fem,param,ptree);
             }
           if (degree==2)
             {
-              typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,Dune::GeometryType::cube> FEM;
+              using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,2,dim>;
               FEM fem;
-              driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+              driver<GV,FEM, MODEL>(gv,fem,param,ptree);
             }
-          */
           return 0;
         }
   }

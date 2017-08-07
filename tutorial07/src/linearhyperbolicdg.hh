@@ -114,7 +114,7 @@ namespace Dune {
       {
         // Get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,_0>;
+        using DGSpace = TypeTree::Child<LFSV,0>;
         using RF = typename PROBLEM::RangeField; // type for computations
 
         // get local function space that is identical for all components
@@ -202,7 +202,7 @@ namespace Dune {
       {
         // Get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,_0>;
+        using DGSpace = TypeTree::Child<LFSV,0>;
         using DF = typename DGSpace::Traits::FiniteElementType::
           Traits::LocalBasisType::Traits::DomainFieldType;
         using RF = typename PROBLEM::RangeField; 
@@ -329,7 +329,7 @@ namespace Dune {
       {
         // Get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,_0>;
+        using DGSpace = TypeTree::Child<LFSV,0>;
         using DF = typename DGSpace::Traits::FiniteElementType::
           Traits::LocalBasisType::Traits::DomainFieldType;
         using RF = typename PROBLEM::RangeField; // type for computations
@@ -435,7 +435,7 @@ namespace Dune {
       {
         // Get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,_0>;
+        using DGSpace = TypeTree::Child<LFSV,0>;
 
         // Get local function space that is identical for all components
         const DGSpace& dgspace = child(lfsv,_0);
@@ -519,7 +519,7 @@ namespace Dune {
       {
         // get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,_0>;
+        using DGSpace = TypeTree::Child<LFSV,0>;
         using RF = typename PROBLEM::RangeField; // type for computations
 
         // get local function space that is identical for all components
@@ -560,7 +560,7 @@ namespace Dune {
       {
         // get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,_0>;
+        using DGSpace = TypeTree::Child<LFSV,0>;
 
         // get local function space that is identical for all components
         const auto& dgspace = child(lfsv,_0);

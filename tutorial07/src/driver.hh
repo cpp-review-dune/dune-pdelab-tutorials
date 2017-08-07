@@ -23,22 +23,16 @@ void driver (const GV& gv, const FEMDG& femdg, MODEL& model, Dune::ParameterTree
 
   typedef Dune::PDELab::NoConstraints CON;
 
-  using VBE0 = Dune::PDELab::istl::VectorBackend<>;
+  //necessary to pass proper block size for a component
+  using VBE0 = Dune::PDELab::ISTL::VectorBackend<Dune::PDELab::ISTL::Blocking::none,Dune::QkStuff::QkSize<FEMDG::order(),dim>::value>;
 
-  using VBE = Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::fixed>;
+  using VBE = Dune::PDELab::ISTL::VectorBackend<Dune::PDELab::ISTL::Blocking::fixed>;
   using OrderingTag = Dune::PDELab::EntityBlockedOrderingTag;
   using GFSDG = Dune::PDELab::GridFunctionSpace<GV,FEMDG,CON,VBE0>;
   GFSDG gfsdg(gv,femdg);
 
-  //TODO very importat issue to resolve Vector crashes for maxwell
-  //using GFS = Dune::PDELab::PowerGridFunctionSpace<GFSDG,m,VBE,OrderingTag>;
-  //GFS gfs(gfsdg);
-
-  // Vector Grig Function Space
-  typedef Dune::PDELab::VectorGridFunctionSpace
-    <GV,FEMDG,m,VBE0,VBE,CON> GFS;
-  GFS gfs(gv,femdg);
-  gfs.name("u");
+  using GFS = Dune::PDELab::PowerGridFunctionSpace<GFSDG,m,VBE,OrderingTag>;
+  GFS gfs(gfsdg);
 
   typedef typename GFS::template ConstraintsContainer<RF>::Type C;
   C cg;
@@ -51,7 +45,7 @@ void driver (const GV& gv, const FEMDG& femdg, MODEL& model, Dune::ParameterTree
   using TLOP = Dune::PDELab::DGLinearHyperbolicTemporalOperator<MODEL,FEMDG>;
   TLOP tlop(model);
 
-  using MBE = Dune::PDELab::istl::BCRSMatrixBackend<>;
+  using MBE = Dune::PDELab::ISTL::BCRSMatrixBackend<>;
   MBE mbe(5); // Maximal number of nonzeroes per row 
 
   using GO0 = Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,RF,RF,RF,C,C>;
@@ -60,7 +54,6 @@ void driver (const GV& gv, const FEMDG& femdg, MODEL& model, Dune::ParameterTree
   GO1 go1(gfs,cg,gfs,cg,tlop,mbe);
   using IGO = Dune::PDELab::OneStepGridOperator<GO0,GO1,false>;
   IGO igo(go0,go1);
-
 
   // select and prepare time-stepping scheme
   int torder = ptree.get("fem.torder",(int)1);
@@ -116,8 +109,6 @@ void driver (const GV& gv, const FEMDG& femdg, MODEL& model, Dune::ParameterTree
   VTKSEQUENCEWRITER vtkSequenceWriter(
     std::make_shared<VTKWRITER>(vtkwriter),filename,filename,"");
   // add data field for all components of the space to the VTK writer
-  //Dune::PDELab::addSolutionToVTKWriter(vtkSequenceWriter,gfs,xold);
-  //TODO decite how to create names for components
   Dune::PDELab::addSolutionToVTKWriter(vtkSequenceWriter,gfs,xold,Dune::PDELab::vtk::DefaultFunctionNameGenerator("u"));
   vtkSequenceWriter.write(0.0,Dune::VTK::appendedraw);
 
