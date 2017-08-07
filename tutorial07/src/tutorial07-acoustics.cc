@@ -121,29 +121,36 @@ int main(int argc, char** argv)
           GV gv=grid.leafGridView();
 
           //make Model
-          using MODEL = Model<dim>;
-          MODEL model;
+          //using MODEL = Model<dim>;
+          //MODEL model;
           //make problem
-          using PROBLEM = Problem<GV,GV::Grid::ctype,MODEL>;
-          PROBLEM param(model);
+          //using PROBLEM = Problem<GV,GV::Grid::ctype,MODEL>;
+          //PROBLEM param(model);
+
+          using PROBLEM = Problem<GV,GV::Grid::ctype>;
+          using MODEL = Model<dim,PROBLEM>;
+     
+          PROBLEM problem;
+          MODEL param(problem);
+
 
           if (degree==0)
             {
               typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,0,dim,Dune::GeometryType::cube> FEM;
               FEM fem;
-              driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+              driver<GV,FEM, MODEL>(gv,fem,param,ptree);
             }
           if (degree==1)
             {
               typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,1,dim,Dune::GeometryType::cube> FEM;
               FEM fem;
-              driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+              driver<GV,FEM, MODEL>(gv,fem,param,ptree);
             }
           if (degree==2)
             {
               typedef Dune::PDELab::OPBLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,Dune::GeometryType::cube> FEM;
               FEM fem;
-              driver<GV,FEM, PROBLEM>(gv,fem,param,ptree);
+              driver<GV,FEM, MODEL>(gv,fem,param,ptree);
             }
           return 0;
         }

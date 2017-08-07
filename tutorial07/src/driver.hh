@@ -4,20 +4,20 @@
 // driver for general pouropse hyperbolic solver
 //===============================================================
 
-template<typename GV, typename FEMDG, typename PROBLEM>
-void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::ParameterTree& ptree)
+template<typename GV, typename FEMDG, typename MODEL>
+void driver (const GV& gv, const FEMDG& femdg, MODEL& model, Dune::ParameterTree& ptree)
 {
   //std::cout << "using degree " << degree << std::endl;
 
   // Choose domain and range field type
-  using RF = typename PROBLEM::RangeField; // type for computations
+  using RF = typename MODEL::RangeField; // type for computations
 
-  const int dim = problem.model.dim;
-  const int m = problem.model.m; //number of components
+  const int dim = model.dim;
+  const int m = model.m; //number of components
 
   //initial condition
   auto u0lambda = [&](const auto& i, const auto& x)
-    {return problem.u0(i,x);};
+    {return model.problem.u0(i,x);};
   auto u0 = Dune::PDELab::
     makeGridFunctionFromCallable(gv,u0lambda);
 
@@ -46,10 +46,10 @@ void driver (const GV& gv, const FEMDG& femdg, PROBLEM& problem, Dune::Parameter
   std::cout << "degrees of freedom: " << gfs.globalSize() << std::endl;
 
   // Make instationary grid operator
-  using LOP = Dune::PDELab::DGLinearHyperbolicSpatialOperator<PROBLEM,FEMDG>;
-  LOP lop(problem);
-  using TLOP = Dune::PDELab::DGLinearHyperbolicTemporalOperator<PROBLEM,FEMDG>;
-  TLOP tlop(problem);
+  using LOP = Dune::PDELab::DGLinearHyperbolicSpatialOperator<MODEL,FEMDG>;
+  LOP lop(model);
+  using TLOP = Dune::PDELab::DGLinearHyperbolicTemporalOperator<MODEL,FEMDG>;
+  TLOP tlop(model);
 
   using MBE = Dune::PDELab::istl::BCRSMatrixBackend<>;
   MBE mbe(5); // Maximal number of nonzeroes per row 

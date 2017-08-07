@@ -1,17 +1,28 @@
 #ifndef ACOUSTICS_RIEMANNPROBLEM
 #define ACOUSTICS_RIEMANNPROBLEM
-template<typename GV, typename NUMBER, typename MODEL>
+//template<typename GV, typename NUMBER, typename MODEL>
+template<typename GV, typename NUMBER>
 class Problem
 {
 public:
-  using Model = MODEL;
+  //using Model = MODEL;
   using RangeField = NUMBER;
-  using Range = Dune::FieldVector<NUMBER,MODEL::m>;
 
-  Problem (MODEL& m)
-    : model(m), time(0.0),  pi(3.141592653589793238462643)
+  //problem specification depends on dimension
+  static constexpr int dim = 2;
+  static constexpr int m = 3;
+
+  using Range = Dune::FieldVector<NUMBER,m>;
+
+  //Problem (MODEL& m)
+  //  : model(m), time(0.0),  pi(3.141592653589793238462643)
+  // {
+  //}
+  Problem ()
+    : time(0.0),  pi(3.141592653589793238462643)
   {
   }
+
 
   //! speed of sound
   template<typename E, typename X>
@@ -64,14 +75,13 @@ public:
     return u;
   }
 
-
   //! set time for subsequent evaluation
   void setTime (NUMBER t)
   {
     time = t;
   }
 
-	MODEL& model;
+	//MODEL& model;
   
 
 private:

@@ -129,7 +129,7 @@ namespace Dune {
         // evaluate speed of sound (assumed constant per element)
         auto ref_el = referenceElement(geo);
         auto localcenter = ref_el.position(0,0);
-        auto c = param.c(cell,localcenter);
+        auto c = param.problem.c(cell,localcenter);
         
         // Transformation
         typename EG::Geometry::JacobianInverseTransposed jac;
@@ -162,7 +162,10 @@ namespace Dune {
               jac.mv(js[i][0],gradphi[i]);
 
             Dune::FieldMatrix<RF,m,dim> F;
-            param.model.flux(c,u,F);  //TODO this cannot be dependent on parameter that is problem specific
+
+            param.flux(u,F);  //TODO this cannot be dependent on parameter that is problem specific
+            //param.model.flux(eg,u,F);  //TODO this cannot be dependent on parameter that is problem specific
+
 
             // integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
@@ -175,17 +178,13 @@ namespace Dune {
               }
 
             /*
-            //RHS - term that is outside divergence no integration by parst needed
-
-            // what follow is maxwell specific - TODO generalise it!
-            // for the first half of the system
+            //RHS - term that is outside divergence no integration by parts needed
+            // what follow is maxwell specific in tutorial sigma = 0
             for (size_type i=0; i<dim; i++)
               // for all test functions of this component
               for (size_type k=0; k<dgspace.size(); k++)
                 r.accumulate(lfsv.child(i), k, (sigma/eps)*u[i]*phi[k]*factor);
             */
-
-
 
             // std::cout << "  residual: ";
             // for (size_t i=0; i<r.size(); i++) std::cout << r[i] << " ";
@@ -233,8 +232,8 @@ namespace Dune {
         auto ref_el_outside = referenceElement(geo_outside);
         auto local_inside = ref_el_inside.position(0,0);
         auto local_outside = ref_el_outside.position(0,0);
-        auto c_s = param.c(cell_inside,local_inside);
-        auto c_n = param.c(cell_outside,local_outside);
+        auto c_s = param.problem.c(cell_inside,local_inside);
+        auto c_n = param.problem.c(cell_outside,local_outside);
 
         // for now assume that c is constant
         // the case that non-homogenious coefficient we leave for the future 
@@ -242,7 +241,7 @@ namespace Dune {
 
         Dune::FieldMatrix<DF,m,m> D(0.0);
         // fetch eigenvalues 
-        param.model.diagonal(c,D);
+        param.diagonal(D);
 
         Dune::FieldMatrix<DF,m,m> Dplus(0.0);
         Dune::FieldMatrix<DF,m,m> Dminus(0.0);
@@ -252,7 +251,7 @@ namespace Dune {
      
         // fetch eigenvectors
         Dune::FieldMatrix<DF,m,m> Rot;
-        param.model.eigenvectors(c,n_F,Rot);
+        param.eigenvectors(n_F,Rot);
 
         // compute B+ = RD+R^-1 and B- = RD-R^-1
         Dune::FieldMatrix<DF,m,m> Bplus(Rot);
@@ -354,7 +353,7 @@ namespace Dune {
         // Evaluate speed of sound (assumed constant per element)
         auto ref_el_inside = referenceElement(geo_inside);
         auto local_inside = ref_el_inside.position(0,0);
-        auto c_s = param.c(cell_inside,local_inside);
+        auto c_s = param.problem.c(cell_inside,local_inside);
 
 
         // for now assume that c is constant
@@ -363,7 +362,7 @@ namespace Dune {
 
         Dune::FieldMatrix<DF,m,m> D(0.0);
         // fetch eigenvalues 
-        param.model.diagonal(c,D);
+        param.diagonal(D);
 
         Dune::FieldMatrix<DF,m,m> Dplus(0.0);
         Dune::FieldMatrix<DF,m,m> Dminus(0.0);
@@ -373,7 +372,7 @@ namespace Dune {
      
         // fetch eigenvectors
         Dune::FieldMatrix<DF,m,m> Rot;
-        param.model.eigenvectors(c,n_F,Rot);
+        param.eigenvectors(n_F,Rot);
 
         // compute B+ = RD+R^-1 and B- = RD-R^-1
         Dune::FieldMatrix<DF,m,m> Bplus(Rot);
@@ -410,7 +409,7 @@ namespace Dune {
             // std::cout << "  u_s " << u_s << std::endl;
 
             // Evaluate boundary condition
-            Dune::FieldVector<RF,m> u_n(param.g(ig.intersection(),ip.position(),u_s));
+            Dune::FieldVector<RF,m> u_n(param.problem.g(ig.intersection(),ip.position(),u_s));
             // std::cout << "  u_n " << u_n << " bc: " << param.g(ig.intersection(),ip.position(),u_s) << std::endl;
 
             // Compute numerical flux at integration point
@@ -453,7 +452,7 @@ namespace Dune {
         for (const auto& ip : quadratureRule(geo,intorder))
           {
             // Evaluate right hand side q
-            auto q(param.q(cell,ip.position()));
+            auto q(param.problem.q(cell,ip.position()));
 
             // Evaluate basis functions
             auto& phi = cache[order_s].evaluateFunction(ip.position(),dgspace.finiteElement().localBasis());
