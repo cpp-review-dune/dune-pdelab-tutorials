@@ -70,17 +70,17 @@ public:
     return rhs;
   }
 
-  //! initial value 
+  //! initial value
   template<typename E, typename X>
   Range u0 (const E& e, const X& p) const
   {
     X xglobal = e.geometry().global(p);
 
-    
+
     Range u(0.0);
- 
+
     auto x=xglobal[0], y=xglobal[1], z=xglobal[2];
-		/*
+    /*
     if (x>0.4 && x<0.6 && y>0.4 && y<0.6 && z>0.4 && z<0.6)
       {
         auto p1 = sin(pi*(x-0.4)/0.2)*sin(pi*(x-0.4)/0.2);
@@ -93,9 +93,9 @@ public:
         u[1] = -0.5*p1prime*q2*r3prime;
         u[2] = -0.5*p1prime*q2prime*r3;
       }
-		*/
-    
-		auto alpha = 1.0;
+    */
+
+    auto alpha = 1.0;
 
     auto s1 = std::sin(alpha*x);
     auto c1 = std::cos(alpha*x);
