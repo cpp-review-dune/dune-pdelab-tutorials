@@ -127,6 +127,11 @@ int main(int argc, char** argv)
           using MODEL = Model<dim,PROBLEM>;
           MODEL param(problem);
 
+          //create numerical flux
+          using NUMFLUX = Model<dim,PROBLEM>;
+          NUMFLUX param(problem);
+          //TODO -> sepatate interface for numerical flux
+
           if (degree==0)
             {
               using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,0,dim>;

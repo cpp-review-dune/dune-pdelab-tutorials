@@ -21,45 +21,6 @@
 
 namespace Dune {
   namespace PDELab {
-    
-
-    // NUMERICAL FLUXES
-
-    //flux vector splitting
-    //TODO seperate fluxes
-    /*
-    template<typename RF, >
-    Dune::FieldVector<RF,m> fvs (param, Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,dim,m>& F) 
-	{
-        Dune::FieldMatrix<DF,m,m> D(0.0);
-        // fetch eigenvalues 
-        param.model.diagonal(c,D);
-
-        Dune::FieldMatrix<DF,m,m> Dplus(0.0);
-        Dune::FieldMatrix<DF,m,m> Dminus(0.0);
-        
-        for (size_t i =0 ; i<m;i++) 
-          (D[i][i] > 0) ? Dplus[i][i] = D[i][i] : Dminus[i][i] = D[i][i];
-     
-        // fetch eigenvectors
-        Dune::FieldMatrix<DF,m,m> Rot;
-        param.model.eigenvectors(c,n_F,Rot);
-
-        // compute B+ = RD+R^-1 and B- = RD-R^-1
-        Dune::FieldMatrix<DF,m,m> Bplus(Rot);
-        Dune::FieldMatrix<DF,m,m> Bminus(Rot);
-
-        //multiply by D+-
-        Bplus.rightmultiply(Dplus);
-        Bminus.rightmultiply(Dminus);
-
-        //multiply by R^-1
-        Rot.invert();
-        Bplus.rightmultiply(Rot);
-        Bminus.rightmultiply(Rot);    
-     }
-    */
-
     /** Spatial local operator for discontinuous Galerkin method 
         for the system of hyperbolic conservation laws:
 
@@ -163,9 +124,7 @@ namespace Dune {
 
             Dune::FieldMatrix<RF,m,dim> F;
 
-            param.flux(u,F);  //TODO this cannot be dependent on parameter that is problem specific
-            //param.model.flux(eg,u,F);  //TODO this cannot be dependent on parameter that is problem specific
-
+            param.flux(u,F);  
 
             // integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
@@ -232,12 +191,12 @@ namespace Dune {
         auto ref_el_outside = referenceElement(geo_outside);
         auto local_inside = ref_el_inside.position(0,0);
         auto local_outside = ref_el_outside.position(0,0);
-        auto c_s = param.problem.c(cell_inside,local_inside);
-        auto c_n = param.problem.c(cell_outside,local_outside);
+        //auto c_s = param.problem.c(cell_inside,local_inside);
+        //auto c_n = param.problem.c(cell_outside,local_outside);
 
         // for now assume that c is constant
         // the case that non-homogenious coefficient we leave for the future 
-        auto c = c_s;
+        //auto c = c_s;
 
         Dune::FieldMatrix<DF,m,m> D(0.0);
         // fetch eigenvalues 
@@ -301,6 +260,7 @@ namespace Dune {
             // f = Bplus*u_s + Bminus*u_n
             Bplus.umv(u_s,f);
             Bminus.umv(u_n,f);
+
 
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
