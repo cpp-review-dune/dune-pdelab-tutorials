@@ -1,6 +1,7 @@
 #include "config.h"
 #include <iostream>
 #include <string>
+#include <dune/common/array.hh>
 #include <dune/common/exceptions.hh>
 #include <dune/common/fvector.hh>
 #include <dune/common/parallel/mpihelper.hh>

@@ -4,7 +4,7 @@
 #include<dune/common/fvector.hh>
 #include<dune/geometry/type.hh>
 
-#include<dune/pdelab/common/referenceelements.hh>
+#include<dune/geometry/referenceelements.hh>
 #include<dune/pdelab/common/quadraturerules.hh>
 #include<dune/pdelab/localoperator/pattern.hh>
 #include<dune/pdelab/localoperator/flags.hh>
@@ -83,7 +83,7 @@ public:
   {
     // evaluate boundary condition type
     auto localgeo = ig.geometryInInside();
-    auto facecenterlocal = Dune::PDELab::
+    auto facecenterlocal = Dune::
       referenceElement(localgeo).position(0,0);
     bool isdirichlet=param.b(ig.intersection(),facecenterlocal);
 
