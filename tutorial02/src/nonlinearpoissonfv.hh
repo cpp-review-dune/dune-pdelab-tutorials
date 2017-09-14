@@ -52,7 +52,7 @@ public:
   {
     // center of reference element
     auto cellgeo = eg.geometry();
-    auto cellcenterlocal = Dune::
+    auto cellcenterlocal =
       referenceElement(cellgeo).position(0,0);
 
     // accumulate residual
@@ -68,7 +68,7 @@ public:
     // face volume for integration
     auto facegeo = ig.geometry();
     auto facecenterlocal =
-      Dune::referenceElement(facegeo).position(0,0);
+      referenceElement(facegeo).position(0,0);
 
     // evaluate boundary condition and quit on Dirichlet
     bool isdirichlet =
@@ -244,7 +244,7 @@ public:
   {
     // check for Dirichlet boundary condition
     auto facegeo = ig.geometry();
-    auto facecenterlocal = Dune::
+    auto facecenterlocal =
       referenceElement(facegeo).position(0,0);
     bool isdirichlet = param.b(ig.intersection(),facecenterlocal);
     if (!isdirichlet) return;
@@ -275,7 +275,7 @@ public:
   {
     // face volume for integration
     auto facegeo = ig.geometry();
-    auto facecenterlocal = Dune::referenceElement(facegeo).position(0,0);
+    auto facecenterlocal = referenceElement(facegeo).position(0,0);
 
     // evaluate boundary condition and quit on NOT Dirichlet
     bool isdirichlet = param.b(ig.intersection(),facecenterlocal);

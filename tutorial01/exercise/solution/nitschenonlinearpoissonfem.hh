@@ -90,7 +90,7 @@ public:
   {
     // evaluate boundary condition type
     auto localgeo = ig.geometryInInside();
-    auto facecenterlocal = Dune::
+    auto facecenterlocal =
       referenceElement(localgeo).position(0,0);
     bool isdirichlet=param.b(ig.intersection(),facecenterlocal);
 
@@ -184,7 +184,7 @@ public:
   {
     // evaluate boundary condition type
     auto localgeo = ig.geometryInInside();
-    auto facecenterlocal = Dune::
+    auto facecenterlocal =
       referenceElement(localgeo).position(0,0);
     bool isdirichlet=param.b(ig.intersection(),facecenterlocal);
 
