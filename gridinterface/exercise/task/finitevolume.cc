@@ -6,6 +6,7 @@
 
 #include <iostream>
 
+#include <dune/common/array.hh>
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/grid/yaspgrid.hh>
 #include <dune/grid/io/file/vtk/vtksequencewriter.hh>
