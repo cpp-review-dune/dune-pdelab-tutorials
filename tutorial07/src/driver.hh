@@ -4,20 +4,20 @@
 // driver for general pouropse hyperbolic solver
 //===============================================================
 
-template<typename GV, typename FEMDG, typename MODEL>
-void driver (const GV& gv, const FEMDG& femdg, MODEL& model, Dune::ParameterTree& ptree)
+template<typename GV, typename FEMDG, typename MODEL, typename NUMFLUX>
+void driver (const GV& gv, const FEMDG& femdg, MODEL& model, NUMFLUX& numflux, Dune::ParameterTree& ptree)
 {
   //std::cout << "using degree " << degree << std::endl;
 
   // Choose domain and range field type
   using RF = typename MODEL::RangeField; // type for computations
 
-  const int dim = model.dim;
-  const int m = model.m; //number of components
+  const int dim = numflux.dim;
+  const int m = numflux.m; //number of components
 
   //initial condition
   auto u0lambda = [&](const auto& i, const auto& x)
-    {return model.problem.u0(i,x);};
+    {return numflux.model.problem.u0(i,x);};
   auto u0 = Dune::PDELab::
     makeGridFunctionFromCallable(gv,u0lambda);
 
@@ -40,13 +40,13 @@ void driver (const GV& gv, const FEMDG& femdg, MODEL& model, Dune::ParameterTree
   std::cout << "degrees of freedom: " << gfs.globalSize() << std::endl;
 
   // Make instationary grid operator
-  using LOP = Dune::PDELab::DGLinearHyperbolicSpatialOperator<MODEL,FEMDG>;
-  LOP lop(model);
-  using TLOP = Dune::PDELab::DGLinearHyperbolicTemporalOperator<MODEL,FEMDG>;
-  TLOP tlop(model);
+  using LOP = Dune::PDELab::DGLinearHyperbolicSpatialOperator<MODEL,NUMFLUX,FEMDG>;
+  LOP lop(model,numflux);
+  using TLOP = Dune::PDELab::DGLinearHyperbolicTemporalOperator<MODEL,NUMFLUX,FEMDG>;
+  TLOP tlop(model,numflux);
 
   using MBE = Dune::PDELab::ISTL::BCRSMatrixBackend<>;
-  MBE mbe(5); // Maximal number of nonzeroes per row 
+  MBE mbe(5); // Maximal number of nonzeroes per row
 
   using GO0 = Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,RF,RF,RF,C,C>;
   GO0 go0(gfs,cg,gfs,cg,lop,mbe);
@@ -70,7 +70,6 @@ void driver (const GV& gv, const FEMDG& femdg, MODEL& model, Dune::ParameterTree
   if (torder==4) {method=&method4; std::cout << "setting RK4" << std::endl;}
   if (torder<1||torder>4) std::cout<<"torder should be in [1,4]"<<std::endl;
 
-
   igo.setMethod(*method);
 
   // set initial values
@@ -78,7 +77,7 @@ void driver (const GV& gv, const FEMDG& femdg, MODEL& model, Dune::ParameterTree
   V xold(gfs,0.0);
 
   Dune::PDELab::interpolate(u0,gfs,xold);
- 
+
   // Make a linear solver backend
   typedef Dune::PDELab::ISTLBackend_OVLP_ExplicitDiagonal<GFS> LS;
   LS ls(gfs);
@@ -128,7 +127,7 @@ void driver (const GV& gv, const FEMDG& femdg, MODEL& model, Dune::ParameterTree
       // do time step
       osm.apply(time,dt,xold,x);
 
-      //output to VTK file every n-th timestep 
+      //output to VTK file every n-th timestep
       counter++;
       if(counter % every == 0)
         vtkSequenceWriter.write(time,Dune::VTK::appendedraw);

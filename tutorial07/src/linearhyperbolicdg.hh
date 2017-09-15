@@ -21,11 +21,11 @@
 
 namespace Dune {
   namespace PDELab {
-    /** Spatial local operator for discontinuous Galerkin method 
+    /** Spatial local operator for discontinuous Galerkin method
         for the system of hyperbolic conservation laws:
 
         \nabla \cdot \{ F(u) \}  = 0 in \Omega
-        
+
         Where u = (u1,...,um) is the solution with m components
 
         - Assumes that the local function space is a power space
@@ -35,14 +35,14 @@ namespace Dune {
         \tparam P parameter class
         \tparam FEM Finite Element Map needed to select the cache
     */
-    template<typename PROBLEM, typename FEM>
+    template<typename PROBLEM, typename NUMFLUX, typename FEM>
     class DGLinearHyperbolicSpatialOperator :
-      public NumericalJacobianApplyVolume<DGLinearHyperbolicSpatialOperator<PROBLEM,FEM> >,
-      public NumericalJacobianVolume<DGLinearHyperbolicSpatialOperator<PROBLEM,FEM> >,
-      public NumericalJacobianApplySkeleton<DGLinearHyperbolicSpatialOperator<PROBLEM,FEM> >,
-      public NumericalJacobianSkeleton<DGLinearHyperbolicSpatialOperator<PROBLEM,FEM> >,
-      public NumericalJacobianApplyBoundary<DGLinearHyperbolicSpatialOperator<PROBLEM,FEM> >,
-      public NumericalJacobianBoundary<DGLinearHyperbolicSpatialOperator<PROBLEM,FEM> >,
+      public NumericalJacobianApplyVolume<DGLinearHyperbolicSpatialOperator<PROBLEM,NUMFLUX,FEM> >,
+      public NumericalJacobianVolume<DGLinearHyperbolicSpatialOperator<PROBLEM,NUMFLUX,FEM> >,
+      public NumericalJacobianApplySkeleton<DGLinearHyperbolicSpatialOperator<PROBLEM,NUMFLUX,FEM> >,
+      public NumericalJacobianSkeleton<DGLinearHyperbolicSpatialOperator<PROBLEM,NUMFLUX,FEM> >,
+      public NumericalJacobianApplyBoundary<DGLinearHyperbolicSpatialOperator<PROBLEM,NUMFLUX,FEM> >,
+      public NumericalJacobianBoundary<DGLinearHyperbolicSpatialOperator<PROBLEM,NUMFLUX,FEM> >,
       public FullSkeletonPattern,
       public FullVolumePattern,
       public LocalOperatorDefaultFlags,
@@ -64,8 +64,8 @@ namespace Dune {
       enum { doLambdaVolume  = true };
 
       // ! constructor
-      DGLinearHyperbolicSpatialOperator (PROBLEM& param_, int overintegration_=0)
-        : param(param_), overintegration(overintegration_), cache(20)
+      DGLinearHyperbolicSpatialOperator (PROBLEM& param_, NUMFLUX& numflux_, int overintegration_=0)
+        : param(param_), numflux(numflux_), overintegration(overintegration_), cache(20)
       {
       }
 
@@ -91,7 +91,7 @@ namespace Dune {
         auto ref_el = referenceElement(geo);
         auto localcenter = ref_el.position(0,0);
         auto c = param.problem.c(cell,localcenter);
-        
+
         // Transformation
         typename EG::Geometry::JacobianInverseTransposed jac;
 
@@ -124,7 +124,7 @@ namespace Dune {
 
             Dune::FieldMatrix<RF,m,dim> F;
 
-            param.flux(u,F);  
+            param.flux(u,F);
 
             // integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
@@ -164,7 +164,7 @@ namespace Dune {
         using DGSpace = TypeTree::Child<LFSV,0>;
         using DF = typename DGSpace::Traits::FiniteElementType::
           Traits::LocalBasisType::Traits::DomainFieldType;
-        using RF = typename PROBLEM::RangeField; 
+        using RF = typename PROBLEM::RangeField;
 
         // Get local function space that is identical for all components
         const auto& dgspace_s = child(lfsv_s,_0);
@@ -195,35 +195,8 @@ namespace Dune {
         //auto c_n = param.problem.c(cell_outside,local_outside);
 
         // for now assume that c is constant
-        // the case that non-homogenious coefficient we leave for the future 
+        // the case that non-homogenious coefficient we leave for the future
         //auto c = c_s;
-
-        Dune::FieldMatrix<DF,m,m> D(0.0);
-        // fetch eigenvalues 
-        param.diagonal(D);
-
-        Dune::FieldMatrix<DF,m,m> Dplus(0.0);
-        Dune::FieldMatrix<DF,m,m> Dminus(0.0);
-        
-        for (size_t i =0 ; i<m;i++) 
-          (D[i][i] > 0) ? Dplus[i][i] = D[i][i] : Dminus[i][i] = D[i][i];
-     
-        // fetch eigenvectors
-        Dune::FieldMatrix<DF,m,m> Rot;
-        param.eigenvectors(n_F,Rot);
-
-        // compute B+ = RD+R^-1 and B- = RD-R^-1
-        Dune::FieldMatrix<DF,m,m> Bplus(Rot);
-        Dune::FieldMatrix<DF,m,m> Bminus(Rot);
-
-        //multiply by D+-
-        Bplus.rightmultiply(Dplus);
-        Bminus.rightmultiply(Dminus);
-
-        //multiply by R^-1
-        Rot.invert();
-        Bplus.rightmultiply(Rot);
-        Bminus.rightmultiply(Rot);
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
@@ -256,18 +229,14 @@ namespace Dune {
                 u_n[i] += x_n(lfsv_n.child(i),k)*phi_n[k];
 
             // Compute numerical flux at  the integration point
-            f = 0.0; 
-            // f = Bplus*u_s + Bminus*u_n
-            Bplus.umv(u_s,f);
-            Bminus.umv(u_n,f);
-
+            numflux.numericalFlux(ig,x_s,u_s,u_n,f);
 
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
             for (size_t k=0; k<dgspace_s.size(); k++) // loop over all vector-valued basis functions
-              for (size_t i=0; i<m; i++) // loop over all components  
+              for (size_t i=0; i<m; i++) // loop over all components
                 r_s.accumulate(lfsv_s.child(i),k, f[i]*phi_s[k]*factor);
-            for (size_t k=0; k<dgspace_n.size(); k++) // loop over all vector-valued basis functions 
+            for (size_t k=0; k<dgspace_n.size(); k++) // loop over all vector-valued basis functions
               for (size_t i=0; i<m; i++) // loop over all components
                 r_n.accumulate(lfsv_n.child(i),k, - f[i]*phi_n[k]*factor);
           }
@@ -317,35 +286,8 @@ namespace Dune {
 
 
         // for now assume that c is constant
-        // the case that non-homogenious coefficient we leave for the future 
+        // the case that non-homogenious coefficient we leave for the future
         auto c = c_s;
-
-        Dune::FieldMatrix<DF,m,m> D(0.0);
-        // fetch eigenvalues 
-        param.diagonal(D);
-
-        Dune::FieldMatrix<DF,m,m> Dplus(0.0);
-        Dune::FieldMatrix<DF,m,m> Dminus(0.0);
-        
-        for (size_t i =0 ; i<m;i++) 
-          (D[i][i] > 0) ? Dplus[i][i] = D[i][i] : Dminus[i][i] = D[i][i];
-     
-        // fetch eigenvectors
-        Dune::FieldMatrix<DF,m,m> Rot;
-        param.eigenvectors(n_F,Rot);
-
-        // compute B+ = RD+R^-1 and B- = RD-R^-1
-        Dune::FieldMatrix<DF,m,m> Bplus(Rot);
-        Dune::FieldMatrix<DF,m,m> Bminus(Rot);
-
-        //multiply by D+-
-        Bplus.rightmultiply(Dplus);
-        Bminus.rightmultiply(Dminus);
-
-        //multiply by R^-1
-        Rot.invert();
-        Bplus.rightmultiply(Rot);
-        Bminus.rightmultiply(Rot);
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
@@ -373,10 +315,7 @@ namespace Dune {
             // std::cout << "  u_n " << u_n << " bc: " << param.g(ig.intersection(),ip.position(),u_s) << std::endl;
 
             // Compute numerical flux at integration point
-            f = 0.0; // f = Bplus*u_s + Bminus*u_n
-            Bplus.umv(u_s,f);
-            Bminus.umv(u_n,f);
-
+            numflux.numericalFlux(ig,x_s,u_s,u_n,f);
 
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
@@ -424,10 +363,11 @@ namespace Dune {
                 r.accumulate(lfsv.child(k),i, - q[k]*phi[i]*factor);
           }
       }
-      
+
 
     private:
       PROBLEM& param;
+      NUMFLUX& numflux;
       int overintegration;
       using LocalBasisType = typename FEM::Traits::FiniteElementType::Traits::LocalBasisType;
       using Cache = Dune::PDELab::LocalBasisCache<LocalBasisType>;
@@ -441,9 +381,9 @@ namespace Dune {
      \int_\Omega uv dx
      * \f}
      */
-    template<typename PROBLEM, typename FEM>
+    template<typename PROBLEM, typename NUMFLUX, typename FEM>
     class DGLinearHyperbolicTemporalOperator :
-      public NumericalJacobianApplyVolume<DGLinearHyperbolicTemporalOperator<PROBLEM,FEM> >,
+      public NumericalJacobianApplyVolume<DGLinearHyperbolicTemporalOperator<PROBLEM,NUMFLUX,FEM> >,
         public LocalOperatorDefaultFlags,
         public InstationaryLocalOperatorDefaultMethods<typename PROBLEM::RangeField>
     {
@@ -458,8 +398,8 @@ namespace Dune {
       // residual assembly flags
       enum { doAlphaVolume = true };
 
-      DGLinearHyperbolicTemporalOperator (PROBLEM& param_, int overintegration_=0)
-        : param(param_), overintegration(overintegration_), cache(20)
+      DGLinearHyperbolicTemporalOperator (PROBLEM& param_, NUMFLUX& numflux_, int overintegration_=0)
+        : param(param_), numflux(numflux_), overintegration(overintegration_), cache(20)
       {}
 
       // define sparsity pattern of operator representation
@@ -547,6 +487,7 @@ namespace Dune {
 
     private:
       PROBLEM& param;
+      NUMFLUX& numflux;
       int overintegration;
       using LocalBasisType = typename FEM::Traits::FiniteElementType::Traits::LocalBasisType;
       using Cache = Dune::PDELab::LocalBasisCache<LocalBasisType>;
