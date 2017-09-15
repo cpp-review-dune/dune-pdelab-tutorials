@@ -363,7 +363,6 @@ namespace Dune {
           }
       }
 
-
     private:
       NUMFLUX& numflux;
       int overintegration;

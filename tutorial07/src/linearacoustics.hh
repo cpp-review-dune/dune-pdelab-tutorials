@@ -1,3 +1,5 @@
+#ifndef ACOUSTICS_MODEL
+#define ACOUSTICS_MODEL
 /*
  Linear Acoustics model class
 */
@@ -55,7 +57,6 @@ public:
     RT[0][2] = -1; RT[1][2] = c*n[0];  RT[2][2] = c*n[1];
   }
 
-
   //one can also provide eigenvectors inverse
 
   template<typename RF>
@@ -81,7 +82,7 @@ public:
   //Flux function
   //template<typename RF,typename EG>
   template<typename RF>
-  static void flux (Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F)
+  static void flux (const Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F)
   {
     //fetch parameters
     /*
@@ -182,4 +183,4 @@ public:
   }
 };
 */
-
+#endif //ACOUSTICS_MODEL

@@ -1,3 +1,5 @@
+#ifndef MAXWELL_MODEL
+#define MAXWELL_MODEL
 /*
  Maxwell model class
 */
@@ -131,4 +133,4 @@ public:
   const PROBLEM& problem;
 
 };
-
+#endif //MAXWELL_MODEL
