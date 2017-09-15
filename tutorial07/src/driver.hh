@@ -4,13 +4,13 @@
 // driver for general pouropse hyperbolic solver
 //===============================================================
 
-template<typename GV, typename FEMDG, typename MODEL, typename NUMFLUX>
-void driver (const GV& gv, const FEMDG& femdg, MODEL& model, NUMFLUX& numflux, Dune::ParameterTree& ptree)
+template<typename GV, typename FEMDG, typename NUMFLUX>
+void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::ParameterTree& ptree)
 {
   //std::cout << "using degree " << degree << std::endl;
 
   // Choose domain and range field type
-  using RF = typename MODEL::RangeField; // type for computations
+  using RF = typename NUMFLUX::RF; // type for computations
 
   const int dim = numflux.dim;
   const int m = numflux.m; //number of components
@@ -40,10 +40,10 @@ void driver (const GV& gv, const FEMDG& femdg, MODEL& model, NUMFLUX& numflux, D
   std::cout << "degrees of freedom: " << gfs.globalSize() << std::endl;
 
   // Make instationary grid operator
-  using LOP = Dune::PDELab::DGLinearHyperbolicSpatialOperator<MODEL,NUMFLUX,FEMDG>;
-  LOP lop(model,numflux);
-  using TLOP = Dune::PDELab::DGLinearHyperbolicTemporalOperator<MODEL,NUMFLUX,FEMDG>;
-  TLOP tlop(model,numflux);
+  using LOP = Dune::PDELab::DGLinearHyperbolicSpatialOperator<NUMFLUX,FEMDG>;
+  LOP lop(numflux);
+  using TLOP = Dune::PDELab::DGLinearHyperbolicTemporalOperator<NUMFLUX,FEMDG>;
+  TLOP tlop(numflux);
 
   using MBE = Dune::PDELab::ISTL::BCRSMatrixBackend<>;
   MBE mbe(5); // Maximal number of nonzeroes per row

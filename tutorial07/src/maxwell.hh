@@ -20,10 +20,10 @@ public:
   static constexpr int dim = 3;
   static constexpr int m = 6;
 
-  using RangeField = typename PROBLEM::RangeField;  
+  using RangeField = typename PROBLEM::RangeField;
 
   Model (PROBLEM& p)
-    : problem(p) 
+    : problem(p)
   {
   }
 
@@ -49,19 +49,19 @@ public:
       }
 
     // \lambda_0,1 = s
-    R[0][0] =  alpha[0];   R[0][1] =  -beta[0]; 
-    R[1][0] =  alpha[1];   R[1][1] =  -beta[1];        
-    R[2][0] =  alpha[2];   R[2][1] =  -beta[2];          
-    R[3][0] =  beta[0];    R[3][1] =  alpha[0];          
-    R[4][0] =  beta[1];    R[4][1] =  alpha[1];         
-    R[5][0] =  beta[2];    R[5][1] =  alpha[2];         
-            
+    R[0][0] =  alpha[0];   R[0][1] =  -beta[0];
+    R[1][0] =  alpha[1];   R[1][1] =  -beta[1];
+    R[2][0] =  alpha[2];   R[2][1] =  -beta[2];
+    R[3][0] =  beta[0];    R[3][1] =  alpha[0];
+    R[4][0] =  beta[1];    R[4][1] =  alpha[1];
+    R[5][0] =  beta[2];    R[5][1] =  alpha[2];
+
     // \lambda_2,3 = -s
-    R[0][2] =  beta[0];   R[0][3] =  alpha[0]; 
-    R[1][2] =  beta[1];   R[1][3] =  alpha[1];        
-    R[2][2] =  beta[2];   R[2][3] =  alpha[2];          
-    R[3][2] =  alpha[0];  R[3][3] =  -beta[0];          
-    R[4][2] =  alpha[1];  R[4][3] =  -beta[1];         
+    R[0][2] =  beta[0];   R[0][3] =  alpha[0];
+    R[1][2] =  beta[1];   R[1][3] =  alpha[1];
+    R[2][2] =  beta[2];   R[2][3] =  alpha[2];
+    R[3][2] =  alpha[0];  R[3][3] =  -beta[0];
+    R[4][2] =  alpha[1];  R[4][3] =  -beta[1];
     R[5][2] =  alpha[2];  R[5][3] =  -beta[2];
 
     // \lambda_4,5 = 0
@@ -87,7 +87,7 @@ public:
   //one can also provide eigenvectors inverse
 
   template<typename RF>
-  static void coefficients (Dune::FieldMatrix<RF,m,m>& A) 
+  static void coefficients (Dune::FieldMatrix<RF,m,m>& A)
   {
     RF mu(1.0);
     RF ep(1.0);
@@ -101,7 +101,7 @@ public:
   }
 
   template<typename RF>
-  static void diagonal (Dune::FieldMatrix<RF,m,m>& D) 
+  static void diagonal (Dune::FieldMatrix<RF,m,m>& D)
   {
     RF c(1.0);
 
@@ -115,22 +115,20 @@ public:
 
   //Flux function
   template<typename RF>
-  static void flux (Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F) 
+  static void flux (Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F)
   {
     RF mu(1.0);
     RF ep(1.0);
 
-    F[0][0] = 0.0      ; F[0][1] =-1/mu*u[5]; F[0][2] = 1/mu*u[4];  
-    F[1][0] = 1/mu*u[5]; F[1][1] = 0.0;       F[1][2] =-1/mu*u[3]; 
+    F[0][0] = 0.0      ; F[0][1] =-1/mu*u[5]; F[0][2] = 1/mu*u[4];
+    F[1][0] = 1/mu*u[5]; F[1][1] = 0.0;       F[1][2] =-1/mu*u[3];
     F[2][0] =-1/mu*u[4]; F[2][1] = 1/mu*u[3]; F[2][2] = 0.0;
-    F[3][0] = 0.0      ; F[3][1] = 1/ep*u[2]; F[3][2] =-1/ep*u[1];  
-    F[4][0] =-1/ep*u[2]; F[4][1] = 0.0;       F[4][2] = 1/ep*u[0]; 
+    F[3][0] = 0.0      ; F[3][1] = 1/ep*u[2]; F[3][2] =-1/ep*u[1];
+    F[4][0] =-1/ep*u[2]; F[4][1] = 0.0;       F[4][2] = 1/ep*u[0];
     F[5][0] = 1/ep*u[1]; F[5][1] =-1/ep*u[0]; F[5][2] = 0.0;
   }
 
-  PROBLEM& problem;
+  const PROBLEM& problem;
 
 };
-
-
 

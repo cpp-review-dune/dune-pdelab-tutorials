@@ -126,31 +126,31 @@ int main(int argc, char** argv)
 
           //create model on a given setting
           using MODEL = Model<dim,PROBLEM>;
-          MODEL param(problem);
+          MODEL model(problem);
 
           //create numerical flux
           //using NUMFLUX = FluxVectorSplitting<MODEL>;
           using NUMFLUX = LLFflux<MODEL>;
 
-          NUMFLUX numflux(param);
+          NUMFLUX numflux(model);
 
           if (degree==0)
             {
               using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,0,dim>;
               FEM fem;
-              driver<GV,FEM, MODEL, NUMFLUX>(gv,fem,param,numflux,ptree);
+              driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
             }
           if (degree==1)
             {
               using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,1,dim>;
               FEM fem;
-              driver<GV,FEM, MODEL, NUMFLUX>(gv,fem,param,numflux,ptree);
+              driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
             }
           if (degree==2)
             {
               using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,2,dim>;
               FEM fem;
-              driver<GV,FEM, MODEL, NUMFLUX>(gv,fem,param,numflux,ptree);
+              driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
             }
           return 0;
         }

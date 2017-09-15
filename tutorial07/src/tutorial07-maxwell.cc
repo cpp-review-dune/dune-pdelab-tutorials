@@ -17,7 +17,7 @@
 #include<dune/common/typetraits.hh>
 #include<dune/common/timer.hh>
 
-#include<dune/grid/io/file/vtk.hh> 
+#include<dune/grid/io/file/vtk.hh>
 #include<dune/grid/io/file/vtk/subsamplingvtkwriter.hh>
 #include<dune/grid/io/file/gmshreader.hh>
 #include<dune/grid/yaspgrid.hh>
@@ -39,7 +39,7 @@
 #include<dune/pdelab/gridfunctionspace/gridfunctionspaceutilities.hh>
 #include<dune/pdelab/gridfunctionspace/genericdatahandle.hh>
 #include<dune/pdelab/gridfunctionspace/interpolate.hh>
-#include<dune/pdelab/gridfunctionspace/vtk.hh> 
+#include<dune/pdelab/gridfunctionspace/vtk.hh>
 #include<dune/pdelab/constraints/common/constraints.hh>
 #include<dune/pdelab/common/function.hh>
 #include<dune/pdelab/common/instationaryfilenamehelper.hh>
@@ -49,7 +49,7 @@
 #include<dune/pdelab/backend/istl.hh>
 #include<dune/pdelab/instationary/onestep.hh>
 
-#include<dune/pdelab/function/callableadapter.hh> 
+#include<dune/pdelab/function/callableadapter.hh>
 
 #include<dune/pdelab/gridoperator/onestep.hh>
 #include<dune/pdelab/instationary/onestep.hh>
@@ -58,12 +58,13 @@
 #include"linearhyperbolicdg.hh"
 
 //===============================================================
-// Include your hyperbolic model and problem to solve 
+// Include your hyperbolic model and problem to solve
 //===============================================================
 
 //Maxwell
 #include"maxwell.hh" //model
 #include"maxwellproblem.hh"
+#include"numericalflux.hh"
 
 #include"driver.hh"
 
@@ -109,7 +110,7 @@ int main(int argc, char** argv)
           Dune::array<double,dim> lower_left; for (int i=0; i<dim; i++) lower_left[i]=0.0;
           auto upper_right = ptree.get<Dune::FieldVector<double,dim> >("grid.L");
           auto cells = ptree.get<Dune::array<int,dim> >("grid.N");
-          
+
           // make grid
           using GM = Dune::YaspGrid<dim>;
           GM grid(upper_right,cells,periodic,overlap,helper.getCommunicator());
@@ -125,25 +126,31 @@ int main(int argc, char** argv)
 
           //create model on a given setting
           using MODEL = Model<dim,PROBLEM>;
-          MODEL param(problem);
+          MODEL model(problem);
+
+          //create numerical flux
+          using NUMFLUX = FluxVectorSplitting<MODEL>;
+          //using NUMFLUX = LLFflux<MODEL>;
+
+          NUMFLUX numflux(model);
 
           if (degree==0)
             {
               using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,0,dim>;
               FEM fem;
-              driver<GV,FEM, MODEL>(gv,fem,param,ptree);
+              driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
             }
           if (degree==1)
             {
               using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,1,dim>;
               FEM fem;
-              driver<GV,FEM, MODEL>(gv,fem,param,ptree);
+              driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
             }
           if (degree==2)
             {
               using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,2,dim>;
               FEM fem;
-              driver<GV,FEM, MODEL>(gv,fem,param,ptree);
+              driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
             }
           return 0;
         }
