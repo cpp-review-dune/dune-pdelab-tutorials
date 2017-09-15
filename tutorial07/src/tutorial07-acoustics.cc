@@ -55,7 +55,7 @@
 #include<dune/pdelab/instationary/onestep.hh>
 #include<dune/pdelab/gridoperator/gridoperator.hh>
 
-#include"linearhyperbolicdg.hh"
+#include"hyperbolicdg.hh"
 
 //===============================================================
 // Include your hyperbolic model and problem to solve
