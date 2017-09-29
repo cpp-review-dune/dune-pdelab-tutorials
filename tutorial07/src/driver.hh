@@ -82,10 +82,8 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   typedef Dune::PDELab::ISTLBackend_OVLP_ExplicitDiagonal<GFS> LS;
   LS ls(gfs);
 
-  // time-stepper
-  typedef Dune::PDELab::CFLTimeController<RF,IGO> TC;
-  TC tc(0.999,igo);
-  Dune::PDELab::ExplicitOneStepMethod<RF,IGO,LS,V,V,TC> osm(*method,igo,ls,tc);
+  // time-stepping
+  Dune::PDELab::ExplicitOneStepMethod<RF,IGO,LS,V,V> osm(*method,igo,ls);
   osm.setVerbosityLevel(2);
 
   // prepare VTK writer and write first file
