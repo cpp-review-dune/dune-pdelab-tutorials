@@ -1,11 +1,10 @@
 #ifndef ACOUSTICS_RIEMANNPROBLEM
 #define ACOUSTICS_RIEMANNPROBLEM
-//template<typename GV, typename NUMBER, typename MODEL>
 template<typename GV, typename NUMBER>
 class Problem
 {
 public:
-  //using Model = MODEL;
+
   using RangeField = NUMBER;
 
   //problem specification depends on dimension
@@ -14,15 +13,10 @@ public:
 
   using Range = Dune::FieldVector<NUMBER,m>;
 
-  //Problem (MODEL& m)
-  //  : model(m), time(0.0),  pi(3.141592653589793238462643)
-  // {
-  //}
   Problem ()
     : time(0.0),  pi(3.141592653589793238462643)
   {
   }
-
 
   //! speed of sound
   template<typename E, typename X>
@@ -30,7 +24,7 @@ public:
   {
     X xglobal = e.geometry().global(x);
     if ( xglobal[1] < 1-(0.6/0.9)*(xglobal[0]-0.1) ) return 1.0;
-    //    if (xglobal[0]>0.5) return 2.0;
+
     return 0.5;
   }
 
@@ -60,18 +54,16 @@ public:
     return rhs;
   }
 
-  //! initial value 
+  //! initial value -> the same as tutorial04
   template<typename E, typename X>
   Range u0 (const E& e, const X& x) const
   {
     X xglobal = e.geometry().global(x);
     Range u(0.0);
-    if (xglobal[0]>0.45 && xglobal[0]<0.55 && xglobal[1]>0.3 && xglobal[1]<0.4)
-      {
-        u[0] = sin(pi*(xglobal[0]-0.45)/0.1)*sin(pi*(xglobal[0]-0.45)/0.1)*sin(pi*(xglobal[1]-0.3)/0.1)*sin(pi*(xglobal[1]-0.3)/0.1);
-        u[1] = 0;
-        u[2] = 0;
-      }
+    for (int i=0; i<dim; i++)
+      u[0] += (xglobal[i]-0.375)*(xglobal[i]-0.375);
+    u[0] = std::max(0.0,1.0-8.0*sqrt(u[0]));
+
     return u;
   }
 
@@ -80,9 +72,6 @@ public:
   {
     time = t;
   }
-
-	//MODEL& model;
-  
 
 private:
 
