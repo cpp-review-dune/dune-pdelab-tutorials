@@ -136,19 +136,22 @@ int main(int argc, char** argv)
 
           if (degree==0)
             {
-              using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,0,dim>;
+              using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,0,dim,
+                                                                  Dune::PDELab::QkDGBasisPolynomial::legendre>;
               FEM fem;
               driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
             }
           if (degree==1)
             {
-              using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,1,dim>;
+              using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,1,dim,
+                                                                  Dune::PDELab::QkDGBasisPolynomial::legendre>;
               FEM fem;
               driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
             }
           if (degree==2)
             {
-              using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,2,dim>;
+              using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,
+                                                                  Dune::PDELab::QkDGBasisPolynomial::legendre>;
               FEM fem;
               driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
             }
