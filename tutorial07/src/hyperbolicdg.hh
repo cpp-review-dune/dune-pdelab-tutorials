@@ -87,11 +87,6 @@ namespace Dune {
         // Get geometry
         auto geo = eg.geometry();
 
-        // evaluate speed of sound (assumed constant per element)
-        auto ref_el = referenceElement(geo);
-        auto localcenter = ref_el.position(0,0);
-        auto c = numflux.model.problem.c(cell,localcenter);
-
         // Transformation
         typename EG::Geometry::JacobianInverseTransposed jac;
 
@@ -191,12 +186,6 @@ namespace Dune {
         auto ref_el_outside = referenceElement(geo_outside);
         auto local_inside = ref_el_inside.position(0,0);
         auto local_outside = ref_el_outside.position(0,0);
-        //auto c_s = numflux.model.problem.c(cell_inside,local_inside);
-        //auto c_n = numflux.model.problem.c(cell_outside,local_outside);
-
-        // for now assume that c is constant
-        // the case that non-homogenious coefficient we leave for the future
-        //auto c = c_s;
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
