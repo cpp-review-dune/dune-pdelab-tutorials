@@ -268,16 +268,6 @@ namespace Dune {
         // Get geometry of intersection in local coordinates of cell_inside
         auto geo_in_inside = ig.geometryInInside();
 
-        // Evaluate speed of sound (assumed constant per element)
-        auto ref_el_inside = referenceElement(geo_inside);
-        auto local_inside = ref_el_inside.position(0,0);
-        auto c_s = numflux.model.problem.c(cell_inside,local_inside);
-
-
-        // for now assume that c is constant
-        // the case that non-homogenious coefficient we leave for the future
-        auto c = c_s;
-
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
         Dune::FieldVector<RF,m> f(0.0);

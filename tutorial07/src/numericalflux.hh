@@ -57,15 +57,10 @@ public:
     Fn.umv(n_F,f);
     f *= 0.5;
 
-    Dune::FieldMatrix<DF,m,m> D(0.0);
-    // fetch eigenvalues
-    MODEL::diagonal(D);
-
     //max eigenvalue
     RF alpha(0.0);
-    for (size_t i =0 ; i<m;i++)
-      if (std::abs(D[i][i]) > alpha)
-        alpha = std::abs(D[i][i]);
+    MODEL::max_eigenvalue(u_s,u_n,n_F,alpha);
+
 
     //add diffusion
     for (size_t i =0 ; i<m;i++)
