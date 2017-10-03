@@ -61,6 +61,16 @@ public:
     D[2][0] = 0.0;  D[2][1] = 0.0; D[2][2] = 0.0;
   }
 
+  template<typename RF>
+  static void max_eigenvalue (const Dune::FieldVector<RF,m>& u_s,
+                              const Dune::FieldVector<RF,m>& u_n,
+                              const Dune::FieldVector<RF,dim>& n_F,
+                              RF& alpha)
+  {
+    alpha = 1.0;
+  }
+
+
   //Flux function
   template<typename E, typename X, typename RF>
   void flux (const E& e, const X& x, const Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F) const
