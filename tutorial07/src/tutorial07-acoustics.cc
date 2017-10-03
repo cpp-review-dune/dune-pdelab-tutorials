@@ -129,8 +129,9 @@ int main(int argc, char** argv)
           MODEL model(problem);
 
           //create numerical flux
-          //using NUMFLUX = FluxVectorSplitting<MODEL>;
-          using NUMFLUX = LLFflux<MODEL>;
+          using NUMFLUX = VariableFluxVectorSplitting<MODEL>;
+          // using NUMFLUX = FluxVectorSplitting<MODEL>;
+          //using NUMFLUX = LLFflux<MODEL>;
 
           NUMFLUX numflux(model);
 

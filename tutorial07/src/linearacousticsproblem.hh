@@ -9,7 +9,7 @@ public:
 
   //problem specification depends on dimension
   static constexpr int dim = 2;
-  static constexpr int m = 3;
+  static constexpr int m = dim+1;
 
   using Range = Dune::FieldVector<NUMBER,m>;
 
@@ -22,10 +22,12 @@ public:
   template<typename E, typename X>
   NUMBER c (const E& e, const X& x) const
   {
-    X xglobal = e.geometry().global(x);
-    if ( xglobal[1] < 1-(0.6/0.9)*(xglobal[0]-0.1) ) return 1.0;
-
-    return 0.5;
+    auto xglobal = e.geometry().center();
+    // if (xglobal[0]>1.0 && xglobal[0]<2.0 && xglobal[1]>0.375 && xglobal[1]<0.625)
+    if (xglobal[1]>0.625)
+      return 0.33333;
+    else
+      return 1.0;
   }
 
   //! Neumann boundary condition

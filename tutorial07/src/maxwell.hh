@@ -29,8 +29,8 @@ public:
   {
   }
 
-  template<typename T1, typename T2>
-  static void eigenvectors (const Dune::FieldVector<T1,dim>& n, Dune::FieldMatrix<T2,m,m>& R)
+  template<typename E, typename X, typename T1, typename T2>
+  void eigenvectors (const E& e, const X& x, const Dune::FieldVector<T1,dim>& n, Dune::FieldMatrix<T2,m,m>& R) const
   {
     int eps = 1.0;
     int mu  = 1.0;
@@ -102,8 +102,8 @@ public:
     A[5][0] =-1./mu; A[5][1] = 1./mu; A[5][2] = 0.0;   A[5][3] = 0.0;   A[5][4] = 1.0;   A[5][5] = 1.0;
   }
 
-  template<typename RF>
-  static void diagonal (Dune::FieldMatrix<RF,m,m>& D)
+  template<typename E, typename X, typename RF>
+  void diagonal (const E& e, const X& x, Dune::FieldMatrix<RF,m,m>& D) const
   {
     RF c(1.0);
 
@@ -116,8 +116,8 @@ public:
   }
 
   //Flux function
-  template<typename RF>
-  static void flux (Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F)
+  template<typename E, typename X, typename RF>
+  void flux (const E& e, const X& x, const Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F) const
   {
     RF mu(1.0);
     RF ep(1.0);

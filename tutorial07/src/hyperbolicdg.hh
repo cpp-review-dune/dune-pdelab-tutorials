@@ -90,7 +90,6 @@ namespace Dune {
         // evaluate speed of sound (assumed constant per element)
         auto ref_el = referenceElement(geo);
         auto localcenter = ref_el.position(0,0);
-        auto c = numflux.model.problem.c(cell,localcenter);
 
         // Transformation
         typename EG::Geometry::JacobianInverseTransposed jac;
@@ -124,7 +123,7 @@ namespace Dune {
 
             Dune::FieldMatrix<RF,m,dim> F;
 
-            numflux.model.flux(u,F);
+            numflux.model.flux(eg,ip.position(),u,F);
 
             // integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
@@ -191,12 +190,9 @@ namespace Dune {
         auto ref_el_outside = referenceElement(geo_outside);
         auto local_inside = ref_el_inside.position(0,0);
         auto local_outside = ref_el_outside.position(0,0);
-        //auto c_s = numflux.model.problem.c(cell_inside,local_inside);
-        //auto c_n = numflux.model.problem.c(cell_outside,local_outside);
 
         // for now assume that c is constant
         // the case that non-homogenious coefficient we leave for the future
-        //auto c = c_s;
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
@@ -229,7 +225,7 @@ namespace Dune {
                 u_n[i] += x_n(lfsv_n.child(i),k)*phi_n[k];
 
             // Compute numerical flux at  the integration point
-            numflux.numericalFlux(ig,x_s,u_s,u_n,f);
+            numflux.numericalFlux(cell_inside,iplocal_s,cell_outside,iplocal_n,ig.centerUnitOuterNormal(),u_s,u_n,f);
 
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
@@ -282,12 +278,7 @@ namespace Dune {
         // Evaluate speed of sound (assumed constant per element)
         auto ref_el_inside = referenceElement(geo_inside);
         auto local_inside = ref_el_inside.position(0,0);
-        auto c_s = numflux.model.problem.c(cell_inside,local_inside);
 
-
-        // for now assume that c is constant
-        // the case that non-homogenious coefficient we leave for the future
-        auto c = c_s;
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
@@ -314,7 +305,7 @@ namespace Dune {
             Dune::FieldVector<RF,m> u_n(numflux.model.problem.g(ig.intersection(),ip.position(),u_s));
 
             // Compute numerical flux at integration point
-            numflux.numericalFlux(ig,x_s,u_s,u_n,f);
+            numflux.numericalFlux(cell_inside,iplocal_s,cell_inside,iplocal_s,ig.centerUnitOuterNormal(),u_s,u_n,f);
 
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());

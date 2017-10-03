@@ -36,21 +36,18 @@ public:
   {
   }
 
-  template<typename IG, typename X>
-  static void numericalFlux(const IG& ig, const X& x,
+  template<typename E, typename X>
+  void numericalFlux(const E& inside, const X& x_inside, const E& outside, const X& x_outside, const Dune::FieldVector<DF,dim> n_F,
                             const Dune::FieldVector<RF,m>& u_s,
-                            const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f)
+                            const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f) const
   {
-    // Normal: assume faces are planar
-    const Dune::FieldVector<DF,dim> n_F = ig.centerUnitOuterNormal();
-
     // fetch flux
     Dune::FieldMatrix<RF,m,dim> Fs;
     Dune::FieldMatrix<RF,m,dim> Fn;
 
     //evaluate flux
-    MODEL::flux(u_s,Fs);
-    MODEL::flux(u_n,Fn);
+    model.flux(inside,x_inside,u_s,Fs);
+    model.flux(outside,x_outside,u_n,Fn);
 
     //Fs*n_F + Fn*n_F
     Fs.umv(n_F,f);
@@ -59,7 +56,7 @@ public:
 
     Dune::FieldMatrix<DF,m,m> D(0.0);
     // fetch eigenvalues
-    MODEL::diagonal(D);
+    model.diagonal(inside,x_inside,D);
 
     //max eigenvalue
     RF alpha(0.0);
@@ -94,19 +91,16 @@ public:
   {
   }
 
-  template<typename IG, typename X>
-  static void numericalFlux(const IG& ig, const X& x,
+  template<typename E, typename X>
+  void numericalFlux(const E& inside, const X& x_inside, const E& outside, const X& x_outside,  const Dune::FieldVector<DF,dim> n_F,
                             const Dune::FieldVector<RF,m>& u_s,
-                            const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f)
+                            const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f) const
                             //const std::vector<Dune::FieldVector<RF,dim> >& gradu_s,
                             //const std::vector<Dune::FieldVector<RF,dim> >& gradu_n)
   {
-    // Normal: assume faces are planar
-    const Dune::FieldVector<DF,dim> n_F = ig.centerUnitOuterNormal();
-
     Dune::FieldMatrix<DF,m,m> D(0.0);
     // fetch eigenvalues
-    MODEL::diagonal(D);
+    model.diagonal(inside,x_inside,D);
 
     Dune::FieldMatrix<DF,m,m> Dplus(0.0);
     Dune::FieldMatrix<DF,m,m> Dminus(0.0);
@@ -116,7 +110,7 @@ public:
 
     // fetch eigenvectors
     Dune::FieldMatrix<DF,m,m> Rot;
-    MODEL::eigenvectors(n_F,Rot);
+    model.eigenvectors(inside,x_inside,n_F,Rot);
 
     // compute B+ = RD+R^-1 and B- = RD-R^-1
     Dune::FieldMatrix<DF,m,m> Bplus(Rot);
@@ -136,10 +130,154 @@ public:
     // f = Bplus*u_s + Bminus*u_n
     Bplus.umv(u_s,f);
     Bminus.umv(u_n,f);
-
   }
 
   const MODEL& model;
 
 };// FVS
+
+
+//Flux Vector splitting for discontinuous coefficients
+template<typename MODEL>
+class VariableFluxVectorSplitting
+{
+
+public:
+
+  static constexpr int dim = MODEL::dim;
+  static constexpr int m = MODEL::Model::m;
+  static constexpr int mstar = MODEL::mstar;
+
+  using RF = typename MODEL::RangeField; // type for computations
+  using DF = RF;
+
+  VariableFluxVectorSplitting (const MODEL& model_)
+    : model(model_)
+  {
+  }
+
+  template<typename E, typename X>
+  void numericalFlux(const E& inside, const X& x_inside,
+                     const E& outside, const X& x_outside,
+                     const Dune::FieldVector<DF,dim> n_F,
+                     const Dune::FieldVector<RF,m>& u_s,
+                     const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f) const
+  {
+    // check for discontinuity
+    if (model.problem.c(inside,x_inside)==model.problem.c(outside,x_outside))
+      {
+        // standard case
+        Dune::FieldMatrix<DF,m,m> D(0.0);
+        // fetch eigenvalues
+        model.diagonal(inside,x_inside,D);
+
+        Dune::FieldMatrix<DF,m,m> Dplus(0.0);
+        Dune::FieldMatrix<DF,m,m> Dminus(0.0);
+
+        for (size_t i =0 ; i<m;i++)
+          (D[i][i] > 0) ? Dplus[i][i] = D[i][i] : Dminus[i][i] = D[i][i];
+
+        // fetch eigenvectors
+        Dune::FieldMatrix<DF,m,m> R;
+        model.eigenvectors(inside,x_inside,n_F,R);
+
+        // compute B+ = RD+R^-1 and B- = RD-R^-1
+        Dune::FieldMatrix<DF,m,m> Bplus(R);
+        Dune::FieldMatrix<DF,m,m> Bminus(R);
+
+        //multiply by D+-
+        Bplus.rightmultiply(Dplus);
+        Bminus.rightmultiply(Dminus);
+
+        //multiply by R^-1
+        R.invert();
+        Bplus.rightmultiply(R);
+        Bminus.rightmultiply(R);
+
+        // Compute numerical flux at  the integration point
+        f = 0.0;
+        // f = Bplus*u_s + Bminus*u_n
+        Bplus.umv(u_s,f);
+        Bminus.umv(u_n,f);
+      }
+    else // discontinuous coefficient case
+      {
+        // fetch eigenvalues
+        Dune::FieldMatrix<DF,m,m> D_s(0.0), D_n(0.0);
+        model.diagonal(inside,x_inside,D_s);
+        model.diagonal(outside,x_outside,D_n);
+
+        // split positive and negative eigenvalues
+        Dune::FieldMatrix<DF,m,m> Dplus_s(0.0);
+        Dune::FieldMatrix<DF,m,m> Dminus_n(0.0);
+        for (size_t i=0 ; i<m; i++)
+          (D_s[i][i] > 0) ? Dplus_s[i][i] = D_s[i][i] : Dminus_n[i][i] = D_n[i][i];
+
+        // fetch eigenvectors
+        Dune::FieldMatrix<DF,m,m> R_s, R_n;
+        model.eigenvectors(inside,x_inside,n_F,R_s);
+        model.eigenvectors(outside,x_outside,n_F,R_n);
+
+        // compute B+ = RD+R^-1 and B- = RD-R^-1
+        Dune::FieldMatrix<DF,m,m> Bplus_s(R_s);
+        Dune::FieldMatrix<DF,m,m> Bminus_n(R_n);
+
+        //multiply by D+-
+        Bplus_s.rightmultiply(Dplus_s);
+        Bminus_n.rightmultiply(Dminus_n);
+
+        //multiply by R^-1
+        Dune::FieldMatrix<DF,m,m> Rinv_s(R_s), Rinv_n(R_n);
+        Rinv_s.invert(); Rinv_n.invert();
+        Bplus_s.rightmultiply(Rinv_s);
+        Bminus_n.rightmultiply(Rinv_n);
+
+        // compute rectangular S matrix
+        Dune::FieldMatrix<DF,m,mstar> S(0.0);
+        for (int j=0; j<mstar; j++)
+          if (D_s[j][j]>0.0)
+            {
+              for (int i=0; i<m; i++) S[i][j] = R_n[i][j]*D_n[j][j];
+            }
+          else
+            {
+              for (int i=0; i<m; i++) S[i][j] = -R_s[i][j]*D_s[j][j];
+            }
+
+        // compute square normal matrix
+        Dune::FieldMatrix<DF,mstar,mstar> SS(0.0);
+        for (int i=0; i<mstar; i++)
+          for (int j=0; j<mstar; j++)
+            for (int k=0; k<m; k++)
+              SS[i][j] += S[k][i]*S[k][j];
+
+        // compute right hand side of interface problem
+        Dune::FieldVector<RF,m> fd(0.0);
+        Bplus_s.umv(u_s,fd);
+        Bminus_n.usmv(-1.0,u_n,fd);
+        Dune::FieldVector<RF,mstar> rhs(0.0);
+        for (int i=0; i<mstar; i++)
+          for (int j=0; j<m; j++)
+            rhs[i] += S[j][i]*fd[j];
+
+        // Solve interface system
+        Dune::FieldVector<RF,mstar> alpha(0.0);
+        SS.solve(alpha,rhs);
+
+        // extend alpha
+        Dune::FieldVector<RF,m> alpha_ext(0.0);
+        for (int i=0; i<mstar; i++)
+          if (D_s[i][i]<0.0) alpha_ext[i] = D_s[i][i]*alpha[i];
+
+        // compute flux
+        f = 0.0;
+        Bplus_s.umv(u_s,f);
+        R_s.umv(alpha_ext,f);
+      }
+  }
+
+  const MODEL& model;
+
+};// FVS
+
 #endif //NUMERICALFLUX

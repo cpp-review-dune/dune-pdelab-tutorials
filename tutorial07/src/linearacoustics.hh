@@ -16,10 +16,12 @@ class Model ;
 template<typename PROBLEM>
 class Model<2,PROBLEM>
 {
-
 public:
-  static constexpr int dim = 2;
-  static constexpr int m = 3;
+  static constexpr int dim = 2;   // space dimension
+  static constexpr int m = dim+1; // system size
+  static constexpr int mplus = 1; // number of positive eigenvectors
+  static constexpr int mminus = 1; // number of negative eigenvectors
+  static constexpr int mstar = mplus+mminus; // number of nonzero eigenvalues
 
   using RangeField = typename PROBLEM::RangeField;
 
@@ -28,74 +30,42 @@ public:
   {
   }
 
-  //TODO discontinuos coefficients
-  /*
   template<typename E, typename X, typename T2, typename T3>
-  static void eigenvectors (
-    const E& e, const X& x,
-    const Dune::FieldVector<T2,dim>& n,
-    Dune::FieldMatrix<T3,m,m>& RT
-    )
+  void eigenvectors (const E& e, const X& x, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,m,m>& RT) const
   {
-
     auto c = problem.c(e,x);
 
-    RT[0][0] =  0; RT[1][0] =  -n[1];  RT[2][0] = n[0];
-    RT[0][1] =  1; RT[1][1] = c*n[0];  RT[2][1] = c*n[1];
-    RT[0][2] = -1; RT[1][2] = c*n[0];  RT[2][2] = c*n[1];
-  }
-  */
-  template<typename T2, typename T3>
-  static void eigenvectors ( const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,m,m>& RT)
-  {
-
-    //auto c = problem.c(e,x);
-    int c = 1;
-
-    RT[0][0] =  0; RT[1][0] =  -n[1];  RT[2][0] = n[0];
-    RT[0][1] =  1; RT[1][1] = c*n[0];  RT[2][1] = c*n[1];
-    RT[0][2] = -1; RT[1][2] = c*n[0];  RT[2][2] = c*n[1];
+    RT[0][0] =  1.0/c;  RT[0][1] = -1.0/c;  RT[0][2] = 0.0;
+    RT[1][0] =  n[0]; RT[1][1] = n[0];  RT[1][2] = -n[1];
+    RT[2][0] =  n[1]; RT[2][1] = n[1];  RT[2][2] = n[0];
   }
 
-  //one can also provide eigenvectors inverse
+  // where do we need this matrix for?
+  // template<typename RF>
+  // static void coefficients (Dune::FieldMatrix<RF,m,m>& A)
+  // {
+  //   int c2 = 1;
 
-  template<typename RF>
-  static void coefficients (Dune::FieldMatrix<RF,m,m>& A)
+  //   A[0][0] = 0.0; A[0][1] = 1.0; A[0][2] = 1.0;
+  //   A[1][0] = c2;  A[1][1] = 0.0; A[1][2] = 0.0;
+  //   A[2][0] = c2;  A[2][1] = 0.0; A[2][2] = 0.0;
+  // }
+
+  template<typename E, typename X, typename RF>
+  void diagonal (const E& e, const X& x, Dune::FieldMatrix<RF,m,m>& D) const
   {
-    int c2 = 1;
+    auto c = problem.c(e,x);
 
-    A[0][0] = 0.0; A[0][1] = 1.0; A[0][2] = 1.0;
-    A[1][0] = c2;  A[1][1] = 0.0; A[1][2] = 0.0;
-    A[2][0] = c2;  A[2][1] = 0.0; A[2][2] = 0.0;
-  }
-
-  template<typename RF>
-  static void diagonal (Dune::FieldMatrix<RF,m,m>& D)
-  {
-    int c = 1;
-
-    D[0][0] = 0.0;  D[0][1] = 0.0; D[0][2] = 0.0;
-    D[1][0] = 0.0;  D[1][1] = c  ; D[1][2] = 0.0;
-    D[2][0] = 0.0;  D[2][1] = 0.0; D[2][2] = -c;
+    D[0][0] = c;    D[0][1] = 0.0; D[0][2] = 0.0;
+    D[1][0] = 0.0;  D[1][1] = -c ; D[1][2] = 0.0;
+    D[2][0] = 0.0;  D[2][1] = 0.0; D[2][2] = 0.0;
   }
 
   //Flux function
-  //template<typename RF,typename EG>
-  template<typename RF>
-  static void flux (const Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F)
+  template<typename E, typename X, typename RF>
+  void flux (const E& e, const X& x, const Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F) const
   {
-    //fetch parameters
-    /*
-    // Reference to cell
-    const auto& cell = eg.entity();
-    // Get geometry
-    auto geo = eg.geometry();
-    // evaluate speed of sound (assumed constant per element)
-    auto ref_el = referenceElement(geo);
-    auto localcenter = ref_el.position(0,0);
-    auto c = param.c(cell,localcenter);
-    */
-    int c = 1;
+    auto c = problem.c(e,x);
 
     F[0][0] = u[1]    ; F[0][1] = u[2];
     F[1][0] = c*c*u[0]; F[1][1] = 0.0;
