@@ -28,6 +28,7 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
 
   using VBE = Dune::PDELab::ISTL::VectorBackend<Dune::PDELab::ISTL::Blocking::fixed>;
   using OrderingTag = Dune::PDELab::EntityBlockedOrderingTag;
+
   using GFSDG = Dune::PDELab::GridFunctionSpace<GV,FEMDG,CON,VBE0>;
   GFSDG gfsdg(gv,femdg);
 
@@ -79,8 +80,12 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   Dune::PDELab::interpolate(u0,gfs,xold);
 
   // Make a linear solver backend
-  typedef Dune::PDELab::ISTLBackend_OVLP_ExplicitDiagonal<GFS> LS;
-  LS ls(gfs);
+  //typedef Dune::PDELab::ISTLBackend_OVLP_ExplicitDiagonal<GFS> LS;
+  //LS ls(gfs);
+  typedef Dune::PDELab::ISTLBackend_SEQ_UMFPack LS;
+  LS ls(false);
+
+
 
   // time-stepping
   Dune::PDELab::ExplicitOneStepMethod<RF,IGO,LS,V,V> osm(*method,igo,ls);

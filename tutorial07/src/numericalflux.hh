@@ -58,7 +58,6 @@ public:
     RF alpha(0.0);
     MODEL::max_eigenvalue(u_s,u_n,n_F,alpha);
 
-
     //add diffusion
     for (size_t i =0 ; i<m;i++)
       f[i] = f[i] + 0.5*alpha*(u_s[i] - u_n[i]);
