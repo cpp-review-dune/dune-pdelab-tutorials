@@ -192,7 +192,7 @@ public:
     if (!isdirichlet) return;
 
     // types & dimension
-    const int dim = IG::dimension;
+    const int dim = IG::Entity::dimension;
     typedef decltype(Dune::PDELab::makeZeroBasisFieldValue(lfsu)) RF;
 
     // select quadrature rule
