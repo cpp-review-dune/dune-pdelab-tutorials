@@ -1,7 +1,10 @@
 #include "config.h"
+
+#include <array>
 #include <iostream>
 #include <string>
-#include <dune/common/array.hh>
+
+#include <dune/common/filledarray.hh>
 #include <dune/common/exceptions.hh>
 #include <dune/common/fvector.hh>
 #include <dune/common/parallel/mpihelper.hh>
@@ -43,7 +46,7 @@ int main(int argc, char** argv)
         // Define the extensions of the domain: a unit square with N by N cells.
         Dune::FieldVector<double,dim> lowerleft(0.0);
         Dune::FieldVector<double,dim> upperright(1.0);
-        std::array<unsigned int,dim> N(Dune::fill_array<unsigned int,dim>(4));
+        auto N = Dune::filledArray<dim, unsigned int>(4);
         // build the equidistant grid
         auto grid = Dune::StructuredGridFactory<GridType>::createCubeGrid(lowerleft, upperright, N);
 
