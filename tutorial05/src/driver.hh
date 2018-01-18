@@ -121,7 +121,7 @@ void driver (Grid& grid, Dune::ParameterTree& ptree)
     // vtk output
     std::cout << "VTK output" << std::endl;
     Dune::SubsamplingVTKWriter<GV>
-      vtkwriter(gv,ptree.get("output.subsampling",(int)0));
+      vtkwriter(gv,Dune::refinementIntervals(ptree.get("output.subsampling",(int)1)));
     typedef Dune::PDELab::DiscreteGridFunction<GFS,Z> ZDGF;
     ZDGF zdgf(gfs,z);
     typedef Dune::PDELab::VTKGridFunctionAdapter<ZDGF> VTKF;

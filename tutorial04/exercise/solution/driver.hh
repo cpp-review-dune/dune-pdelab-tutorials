@@ -66,9 +66,9 @@ void driver (const GV& gv, const FEM& fem,
   set_constrained_dofs(cc,0.0,z); // set zero Dirichlet boundary conditions
 
   // prepare VTK writer and write first file
-  int subsampling=ptree.get("output.subsampling",(int)0);
+  int subsampling=ptree.get("output.subsampling",(int)1);
   using VTKWRITER = Dune::SubsamplingVTKWriter<GV>;
-  VTKWRITER vtkwriter(gv,subsampling);
+  VTKWRITER vtkwriter(gv,Dune::refinementIntervals(subsampling));
   std::string filename=ptree.get("output.filename","output") + STRINGIZE(GRIDDIM) "d";
   struct stat st;
   if( stat( filename.c_str(), &st ) != 0 )

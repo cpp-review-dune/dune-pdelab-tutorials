@@ -108,9 +108,9 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
         std::cout << "Error: Cannot create directory "
                   << filename << std::endl;
     }
-  int subsampling=ptree.get("output.subsampling",(int)0);
+  int subsampling=ptree.get("output.subsampling",(int)1);
   typedef Dune::SubsamplingVTKWriter<GV> VTKWRITER;
-  VTKWRITER vtkwriter(gv,subsampling);
+  VTKWRITER vtkwriter(gv,Dune::refinementIntervals(subsampling));
   typedef Dune::VTKSequenceWriter<GV> VTKSEQUENCEWRITER;
   VTKSEQUENCEWRITER vtkSequenceWriter(
     std::make_shared<VTKWRITER>(vtkwriter),filename,filename,"");
