@@ -21,7 +21,7 @@ void driver (const GV& gv, Dune::ParameterTree& ptree)
   typedef Dune::PDELab::P0LocalFiniteElementMap<DF,RF,dim> FEM;
   FEM fem(Dune::GeometryType(Dune::GeometryType::cube,dim));
   typedef Dune::PDELab::NoConstraints CON;
-  typedef Dune::PDELab::istl::VectorBackend<> VBE;
+  typedef Dune::PDELab::ISTL::VectorBackend<> VBE;
   typedef Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE> GFS;
   GFS gfs(gv,fem);
   gfs.name("Q0");
@@ -42,7 +42,7 @@ void driver (const GV& gv, Dune::ParameterTree& ptree)
   LOP lop(problem);
 
   // Make a global operator
-  typedef Dune::PDELab::istl::BCRSMatrixBackend<> MBE;
+  typedef Dune::PDELab::ISTL::BCRSMatrixBackend<> MBE;
   MBE mbe(2*dim+1); // guess nonzeros per row
   typedef Dune::PDELab::EmptyTransformation CC;
   typedef Dune::PDELab::GridOperator<

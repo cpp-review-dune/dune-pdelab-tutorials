@@ -13,14 +13,14 @@ void driver (const GV& gv, const FEM& fem,
 
   // Make grid function space used per component
   using CON = Dune::PDELab::ConformingDirichletConstraints;
-  using VBE0 = Dune::PDELab::istl::VectorBackend<>;
+  using VBE0 = Dune::PDELab::ISTL::VectorBackend<>;
   using GFS0 = Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE0>;
   GFS0 gfs0(gv,fem);
 
   // Make grid function space for the system
   using VBE =
-    Dune::PDELab::istl::VectorBackend<
-      Dune::PDELab::istl::Blocking::fixed
+    Dune::PDELab::ISTL::VectorBackend<
+      Dune::PDELab::ISTL::Blocking::fixed
     >;
   using OrderingTag = Dune::PDELab::EntityBlockedOrderingTag;
   using GFS =
@@ -94,7 +94,7 @@ void driver (const GV& gv, const FEM& fem,
   using TLOP = WaveL2<FEM>;
   // using TLOP = WaveElip<FEM>;
   TLOP tlop;
-  using MBE = Dune::PDELab::istl::BCRSMatrixBackend<>;
+  using MBE = Dune::PDELab::ISTL::BCRSMatrixBackend<>;
   int degree = ptree.get("fem.degree",(int)1);
   MBE mbe((int)pow(1+2*degree,dim));
   using GO0 = Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,RF,RF,RF,CC,CC>;

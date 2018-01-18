@@ -26,7 +26,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
 
   // Make grid function space
   typedef Dune::PDELab::ConformingDirichletConstraints CON;
-  typedef Dune::PDELab::istl::VectorBackend<> VBE;
+  typedef Dune::PDELab::ISTL::VectorBackend<> VBE;
   typedef Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE> GFS;
   GFS gfs(gv,fem);
   gfs.name("Vh");
@@ -53,7 +53,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   // Make instationary grid operator
   typedef NonlinearHeatFEM<Problem<RF>,FEM> LOP;
   LOP lop(problem);
-  typedef Dune::PDELab::istl::BCRSMatrixBackend<> MBE;
+  typedef Dune::PDELab::ISTL::BCRSMatrixBackend<> MBE;
   int degree = ptree.get("fem.degree",(int)1);
   MBE mbe((int)pow(1+2*degree,dim));
   typedef Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,
