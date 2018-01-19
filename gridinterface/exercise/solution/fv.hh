@@ -6,15 +6,6 @@
 #include <dune/common/fvector.hh>
 #include <dune/grid/common/mcmgmapper.hh>
 
-// Layout class for the mapper
-template<int dim>
-struct FVLayout
-{
-  bool contains(Dune::GeometryType gt)
-  {
-    return gt.dim() == dim;
-  }
-};
 
 // template parameters: GV = gridview type, E = equation parameters, ScalarField = solution vector
 template<typename GV, typename E, typename ScalarField>
@@ -22,7 +13,7 @@ class FiniteVolume
 {
 
   // mapper for elements (codim=0)
-  using Mapper = Dune::MultipleCodimMultipleGeomTypeMapper<GV,FVLayout>;
+  using Mapper = Dune::MultipleCodimMultipleGeomTypeMapper<GV>;
 
   GV grid_view;
   const E& equation;
@@ -33,7 +24,7 @@ public:
   FiniteVolume(const GV& grid_view_, const E& equation_)
     : grid_view(grid_view_)
     , equation(equation_)
-    , mapper(grid_view_)
+    , mapper(grid_view_, Dune::mcmgElementLayout())
     , update(grid_view.size(0))
   {}
 

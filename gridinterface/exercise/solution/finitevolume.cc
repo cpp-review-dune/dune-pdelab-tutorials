@@ -42,7 +42,7 @@ template<typename GV, typename V>
 void initialize (const GV& grid_view, V& c)
 {
   // create mapper
-  Dune::MultipleCodimMultipleGeomTypeMapper<GV, FVLayout> mapper(grid_view);
+  Dune::MultipleCodimMultipleGeomTypeMapper<GV> mapper(grid_view, Dune::mcmgElementLayout());
 
   for (const auto& cell : elements(grid_view))
     {
