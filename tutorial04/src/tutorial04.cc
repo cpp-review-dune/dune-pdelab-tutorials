@@ -27,7 +27,6 @@
 // dune-pdelab includes
 #include<dune/pdelab/common/function.hh>
 #include<dune/pdelab/common/quadraturerules.hh>
-#include<dune/pdelab/common/referenceelements.hh>
 #include<dune/pdelab/common/vtkexport.hh>
 #include<dune/pdelab/finiteelementmap/pkfem.hh>
 #include<dune/pdelab/finiteelementmap/qkfem.hh>
