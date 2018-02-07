@@ -28,7 +28,7 @@ void driver (const GV& gv, const FEM& fem,
   // typedef Dune::PDELab::ConformingDirichletConstraints CON;
   typedef Dune::PDELab::NoConstraints CON;
   //== }
-  typedef Dune::PDELab::istl::VectorBackend<> VBE;
+  typedef Dune::PDELab::ISTL::VectorBackend<> VBE;
   typedef Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE> GFS;
   GFS gfs(gv,fem);
   gfs.name("Vh");
@@ -65,7 +65,7 @@ void driver (const GV& gv, const FEM& fem,
   //== }
 
   // Make a global operator
-  typedef Dune::PDELab::istl::BCRSMatrixBackend<> MBE;
+  typedef Dune::PDELab::ISTL::BCRSMatrixBackend<> MBE;
   int degree = ptree.get("fem.degree",(int)1);
   MBE mbe((int)pow(1+2*degree,dim));
   typedef Dune::PDELab::GridOperator<
@@ -100,8 +100,8 @@ void driver (const GV& gv, const FEM& fem,
   Z w(gfs); // Lagrange interpolation of exact solution
   Dune::PDELab::interpolate(g,gfs,w);
   ZDGF wdgf(gfs,w);
-  int subsampling = ptree.get("output.subsampling",(int)0);
-  Dune::SubsamplingVTKWriter<GV> vtkwriter(gv,subsampling);
+  int subsampling = ptree.get("output.subsampling",(int)1);
+  Dune::SubsamplingVTKWriter<GV> vtkwriter(gv,Dune::refinementIntervals(subsampling));
   typedef Dune::PDELab::VTKGridFunctionAdapter<ZDGF> VTKF;
   vtkwriter.addVertexData(std::shared_ptr<VTKF>(new
                                          VTKF(zdgf,"fesol")));

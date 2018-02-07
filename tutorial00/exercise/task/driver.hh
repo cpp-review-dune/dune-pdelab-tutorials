@@ -29,7 +29,7 @@ void driver (const GV& gv, Dune::ParameterTree& ptree)
   typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,RF,1> FEM;
   FEM fem(gv);
   typedef Dune::PDELab::ConformingDirichletConstraints CON;
-  typedef Dune::PDELab::istl::VectorBackend<> VBE;
+  typedef Dune::PDELab::ISTL::VectorBackend<> VBE;
   typedef Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE> GFS;
   GFS gfs(gv,fem);
   gfs.name("P1");
@@ -59,7 +59,7 @@ void driver (const GV& gv, Dune::ParameterTree& ptree)
   LOP lop(f,fem.find(*gv.template begin<0>()));
 
   // Make a global operator
-  typedef Dune::PDELab::istl::BCRSMatrixBackend<> MBE;
+  typedef Dune::PDELab::ISTL::BCRSMatrixBackend<> MBE;
   MBE mbe(1<<(dim+1)); // guess nonzeros per row
   typedef Dune::PDELab::GridOperator<
     GFS,GFS,  /* ansatz and test space */

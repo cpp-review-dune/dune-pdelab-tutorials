@@ -4,9 +4,10 @@
 
 #include "config.h"
 
+#include <array>
 #include <iostream>
 
-#include <dune/common/array.hh>
+#include <dune/common/filledarray.hh>
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/grid/yaspgrid.hh>
 #include <dune/grid/io/file/vtk/vtksequencewriter.hh>
@@ -40,7 +41,7 @@ template<typename GV, typename V>
 void initialize (const GV& grid_view, V& c)
 {
   // create mapper
-  Dune::MultipleCodimMultipleGeomTypeMapper<GV, FVLayout> mapper(grid_view);
+  Dune::MultipleCodimMultipleGeomTypeMapper<GV> mapper(grid_view, Dune::mcmgElementLayout());
 
   for (const auto& cell : elements(grid_view))
     {
@@ -71,7 +72,7 @@ int main(int argc, char** argv)
     auto L = Dune::FieldVector<double,dim>(1.0);
 
     // the number of cells per direction
-    auto N = Dune::fill_array<int,dim>(32);
+    auto N = Dune::filledArray<dim, int>(32);
 
     // We don't want a periodic grid in any direction
     auto periodic = std::bitset<dim>(false);

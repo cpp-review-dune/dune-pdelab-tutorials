@@ -754,7 +754,7 @@ Now you can pass the object to the constructor during grid creation
 \begin{lstlisting}[breaklines=true]
 const int dim=2;
 Dune::FieldVector<double,dim> upper(1.0);
-std::array<int,dim> n(Dune::fill_array<int,dim>(10));
+auto n = Dune::filledArray<dim, int>(10);
 std::bitset<dim> periodic(false);
 int overlap = 1;
 YaspPartition<2> yp;
@@ -1052,7 +1052,7 @@ constraints container (usually \lstinline!OverlappingConformingDirichletConstrai
   \begin{lstlisting}[breaklines=true,escapechar=!]
 // 1. Create an overlapping grid
 Dune::FieldVector<double,2> L(1.0);
-std::array<int,2> N(Dune::fill_array<int,2>(16));
+auto N = Dune::filledArray<2, int>(16);
 std::bitset<2> periodic (false);
 !\color{red}int overlap=2;!
 Dune::YaspGrid<2> grid(L,N,periodic!\color{red},overlap!);
@@ -1139,7 +1139,7 @@ The template parameter is either \lstinline!GFS! the grid function space or \lst
   \begin{lstlisting}[breaklines=true,escapechar=!]
 // 1. Create an overlapping grid
 Dune::FieldVector<double,2> L(1.0);
-std::array<int,2> N(Dune::fill_array<int,2>(16));
+auto N = Dune::filledArray<int, 2>(16);
 std::bitset<2> periodic (false);
 !\color{red}int overlap=0; // overlap 0 as overlap elements are not assembled!
 Dune::YaspGrid<2> grid(L,N,periodic!\color{red},overlap!);

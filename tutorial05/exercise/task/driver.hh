@@ -29,7 +29,7 @@ void driver (Grid& grid, Dune::ParameterTree& ptree)
   typedef Dune::PDELab::PkLocalFiniteElementMap<GV,DF,RF,degree> FEM;
   FEM fem(gv);
   typedef Dune::PDELab::ConformingDirichletConstraints CON;
-  typedef Dune::PDELab::istl::VectorBackend<> VBE;
+  typedef Dune::PDELab::ISTL::VectorBackend<> VBE;
   typedef Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE> GFS;
   GFS gfs(gv,fem);
   gfs.name("Vh");
@@ -68,7 +68,7 @@ void driver (Grid& grid, Dune::ParameterTree& ptree)
     LOP lop(problem);
 
     // Make a global operator
-    typedef Dune::PDELab::istl::BCRSMatrixBackend<> MBE;
+    typedef Dune::PDELab::ISTL::BCRSMatrixBackend<> MBE;
     MBE mbe((int)pow(1+2*degree,dim));
     typedef Dune::PDELab::GridOperator<
       GFS,GFS,  /* ansatz and test space */
@@ -129,7 +129,7 @@ void driver (Grid& grid, Dune::ParameterTree& ptree)
     // vtk output
     std::cout << "VTK output" << std::endl;
     Dune::SubsamplingVTKWriter<GV>
-      vtkwriter(gv,ptree.get("output.subsampling",(int)0));
+      vtkwriter(gv,Dune::refinementIntervals(ptree.get("output.subsampling",(int)1)));
     typedef Dune::PDELab::VTKGridFunctionAdapter<ZDGF> VTKF;
     vtkwriter.addVertexData( // the FE solution
         std::shared_ptr<VTKF>(new VTKF(zdgf,"fesol")));

@@ -20,7 +20,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
 
   // Make grid function space
   typedef Dune::PDELab::OverlappingConformingDirichletConstraints CON; // NEW IN PARALLEL
-  typedef Dune::PDELab::istl::VectorBackend<> VBE;
+  typedef Dune::PDELab::ISTL::VectorBackend<> VBE;
   typedef Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE> GFS;
   GFS gfs(gv,fem);
   gfs.name("Vh");
@@ -45,7 +45,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   Dune::PDELab::interpolate(g,gfs,z);
 
   // make vector consistent NEW IN PARALLEL
-  Dune::PDELab::istl::ParallelHelper<GFS> helper(gfs);
+  Dune::PDELab::ISTL::ParallelHelper<GFS> helper(gfs);
   helper.maskForeignDOFs(z);
   Dune::PDELab::AddDataHandle<GFS,Z> adddh(gfs,z);
   if (gfs.gridView().comm().size()>1)
@@ -56,7 +56,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   LOP lop(problem);
 
   // Make a global operator
-  typedef Dune::PDELab::istl::BCRSMatrixBackend<> MBE;
+  typedef Dune::PDELab::ISTL::BCRSMatrixBackend<> MBE;
   int degree = ptree.get("fem.degree",(int)1);
   MBE mbe((int)pow(1+2*degree,dim));
   typedef Dune::PDELab::GridOperator<
@@ -92,7 +92,7 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   std::cout << std::endl << "l2 error squared: " << l2errorsquared << std::endl;
 
   // Write VTK output file
-  Dune::SubsamplingVTKWriter<GV> vtkwriter(gv,ptree.get("output.subsampling",(int)0));
+  Dune::SubsamplingVTKWriter<GV> vtkwriter(gv,Dune::refinementIntervals(ptree.get("output.subsampling",(int)1)));
   typedef Dune::PDELab::VTKGridFunctionAdapter<ZDGF> VTKF;
   vtkwriter.addVertexData(std::shared_ptr<VTKF>(new
                                          VTKF(zdgf,"fesol")));

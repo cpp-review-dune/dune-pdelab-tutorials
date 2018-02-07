@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     if (helper.size()==1)
     {
       Dune::FieldVector<double,2> L(1.0);
-      Dune::array<int,2> N(Dune::fill_array<int,2>(1));
+      auto N = Dune::filledArray<2, int>(1);
       std::bitset<2> periodic(false);
       int overlap=0;
       Dune::YaspGrid<2> grid(L,N,periodic,overlap);

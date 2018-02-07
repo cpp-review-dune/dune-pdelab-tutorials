@@ -13,14 +13,14 @@ void driver (const GV& gv, const FEM& fem,
 
   // Make grid function space used per component
   using CON = Dune::PDELab::ConformingDirichletConstraints;
-  using VBE0 = Dune::PDELab::istl::VectorBackend<>;
+  using VBE0 = Dune::PDELab::ISTL::VectorBackend<>;
   using GFS0 = Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE0>;
   GFS0 gfs0(gv,fem);
 
   // Make grid function space for the system
   using VBE =
-    Dune::PDELab::istl::VectorBackend<
-      Dune::PDELab::istl::Blocking::fixed
+    Dune::PDELab::ISTL::VectorBackend<
+      Dune::PDELab::ISTL::Blocking::fixed
     >;
   using OrderingTag = Dune::PDELab::EntityBlockedOrderingTag;
   using GFS =
@@ -66,9 +66,9 @@ void driver (const GV& gv, const FEM& fem,
   set_constrained_dofs(cc,0.0,z); // set zero Dirichlet boundary conditions
 
   // prepare VTK writer and write first file
-  int subsampling=ptree.get("output.subsampling",(int)0);
+  int subsampling=ptree.get("output.subsampling",(int)1);
   using VTKWRITER = Dune::SubsamplingVTKWriter<GV>;
-  VTKWRITER vtkwriter(gv,subsampling);
+  VTKWRITER vtkwriter(gv,Dune::refinementIntervals(subsampling));
   std::string filename=ptree.get("output.filename","output");
   struct stat st;
   if( stat( filename.c_str(), &st ) != 0 )
@@ -92,7 +92,7 @@ void driver (const GV& gv, const FEM& fem,
   LOP lop(speedofsound);
   using TLOP = WaveL2<FEM>;
   TLOP tlop;
-  using MBE = Dune::PDELab::istl::BCRSMatrixBackend<>;
+  using MBE = Dune::PDELab::ISTL::BCRSMatrixBackend<>;
   int degree = ptree.get("fem.degree",(int)1);
   MBE mbe((int)pow(1+2*degree,dim));
   using GO0 = Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,RF,RF,RF,CC,CC>;
