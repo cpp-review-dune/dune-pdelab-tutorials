@@ -123,7 +123,7 @@ $R_i(z) = r_h\left(\sum_{j=1}^n (z)_j\phi_j,\psi_i\right)$ is a nonlinear, vecto
 The solution of the nonlinear algebraic equation $R(z)=0$ is typically computed
 in an iterative fashion using e.g. a fixed-point iteration of the form
 \begin{equation}
-z^{(k+1)} = G(z^{(k)}) = z^{(k)} - \lambda^{k} W(z^{(k)}) R(z^{(k)}) .
+z^{(k+1)} = z^{(k)} - \lambda^{k} W(z^{(k)}) R(z^{(k)}) .
 \end{equation}
 Here $\lambda^{k}$ is a damping factor
 and $W(z^{(k)})$ is a preconditioner matrix, e.g. in Newton's method (see e.g. \cite{Braess}) one
