@@ -494,11 +494,11 @@ tools:
 \begin{enumerate}[Tool 1)]
 \item Transformation formula for integrals. For $T\in\mathcal{T}_h$ we have
 \begin{equation*}
-\int_T y(x)\,dx = \int_{\hat T} y(\mu_T(\hat x)) |\det B_T| \,dx .
+\int_T y(x)\,dx = \int_{\hat T} y(\mu_T(\hat x)) |\det B_T| \,d\hat x .
 \end{equation*}
 \item Quadrature formula. The midpoint rule reads
 \begin{equation*}
-\int_{\hat T} q(\hat x) \,dx = q(\hat S_d) w_d
+\int_{\hat T} q(\hat x) \,d\hat x = q(\hat S_d) w_d
 \end{equation*}
 where $\hat S_d$ is the center of mass of the reference simplex $\hat T^d$
 and $w_d$ is the volume of $\hat T^d$. This quadrature formula is exact for linear
@@ -538,7 +538,7 @@ interior vertices than boundary vertices we may first compute $(b)_i = l(\phi_i)
 for {\em all} $i\in\mathcal{I}_h$ and then overwrite the entries on the boundary
 with $(b)_i = g(x_i)$. Moreover, when considering the global index $i$
 only the pairs in the set
-$$C(i) = \{(T,m)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g(T,m)=i\}$$
+$$C(i) = \{(T,m)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g_T(m)=i\}$$
 contribute to the computation, which can be carried out in the following way:
 \begin{align*}
 (b)_i &= l(\phi_i) = \int_\Omega f \phi_i\,dx &&\text{(definition)} \\
