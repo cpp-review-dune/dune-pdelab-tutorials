@@ -123,7 +123,7 @@ namespace Dune {
 
             Dune::FieldMatrix<RF,m,dim> F;
 
-            numflux.model.flux(eg,ip.position(),u,F);
+            numflux.model().flux(eg,ip.position(),u,F);
 
             // integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
@@ -298,7 +298,7 @@ namespace Dune {
             // std::cout << "  u_s " << u_s << std::endl;
 
             // Evaluate boundary condition
-            Dune::FieldVector<RF,m> u_n(numflux.model.problem.g(ig.intersection(),ip.position(),u_s));
+            Dune::FieldVector<RF,m> u_n(numflux.model().problem.g(ig.intersection(),ip.position(),u_s));
 
             // Compute numerical flux at integration point
             numflux.numericalFlux(cell_inside,iplocal_s,cell_inside,iplocal_s,ig.centerUnitOuterNormal(),u_s,u_n,f);
@@ -337,7 +337,7 @@ namespace Dune {
         for (const auto& ip : quadratureRule(geo,intorder))
           {
             // Evaluate right hand side q
-            auto q(numflux.model.problem.q(cell,ip.position()));
+            auto q(numflux.model().problem.q(cell,ip.position()));
 
             // Evaluate basis functions
             auto& phi = cache[order_s].evaluateFunction(ip.position(),dgspace.finiteElement().localBasis());

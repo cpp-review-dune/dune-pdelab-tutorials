@@ -17,7 +17,7 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
 
   //initial condition
   auto u0lambda = [&](const auto& i, const auto& x)
-    {return numflux.model.problem.u0(i,x);};
+    {return numflux.model().problem.u0(i,x);};
   auto u0 = Dune::PDELab::
     makeGridFunctionFromCallable(gv,u0lambda);
 
@@ -25,6 +25,8 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
 
   //necessary to pass proper block size for a component
   using VBE0 = Dune::PDELab::ISTL::VectorBackend<Dune::PDELab::ISTL::Blocking::none,Dune::QkStuff::QkSize<FEMDG::order(),dim>::value>;
+  //2.6
+  //using VBE0 = Dune::PDELab::ISTL::VectorBackend<>;
 
   using VBE = Dune::PDELab::ISTL::VectorBackend<Dune::PDELab::ISTL::Blocking::fixed>;
   using OrderingTag = Dune::PDELab::EntityBlockedOrderingTag;

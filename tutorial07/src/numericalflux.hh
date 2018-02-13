@@ -28,11 +28,12 @@ public:
   static constexpr int dim = MODEL::dim;
   static constexpr int m = MODEL::Model::m;
 
+  using Model = MODEL;
   using RF = typename MODEL::RangeField; // type for computations
   using DF = RF;
 
-  LLFflux (const MODEL& model_)
-    : model(model_)
+  LLFflux (const MODEL& model)
+    : model_(model)
   {
   }
 
@@ -49,8 +50,8 @@ public:
     Dune::FieldMatrix<RF,m,dim> Fn;
 
     //evaluate flux
-    model.flux(inside,x_inside,u_s,Fs);
-    model.flux(outside,x_outside,u_n,Fn);
+    model().flux(inside,x_inside,u_s,Fs);
+    model().flux(outside,x_outside,u_n,Fn);
 
     //Fs*n_F + Fn*n_F
     Fs.umv(n_F,f);
@@ -66,7 +67,14 @@ public:
       f[i] = f[i] + 0.5*alpha*(u_s[i] - u_n[i]);
   }
 
-  const MODEL& model;
+  const MODEL& model() const
+  {
+    return model_;
+  }
+
+private:
+
+  const MODEL& model_;
 
 };// LLF
 
@@ -80,11 +88,12 @@ public:
   static constexpr int dim = MODEL::dim;
   static constexpr int m = MODEL::Model::m;
 
+  using Model = MODEL;
   using RF = typename MODEL::RangeField; // type for computations
   using DF = RF;
 
-  FluxVectorSplitting (const MODEL& model_)
-    : model(model_)
+  FluxVectorSplitting (const MODEL& model)
+    : model_(model)
   {
   }
 
@@ -98,7 +107,7 @@ public:
   {
     Dune::FieldMatrix<DF,m,m> D(0.0);
     // fetch eigenvalues
-    model.diagonal(inside,x_inside,D);
+    model().diagonal(inside,x_inside,D);
 
     Dune::FieldMatrix<DF,m,m> Dplus(0.0);
     Dune::FieldMatrix<DF,m,m> Dminus(0.0);
@@ -108,7 +117,7 @@ public:
 
     // fetch eigenvectors
     Dune::FieldMatrix<DF,m,m> Rot;
-    model.eigenvectors(inside,x_inside,n_F,Rot);
+    model().eigenvectors(inside,x_inside,n_F,Rot);
 
     // compute B+ = RD+R^-1 and B- = RD-R^-1
     Dune::FieldMatrix<DF,m,m> Bplus(Rot);
@@ -130,7 +139,14 @@ public:
     Bminus.umv(u_n,f);
   }
 
-  const MODEL& model;
+  const MODEL& model() const
+  {
+    return model_;
+  }
+
+private:
+
+  const MODEL& model_;
 
 };// FVS
 
@@ -146,11 +162,12 @@ public:
   static constexpr int m = MODEL::Model::m;
   static constexpr int mstar = MODEL::mstar;
 
+  using Model = MODEL;
   using RF = typename MODEL::RangeField; // type for computations
   using DF = RF;
 
-  VariableFluxVectorSplitting (const MODEL& model_)
-    : model(model_)
+  VariableFluxVectorSplitting (const MODEL& model)
+    : model_(model)
   {
   }
 
@@ -162,12 +179,12 @@ public:
                      const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f) const
   {
     // check for discontinuity
-    if (model.problem.c(inside,x_inside)==model.problem.c(outside,x_outside))
+    if (model().problem.c(inside,x_inside)==model().problem.c(outside,x_outside))
       {
         // standard case
         Dune::FieldMatrix<DF,m,m> D(0.0);
         // fetch eigenvalues
-        model.diagonal(inside,x_inside,D);
+        model().diagonal(inside,x_inside,D);
 
         Dune::FieldMatrix<DF,m,m> Dplus(0.0);
         Dune::FieldMatrix<DF,m,m> Dminus(0.0);
@@ -177,7 +194,7 @@ public:
 
         // fetch eigenvectors
         Dune::FieldMatrix<DF,m,m> R;
-        model.eigenvectors(inside,x_inside,n_F,R);
+        model().eigenvectors(inside,x_inside,n_F,R);
 
         // compute B+ = RD+R^-1 and B- = RD-R^-1
         Dune::FieldMatrix<DF,m,m> Bplus(R);
@@ -202,8 +219,8 @@ public:
       {
         // fetch eigenvalues
         Dune::FieldMatrix<DF,m,m> D_s(0.0), D_n(0.0);
-        model.diagonal(inside,x_inside,D_s);
-        model.diagonal(outside,x_outside,D_n);
+        model().diagonal(inside,x_inside,D_s);
+        model().diagonal(outside,x_outside,D_n);
 
         // split positive and negative eigenvalues
         Dune::FieldMatrix<DF,m,m> Dplus_s(0.0);
@@ -213,8 +230,8 @@ public:
 
         // fetch eigenvectors
         Dune::FieldMatrix<DF,m,m> R_s, R_n;
-        model.eigenvectors(inside,x_inside,n_F,R_s);
-        model.eigenvectors(outside,x_outside,n_F,R_n);
+        model().eigenvectors(inside,x_inside,n_F,R_s);
+        model().eigenvectors(outside,x_outside,n_F,R_n);
 
         // compute B+ = RD+R^-1 and B- = RD-R^-1
         Dune::FieldMatrix<DF,m,m> Bplus_s(R_s);
@@ -274,7 +291,14 @@ public:
       }
   }
 
-  const MODEL& model;
+  const MODEL& model() const
+  {
+    return model_;
+  }
+
+private:
+
+  const MODEL& model_;
 
 };// FVS
 
