@@ -1,5 +1,5 @@
-#ifndef ACOUSTICS_RIEMANNPROBLEM
-#define ACOUSTICS_RIEMANNPROBLEM
+#ifndef SHALLOWWATER_RIEMANNPROBLEM
+#define SHALLOWWATER_RIEMANNPROBLEM
 template<const int dim, typename GV, typename NUMBER>
 class Problem
 {
@@ -85,4 +85,4 @@ private:
   NUMBER pi;
 
 };
-#endif //ACOUSTICS_RIEMANNPROBLEM
+#endif //SHALLOWWATER_RIEMANNPROBLEM

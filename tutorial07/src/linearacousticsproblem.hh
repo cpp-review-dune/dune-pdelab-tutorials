@@ -23,7 +23,6 @@ public:
   NUMBER c (const E& e, const X& x) const
   {
     auto xglobal = e.geometry().center();
-    // if (xglobal[0]>1.0 && xglobal[0]<2.0 && xglobal[1]>0.375 && xglobal[1]<0.625)
     if (xglobal[1]>0.625)
       return 0.33333;
     else

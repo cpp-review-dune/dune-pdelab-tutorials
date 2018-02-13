@@ -89,7 +89,7 @@ int main(int argc, char** argv)
     Dune::ParameterTree ptree;
     Dune::ParameterTreeParser ptreeparser;
 
-    ptreeparser.readINITree("tutorial07-acoustics.ini",ptree);
+    ptreeparser.readINITree("tutorial07-linearacoustics.ini",ptree);
 
     ptreeparser.readOptions(argc,argv,ptree);
 

@@ -37,9 +37,12 @@ public:
   }
 
   template<typename E, typename X>
-  void numericalFlux(const E& inside, const X& x_inside, const E& outside, const X& x_outside, const Dune::FieldVector<DF,dim> n_F,
-                            const Dune::FieldVector<RF,m>& u_s,
-                            const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f) const
+  void numericalFlux(const E& inside, const X& x_inside,
+                     const E& outside, const X& x_outside,
+                     const Dune::FieldVector<DF,dim> n_F,
+                     const Dune::FieldVector<RF,m>& u_s,
+                     const Dune::FieldVector<RF,m>& u_n,
+                     Dune::FieldVector<RF,m>& f) const
   {
     // fetch flux
     Dune::FieldMatrix<RF,m,dim> Fs;
@@ -86,11 +89,12 @@ public:
   }
 
   template<typename E, typename X>
-  void numericalFlux(const E& inside, const X& x_inside, const E& outside, const X& x_outside,  const Dune::FieldVector<DF,dim> n_F,
-                            const Dune::FieldVector<RF,m>& u_s,
-                            const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f) const
-                            //const std::vector<Dune::FieldVector<RF,dim> >& gradu_s,
-                            //const std::vector<Dune::FieldVector<RF,dim> >& gradu_n)
+  void numericalFlux(const E& inside, const X& x_inside, const E& outside,
+                     const X& x_outside,  const Dune::FieldVector<DF,dim> n_F,
+                     const Dune::FieldVector<RF,m>& u_s,
+                     const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f) const
+                     //const std::vector<Dune::FieldVector<RF,dim> >& gradu_s,
+                     //const std::vector<Dune::FieldVector<RF,dim> >& gradu_n)
   {
     Dune::FieldMatrix<DF,m,m> D(0.0);
     // fetch eigenvalues

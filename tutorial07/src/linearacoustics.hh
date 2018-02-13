@@ -31,7 +31,9 @@ public:
   }
 
   template<typename E, typename X, typename T2, typename T3>
-  void eigenvectors (const E& e, const X& x, const Dune::FieldVector<T2,dim>& n, Dune::FieldMatrix<T3,m,m>& RT) const
+  void eigenvectors (const E& e, const X& x, 
+                     const Dune::FieldVector<T2,dim>& n,
+                     Dune::FieldMatrix<T3,m,m>& RT) const
   {
     auto c = problem.c(e,x);
 
@@ -39,17 +41,6 @@ public:
     RT[1][0] =  n[0]; RT[1][1] = n[0];  RT[1][2] = -n[1];
     RT[2][0] =  n[1]; RT[2][1] = n[1];  RT[2][2] = n[0];
   }
-
-  // where do we need this matrix for?
-  // template<typename RF>
-  // static void coefficients (Dune::FieldMatrix<RF,m,m>& A)
-  // {
-  //   int c2 = 1;
-
-  //   A[0][0] = 0.0; A[0][1] = 1.0; A[0][2] = 1.0;
-  //   A[1][0] = c2;  A[1][1] = 0.0; A[1][2] = 0.0;
-  //   A[2][0] = c2;  A[2][1] = 0.0; A[2][2] = 0.0;
-  // }
 
   template<typename E, typename X, typename RF>
   void diagonal (const E& e, const X& x, Dune::FieldMatrix<RF,m,m>& D) const
@@ -73,7 +64,9 @@ public:
 
   //Flux function
   template<typename E, typename X, typename RF>
-  void flux (const E& e, const X& x, const Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F) const
+  void flux (const E& e, const X& x, 
+             const Dune::FieldVector<RF,m>& u,
+             Dune::FieldMatrix<RF,m,dim>& F) const
   {
     auto c = problem.c(e,x);
 

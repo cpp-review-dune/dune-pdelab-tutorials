@@ -41,7 +41,9 @@ public:
 
   //Flux function
   template<typename E, typename X, typename RF>
-  void flux (const E& e, const X& x, const Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F) const
+  void flux (const E& e, const X& x, 
+             const Dune::FieldVector<RF,m>& u,
+             Dune::FieldMatrix<RF,m,dim>& F) const
   {
     int g = 1;
 
