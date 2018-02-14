@@ -1,22 +1,7 @@
 #ifndef NUMERICALFLUX
 #define NUMERICALFLUX
-/*template<typename MODEL>
-class NumericalFlux
-{
-public:
 
-  using Model = MODEL;
-
-  using RF = typename MODEL::RangeField;
-  static constexpr int m = MODEL::Model::m;
-
-  using NumericalFlux = Dune::FieldVector<RF,m>;
-
-  const Model& model() const;
-
-  //NumericalFlux numericalFlux(ig,x, u_s, u_n, gradu_s, gradu_n) const;
-};
-*/
+#include <dune/common/float_cmp.hh>
 
 //local Lax-Friedrichs Flux
 template<typename MODEL>
@@ -179,7 +164,7 @@ public:
                      const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f) const
   {
     // check for discontinuity
-    if (model().problem.c(inside,x_inside)==model().problem.c(outside,x_outside))
+    if ( Dune::FloatCmp::eq( model().problem.c(inside,x_inside), model().problem.c(outside,x_outside) ) )
       {
         // standard case
         Dune::FieldMatrix<DF,m,m> D(0.0);
@@ -300,6 +285,6 @@ private:
 
   const MODEL& model_;
 
-};// FVS
+};// VFVS
 
 #endif //NUMERICALFLUX
