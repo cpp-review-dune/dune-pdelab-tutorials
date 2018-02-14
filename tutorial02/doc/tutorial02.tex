@@ -74,7 +74,7 @@ $\nu$ denotes the unit outer normal to the domain.
 The application of the cell-centered finite volume method as presented here is
 restricted to \textit{axiparallel meshes}. We assume that  the domain $\Omega$ is covered by a mesh
 $\mathcal{T}_h = \{T_1, \ldots, T_M\}$ consisting of elements
-which are closed point sets satisfying
+which are closed sets satisfying
 \begin{equation}
 \bigcup_{T\in \mathcal{T}_h} T = \overline{\Omega}, \quad
 \forall T, T' \in \mathcal{T}_h, T\neq T' : \mathring{T} \cap \mathring{T}' = \emptyset .
@@ -169,7 +169,7 @@ r_h^{\text{CCFV}}(u_h,v)
 &\ + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D}
 \frac{u_h(x_{T_F^-})}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F| \\
 &\ - \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_D}
-\frac{g(x_{F}))}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F|
+\frac{g(x_{F})}{\|x_{F} - x_{T_F^-}\|} v(x_{T_F^-}) |F|
 + \sum_{F\in\mathcal{F}_h^{\partial\Omega}\cap\Gamma_N} j(x_{F}) v(x_{T_F^-}) |F| .
 \end{split}
 \end{equation}
@@ -678,7 +678,10 @@ backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
 
 \subsection{Running the Example}
 
-\begin{figure}
+Figure \ref{fig:Bunt} shows results for three different values of $\eta$ on a relatively
+coarse mesh. Clearly, the piecewise constant approximation can be seen.
+
+\begin{figure}[h]
 \begin{center}
 \includegraphics[width=0.32\textwidth]{eta0}\hfill
 \includegraphics[width=0.32\textwidth]{eta10}\hfill
@@ -688,9 +691,6 @@ backgroundcolor=\color{listingbg}]{../src/nonlinearpoissonfv.hh}
 in nonlinearity on the solution. $\eta=0$ (left), $\eta=10$ (middle), $\eta=100$ (right).}
 \label{fig:Bunt}
 \end{figure}
-
-Figure \ref{fig:Bunt} shows results for three different values of $\eta$ on a relatively
-coarse mesh. Clearly, the piecewise constant approximation can be seen.
 
 \begin{figure}
 \caption{Comparison of conforming finite element and cell-centered finite volume
