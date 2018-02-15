@@ -1,8 +1,6 @@
 #ifndef NUMERICALFLUX
 #define NUMERICALFLUX
 
-#include <dune/common/float_cmp.hh> 	
-
 //local Lax-Friedrichs Flux
 template<typename MODEL>
 class LLFflux
@@ -165,7 +163,8 @@ public:
                      const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f) const
   {
     // check for discontinuity
-    if ( Dune::FloatCmp::eq( model().problem.c(inside,x_inside), model().problem.c(outside,x_outside) ) )
+    //if ( Dune::FloatCmp::eq( model().problem.c(inside,x_inside), model().problem.c(outside,x_outside) ) )
+	  if ( model().problem.material(inside,x_inside) == model().problem.material(outside,x_outside)  )
 	  {
 	    fluxVectorSplitting_.numericalFlux(inside, x_inside, outside, x_outside, n_F, u_s, u_n, f);
 	  }

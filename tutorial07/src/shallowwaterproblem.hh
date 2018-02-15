@@ -8,7 +8,6 @@ public:
   using RangeField = NUMBER;
 
   //problem specification depends on dimension
-  //static constexpr int dim = 2;
   static constexpr int m = dim+1;
 
   using Range = Dune::FieldVector<NUMBER,m>;
@@ -60,15 +59,6 @@ public:
     }
 
     u[0] += exp(-tmp) + .5;
-
-
-    //dam break 2d
-    /*
-    if(std::sqrt(std::pow(xglobal[0]-.5,2)+std::pow(xglobal[1]-.5,2))<=.25)
-      u[0] = 1.5;
-    else
-      u[0] = 1.;
-    */
 
     return u;
   }

@@ -18,6 +18,19 @@ public:
   {
   }
 
+  //! material 
+  // this function is used to decide if we work
+  // with discontinous coefficient case  
+  template<typename E, typename X>
+  int material (const E& e, const X& x) const 
+  {
+    auto xglobal = e.geometry().center();
+    if (xglobal[1]>0.625)
+      return 1;
+    else
+      return 2;
+  }
+
   //! speed of sound
   template<typename E, typename X>
   NUMBER c (const E& e, const X& x) const

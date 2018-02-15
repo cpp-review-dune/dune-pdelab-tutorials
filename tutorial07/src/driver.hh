@@ -23,9 +23,7 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
 
   typedef Dune::PDELab::NoConstraints CON;
 
-  //necessary to pass proper block size for a component
-  //using VBE0 = Dune::PDELab::ISTL::VectorBackend<Dune::PDELab::ISTL::Blocking::none,Dune::QkStuff::QkSize<FEMDG::order(),dim>::value>;
-  //2.6
+  //block size for a component deducted by pdelab
   using VBE0 = Dune::PDELab::ISTL::VectorBackend<>;
 
   using VBE = Dune::PDELab::ISTL::VectorBackend<Dune::PDELab::ISTL::Blocking::fixed>;
@@ -49,7 +47,7 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   TLOP tlop(numflux);
 
   using MBE = Dune::PDELab::ISTL::BCRSMatrixBackend<>;
-  MBE mbe(5); // Maximal number of nonzeroes per row
+  MBE mbe(2*dim+1); // Maximal number of nonzeroes per row
 
   using GO0 = Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,RF,RF,RF,C,C>;
   GO0 go0(gfs,cg,gfs,cg,lop,mbe);

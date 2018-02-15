@@ -9,13 +9,13 @@
 
 #include<sys/stat.h>
 
-// dune-common includes
 #include<dune/common/parallel/mpihelper.hh>
 #include<dune/common/parametertreeparser.hh>
 #include<dune/common/exceptions.hh>
 #include<dune/common/fvector.hh>
 #include<dune/common/typetraits.hh>
 #include<dune/common/timer.hh>
+#include <dune/common/float_cmp.hh> 	
 
 #include<dune/grid/io/file/vtk.hh>
 #include<dune/grid/io/file/vtk/subsamplingvtkwriter.hh>
@@ -34,7 +34,6 @@
 #include<dune/istl/superlu.hh>
 
 #include<dune/pdelab/finiteelementmap/qkdg.hh>
-
 #include<dune/pdelab/gridfunctionspace/subspace.hh>
 #include<dune/pdelab/gridfunctionspace/vectorgridfunctionspace.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspace.hh>
@@ -140,7 +139,6 @@ int main(int argc, char** argv)
 
           //create numerical flux
           using NUMFLUX = LLFflux<MODEL>;
-
           NUMFLUX numflux(model);
 
           if (degree==0)
@@ -197,7 +195,6 @@ int main(int argc, char** argv)
 
           //create numerical flux
           using NUMFLUX = LLFflux<MODEL>;
-
           NUMFLUX numflux(model);
 
           if (degree==0)
