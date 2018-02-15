@@ -33,10 +33,10 @@ public:
     RF alpha_s(0.0);
     RF alpha_n(0.0);
 
-      alpha_s = std::abs(u_s[1]/u_s[0]) + sqrt(g*u_s[0]);
-      alpha_n = std::abs(u_n[1]/u_n[0]) + sqrt(g*u_n[0]);
+    alpha_s = std::abs(u_s[1]/u_s[0]) + sqrt(g*u_s[0]);
+    alpha_n = std::abs(u_n[1]/u_n[0]) + sqrt(g*u_n[0]);
 
-      alpha = std::max(alpha_s, alpha_n);
+    alpha = std::max(alpha_s, alpha_n);
   }
 
   //Flux function
@@ -82,14 +82,15 @@ public:
     RF alpha_n(0.0);
 
     for(size_t k=0;k<dim;++k)
-      {
-        alpha_s +=  n_F[k]*u_s[k+1]/u_s[0];
-        alpha_n += -n_F[k]*u_n[k+1]/u_n[0];
-      }
-      alpha_s = std::abs(alpha_s) + sqrt(g*u_s[0]);
-      alpha_n = std::abs(alpha_n) + sqrt(g*u_n[0]);
+    {
+      alpha_s +=  n_F[k]*u_s[k+1]/u_s[0];
+      alpha_n += -n_F[k]*u_n[k+1]/u_n[0];
+    }
+    
+    alpha_s = std::abs(alpha_s) + sqrt(g*u_s[0]);
+    alpha_n = std::abs(alpha_n) + sqrt(g*u_n[0]);
 
-      alpha = std::max(alpha_s, alpha_n);
+    alpha = std::max(alpha_s, alpha_n);
   }
 
 

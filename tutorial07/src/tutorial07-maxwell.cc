@@ -31,10 +31,11 @@
 #include<dune/istl/io.hh>
 #include<dune/istl/superlu.hh>
 
-#include<dune/pdelab/finiteelementmap/qkdg.hh>
+#include<dune/geometry/virtualrefinement.hh> 
 
+#include<dune/pdelab/finiteelementmap/qkdg.hh>
 #include<dune/pdelab/gridfunctionspace/subspace.hh>
-#include <dune/pdelab/gridfunctionspace/vectorgridfunctionspace.hh>
+#include<dune/pdelab/gridfunctionspace/vectorgridfunctionspace.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspace.hh>
 #include<dune/pdelab/gridfunctionspace/gridfunctionspaceutilities.hh>
 #include<dune/pdelab/gridfunctionspace/genericdatahandle.hh>
@@ -48,9 +49,7 @@
 #include<dune/pdelab/gridoperator/onestep.hh>
 #include<dune/pdelab/backend/istl.hh>
 #include<dune/pdelab/instationary/onestep.hh>
-
 #include<dune/pdelab/function/callableadapter.hh>
-
 #include<dune/pdelab/gridoperator/onestep.hh>
 #include<dune/pdelab/instationary/onestep.hh>
 #include<dune/pdelab/gridoperator/gridoperator.hh>
@@ -107,9 +106,9 @@ int main(int argc, char** argv)
 
           std::bitset<dim> periodic(false);
           int overlap=1;
-          Dune::array<double,dim> lower_left; for (int i=0; i<dim; i++) lower_left[i]=0.0;
+          std::array<double,dim> lower_left; for (int i=0; i<dim; i++) lower_left[i]=0.0;
           auto upper_right = ptree.get<Dune::FieldVector<double,dim> >("grid.L");
-          auto cells = ptree.get<Dune::array<int,dim> >("grid.N");
+          auto cells = ptree.get<std::array<int,dim> >("grid.N");
 
           // make grid
           using GM = Dune::YaspGrid<dim>;

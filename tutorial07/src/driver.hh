@@ -24,9 +24,9 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   typedef Dune::PDELab::NoConstraints CON;
 
   //necessary to pass proper block size for a component
-  using VBE0 = Dune::PDELab::ISTL::VectorBackend<Dune::PDELab::ISTL::Blocking::none,Dune::QkStuff::QkSize<FEMDG::order(),dim>::value>;
+  //using VBE0 = Dune::PDELab::ISTL::VectorBackend<Dune::PDELab::ISTL::Blocking::none,Dune::QkStuff::QkSize<FEMDG::order(),dim>::value>;
   //2.6
-  //using VBE0 = Dune::PDELab::ISTL::VectorBackend<>;
+  using VBE0 = Dune::PDELab::ISTL::VectorBackend<>;
 
   using VBE = Dune::PDELab::ISTL::VectorBackend<Dune::PDELab::ISTL::Blocking::fixed>;
   using OrderingTag = Dune::PDELab::EntityBlockedOrderingTag;
@@ -96,7 +96,9 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   // prepare VTK writer and write first file
   int subsampling=ptree.get("output.subsampling",(int)0);
   using VTKWRITER = Dune::SubsamplingVTKWriter<GV>;
-  VTKWRITER vtkwriter(gv,subsampling);
+  //VTKWRITER vtkwriter(gv,subsampling);
+  //2.6 todo
+  VTKWRITER vtkwriter(gv,Dune::refinementLevels(subsampling));
 
   std::string filename=ptree.get("output.filename","output");
 
