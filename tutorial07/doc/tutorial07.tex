@@ -81,7 +81,7 @@ Discontinuous Galerkin Method for Hyperbolic conservation laws}
 
 \section{Introduction}
 
-In this tutorial we provide  DG solver for hyperbolic conservation laws. As an example of hyperbolic system we consider: linear acoustics, shallow water equation, and Maxwell system. We aim to show the
+In this tutorial we provide  DG solver for hyperbolic conservation laws. As an example of hyperbolic system we consider: linear acoustics, shallow water equation, 
 treatment of systems of hyperbolic partial differential equations in PDELab.
 
 \section{PDE Problem}
@@ -91,7 +91,7 @@ hyperbolic partial differential equations (PDEs). The general conservative form 
 reds as follows
 \begin{equation}
 \label{eq:master_problem}
-\partial_t u(x,t) + \nabla\cdot F(u(x,t),x,t) = f(u(x,t),x,t)  \quad\text{in $U=\Omega\times\Sigma$} ,
+\partial_t u(x,t) + \nabla\cdot F(u(x,t),x,t) = g(u(x,t),x,t)  \quad\text{in $U=\Omega\times\Sigma$} ,
 \end{equation}
 where the matrix-valued function $F : \mathbb{R}^m\times\Omega\times\Sigma \to \mathbb{R}^{m\times \Dim}$
 with the columns $F(u,x,t) = [F_1(u,x,t),\ldots,F_d(u,x,t)]$ is called \textit{flux function}.
@@ -101,37 +101,66 @@ Moreover let $\Omega=\mathbb{R}^{\Dim}$, $\Dim\in\mathbb{N}$ is the spatial doma
 u(x,0) = u_0(x) .
 \end{equation*}
 
+%hyperbolicity - copy from Bangkok School Lecture Notes
+Equation \eqref{eq:master_problem} is said to be in \textit{conservative form} as it arises naturally
+from the formulation of conservation of mass, momentum and energy.
+If the flux function is smooth enough, the PDE can be put in its \textit{non-conservative}
+or \textit{quasi-linear} form which reads
+\begin{equation}
+\label{eq:master_nonconservative_form}
+\partial_t u(x,t) + \sum_{j=1}^{\Dim} B_j(u(x,t),x,t) \partial_{x_j} u(x,t) + \tilde{g}(u(x,t),x,t) = 0
+\quad\text{in $\Omega\times\Sigma$} .
+\end{equation}
+The reason is the chain rule
+\begin{align*}
+\partial_{x_j} F_{i,j}(u(x,t),x,t) = \sum_{k=1}^m \frac{\partial F_{i,j}}{\partial u_k}( u(x,t),x,t)
+\frac{\partial u_k}{\partial x_j} (x,t) + \frac{\partial F_{i,j}}{\partial x_j} (u(x,t),x,t)
+\end{align*}
+which shows
+\begin{align*}
+\left(B_j(u,x,t)\right)_{i,k} &= \frac{\partial F_{i,j}}{\partial u_k}(u,x,t), &
+\tilde{g}_i(u,x,t) &= g_i(u,x,t) + \frac{\partial F_{i,j}}{\partial x_j} (u ,x,t) .
+\end{align*}
+
+
+It turns out that many systems of the form \eqref{eq:master_nonconservative_form}
+which are of practical interest satisfy an important property that is essential in the theoretical and numerical treatment.
+\begin{Def}[Hyperbolic First-Order PDE]\label{def:HyperbolicSystems}
+	The system of equations \eqref{eq:master_nonconservative_form} is called \textit{hyperbolic} if
+	for each feasible state $u\in\mathbb{R}^m$, $x\in\Omega$, $t\in\Sigma$ and
+	$y\in\mathbb{R}^{\Dim}$ the $m\times m$ matrix
+	\begin{equation}\label{eq:BMatrix}
+	B(u,x,t; y) = \sum_{j=1}^{\Dim} y_j B_j(u,x,t)
+	\end{equation}
+	is real diagonalizable, i.e. $B(u,x,t;y)$ has $m$ real eigenvalues $\lambda_1(x,t;y), \ldots, \lambda_m(x,t;y)$
+	and its corresponding right eigenvectors $r_1(x,t;y), \ldots, r_m(x,t;y)$ form a basis of $\mathbb{R}^m$.
+	In addition there are the special cases:
+	\begin{enumerate}[i)]
+		\item The system is called \textit{symmetric hyperbolic} if $B_j(u,x,t)$ is symmetric for every
+		feasible state $u\in\mathbb{R}^m$, $x\in\Omega$, $t\in\Sigma$ and $j=1,\ldots,m$.
+		\item The system is called \textit{strictly hyperbolic} if all $m$ eigenvalues are distinct for
+		every feasible state $u\in\mathbb{R}^m$, $x\in\Omega$, $t\in\Sigma$. $\hfill\square$
+	\end{enumerate}
+\end{Def}
+Note that the definition of hyperbolicity relies on the non-conservative form.
+
 
 For the sake of brevity we omit theoretical discussion.
 Interested reader can find vast literature on hyperbolic PDEs, good start would be \cite[Chapter 11]{Evans}.
 %\cite{Peter _script}
 
-In the subsequent Sections we will give three examples of hyperbolic systems: linear acoustics, shallow water equations , and Maxwell's equations. We formulate corresponding PDEs in conservative form \eqref{eq:master_problem} and provide properties necessary to develop numerical schemes.
+In the subsequent Sections we will give three examples of hyperbolic systems: linear acoustics, shallow water equations, and Maxwell's equations. We formulate corresponding PDEs in conservative form \eqref{eq:master_problem} and provide properties necessary to develop numerical schemes.
 
 \subsection{Acoustic Wave Equation}\label{sec:SoundWaves}
 
 
-The acoustic wave equation governs the propagation of acoustic waves through a material medium. In order to derive an equation for the propagation of these variations we start with
-the Euler equations. We write all quantities as a constant background value (indicated by the bar)
-plus a small variation depending on space and time (indicated by the tilde):
-\begin{align*}
-\rho &= \bar\rho + \tilde\rho,  & p &= \bar{p} + \tilde{p}, & v = \bar{v} + \tilde{v}.
-\end{align*}
-The background velocity is actually assumed to be zero, $\bar{v}=0$, and the temperature $T$
-of the gas is assumed to be constant throughout the domain. From the ideal gas law we get
-$p = c^2 \rho$ with $c=\sqrt{\bar{R}T}$ the speed of sound
-and therefore $p= c^2 \rho = c^2(\bar{\rho} + \tilde{\rho}) = c^2\bar{\rho} + c^2\tilde{\rho} = \bar{p} + \tilde{p}$.
-% $\bar{p} = c^2 \bar\rho$ and $\tilde{p} = c^2\tilde\rho$.
 
-Linearizing mass and momentum equations around the background state,
-dropping all higher-order terms in fluctuations (note especially
-that $\tilde{v}\tilde{v}^T$ can be dropped) and assuming \textit{constant background pressure}
-results (without external sources) in
+The acoustic wave equation governs the propagation of acoustic waves through a material medium. Linearizing mass and momentum equations around the background state, dropping all higher-order terms in fluctuations and assuming \textit{constant background pressure} results (without external sources) in
 \begin{subequations}\label{eq:LinearAcoustics1}
-\begin{align}
-\partial_t \tilde{\rho} +  \nabla\cdot(\bar{\rho} \tilde{v}) &= 0, &&\text{(conservation of mass)}\\
-\partial_t (\bar\rho \tilde{v}) + \nabla \tilde{p} &= 0, &&\text{(conservation of momentum)}.
-\end{align}
+	\begin{align}
+	\partial_t \tilde{\rho} +  \nabla\cdot(\bar{\rho} \tilde{v}) &= 0, &&\text{(conservation of mass)}\\
+	\partial_t (\bar\rho \tilde{v}) + \nabla \tilde{p} &= 0, &&\text{(conservation of momentum)}.
+	\end{align}
 \end{subequations}
 
 It should be noted that it is the first order system that is derived from the physics and not
@@ -153,202 +182,66 @@ also the background density $\bar\rho$ is piecewise constant. In case of varying
 it is then more appropriate to use the conservative variables $(\tilde\rho, \bar{\rho} \tilde{v}) = (\tilde\rho,\tilde{q})$
 resulting in the system
 \begin{subequations}\label{eq:LinearAcousticsConservative}
-\begin{align}
-\partial_t \tilde{\rho} +  \nabla\cdot\tilde{q} &= 0,\\
-\partial_t \tilde{q} + \nabla (c^2\tilde{\rho}) &= 0.
-\end{align}
+	\begin{align}
+	\partial_t \tilde{\rho} +  \nabla\cdot\tilde{q} &= 0,\\
+	\partial_t \tilde{q} + \nabla (c^2\tilde{\rho}) &= 0.
+	\end{align}
 \end{subequations}
 At subdomain boundaries where $c$ is discontinuous $c^2\tilde\rho$
 (which is the pressure) and $\tilde{q}\cdot n$ are continuous.
 
-\paragraph{Conservative form}
-$$\partial_t u(x,t) + \nabla\cdot F(u(x,t),x,t) = 0$$ ,
+Let us rewrite \eqref{eq:LinearAcousticsConservative} at conservative hyperbolic system. Note that number of components $m=\Dim+1$
+$$\partial_t u(x,t) + \nabla\cdot F(u(x,t),x,t) = 0,$$
 where 
-$$u = (\varrho,q_1.q_2) $$
+$$u = (\varrho,q_1,\dots,\Dim) $$
 and 
 $$F(u(x,t),x,t) = \left( \begin{smallmatrix}
-0  & c^2\bar\rho & 0 & 0\\
-1/\bar\rho & 0 & 0 & 0\\
-0 & 0 & 0 & 0\\
-0 & 0 & 0 & 0
-\end{smallmatrix} \right), $$
+q_1  & q_2 & \dots & q_\Dim\\
+c^2\rho & 0 & \dots & 0\\
+0 & c^2\rho & \dots & 0\\
+\vdots & \vdots & \ddots & \vdots\\
+0 & 0 & \dots & c^2\rho 
+\end{smallmatrix} \right)\in \mathbb{R}^{m\times \Dim} $$
 
-
-\paragraph{Hyperbolicity of Linear Acoustics}
-It remains to show the hyperbolicity of the linear acoustics system. We do this by
-explicitly calculating eigenvalues and eigenvectors for the system \eqref{eq:LinearAcoustics}
-in three space dimensions.
-Setting $u=(\tilde{p},\tilde{v}_1,\tilde{v}_2,\tilde{v}_3)$ system \eqref{eq:LinearAcoustics} can be written as
-\begin{equation*}
-\partial_t u + \sum_{j=1}^3 B_j \partial_{x_j} u = 0
-\end{equation*}
-with
-\begin{equation*}
-B_1 = \left( \begin{smallmatrix}
-0  & c^2\bar\rho & 0 & 0\\
-1/\bar\rho & 0 & 0 & 0\\
-0 & 0 & 0 & 0\\
-0 & 0 & 0 & 0
-\end{smallmatrix} \right),
-\  B_2 = \left( \begin{smallmatrix}
-0  & 0 & c^2\bar\rho  & 0\\
-0 & 0 & 0 & 0\\
-1/\bar\rho & 0 & 0 & 0\\
-0 & 0 & 0 & 0
-\end{smallmatrix} \right),
-\  B_3 = \left( \begin{smallmatrix}
-0  & 0 & 0 & c^2\bar\rho \\
-0 & 0 & 0 & 0\\
-0 & 0 & 0 & 0\\
-1/\bar\rho & 0 & 0 & 0
-\end{smallmatrix} \right) .
-\end{equation*}
-For any $y\in\mathbb{R}^3$ we therefore have
-\begin{equation*}
-B(y) = \sum_{j=1}^3 y_j B_j = \left( \begin{array}{cccc}
-0 & y_1 c^2 \bar\rho & y_2 c^2 \bar\rho & y_3 c^2 \bar\rho \\
-y_1/\bar\rho & 0 & 0 & 0\\
-y_2/\bar\rho & 0 & 0 & 0\\
-y_3/\bar\rho & 0 & 0 & 0
-\end{array}\right) .
-\end{equation*}
-With the transformation matrix $T=\text{diag}(\bar\rho c,1,1,1)$ we see that $B(y)$ is similar
-to the symmetric matrix
-\begin{equation*}
-T^{-1}B(y)T =\left( \begin{array}{cccc}
-0 & y_1 c & y_2 c & y_3 c \\
-y_1 c & 0 & 0 & 0\\
-y_2 c & 0 & 0 & 0\\
-y_3 c & 0 & 0 & 0
-\end{array}\right)
-\end{equation*}
-and therefore is diagonalizable with eigenvalues
-\begin{equation*}
-\lambda_{1,2} = \pm c \| y \| \qquad \text{and} \qquad \lambda_{3,4} = 0 .
-\end{equation*}
-When $y$ has norm $\|y\|=1$ (which will be the case later), $B(y)$ has the
-two nonzero eigenvalues $\pm c$.
+Linear Acoustics problem has the two nonzero eigenvalues $\pm c$.
 
 
 \subsection{Shallow Water Equations}
 The Shallow Water model is the system of nonlinear hyperbolic PDEs, more precisely conservation law that describes the evolution of the height and the mean velocity of the fluid. It is widely used for predictions of flooding, dam-breaks, tsunamis or free oscillations of water. Another application of the Shallow Water Equations is long term simulations of the flow in rivers.
 
-
-
-\paragraph{Two dimensional Shallow Water Equations}\label{ch:modelSWE2}
-We want to show the hyperbolicity of the two dimensional Shallow Sater Equations as well. For convenience we repeat their form, as derived in the previous Chapter,
-\begin{equation}\label{eq:swe2D:repeat}
-\begin{pmatrix}
+In 2d SWE reads as follows (number of components $m=\Dim+1=3$)
+\begin{equation}\label{eq:swe2D}
+\partial_t \begin{pmatrix}
 h\\
 u_1h\\
 u_2h
-\end{pmatrix}_{,t} +
-\begin{pmatrix}
-u_1h\\
-u_1^2h + \frac{1}{2}gh^2\\
-u_1u_2h
-\end{pmatrix}_{,x} +
-\begin{pmatrix}
-u_2h\\
-u_1u_2h\\
-u_2^2h + \frac{1}{2}gh^2
-\end{pmatrix}_{,y} =
-\begin{pmatrix}
-q\\
-ghS_{b_x}\\
-ghS_{b_y}
-\end{pmatrix}.
+\end{pmatrix}+ \nabla\cdot
+\left( \begin{matrix}
+u_1h   & u_2h\\
+u_1^2h + \frac{1}{2}gh^2 & u_1u_2h\\
+u_1u_2h & u_2^2h + \frac{1}{2}gh^2
+\end{matrix}\right) = 0,
 \end{equation}
+Where $h>0$ stands for water height, and $u=(u_1,u_2)$ is the velocity.
 
+In conservative variables $q = (h, u_1h,u_2h)$ system \eqref{eq:swe2D} reads
 To show the hyperbolicity, we need the non-conservative form of \eqref{eq:swe2D:repeat}.
 Therefore we rewrite the equation and introduce conservative variables as in the previous Chapter to obtain
 \begin{align} 
-&\begin{pmatrix}
-h\\
-u_1h\\
-u_2h
-\end{pmatrix}_{,t} +
-\begin{pmatrix}
-u_1h\\
-u_1^2h + \frac{1}{2}gh^2\\
-u_1u_2h
-\end{pmatrix}_{,x} +
-\begin{pmatrix}
-u_2h\\
-u_1u_2h\\
-u_2^2h + \frac{1}{2}gh^2
-\end{pmatrix}_{,y} =
-\begin{pmatrix}
-q\\
-ghS_{b_x}\\
-ghS_{b_y}
-\end{pmatrix}
-\\ \Leftrightarrow
-&\begin{pmatrix}
-h\\
-u_1h\\
-u_2h
-\end{pmatrix}_{,t} +
-\nabla \cdot \begin{pmatrix}
-u_1h & u_2h\\
-u_1^2h + \frac{1}{2}gh^2 & u_1u_2h\\
-u_1u_2h & u_2^2h + \frac{1}{2}gh^2
-\end{pmatrix} -
-\begin{pmatrix}
-q\\
-ghS_{b_x}\\
-ghS_{b_y}
-\end{pmatrix} = 0
-\\ \Leftrightarrow 
-&\begin{bmatrix}
+&\partial_t\begin{pmatrix}
 q_1\\
 q_2\\
 q_3
-\end{bmatrix}_{,t} +
-\nabla \cdot \begin{bmatrix}
+\end{pmatrix} + 
+\nabla \cdot \left( \begin{matrix}
 q_2 & q_3\\
 q_2^2/q_1 + \frac{1}{2}gq_1^2 & \frac{q_2q_3}{q_1}\\
 \frac{q_2q_3}{q_1} & q_3^2/q_1 + \frac{1}{2}gq_1^2
-\end{bmatrix} -
-\begin{bmatrix}
-q\\
-ghS_{b_x}\\
-ghS_{b_y}
-\end{bmatrix} = 0.
+\end{matrix} \right) = 0.
 \end{align}
-We obtain the derivatives 
-\begin{equation}
-\frac{\mathrm{d}}{\dx}F_1 = 
-\begin{bmatrix}
-0 & 1 & 0 \\
-gq_1-(q_2/q_1)^2 & 2q_2/q_1 & 0 \\
--q_2q_3/q_1^2 & q_3/q_1 & q_2/q_1
-\end{bmatrix} \cdot q_{,x} =: \mathrm{B_1}\cdot q_{,x}
-\end{equation}  
-and
-\begin{equation}
-\frac{\mathrm{d}}{\dx}F_1 = 
-\begin{bmatrix}
-0 & 0 & 1 \\
--q_2q_3/q_1^2 & q_3/q_1 & q_2/q_1\\
-gq_1-(q_3/q_1)^2 & 0 & 2q_3/q_1 
-\end{bmatrix} =: \mathrm{B_2} \cdot q_{,y},
-\end{equation}   
-and need to calculate the eigenvalues of
-$\mathrm{B}:= n_1\mathrm{B_1} \cdot n_2\mathrm{B_2}, $
-where $n = (n_1, n_2) \in \mathbb{R}^2$ is an arbitrary vector.
-The eigenvalues are 
-\begin{align}
-\lambda_1 &= \frac{n_1q_2+n_2q_3}{q_1} = n_1u_1 + n_2u_2, \\
-\lambda_{2,3} &= \frac{n_1q_2+1_2q_3}{q_1} \pm \Vert n \Vert \sqrt{gq_1} = n_1u_1 + n_2u_2 \pm \Vert n \Vert\sqrt{gh}.
-\end{align}
+This modes have three distinct eigenvalues for $h\neq 0$ and therefore the two dimensional Shallow Water Equations are a strictly hyperbolic system for wet domains (i.e. $h>0 \forall (x,t) \in \Omega\times\Sigma$).
 
-We do not state the calculation as it is just a matter of determining a determinant and a executing a polynomial division.
-
-As in the one dimensional case, these are three distinct eigenvalues for $h\neq 0$ and therefore the two dimensional Shallow Water Equations are a strictly hyperbolic system for wet domains (i.e. $h>0 \forall (x,t) \in \Omega\times\Sigma$).
-
-
-
+In this tutorial we also consider 1d SWE. This is not physical explanation by one can see the 1d SWE as 2x2 block of 2d flux matrix.
 
 \subsection{Maxwell's Equations}
 
@@ -357,32 +250,32 @@ Maxwell's equations are a set of PDS that underpin all electric, optical and rad
 
 The Maxwell system is given by
 \begin{subequations}
-\begin{align}
-\partial_t D - \nabla\times H &= -J, &&\text{(Ampère)} \label{eq:Ampere}\\
-\partial_t B + \nabla\times E &= 0, &&\text{(Faraday)} \label{eq:Faraday}\\
-\nabla\cdot D &= \rho, &&\text{(Gauß)} \label{eq:Gauss1}\\
-\nabla\cdot B &=0, &&\text{(Gauß for magnetism)} \label{eq:Gauss2}
-\end{align}
+	\begin{align}
+	\partial_t D - \nabla\times H &= -J, &&\text{(Ampère)} \label{eq:Ampere}\\
+	\partial_t B + \nabla\times E &= 0, &&\text{(Faraday)} \label{eq:Faraday}\\
+	\nabla\cdot D &= \rho, &&\text{(Gauß)} \label{eq:Gauss1}\\
+	\nabla\cdot B &=0, &&\text{(Gauß for magnetism)} \label{eq:Gauss2}
+	\end{align}
 \end{subequations}
 together with the constitutive laws
 \begin{subequations}
-\begin{align}
-D &= \epsilon E, &&\text{( $\epsilon$. permittivity)}\\
-B &= \mu H, &&\text{( $\mu$: permeability)}\\
-J &= \sigma E + j, &&\text{( $\sigma$: conductivity)} .
-\end{align}
+	\begin{align}
+	D &= \epsilon E, &&\text{( $\epsilon$. permittivity)}\\
+	B &= \mu H, &&\text{( $\mu$: permeability)}\\
+	J &= \sigma E + j, &&\text{( $\sigma$: conductivity)} .
+	\end{align}
 \end{subequations}
 The following vector fields in $\mathbb{R}^3$ need to be determined:
 \begin{center}
-\begin{tabular}{lll}
-Symbol & Name & Unit\\
-\hline
-$B$ & magnetic flux density & $\frac{Vs}{m^2}$\\
-$H$ & magnetic field intensity & $\frac{A}{m}$\\
-$E$ & electric field intensity & $\frac{V}{m}$\\
-$D$ & displacement current density & $\frac{AS}{m^2}$\\
-\hline
-\end{tabular}
+	\begin{tabular}{lll}
+		Symbol & Name & Unit\\
+		\hline
+		$B$ & magnetic flux density & $\frac{Vs}{m^2}$\\
+		$H$ & magnetic field intensity & $\frac{A}{m}$\\
+		$E$ & electric field intensity & $\frac{V}{m}$\\
+		$D$ & displacement current density & $\frac{AS}{m^2}$\\
+		\hline
+	\end{tabular}
 \end{center}
 whereas the scalar charge density $\rho$ and the current density $j$ are prescribed.
 
@@ -393,10 +286,10 @@ initial condition. The evolution in time is described by \eqref{eq:Faraday} and
 Since $D$ and $B$ are conserved quantities we formulate equations \eqref{eq:Faraday} and
 \eqref{eq:Ampere} in terms of $D$ and $B$ using the constitutive equations:
 \begin{subequations}
-\begin{align}
-\partial_t D - \nabla\times\left(\frac{1}{\mu} B\right) + \frac{\sigma}{\epsilon} D &= - j\,,  \\
-\partial_t B + \nabla\times\left( \frac{1}{\epsilon} D \right) &= 0\, .
-\end{align}
+	\begin{align}
+	\partial_t D - \nabla\times\left(\frac{1}{\mu} B\right) + \frac{\sigma}{\epsilon} D &= - j\,,  \\
+	\partial_t B + \nabla\times\left( \frac{1}{\epsilon} D \right) &= 0\, .
+	\end{align}
 \end{subequations}
 Writing out the curl operator $\nabla\times$ and defining the six component
 vector $u=(D_1,D_2,D_3,B_1,B_2,B_3)^T$ we obtain the linear hyperbolic system
@@ -533,13 +426,13 @@ Hence for all $S \in \mathcal{F}$, $\mathbf{u}$ is split up to the so called lef
 \mathbf{u}\vert_{T_1} & \mathrm{if}\ S \in \mathcal{F}^i, \\
 \mathbf{u}\vert_T & \mathrm{if}\ S \in \mathcal{F}^{\partial \Omega},
 \end{array} \right.
- & \mathbf{u}_S^+ := \left\lbrace
+& \mathbf{u}_S^+ := \left\lbrace
 \begin{array}{ll}
 \mathbf{u}\vert_{T_2} & \mathrm{if}\ S \in \mathcal{F}^i, \\
 b & \mathrm{if}\ S \in \mathcal{F}^{\partial \Omega},
 \end{array}\right.
 \end{matrix}
- \end{equation}
+\end{equation}
 
 where $T_1$ and $T_2$ are the two elements sharing the interface $S \in \mathcal{F}^i$,\\ i.e. \mbox{$\partial T1 \cup \partial T2 = S$},  and \mbox{$b=b(s,t):\partial\Omega\times\Sigma\rightarrow \mathbb{R}^m $} is an external state enforced by a boundary condition.
 How to define the numerical flux depends on the linearity of equation \eqref{eq:sysDG}. Besides, effects like numerical diffusion and the desired stability must be considered.
@@ -553,10 +446,10 @@ In order to obtain physically correct approximations of the solution a numerical
 
 \subsubsection{Consistency of numerical fluxes}
 \begin{Def}\label{def:flux:consistency}
-A numerical flux $\Phi$ is called consistent, if it is linear in its first argument, Lipschitz continuous with respect to the second and third argument and if for all $n\in \mathbb{R}^d, v\in U$ it holds
-\begin{align}
-\Phi(n,v,v) = F(v)\cdot \mathbf{n}.
-\end{align}
+	A numerical flux $\Phi$ is called consistent, if it is linear in its first argument, Lipschitz continuous with respect to the second and third argument and if for all $n\in \mathbb{R}^d, v\in U$ it holds
+	\begin{align}
+	\Phi(n,v,v) = F(v)\cdot \mathbf{n}.
+	\end{align}
 \end{Def}
 
 That means it is exact if the solution is continuous between two neighboring elements.
@@ -567,7 +460,7 @@ A numerical flux $\Phi$ needs to be conservative, i.e.
 \Phi(n_1,u_1,u_2) + \Phi(n_2, u_2, u_1) = 0,
 \end{equation}
 where $u_1$ and $u_2$ are the states on elements $T_1, T_2$ sharing an edge $S$ and $n_1$ (resp. $n_2$) is the unit outer normal of $T_1$ (resp. $T_2$) on $S$, thus it holds $n_1 = -n_2$. 
- 
+
 \subsection{Local Lax-Friedrichs}
 
 For nonlinear problems a possible choice is the local Lax-Friedrichs flux, 
@@ -639,8 +532,233 @@ l_{DG} =  (f(t),v)_\Omega - \sum_{f\in\mathcal{F}_h^{\partial\Omega}} \int_f
 \end{split}
 \end{equation}
 
+\paragraph{Boundary flux}
 
+The boundary flux can be used to implement various boundary conditions:
 
+\begin{itemize}
+	\item Absorbing boundary conditions
+	$$B_n^+ u^-(s,t)$$
+	\item Incoming wave
+	$$B_n^+ u^-(s,t) + B_n^- g(s,t) $$
+	\item Reflecting boundary conditions\\
+	$$B_n^+ u^-(s,t) + B_n^- u^-(s,t) $$
+\end{itemize}
+
+\section{Riemann Solvers}
+
+\subsection*{Constant Coefficient Case}
+
+The upwind flux \eqref{eq:system_upwind} can be interpreted with the help of the solution of the
+following so-called \textit{Riemann problem}:
+\begin{align*}
+\partial_t u(x,t) + \partial_x (B u(x,t)) &= 0, &&(\text{in $\mathbb{R}\times\mathbb{R}^+$})\\
+u(x,0) &= \left\{\begin{array}{ll}
+U_L & x \leq 0\\ U_R & x > 0
+\end{array}\right ., &&(t=0)\,.
+\end{align*}
+Riemann problems are characterized by an initial condition with two
+constant states and a discontinuity at $x=0$. Here we assume that $B$ is a constant matrix.
+
+The solution of this Riemann problem can be constructed according to
+the discussion in Section \ref{sec:one_d_system}.
+First, transform the left and right states to characteristic variables:
+$W_L = R^{-1}U_L$ and $W_R = R^{-1}U_R$. Let the eigenvalues be sorted
+with $k$ eigenvalues negative and $m-k$ eigenvalues non-negative (there may
+be zero eigenvalues):
+$$ \lambda_1 \leq \lambda_2 \leq \ldots \leq\lambda_k < 0
+\leq \lambda_{k+1} \leq \ldots \leq \lambda_m \,.  $$
+Then the solution is piecewise constant in space time cones as follows:
+\begin{center}
+	\begin{tikzpicture}[scale=1.0]
+	\draw[->] (-7,0) -- (7,0) node[below right] (n) {$x$};
+	\draw[->] (0,0) -- (0,4.5) node[left] (n) {$t$};
+	\draw (0,0) -- (-7,3) node[left] (n) {$\lambda_1$};
+	\draw (0,0) -- (-4,4) node[above] (n) {$\lambda_2$};
+	\draw (0,0) -- (-2,4) node[above] (n) {$\lambda_k$};
+	\draw (0,0) -- (1.5,4) node[above] (n) {$\lambda_{k+1}$};
+	\draw (0,0) -- (7,4) node[above] (n) {$\lambda_{m}$};
+	\node at (-5.5,1) {$\sum_{j=1}^m r_j w_j^L = U_L$};
+	\node at (-5.6,3.5) {$\sum_{j=2}^m r_j w_j^L + w_1^R$};
+	\node at (3.5,3.5) {$r_m w_m^L + \sum_{j=1}^{m-1} r_jw_j^R$};
+	\node at (5,1) {$\sum_{j=1}^{m} r_jw_j^R = U_R$};
+	\end{tikzpicture}
+\end{center}
+The solution along the line $(0,t)$, $t>0$ is given as follows:
+\begin{equation*}
+u(0,t) = \sum_{\lambda_j<0} r_j w_j^R + \sum_{\lambda_j=0} r_j w_j^L + \sum_{\lambda_j>0} r_j w_j^L 
+=   \sum_{j=1}^k r_j w_j^R + \sum_{j=k+1}^m r_j w_j^L
+\end{equation*}
+and the corresponding flux along the line $(0,t)$, $t>0$ is then
+\begin{equation}
+\begin{split}
+F(u(0,t)) &= B u(0,t) = RDR^{-1} \left(\sum_{j=1}^k r_j w_j^R + \sum_{j=k+1}^m r_j w_j^L\right)\\
+&= RDR^{-1} R w^\ast = RD w^\ast = R (D^- + D^+) w^\ast \\
+&= R D^- w^\ast + R D^+ w^\ast = R D^- W_R + R D^+ W_L\\
+&= R D^- R^{-1} U_R + R D^+ R^{-1} U_L\\
+&= B^- U_R + B^+ U_L
+\end{split}
+\end{equation}
+where we used
+$$w^\ast_j = \left\{\begin{array}{ll}
+w_j^R & j\leq k\\
+w_j^L & j>k
+\end{array}\right. .$$
+This shows that \textit{the upwind flux may be interpreted as the flux evaluated
+	for the solution of a Riemann problem located at the interface}. 
+It turns out this construction
+principle is the key to define appropriate numerical fluxes also for nonlinear systems
+of hyperbolic PDEs such as the Euler equations.
+
+\subsection*{Discontinuous Coefficient Case}
+
+The coefficient matrix $B$ may depend on position $x$. If this dependence is smooth
+one may put the hyperbolic system in nonconservative form an proceed as shown
+above. The case of discontinuous coefficient $B(x)$ deserves more thought.
+Consider the following one-dimensional Riemann problem
+\begin{subequations}
+	\begin{align}\label{eq:DiscontinuousRiemann}
+	\partial_t u(x,t) + \partial_x (B(x) u(x,t)) &= 0, &&(\text{in $\mathbb{R}\times\mathbb{R}^+$})\\
+	u(x,0) &= \left\{\begin{array}{ll}
+	U_L & x \leq 0\\ U_R & x > 0
+	\end{array}\right ., &&(t=0)\,,\\
+	B(x) &= \left\{\begin{array}{ll}
+	B_L & x \leq 0\\ B_R & x > 0
+	\end{array}\right. \,.
+	\end{align}
+\end{subequations}
+
+\paragraph{Scalar Case} For simplicity let us start with a single component $m=1$.
+In order to determine what happens at the interface $x=0$
+we consider problem \eqref{eq:DiscontinuousRiemann} as two problems with
+an interface condition:
+\begin{subequations}
+	\begin{align}\label{eq:DiscontinuousRiemann2}
+	\partial_t u_L(x,t) + \partial_x (B_L u_L(x,t)) &= 0, &&(\text{in $\mathbb{R}^-\times\mathbb{R}^+$})\\
+	u_L(x,0) &= U_L,\\
+	\partial_t u_R(x,t) + \partial_x (B_R u_R(x,t)) &= 0, &&(\text{in $\mathbb{R}^+\times\mathbb{R}^+$})\\
+	u_R(x,0) &= U_R,\\
+	B_L u_L(0,t) &= B_R u_R(0,t) &&(\text{flux continuity}) .
+	\end{align}
+\end{subequations}
+For arbitrary initial states flux continuity demands that $B_L$ and $B_R$ have the same sign: $B_L B_R>0$.
+Then system \eqref{eq:DiscontinuousRiemann2} can solved by the method of
+characteristics. Assume e.g. that $B_L, B_R > 0$, then
+\begin{enumerate}[i)]
+	\item $x=0$ is an outflow boundary for the left domain and $u_L(x,t) = U_L$ for $x\leq 0$.
+	\item $x=0$ is an inflow boundary for the right domain.
+	Flux continuity demands $B_L U_L = B_R u_R(0,t)$ and we get the boundary condition $u_R(0,t) = \frac{B_R}{B_L} U_L$.
+	\item By the method of characteristic we obtain in the right domain:
+	\begin{equation*}
+	u_R(x,t) = \left\{\begin{array}{ll}
+	\frac{B_R}{B_L} U_L & x - B_R t \leq 0\\
+	U_R & x - B_R t > 0
+	\end{array} \right. .
+	\end{equation*}
+\end{enumerate}
+In the $(x,t)$-diagram this is:
+\begin{center}
+	\begin{tikzpicture}[scale=1.0]
+	\draw[->] (-7,0) -- (7,0) node[below right] (n) {$x$};
+	\draw[->] (0,0) -- (0,4.5) node[left] (n) {$t$};
+	\draw (0,0) -- (3,4) node[above] (n) {$x=B_R t$};
+	\node at (-3,2) {$U_L$};
+	\node at (1,3) {$\frac{B_R}{B_L} U_L$};
+	\node at (3,2) {$U_R$};
+	\end{tikzpicture}
+\end{center}
+
+\paragraph{System Case} This is treated in the same way. However, since waves are going
+both ways across the interface the states left and right of the interface are determined by the
+solution of a linear system. 
+
+We define the states to the left and right of the interface
+\begin{equation*}
+U_L^\ast = \lim_{x\to 0-} u_L(x,t), \qquad 
+U_R^\ast = \lim_{x\to 0+} u_R(x,t), \qquad 
+(\text{for any $t>0$}) .
+\end{equation*}
+Due to hyperbolicity, $B_L$ and $B_R$ are diagonalizable with 
+eigenvalues $\lambda_i^L$, $\lambda_i^R$ and eigenvectors $r_i^L$, $r_i^R$.
+The matrices $R_L$, $R_R$ are formed by the eigenvectors and the diagonal
+matrices $D_L$, $D_R$ contain the corresponding eigenvalues. As above we set
+$B_L^\pm = R_LD_L^\pm R_L^{-1}$, $B_R^\pm = R_RD_R^\pm R_R^{-1}$.
+By the transformation to characteristic variables we obtain the following representation
+of the interface states:
+\begin{align}
+U_L^\ast &= \sum_{\{i \,:\, \lambda_i^L\geq 0\}} r_i^L (R_L^{-1} U_L)_i + \sum_{\{i \,:\, \lambda_i^L<0\}} r_i^L \alpha_i,\\
+U_R^\ast &= \sum_{\{i \,:\, \lambda_i^R\leq 0\}} r_i^R (R_R^{-1} U_R)_i + \sum_{\{i \,:\, \lambda_i^R>0\}} r_i^R \alpha_i.
+\end{align}
+The first sum takes into account the waves that reach the boundary from within in the respective domain.
+The second part describes the contribution coming from the boundary (the minus sign in the second line
+becomes obvious below).
+As a first assumption we put
+\begin{equation}
+\{i \,:\, \lambda_i^L < 0\} = \{i \,:\, \lambda_i^R < 0\} \quad\wedge\quad
+\{i \,:\, \lambda_i^L > 0\} = \{i \,:\, \lambda_i^R > 0\},
+\end{equation}
+i.e. the number of positive (negative) eigenvalues to the left and right coincides
+(and therefore also the number of zero eigenvalues) and positive
+and negative eigenvalues are numbered in the same way.
+
+In order to determine the coefficients $\alpha\in\mathbb{R}^{I^\ast}$, 
+$I^\ast = \{i \,:\, \lambda_i^L\neq 0\}\subseteq I = \{1,\ldots,m\}$ 
+we exploit flux continuity $B_L U_L^\ast = B_R U_R^\ast$. Further notation is needed to handle
+the case of zero eigenvalues when $m^\ast=|I^\ast|<m$. 
+We introduce the ``picking-out-matrix'' $P \in \mathbb{R}^{I^\ast\times I}$
+defined by $$(P x)_j = (x)_j \qquad\forall j\in I^\ast .$$
+Observing,
+\begin{align*}
+B_L U_L^\ast &= \sum_{\{i \,:\, \lambda_i^L\geq 0\}} B_L r_i^L (R_L^{-1} U_L)_i + \sum_{\{i \,:\, \lambda_i^L<0\}} B_L r_i^L \alpha_i
+= B_L^+ U_L + R_L D_L^- P^T \alpha,\\
+B_R U_R^\ast &= \sum_{\{i \,:\, \lambda_i^R\leq 0\}} B_R r_i^R (R_R^{-1} U_R)_i + \sum_{\{i \,:\, \lambda_i^R>0\}} B_R r_i^R \alpha_i
+= B_R^- U_R + R_R D_R^+ P^T \alpha .
+\end{align*}
+we obtain 
+\begin{equation}\label{eq:thesystem}
+(R_R D_R^+ - R_L D_L^-) P^T \alpha = S \alpha =  B_L^+ U_L - B_R^- U_R .
+\end{equation}
+The linear system \eqref{eq:thesystem} has a unique solution if
+$S\in\mathbb{R}^{I\times I^\ast}$ has rank $m^\ast$ and
+\begin{equation}
+\begin{split}
+\text{span}\left\{r_i^R:\lambda_i^R>0\right\} &+ \text{span}\left\{r_i^L:\lambda_i^R<0\right\} = \\
+&\text{span}\left\{r_i^L:\lambda_i^R>0\right\} + \text{span}\left\{r_i^R:\lambda_i^R<0\right\}
+\end{split}
+\end{equation}
+and is then given by
+\begin{equation}
+\alpha = \left( S^T S \right)^{-1} S^T \left( B_L^+ U_L - B_R^- U_R \right) .
+\end{equation}
+The flux can then be computed from either side of the interface, e.g.~from the left:
+\begin{equation}
+\begin{split}
+\hat F(U_L&,U_R) = B_L U_L^\ast = B_L^+ U_L + R_L D_L^- P^T \alpha\\
+&= B_L^+ U_L + R_L D_L^- P^T \left( S^T S \right)^{-1} S^T \left( B_L^+ U_L - B_R^- U_R \right)
+\end{split}
+\end{equation}
+
+For comparison consider the case of constant coefficients in this framework.
+Flux continuity then becomes
+\begin{align*}
+B U_L^\ast &= B U_R^\ast\\
+\Leftrightarrow\ 
+\sum_{\{i \,:\, \lambda_i> 0\}} r_i \lambda_i (R^{-1} U_L)_i + \sum_{\{i \,:\, \lambda_i<0\}} r_i \lambda_i \alpha_i
+&= \sum_{\{i \,:\, \lambda_i< 0\}} r_i \lambda_i (R^{-1} U_R)_i + \sum_{\{i \,:\, \lambda_i>0\}} r_i \lambda_i \alpha_i 
+\end{align*}
+Since the $r_i$ are linearly independent we must have
+\begin{equation*}
+\alpha_i = (R^{-1} U_R)_i\text{ for $\lambda_i<0$}, \quad 
+\alpha_i = (R^{-1} U_L)_i\text{ for $\lambda_i>0$}.
+\end{equation*}
+Inserting into one of both sides yields
+\begin{equation*}
+\begin{split}
+\hat F(U_L,U_R) &= B U_L^\ast = \sum_{\{i \,:\, \lambda_i> 0\}} r_i \lambda_i (R^{-1} U_L)_i + \sum_{\{i \,:\, \lambda_i<0\}} r_i \lambda_i \alpha_i\\
+&= \sum_{\{i \,:\, \lambda_i> 0\}} r_i \lambda_i (R^{-1} U_L)_i + \sum_{\{i \,:\, \lambda_i<0\}} r_i \lambda_i (R^{-1} U_R)_i\\
+&= B^+U_L + B^- U_R .
+\end{split}
+\end{equation*}
 
 \section{Realization in PDELab}
 
@@ -648,25 +766,26 @@ The structure of the code is similar to previous tutorials. However we have sepa
 
 Source directory consists of the following files:
 \begin{enumerate}[1)]
-\item The ini-file
-\lstinline{tutorial07-[model].ini} holds parameters read by various parts of the code
-which control the execution.
-\item The problem file \lstinline{[model]problem.hh} that describes the initial and boundary conditions for running the problem.
-\item The model file \lstinline{[model].hh} that provides  which eigenvalues and matrix  of the eigenvectors (rowwise) for problem.
-\item Numerical flux \lstinline{numericalflux.hh}
-\item The main file \lstinline{tutorial07-[model].cc} includes the necessary C++,
-DUNE and PDELab header files
-and contains the \lstinline{main} function where the execution starts.
-The purpose of the \lstinline{main} function is
-to instantiate DUNE grid objects and call the \lstinline{driver} function.
-\item File \lstinline{driver.hh} instantiates the necessary PDELab classes
-for solving a linear instationary problem and finally solves the problem.
-\item File \lstinline{hyperbolicdg.hh} contains the local operator classes \\
-\lstinline{DGLinearHyperbolicSpatialOperator} and \\
- \lstinline{DGLinearHyperbolicTemporalOperator} realizing the spatial
-and temporal residual forms.
-
+	\item The ini-file
+	\lstinline{tutorial07-[model].ini} holds parameters read by various parts of the code
+	which control the execution.
+	\item The problem file \lstinline{[model]problem.hh} that describes the initial and boundary conditions for running the problem.
+	\item The model file \lstinline{[model].hh} that provides  which eigenvalues and matrix  of the eigenvectors (rowwise) for problem.
+	\item Numerical flux \lstinline{numericalflux.hh}
+	\item The main file \lstinline{tutorial07-[model].cc} includes the necessary C++,
+	DUNE and PDELab header files
+	and contains the \lstinline{main} function where the execution starts.
+	The purpose of the \lstinline{main} function is
+	to instantiate DUNE grid objects and call the \lstinline{driver} function.
+	\item File \lstinline{driver.hh} instantiates the necessary PDELab classes
+	for solving a linear instationary problem and finally solves the problem.
+	\item File \lstinline{hyperbolicdg.hh} contains the local operator classes \\
+	\lstinline{DGLinearHyperbolicSpatialOperator} and \\
+	\lstinline{DGLinearHyperbolicTemporalOperator} realizing the spatial
+	and temporal residual forms.
+	
 \end{enumerate}
+
 
 In what follows we put  \lstinline{model = linearacoustics} and describe the structure of the source files in that particular case.
 
