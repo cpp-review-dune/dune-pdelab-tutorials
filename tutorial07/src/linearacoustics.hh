@@ -99,6 +99,8 @@ public:
   {
   }
 
+
+  /// tex: eigenvectors
   template<typename E, typename X, typename T2, typename T3>
   void eigenvectors (const E& e, const X& x, 
                      const Dune::FieldVector<T2,dim>& n,
@@ -110,7 +112,10 @@ public:
     RT[1][0] =  n[0]; RT[1][1] = n[0];  RT[1][2] = -n[1];
     RT[2][0] =  n[1]; RT[2][1] = n[1];  RT[2][2] = n[0];
   }
+  /// tex: eigenvectors
 
+
+  /// tex: diagonal
   template<typename E, typename X, typename RF>
   void diagonal (const E& e, const X& x, Dune::FieldMatrix<RF,m,m>& D) const
   {
@@ -120,6 +125,8 @@ public:
     D[1][0] = 0.0;  D[1][1] = -c ; D[1][2] = 0.0;
     D[2][0] = 0.0;  D[2][1] = 0.0; D[2][2] = 0.0;
   }
+  /// tex: diagonal
+
 
   template<typename RF>
   static void max_eigenvalue (const Dune::FieldVector<RF,m>& u_s,
@@ -130,7 +137,7 @@ public:
     alpha = 1.0;
   }
 
-
+  /// tex: flux
   //Flux function
   template<typename E, typename X, typename RF>
   void flux (const E& e, const X& x, 
@@ -143,6 +150,7 @@ public:
     F[1][0] = c*c*u[0]; F[1][1] = 0.0;
     F[2][0] = 0.0     ; F[2][1] = c*c*u[0];
   }
+  /// tex: flux
 
   const PROBLEM& problem;
 };//2d

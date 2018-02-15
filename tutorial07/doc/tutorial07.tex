@@ -15,7 +15,11 @@
 \usepackage{listings,lstautogobble}
 \lstset{language=C++, basicstyle=\ttfamily,
   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-  commentstyle=\itshape, extendedchars=true, escapeinside={/*@}{@*/}}
+  commentstyle=\itshape, extendedchars=true, escapeinside={/*@}{@*/},
+  rangebeginprefix = ///\ tex:\ ,
+  rangeendprefix   = ///\ tex:\ ,
+  includerangemarker=false,
+  autoglobe=true }
 \usepackage{paralist}
 \usepackage{curves}
 \usepackage{calc}
@@ -760,6 +764,16 @@ Inserting into one of both sides yields
 \end{split}
 \end{equation*}
 
+\section{Examples summary}
+
+$$
+\begin{array}{c|c|c|c}
+	\textbf{Model} & \textbf{Numerical Flux} & \textbf{dimension} & \textbf{components} \\  \hline
+	\text{Linear Acounstics} & \text{Variable FVS} & d = 2 & m = d + 1  \\
+ 	\text{Maxwall       }    & \text{FVS} & d = 3 & m = 6 \\
+ 	\text{Shallow Water} & \text{LLF} & d = 1,2 & m = d+1
+\end{array}
+$$
 \section{Realization in PDELab}
 
 The structure of the code is similar to previous tutorials. However we have separate files for different models, thus one must replace \lstinline{[model]} with its name: \lstinline{(linear)acoustics/maxwell/shallowwater}. 
@@ -807,37 +821,38 @@ subsampling, and every (timestep cout to save a solution).
 
 In the problem we define all the properties of the problem we want to solve. Here we explain what we mean by problem not to confuse with model, namely the system of equations. %For example we confine to linear acoustics and define:
 
+Material
+
+\lstinputlisting[linerange=material-material,
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/linearacousticsproblem.hh}
+
 Speed of sound (can be discontinuous)
 
-\lstinputlisting[firstline=21, lastline=31,
+\lstinputlisting[linerange=speedofsound-speedofsound,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/linearacousticsproblem.hh}
 
-Neuman boundary condition
-
-\lstinputlisting[firstline=32, lastline=38,
-basicstyle=\ttfamily\small,
-frame=single,
-backgroundcolor=\color{listingbg}]{../src/linearacousticsproblem.hh}
 
 Boundary condition (reflective)
 
 
-\lstinputlisting[firstline=39, lastline=49,
+\lstinputlisting[linerange=bc-bc,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/linearacousticsproblem.hh}
 
 Right hand side
 
-\lstinputlisting[firstline=50, lastline=56,
+\lstinputlisting[linerange=rhs-rhs,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/linearacousticsproblem.hh}
 
 Initial value
-\lstinputlisting[firstline=58, lastline=69,
+\lstinputlisting[linerange=init-init,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/linearacousticsproblem.hh}
@@ -846,31 +861,26 @@ backgroundcolor=\color{listingbg}]{../src/linearacousticsproblem.hh}
 
 
 
-\lstinputlisting[firstline=16, lastline=24,
+
+
+
+\lstinputlisting[linerange=eigenvectors-eigenvectors,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/linearacoustics.hh}
 
 
-\lstinputlisting[firstline=33, lastline=43,
+The order of eigenvalues is important, the implementation of VariableFluxVectorSplitting flux requires consequently: positive, negative and zero eigenvalues.
+
+ 
+\lstinputlisting[linerange=diagonal-diagonal,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/linearacoustics.hh}
 
 
-\lstinputlisting[firstline=45, lastline=53,
-basicstyle=\ttfamily\small,
-frame=single,
-backgroundcolor=\color{listingbg}]{../src/linearacoustics.hh}
 
-
-\lstinputlisting[firstline=55, lastline=62,
-basicstyle=\ttfamily\small,
-frame=single,
-backgroundcolor=\color{listingbg}]{../src/linearacoustics.hh}
-
-
-\lstinputlisting[firstline=65, lastline=76,
+\lstinputlisting[linerange=flux-flux,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/linearacoustics.hh}
