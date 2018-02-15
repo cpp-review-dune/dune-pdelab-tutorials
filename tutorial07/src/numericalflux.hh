@@ -1,7 +1,7 @@
 #ifndef NUMERICALFLUX
 #define NUMERICALFLUX
 
-#include <dune/common/float_cmp.hh>
+#include <dune/common/float_cmp.hh> 	
 
 //local Lax-Friedrichs Flux
 template<typename MODEL>
@@ -153,6 +153,7 @@ public:
 
   VariableFluxVectorSplitting (const MODEL& model)
     : model_(model)
+    , fluxVectorSplitting_(model)
   {
   }
 
@@ -166,7 +167,10 @@ public:
     // check for discontinuity
     if ( Dune::FloatCmp::eq( model().problem.c(inside,x_inside), model().problem.c(outside,x_outside) ) )
       {
-        // standard case
+        fluxVectorSplitting_.numericalFlux(inside, x_inside, outside, x_outside, n_F, u_s, u_n, f);
+        
+      /*
+       // standard case
         Dune::FieldMatrix<DF,m,m> D(0.0);
         // fetch eigenvalues
         model().diagonal(inside,x_inside,D);
@@ -199,6 +203,8 @@ public:
         // f = Bplus*u_s + Bminus*u_n
         Bplus.umv(u_s,f);
         Bminus.umv(u_n,f);
+
+	*/
       }
     else // discontinuous coefficient case
       {
@@ -284,6 +290,7 @@ public:
 private:
 
   const MODEL& model_;
+  FluxVectorSplitting<MODEL> fluxVectorSplitting_;
 
 };// VFVS
 
