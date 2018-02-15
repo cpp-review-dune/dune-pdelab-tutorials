@@ -21,6 +21,7 @@
 #include<dune/grid/io/file/vtk/subsamplingvtkwriter.hh>
 #include<dune/grid/io/file/gmshreader.hh>
 #include<dune/grid/yaspgrid.hh>
+#include<dune/grid/onedgrid.hh>
 #if HAVE_UG
 #include<dune/grid/uggrid.hh>
 #endif
@@ -99,6 +100,73 @@ int main(int argc, char** argv)
     // parallel overlapping yaspgrid version
     if (ptree["grid.manager"] == "yasp")
 
+      if (dim == 1)
+        {
+          constexpr int dim = 1;
+          // read grid parameters from input file
+          using DF = Dune::OneDGrid::ctype;
+          auto a = 0;
+          std::array<double,dim> lower_left; for (int i=0; i<dim; i++) lower_left[i]=0.0;
+          auto upper_right = ptree.get<Dune::FieldVector<double,dim> >("grid.L");
+          auto cells = ptree.get<std::array<int,dim> >("grid.N");
+
+          auto b = upper_right[0];
+          auto N = cells[0];
+          // OneD Grid
+          // create equidistant intervals
+          using Intervals = std::vector<DF>;
+          Intervals intervals(N+1);
+          for(unsigned int i=0; i<N+1; ++i)
+            // store start of every interval and the end of grid
+            intervals[i] = a + DF(i)*(b-a)/DF(N);
+
+          // Construct grid
+          using Grid = Dune::OneDGrid;
+          Grid grid(intervals);
+          grid.globalRefine(refinement);
+
+          // call generic function
+          using GV = Dune::OneDGrid::LeafGridView;
+          GV gv = grid.leafGridView();
+
+          //create problem (setting)
+          using PROBLEM = Problem<1, GV,GV::Grid::ctype>;
+          PROBLEM problem;
+
+          //create model on a given setting
+          using MODEL = Model<dim,PROBLEM >;
+          MODEL model(problem);
+
+          //create numerical flux
+          using NUMFLUX = VariableFluxVectorSplitting<MODEL>;
+          NUMFLUX numflux(model);
+
+          if (degree==0)
+            {
+              using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,0,dim,
+                                                                  Dune::PDELab::QkDGBasisPolynomial::legendre>;
+              FEM fem;
+              driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
+            }
+          if (degree==1)
+            {
+              using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,1,dim,
+                                                                  Dune::PDELab::QkDGBasisPolynomial::legendre>;
+              FEM fem;
+              driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
+            }
+          if (degree==2)
+            {
+              using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,
+                                                                  Dune::PDELab::QkDGBasisPolynomial::legendre>;
+              FEM fem;
+              driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
+            }
+          return 0;
+
+        }
+
+
       if (dim == 2)
         {
           const int dim=2;
@@ -119,7 +187,7 @@ int main(int argc, char** argv)
           GV gv=grid.leafGridView();
 
           //create problem (setting)
-          using PROBLEM = Problem<GV,GV::Grid::ctype>;
+          using PROBLEM = Problem<2,GV,GV::Grid::ctype>;
           PROBLEM problem;
 
           //create model on a given setting
