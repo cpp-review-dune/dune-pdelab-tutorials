@@ -41,9 +41,9 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   std::cout << "degrees of freedom: " << gfs.globalSize() << std::endl;
 
   // Make instationary grid operator
-  using LOP = Dune::PDELab::DGLinearHyperbolicSpatialOperator<NUMFLUX,FEMDG>;
+  using LOP = Dune::PDELab::DGHyperbolicSpatialOperator<NUMFLUX,FEMDG>;
   LOP lop(numflux);
-  using TLOP = Dune::PDELab::DGLinearHyperbolicTemporalOperator<NUMFLUX,FEMDG>;
+  using TLOP = Dune::PDELab::DGHyperbolicTemporalOperator<NUMFLUX,FEMDG>;
   TLOP tlop(numflux);
 
   using MBE = Dune::PDELab::ISTL::BCRSMatrixBackend<>;
