@@ -5,10 +5,14 @@
 */
 
 template<int dim, typename PROBLEM>
-class Model ;
+class Model_ ;
+
+//wrapper for dimension specialisation 
+template<typename PROBLEM> 
+using Model = Model_<PROBLEM::dim, PROBLEM>;
 
 template<typename PROBLEM>
-class Model<1,PROBLEM>
+class Model_<1,PROBLEM>
 {
 
 public:
@@ -17,7 +21,7 @@ public:
 
   using RangeField = typename PROBLEM::RangeField;
 
-  Model (PROBLEM& p)
+  Model_ (PROBLEM& p)
   : problem(p)
   {
   }
@@ -56,7 +60,7 @@ public:
 
 
 template<typename PROBLEM>
-class Model<2,PROBLEM>
+class Model_<2,PROBLEM>
 {
 
 public:
@@ -65,7 +69,7 @@ public:
 
   using RangeField = typename PROBLEM::RangeField;
 
-  Model (PROBLEM& p)
+  Model_ (PROBLEM& p)
   : problem(p)
   {
   }

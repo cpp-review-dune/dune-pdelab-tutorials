@@ -130,11 +130,11 @@ int main(int argc, char** argv)
           GV gv = grid.leafGridView();
 
           //create problem (setting)
-          using PROBLEM = Problem<1, GV,GV::Grid::ctype>;
+          using PROBLEM = Problem<GV,GV::Grid::ctype>;
           PROBLEM problem;
 
           //create model on a given setting
-          using MODEL = Model<dim,PROBLEM >;
+          using MODEL = Model<PROBLEM>;
           MODEL model(problem);
 
           //create numerical flux
@@ -186,11 +186,11 @@ int main(int argc, char** argv)
           GV gv=grid.leafGridView();
 
           //create problem (setting)
-          using PROBLEM = Problem<2, GV,GV::Grid::ctype>;
+          using PROBLEM = Problem<GV,GV::Grid::ctype>;
           PROBLEM problem;
 
           //create model on a given setting
-          using MODEL = Model<dim,PROBLEM>;
+          using MODEL = Model<PROBLEM>;
           MODEL model(problem);
 
           //create numerical flux

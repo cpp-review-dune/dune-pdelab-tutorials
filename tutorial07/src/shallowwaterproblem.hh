@@ -1,6 +1,6 @@
 #ifndef SHALLOWWATER_RIEMANNPROBLEM
 #define SHALLOWWATER_RIEMANNPROBLEM
-template<const int dim, typename GV, typename NUMBER>
+template<typename GV, typename NUMBER>
 class Problem
 {
 public:
@@ -8,6 +8,7 @@ public:
   using RangeField = NUMBER;
 
   //problem specification depends on dimension
+  static constexpr int dim = GV::dimension;
   static constexpr int m = dim+1;
 
   using Range = Dune::FieldVector<NUMBER,m>;
@@ -15,14 +16,6 @@ public:
   Problem ()
     : time(0.0),  pi(3.141592653589793238462643)
   {
-  }
-
-
-  //! Neumann boundary condition
-  template<typename I, typename X>
-  NUMBER j (const I& i, const X& x) const
-  {
-    return 0.0;
   }
 
   //! Boundary condition value - reflecting bc

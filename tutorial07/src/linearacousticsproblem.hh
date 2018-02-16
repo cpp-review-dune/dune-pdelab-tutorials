@@ -46,13 +46,6 @@ public:
   }
   /// tex: speedofsound
 
-  //! Neumann boundary condition
-  template<typename I, typename X>
-  NUMBER j (const I& i, const X& x) const
-  {
-    return 0.0;
-  }
-
   /// tex: bc
   //! Boundary condition value - reflecting bc
   template<typename I, typename X, typename R>

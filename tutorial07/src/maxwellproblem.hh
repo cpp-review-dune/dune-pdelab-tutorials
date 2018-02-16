@@ -49,18 +49,12 @@ public:
     return 1.0;
   }
 
-  //! Neumann boundary condition
-  template<typename I, typename X>
-  NUMBER j (const I& i, const X& x) const
-  {
-    return 0.0;
-  }
-
-  //! Boundary condition value - reflecting bc
+  //! Boundary condition 
   template<typename I, typename X, typename R>
   Range g (const I& is, const X& x, const R& s) const
   {
     Range u(0.0);
+    //reflecting bc
     // u[0] = -s[0];
     // u[1] = -s[1];
     // u[2] = -s[2];
@@ -95,10 +89,10 @@ public:
     auto c1 = std::cos(alpha*x);
     auto st = std::sin(alpha*0.0);
     auto ct = std::cos(alpha*0.0);
-    u[0] += 0;     // E_x
+    u[0] += 0;       // E_x
     u[1] += -c1*st;  // E_y
     u[2] += s1*ct;   // E_z
-    u[3] += 0;     // H_x
+    u[3] += 0;       // H_x
     u[4] += c1*st;   // H_y
     u[5] += s1*ct;   // H_z
 
