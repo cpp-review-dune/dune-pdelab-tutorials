@@ -26,11 +26,13 @@ public:
   {
   }
 
-  template<typename RF>
-  static void max_eigenvalue (const Dune::FieldVector<RF,m>& u_s,
-                              const Dune::FieldVector<RF,m>& u_n,
-                              const Dune::FieldVector<RF,dim>& n_F,
-                              RF& alpha)
+  template<typename E, typename X, typename RF>
+  void max_eigenvalue (const E& inside, const X& x_inside,
+                       const E& outside, const X& x_outside,
+                       const Dune::FieldVector<RF,m>& u_s,
+                       const Dune::FieldVector<RF,m>& u_n,
+                       const Dune::FieldVector<RF,dim>& n_F,
+                       RF& alpha) const
   {
     int g = 1;
 
@@ -74,11 +76,13 @@ public:
   {
   }
 
-  template<typename RF>
-  static void max_eigenvalue (const Dune::FieldVector<RF,m>& u_s,
-                              const Dune::FieldVector<RF,m>& u_n,
-                              const Dune::FieldVector<RF,dim>& n_F,
-                              RF& alpha)
+  template<typename E, typename X, typename RF>
+  void max_eigenvalue (const E& inside, const X& x_inside,
+                       const E& outside, const X& x_outside,
+                       const Dune::FieldVector<RF,m>& u_s,
+                       const Dune::FieldVector<RF,m>& u_n,
+                       const Dune::FieldVector<RF,dim>& n_F,
+                       RF& alpha) const
   {
     int g = 1;
 

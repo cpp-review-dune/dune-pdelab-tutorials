@@ -43,7 +43,7 @@ public:
 
     //max eigenvalue
     RF alpha(0.0);
-    MODEL::max_eigenvalue(u_s,u_n,n_F,alpha);
+    model().max_eigenvalue(inside,x_inside,outside,x_outside,u_s,u_n,n_F,alpha);
 
     //add diffusion
     for (size_t i =0 ; i<m;i++)

@@ -1,6 +1,6 @@
 #ifndef ACOUSTICS_RIEMANNPROBLEM
 #define ACOUSTICS_RIEMANNPROBLEM
-template<const int dim, typename GV, typename NUMBER>
+template<typename GV, typename NUMBER>
 class Problem
 {
 public:
@@ -8,7 +8,7 @@ public:
   using RangeField = NUMBER;
 
   //problem specification depends on dimension
-  //static constexpr int dim = 2;
+  static constexpr int dim = GV::dimension;
   static constexpr int m = dim+1;
 
   using Range = Dune::FieldVector<NUMBER,m>;
@@ -26,7 +26,7 @@ public:
   int material (const E& e, const X& x) const 
   {
     auto xglobal = e.geometry().center();
-    if (xglobal[1]>0.625)
+    if (xglobal[0]>1.625)
       return 1;
     else
       return 2;
@@ -39,7 +39,7 @@ public:
   NUMBER c (const E& e, const X& x) const
   {
     auto xglobal = e.geometry().center();
-    if (xglobal[1]>0.625)
+    if (xglobal[0]>1.625)
       return 0.33333;
     else
       return 1.0;
@@ -53,8 +53,10 @@ public:
   {
     Range u(0.0);
     u[0] =  s[0];
-    u[1] = -s[1];
-    u[2] = -s[2];
+    
+    for (size_t i=0; i<dim; i++) 
+      u[i+1] = -s[i+1];
+    
     return u;
   }
   /// tex: bc
