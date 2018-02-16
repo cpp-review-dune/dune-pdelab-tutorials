@@ -9,7 +9,7 @@ class LLFflux
 public:
 
   static constexpr int dim = MODEL::dim;
-  static constexpr int m = MODEL::Model::m;
+  static constexpr int m = MODEL::m;
 
   using Model = MODEL;
   using RF = typename MODEL::RangeField; // type for computations
@@ -43,7 +43,7 @@ public:
 
     //max eigenvalue
     RF alpha(0.0);
-    MODEL::max_eigenvalue(u_s,u_n,n_F,alpha);
+    model().max_eigenvalue(inside,x_inside,outside,x_outside,u_s,u_n,n_F,alpha);
 
     //add diffusion
     for (size_t i =0 ; i<m;i++)
@@ -69,7 +69,7 @@ class FluxVectorSplitting
 public:
 
   static constexpr int dim = MODEL::dim;
-  static constexpr int m = MODEL::Model::m;
+  static constexpr int m = MODEL::m;
 
   using Model = MODEL;
   using RF = typename MODEL::RangeField; // type for computations
@@ -142,7 +142,7 @@ class VariableFluxVectorSplitting
 public:
 
   static constexpr int dim = MODEL::dim;
-  static constexpr int m = MODEL::Model::m;
+  static constexpr int m = MODEL::m;
   static constexpr int mstar = MODEL::mstar;
 
   using Model = MODEL;

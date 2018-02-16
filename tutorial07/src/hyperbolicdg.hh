@@ -34,13 +34,13 @@ namespace Dune {
         \tparam FEM Finite Element Map needed to select the cache
     */
     template<typename NUMFLUX, typename FEM>
-    class DGLinearHyperbolicSpatialOperator :
-      public NumericalJacobianApplyVolume<DGLinearHyperbolicSpatialOperator<NUMFLUX,FEM> >,
-      public NumericalJacobianVolume<DGLinearHyperbolicSpatialOperator<NUMFLUX,FEM> >,
-      public NumericalJacobianApplySkeleton<DGLinearHyperbolicSpatialOperator<NUMFLUX,FEM> >,
-      public NumericalJacobianSkeleton<DGLinearHyperbolicSpatialOperator<NUMFLUX,FEM> >,
-      public NumericalJacobianApplyBoundary<DGLinearHyperbolicSpatialOperator<NUMFLUX,FEM> >,
-      public NumericalJacobianBoundary<DGLinearHyperbolicSpatialOperator<NUMFLUX,FEM> >,
+    class DGHyperbolicSpatialOperator :
+      public NumericalJacobianApplyVolume<DGHyperbolicSpatialOperator<NUMFLUX,FEM> >,
+      public NumericalJacobianVolume<DGHyperbolicSpatialOperator<NUMFLUX,FEM> >,
+      public NumericalJacobianApplySkeleton<DGHyperbolicSpatialOperator<NUMFLUX,FEM> >,
+      public NumericalJacobianSkeleton<DGHyperbolicSpatialOperator<NUMFLUX,FEM> >,
+      public NumericalJacobianApplyBoundary<DGHyperbolicSpatialOperator<NUMFLUX,FEM> >,
+      public NumericalJacobianBoundary<DGHyperbolicSpatialOperator<NUMFLUX,FEM> >,
       public FullSkeletonPattern,
       public FullVolumePattern,
       public LocalOperatorDefaultFlags,
@@ -62,7 +62,7 @@ namespace Dune {
       enum { doLambdaVolume  = true };
 
       // ! constructor
-      DGLinearHyperbolicSpatialOperator (NUMFLUX& numflux_, int overintegration_=0)
+      DGHyperbolicSpatialOperator (NUMFLUX& numflux_, int overintegration_=0)
         : numflux(numflux_), overintegration(overintegration_), cache(20)
       {
       }
@@ -364,8 +364,8 @@ namespace Dune {
      * \f}
      */
     template<typename NUMFLUX, typename FEM>
-    class DGLinearHyperbolicTemporalOperator :
-      public NumericalJacobianApplyVolume<DGLinearHyperbolicTemporalOperator<NUMFLUX,FEM> >,
+    class DGHyperbolicTemporalOperator :
+      public NumericalJacobianApplyVolume<DGHyperbolicTemporalOperator<NUMFLUX,FEM> >,
         public LocalOperatorDefaultFlags,
         public InstationaryLocalOperatorDefaultMethods<typename NUMFLUX::RF>
     {
@@ -380,7 +380,7 @@ namespace Dune {
       // residual assembly flags
       enum { doAlphaVolume = true };
 
-      DGLinearHyperbolicTemporalOperator (NUMFLUX& numflux_, int overintegration_=0)
+      DGHyperbolicTemporalOperator (NUMFLUX& numflux_, int overintegration_=0)
         : numflux(numflux_), overintegration(overintegration_), cache(20)
       {}
 

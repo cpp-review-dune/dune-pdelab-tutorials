@@ -10,83 +10,11 @@
     \param RT matrix to be filled
 */
 
-template<int dim, typename PROBLEM>
-class Model ;
-
-
 template<typename PROBLEM>
-class Model<1,PROBLEM>
-{
-
-public:
-  static constexpr int dim = 1;   // space dimension
-  static constexpr int m = dim+1; // system size
-  static constexpr int mplus = 1; // number of positive eigenvalues
-  static constexpr int mminus = 1; // number of negative eigenvalues
-  static constexpr int mstar = mplus+mminus; // number of nonzero eigenvalues
-
-  using RangeField = typename PROBLEM::RangeField;
-
-  Model (PROBLEM& p)
-  : problem(p)
-  {
-  }
-
-
-  template<typename E, typename X, typename T2, typename T3>
-  void eigenvectors (const E& e, const X& x, 
-                     const Dune::FieldVector<T2,dim>& n,
-                     Dune::FieldMatrix<T3,m,m>& RT) const
-  {
-    auto c = 1.;
-  
-    RT[0][0] =  1; RT[1][0] = c*n[0];
-    RT[0][1] = -1; RT[1][1] = c*n[0];
-  }
-
-
-  template<typename E, typename X, typename RF>
-  void diagonal (const E& e, const X& x, Dune::FieldMatrix<RF,m,m>& D) const
-  {
-    auto c = 1.; //problem.c(e,x);
-
-    D[0][0] = c;    D[0][1] = 0.0; 
-    D[1][0] = 0.0;  D[1][1] = -c ; 
-  }
-
-  template<typename RF>
-  static void max_eigenvalue (const Dune::FieldVector<RF,m>& u_s,
-                              const Dune::FieldVector<RF,m>& u_n,
-                              const Dune::FieldVector<RF,dim>& n_F,
-                              RF& alpha)
-  {
-    alpha = 1.0;
-  }
-
-
-  //Flux function
-  template<typename E, typename X, typename RF>
-  void flux (const E& e, const X& x, 
-             const Dune::FieldVector<RF,m>& u,
-             Dune::FieldMatrix<RF,m,dim>& F) const
-  {
-    auto c = 1.;//problem.c(e,x);
-
-    F[0][0] = u[1]    ; 
-    F[1][0] = c*c*u[0]; 
-   }
-
-  const PROBLEM& problem;
-
-};//1d
-
-
-
-template<typename PROBLEM>
-class Model<2,PROBLEM>
+class Model
 {
 public:
-  static constexpr int dim = 2;   // space dimension
+  static constexpr int dim = PROBLEM::dim;   // space dimension
   static constexpr int m = dim+1; // system size
   static constexpr int mplus = 1; // number of positive eigenvalues
   static constexpr int mminus = 1; // number of negative eigenvalues
@@ -108,9 +36,16 @@ public:
   {
     auto c = problem.c(e,x);
 
-    RT[0][0] =  1.0/c;  RT[0][1] = -1.0/c;  RT[0][2] = 0.0;
-    RT[1][0] =  n[0]; RT[1][1] = n[0];  RT[1][2] = -n[1];
-    RT[2][0] =  n[1]; RT[2][1] = n[1];  RT[2][2] = n[0];
+    //TODO find a way to write eigenvectors independently of dim
+    if (dim == 1) {
+      RT[0][0] =  1; RT[1][0] = c*n[0];
+      RT[0][1] = -1; RT[1][1] = c*n[0];
+    }
+    if (dim == 2) {
+      RT[0][0] =  1.0/c;  RT[0][1] = -1.0/c;  RT[0][2] = 0.0;
+      RT[1][0] =  n[0]; RT[1][1] = n[0];  RT[1][2] = -n[1];
+      RT[2][0] =  n[1]; RT[2][1] = n[1];  RT[2][2] = n[0];
+    }
   }
   /// tex: eigenvectors
 
@@ -121,20 +56,25 @@ public:
   {
     auto c = problem.c(e,x);
 
-    D[0][0] = c;    D[0][1] = 0.0; D[0][2] = 0.0;
-    D[1][0] = 0.0;  D[1][1] = -c ; D[1][2] = 0.0;
-    D[2][0] = 0.0;  D[2][1] = 0.0; D[2][2] = 0.0;
+    for (size_t i=0; i<m; i++) 
+      for (size_t j=0; j<m; j++) 
+        D[i][j] = 0.0;
+    D[0][0] = c;   
+    D[1][1] = -c ;
   }
   /// tex: diagonal
 
 
-  template<typename RF>
-  static void max_eigenvalue (const Dune::FieldVector<RF,m>& u_s,
-                              const Dune::FieldVector<RF,m>& u_n,
-                              const Dune::FieldVector<RF,dim>& n_F,
-                              RF& alpha)
+  template<typename E, typename X, typename RF>
+  void max_eigenvalue (const E& inside, const X& x_inside,
+                       const E& outside, const X& x_outside,
+                       const Dune::FieldVector<RF,m>& u_s,
+                       const Dune::FieldVector<RF,m>& u_n,
+                       const Dune::FieldVector<RF,dim>& n_F,
+                       RF& alpha) const
   {
-    alpha = 1.0;
+    alpha = std::max( problem.c(inside,x_inside), 
+                      problem.c(outside,x_outside) );
   }
 
   /// tex: flux
@@ -146,13 +86,16 @@ public:
   {
     auto c = problem.c(e,x);
 
-    F[0][0] = u[1]    ; F[0][1] = u[2];
-    F[1][0] = c*c*u[0]; F[1][1] = 0.0;
-    F[2][0] = 0.0     ; F[2][1] = c*c*u[0];
+    for (size_t i=0; i<dim; i++) {
+      F[0][i] = u[i+1];
+      F[i+1][i] = c*c*u[0];  
+    }
+
   }
   /// tex: flux
 
   const PROBLEM& problem;
-};//2d
+
+};// Model
 
 #endif //ACOUSTICS_MODEL

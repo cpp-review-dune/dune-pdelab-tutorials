@@ -5,10 +5,14 @@
 */
 
 template<int dim, typename PROBLEM>
-class Model ;
+class Model_ ;
+
+//wrapper for dimension specialisation 
+template<typename PROBLEM> 
+using Model = Model_<PROBLEM::dim, PROBLEM>;
 
 template<typename PROBLEM>
-class Model<1,PROBLEM>
+class Model_<1,PROBLEM>
 {
 
 public:
@@ -17,16 +21,18 @@ public:
 
   using RangeField = typename PROBLEM::RangeField;
 
-  Model (PROBLEM& p)
+  Model_ (PROBLEM& p)
   : problem(p)
   {
   }
 
-  template<typename RF>
-  static void max_eigenvalue (const Dune::FieldVector<RF,m>& u_s,
-                              const Dune::FieldVector<RF,m>& u_n,
-                              const Dune::FieldVector<RF,dim>& n_F,
-                              RF& alpha)
+  template<typename E, typename X, typename RF>
+  void max_eigenvalue (const E& inside, const X& x_inside,
+                       const E& outside, const X& x_outside,
+                       const Dune::FieldVector<RF,m>& u_s,
+                       const Dune::FieldVector<RF,m>& u_n,
+                       const Dune::FieldVector<RF,dim>& n_F,
+                       RF& alpha) const
   {
     int g = 1;
 
@@ -56,7 +62,7 @@ public:
 
 
 template<typename PROBLEM>
-class Model<2,PROBLEM>
+class Model_<2,PROBLEM>
 {
 
 public:
@@ -65,16 +71,18 @@ public:
 
   using RangeField = typename PROBLEM::RangeField;
 
-  Model (PROBLEM& p)
+  Model_ (PROBLEM& p)
   : problem(p)
   {
   }
 
-  template<typename RF>
-  static void max_eigenvalue (const Dune::FieldVector<RF,m>& u_s,
-                              const Dune::FieldVector<RF,m>& u_n,
-                              const Dune::FieldVector<RF,dim>& n_F,
-                              RF& alpha)
+  template<typename E, typename X, typename RF>
+  void max_eigenvalue (const E& inside, const X& x_inside,
+                       const E& outside, const X& x_outside,
+                       const Dune::FieldVector<RF,m>& u_s,
+                       const Dune::FieldVector<RF,m>& u_n,
+                       const Dune::FieldVector<RF,dim>& n_F,
+                       RF& alpha) const
   {
     int g = 1;
 
