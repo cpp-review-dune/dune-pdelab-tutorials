@@ -206,9 +206,6 @@ namespace Dune {
       {
         // Get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,0>;
-        using DF = typename DGSpace::Traits::FiniteElementType::
-          Traits::LocalBasisType::Traits::DomainFieldType;
         using RF = typename NUMFLUX::RF; // type for computations
 
         // Get local function space that is identical for all components
@@ -388,7 +385,6 @@ namespace Dune {
       {
         // get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,0>;
 
         // get local function space that is identical for all components
         const auto& dgspace = child(lfsv,_0);
