@@ -138,9 +138,6 @@ namespace Dune {
       {
         // Get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,0>;
-        using DF = typename DGSpace::Traits::FiniteElementType::
-          Traits::LocalBasisType::Traits::DomainFieldType;
         using RF = typename NUMFLUX::RF;//range field
 
         // Get local function space that is identical for all components
@@ -153,12 +150,6 @@ namespace Dune {
 
         // Get geometries
         auto geo = ig.geometry();
-        auto geo_inside = cell_inside.geometry();
-        auto geo_outside = cell_outside.geometry();
-
-        // Get geometry of intersection in local coordinates of cell_inside and cell_outside
-        auto geo_in_inside = ig.geometryInInside();
-        auto geo_in_outside = ig.geometryInOutside();
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
@@ -226,10 +217,6 @@ namespace Dune {
 
         // Get geometries
         auto geo = ig.geometry();
-        auto geo_inside = cell_inside.geometry();
-
-        // Get geometry of intersection in local coordinates of cell_inside
-        auto geo_in_inside = ig.geometryInInside();
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
@@ -358,7 +345,6 @@ namespace Dune {
       {
         // get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,0>;
         using RF = typename NUMFLUX::RF; // type for computations
 
         // get local function space that is identical for all components
