@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 {
     try
     {
-        const auto& helper = Dune::MPIHelper::instance(argc, argv);
+        Dune::MPIHelper::instance(argc, argv);
 
         // typedef for grid of preferred type
         static const int dim = 2;
@@ -46,7 +46,6 @@ int main(int argc, char** argv)
         for (const auto& e : elements(gridview))
         {
             auto geo = e.geometry();
-            auto gt = geo.type();
 
             auto rule = Dune :: PDELab :: quadratureRule (geo, 3);
             for ( const auto & qp : rule )

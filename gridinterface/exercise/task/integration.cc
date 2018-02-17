@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 {
     try
     {
-        const auto& helper = Dune::MPIHelper::instance(argc, argv);
+        Dune::MPIHelper::instance(argc, argv);
 
         // typedef for grid of preferred type
         static const int dim = 2;
