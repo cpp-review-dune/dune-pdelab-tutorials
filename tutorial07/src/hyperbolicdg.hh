@@ -150,6 +150,8 @@ namespace Dune {
 
         // Get geometries
         auto geo = ig.geometry();
+        auto geo_in_inside = ig.geometryInInside();
+        auto geo_in_outside = ig.geometryInOutside();
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
@@ -217,6 +219,7 @@ namespace Dune {
 
         // Get geometries
         auto geo = ig.geometry();
+        auto geo_in_inside = ig.geometryInInside();
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
