@@ -51,8 +51,6 @@ public:
              const Dune::FieldVector<RF,m>& u,
              Dune::FieldMatrix<RF,m,dim>& F) const
   {
-    int g = 1;
-
     F[0][0] = u[1];
     F[1][0] = u[1]*u[1]/u[0] + 0.5*u[0]*u[0];
   }
@@ -106,8 +104,6 @@ public:
   template<typename E, typename X, typename RF>
   void flux (const E& e, const X& x, const Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F) const
   {
-    int g = 1;
-
     F[0][0] = u[1]                          ; F[0][1] = u[2];
     F[1][0] = u[1]*u[1]/u[0] + 0.5*u[0]*u[0]; F[1][1] = u[1]*u[2]/u[0];
     F[2][0] = u[1]*u[2]/u[0]                ; F[2][1] = u[2]*u[2]/u[0] + 0.5*u[0]*u[0];
