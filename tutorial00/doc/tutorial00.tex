@@ -181,7 +181,7 @@ The association of the local numbering of vertices within each element
 and the global numbering of vertices in the vertex set is facilitated
 via the {\em local to global map} defined by:
 \begin{equation}
-\forall T\in\mathcal{T}_h, 0\leq l \leq d: g_T(l) = j \Leftrightarrow x_{T,l} = x_{j} .
+\forall T\in\mathcal{T}_h, 0\leq m \leq d: g_T(m) = j \Leftrightarrow x_{T,m} = x_{j} .
 \end{equation}
 The map $g_T : \{0,\ldots,d\}\to\mathbb{N}$ 
 plays also a very important role in the implementation of the finite element method.
@@ -200,6 +200,7 @@ In order to illustrate the notation introduced,
 Figure \ref{fig:femesh} shows an example of a conforming finite element
 mesh in two space dimensions with its numbering of vertices and elements,
 as well as the local to global map.
+In order to improve clarity we use $i,j$ only as global indices, and $m$ as local.
 
 Finally, by
 \begin{equation}
@@ -257,12 +258,12 @@ reference elements and an element transformation map. To that end, the
 reference $d$-simplex is defined by
 \begin{equation*}
 \hat T^d = 
-\left\{ x\in\mathbb{R}^d \,:\, 0\leq \sum_{i=0}^d (x)_i \leq 1 \wedge \forall i: (x)_i\geq 0 \right \}.
+\left\{ x\in\mathbb{R}^d \,:\, 0\leq \sum_{l=1}^d (x)_l \leq 1 \wedge \forall l: (x)_l\geq 0 \right \}.
 \end{equation*}
 The vertices of the reference $d$ simplex are given by
 \begin{equation*}
 \hat x_0^d = (0,\ldots,0)^T, 
-\quad \forall i,j \in \{ 1,\ldots,d\} : (\hat x_i^d)_j = \delta_{i,j}.
+\quad \forall l,m \in \{ 1,\ldots,d\} : (\hat x_m^d)_l = \delta_{m,l}.
 \end{equation*}
 Figure \ref{fig:refelems} shows the reference elements of dimension 1, 2 and 3
 with their numbering of the vertices.
@@ -317,7 +318,7 @@ has the form
 \end{equation*}
 for given $d\times d$ matrices $B_T$ and $d$-vectors $a_T$.
 Consistency of the local vertex numbering is ensured by the condition
-$$\forall i\in\{0,\ldots,d\} : \mu_T(\hat x_i) = x_{T,i}.$$
+$$\forall m\in\{0,\ldots,d\} : \mu_T(\hat x_m) = x_{T,m}.$$
 
 \subsection{Piecewise Linear Finite Element Functions}
 
@@ -504,11 +505,11 @@ where $\hat S_d$ is the center of mass of the reference simplex $\hat T^d$
 and $w_d$ is the volume of $\hat T^d$. This quadrature formula is exact for linear
 functions.
 \item Shape functions. On the reference simplex the linear Lagrange
-basis functions are $\hat\phi_i(\hat x) = (\hat x)_i$ for $i>0$ and 
-$\hat\phi_0(\hat x) = 1-\sum_{i=1}^d (\hat x)_i$. The basis functions
+basis functions are $\hat\phi_m(\hat x) = (\hat x)_m$ for $m>0$ and 
+$\hat\phi_0(\hat x) = 1-\sum_{m=1}^d (\hat x)_m$. The basis functions
 on a general element $T$ can then be defined via transformation
 \begin{equation*}
-\phi_{T,i}(\mu_T(\hat x)) = \hat\phi_i(\hat x) .
+\phi_{T,m}(\mu_T(\hat x)) = \hat\phi_m(\hat x) .
 \end{equation*}
 This construction principle can be extend to any function defined on the
 reference element. Given $\hat w(\hat x)$ then 
@@ -562,7 +563,7 @@ These computations at element $T$ are:
 Then define the restriction matrix 
 $R_T : \mathbb{R}^N \to \mathbb{R}^{d+1}$ as
 \begin{equation}
-(R_T x)_m = (x)_i \quad \forall \,0\leq m \leq d, \,g_T(m)=i,
+(R_T z)_m = (z)_i \quad \forall \,0\leq m \leq d, \,g_T(m)=i,
 \end{equation}
 extracting all components involved with element $T$. Then
 the assembly of the right hand side can be written in compact form as
@@ -577,7 +578,7 @@ The assembly of the matrix $A$ defined in \eqref{eq:systemdetail} can be carried
 out in a similar way. We assemble first the entries as $(A)_{i,j}=a(\phi_j,\phi_i)$
 for all $i,j\in\mathcal{I}_h$ and then modify the matrix to respect the Dirichlet
 boundary conditions. In the computation of $(A)_{i,j}$ only the triples
-$$C(i,j) = \{(T,m,n)\in\mathcal{T}_h\times\{0,\ldots,d\} \,:\, g_T(m)=i \wedge g_T(n)=j\}$$
+$$C(i,j) = \{(T,m,n)\in\mathcal{T}_h\times\{0,\ldots,d\}\times\{0,\ldots,d\} \,:\, g_T(m)=i \wedge g_T(n)=j\}$$
 are involved due to the locality of the Lagrange basis functions:
 \begin{align*}
 (A)_{i,j} &= a(\phi_j,\phi_i) = \int_\Omega \nabla \phi_j \cdot \nabla \phi_i \,dx 
@@ -599,7 +600,7 @@ necessary at a single element are collected. To that end,
 the gradients of the basis functions on the reference element (which are {\em independent}
 of position) are collected in the $d\times d+1$ matrix
 \begin{equation*}
-\hat G = \left[\hat\nabla\hat\phi_0(\hat S_d)),\ldots,\hat\nabla\hat\phi_d(\hat S_d))\right] .
+\hat G = \left[\hat\nabla\hat\phi_0(\hat S_d),\ldots,\hat\nabla\hat\phi_d(\hat S_d)\right] .
 \end{equation*}
 The matrix $\hat G$ need only be computed once as it does not depend on the
 particular element.
