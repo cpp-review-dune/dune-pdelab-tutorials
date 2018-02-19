@@ -58,6 +58,7 @@ public:
   }
 
   //! gravity
+  template<typename E, typename X>
   RangeField gravity (const E& e, const X& x) const
   {
     return _gravity;
