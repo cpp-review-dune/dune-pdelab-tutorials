@@ -19,7 +19,7 @@ void driver (const GV& gv, Dune::ParameterTree& ptree)
 
   // Make grid function space
   typedef Dune::PDELab::P0LocalFiniteElementMap<DF,RF,dim> FEM;
-  FEM fem(Dune::GeometryType(Dune::GeometryType::cube,dim));
+  FEM fem(Dune::GeometryTypes::cube(dim));
   typedef Dune::PDELab::NoConstraints CON;
   typedef Dune::PDELab::ISTL::VectorBackend<> VBE;
   typedef Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE> GFS;

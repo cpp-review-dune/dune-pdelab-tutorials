@@ -73,21 +73,13 @@ namespace Dune {
       {
         // Get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,0>;
         using RF = typename NUMFLUX::RF; // type for computations
 
         // get local function space that is identical for all components
         const auto& dgspace = child(lfsv,_0);
 
-        // Reference to cell
-        const auto& cell = eg.entity();
-
         // Get geometry
         auto geo = eg.geometry();
-
-        // evaluate speed of sound (assumed constant per element)
-        auto ref_el = referenceElement(geo);
-        auto localcenter = ref_el.position(0,0);
 
         // Transformation
         typename EG::Geometry::JacobianInverseTransposed jac;
@@ -133,18 +125,6 @@ namespace Dune {
                     r.accumulate(lfsv.child(i),k, - F[i][j]*gradphi[k][j]*factor );
               }
 
-            /*
-            //RHS - term that is outside divergence no integration by parts needed
-            // what follow is maxwell specific in tutorial sigma = 0
-            for (size_type i=0; i<dim; i++)
-              // for all test functions of this component
-              for (size_type k=0; k<dgspace.size(); k++)
-                r.accumulate(lfsv.child(i), k, (sigma/eps)*u[i]*phi[k]*factor);
-            */
-
-            // std::cout << "  residual: ";
-            // for (size_t i=0; i<r.size(); i++) std::cout << r[i] << " ";
-            // std::cout << std::endl;
           }
       }
 
@@ -158,17 +138,11 @@ namespace Dune {
       {
         // Get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,0>;
-        using DF = typename DGSpace::Traits::FiniteElementType::
-          Traits::LocalBasisType::Traits::DomainFieldType;
         using RF = typename NUMFLUX::RF;//range field
 
         // Get local function space that is identical for all components
         const auto& dgspace_s = child(lfsv_s,_0);
         const auto& dgspace_n = child(lfsv_n,_0);
-
-        // Normal: assume faces are planar
-        const Dune::FieldVector<DF,dim> n_F = ig.centerUnitOuterNormal();
 
         // References to inside and outside cells
         const auto& cell_inside = ig.inside();
@@ -176,18 +150,8 @@ namespace Dune {
 
         // Get geometries
         auto geo = ig.geometry();
-        auto geo_inside = cell_inside.geometry();
-        auto geo_outside = cell_outside.geometry();
-
-        // Get geometry of intersection in local coordinates of cell_inside and cell_outside
         auto geo_in_inside = ig.geometryInInside();
         auto geo_in_outside = ig.geometryInOutside();
-
-        // Evaluate speed of sound (assumed constant per element)
-        auto ref_el_inside = referenceElement(geo_inside);
-        auto ref_el_outside = referenceElement(geo_outside);
-        auto local_inside = ref_el_inside.position(0,0);
-        auto local_outside = ref_el_outside.position(0,0);
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
@@ -232,13 +196,6 @@ namespace Dune {
                 r_n.accumulate(lfsv_n.child(i),k, - f[i]*phi_n[k]*factor);
           }
 
-        // std::cout << "  residual_s: ";
-        // for (size_t i=0; i<r_s.size(); i++) std::cout << r_s[i] << " ";
-        // std::cout << std::endl;
-        // std::cout << "  residual_n: ";
-        // for (size_t i=0; i<r_n.size(); i++) std::cout << r_n[i] << " ";
-        // std::cout << std::endl;
-
       }
 
       // Skeleton integral depending on test and ansatz functions
@@ -249,30 +206,17 @@ namespace Dune {
       {
         // Get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,0>;
-        using DF = typename DGSpace::Traits::FiniteElementType::
-          Traits::LocalBasisType::Traits::DomainFieldType;
         using RF = typename NUMFLUX::RF; // type for computations
 
         // Get local function space that is identical for all components
         const auto& dgspace_s = child(lfsv_s,_0);
-
-        // Normal: assume faces are planar
-        const Dune::FieldVector<DF,dim> n_F = ig.centerUnitOuterNormal();
 
         // Reference to inside cell
         const auto& cell_inside = ig.inside();
 
         // Get geometries
         auto geo = ig.geometry();
-        auto geo_inside = cell_inside.geometry();
-
-        // Get geometry of intersection in local coordinates of cell_inside
         auto geo_in_inside = ig.geometryInInside();
-
-        // get reference element
-        auto ref_el_inside = referenceElement(geo_inside);
-        auto local_inside = ref_el_inside.position(0,0);
 
         // Initialize vectors outside for loop
         Dune::FieldVector<RF,m> u_s(0.0);
@@ -401,7 +345,6 @@ namespace Dune {
       {
         // get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,0>;
         using RF = typename NUMFLUX::RF; // type for computations
 
         // get local function space that is identical for all components
@@ -442,7 +385,6 @@ namespace Dune {
       {
         // get types
         using namespace Indices;
-        using DGSpace = TypeTree::Child<LFSV,0>;
 
         // get local function space that is identical for all components
         const auto& dgspace = child(lfsv,_0);

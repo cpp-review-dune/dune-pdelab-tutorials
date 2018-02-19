@@ -14,7 +14,7 @@ public:
   using Range = Dune::FieldVector<NUMBER,m>;
 
   Problem ()
-    : time(0.0),  pi(3.141592653589793238462643)
+    : time(0.0)
   {
   }
 
@@ -76,12 +76,12 @@ public:
   template<typename E, typename X>
   Range u0 (const E& e, const X& p) const
   {
-    X xglobal = e.geometry().global(p);
+    auto xglobal = e.geometry().global(p);
 
 
     Range u(0.0);
 
-    auto x=xglobal[0], y=xglobal[1], z=xglobal[2];
+    auto x=xglobal[0];
     
     auto alpha = 1.0;
 
@@ -108,7 +108,6 @@ public:
 private:
 
   NUMBER time;
-  NUMBER pi;
 
 };
 #endif //MAXWELL_RIEMANNPROBLEM

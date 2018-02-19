@@ -95,7 +95,7 @@ void driver (Grid& grid, Dune::ParameterTree& ptree)
 
     // set up error estimator
     typedef Dune::PDELab::P0LocalFiniteElementMap<DF,RF,dim> P0FEM;
-    P0FEM p0fem(Dune::GeometryType(Dune::GeometryType::simplex,dim));
+    P0FEM p0fem(Dune::GeometryTypes::simplex(dim));
     typedef Dune::PDELab::NoConstraints NCON;
     typedef Dune::PDELab::GridFunctionSpace<GV,P0FEM,NCON,VBE> P0GFS;
     P0GFS p0gfs(gv,p0fem);

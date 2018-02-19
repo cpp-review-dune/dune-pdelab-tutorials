@@ -89,7 +89,7 @@ int main(int argc, char** argv)
       using DF = Dune::OneDGrid::ctype;
       auto a = ptree.get<DF>("grid.oned.a");
       auto b = ptree.get<DF>("grid.oned.b");
-      auto N = ptree.get<int>("grid.oned.elements");
+      auto N = ptree.get<unsigned int>("grid.oned.elements");
 
       // create equidistant intervals
       using Intervals = std::vector<DF>;

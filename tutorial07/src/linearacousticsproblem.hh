@@ -14,7 +14,7 @@ public:
   using Range = Dune::FieldVector<NUMBER,m>;
 
   Problem ()
-    : time(0.0),  pi(3.141592653589793238462643)
+    : time(0.0)
   {
   }
 
@@ -95,7 +95,6 @@ public:
 private:
 
   NUMBER time;
-  NUMBER pi;
 
 };
 #endif //ACOUSTICS_RIEMANNPROBLEM

@@ -82,7 +82,6 @@ int main(int argc, char** argv)
     ptreeparser.readOptions(argc,argv,ptree);
 
     // read ini file
-    const int dim = ptree.get<int>("grid.dim");
     const int refinement = ptree.get<int>("grid.refinement");
     const int degree = ptree.get<int>("fem.degree");
 

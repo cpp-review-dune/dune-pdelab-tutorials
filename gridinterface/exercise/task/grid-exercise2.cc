@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     try
     {
         // for parallel grids, MPI needs to be correctly initialized!
-        const auto& helper = Dune::MPIHelper::instance(argc, argv);
+        Dune::MPIHelper::instance(argc, argv);
 
         // define a static variable for the grid dimension
         static const  int dim = 2;
