@@ -34,7 +34,7 @@ public:
                        const Dune::FieldVector<RF,dim>& n_F,
                        RF& alpha) const
   {
-    int g = 1;
+    auto g = problem.gravity(inside,x_inside);
 
     RF alpha_s(0.0);
     RF alpha_n(0.0);
@@ -51,8 +51,9 @@ public:
              const Dune::FieldVector<RF,m>& u,
              Dune::FieldMatrix<RF,m,dim>& F) const
   {
+    auto g = problem.gravity(e,x);
     F[0][0] = u[1];
-    F[1][0] = u[1]*u[1]/u[0] + 0.5*u[0]*u[0];
+    F[1][0] = u[1]*u[1]/u[0] + 0.5*g*u[0]*u[0];
   }
 
   const PROBLEM& problem;
@@ -82,19 +83,19 @@ public:
                        const Dune::FieldVector<RF,dim>& n_F,
                        RF& alpha) const
   {
-    int g = 1;
+    auto g = problem.gravity(inside,x_inside);
 
     RF alpha_s(0.0);
     RF alpha_n(0.0);
 
     for(size_t k=0;k<dim;++k)
     {
-      alpha_s +=  n_F[k]*u_s[k+1]/u_s[0];
-      alpha_n += -n_F[k]*u_n[k+1]/u_n[0];
+      alpha_s +=  n_F[k]*u_s[k+1];
+      alpha_n += -n_F[k]*u_n[k+1];
     }
 
-    alpha_s = std::abs(alpha_s) + sqrt(g*u_s[0]);
-    alpha_n = std::abs(alpha_n) + sqrt(g*u_n[0]);
+    alpha_s = std::abs(alpha_s) / u_s[0] + sqrt(g*u_s[0]);
+    alpha_n = std::abs(alpha_n) / u_n[0] + sqrt(g*u_n[0]);
 
     alpha = std::max(alpha_s, alpha_n);
   }
@@ -104,9 +105,10 @@ public:
   template<typename E, typename X, typename RF>
   void flux (const E& e, const X& x, const Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F) const
   {
-    F[0][0] = u[1]                          ; F[0][1] = u[2];
-    F[1][0] = u[1]*u[1]/u[0] + 0.5*u[0]*u[0]; F[1][1] = u[1]*u[2]/u[0];
-    F[2][0] = u[1]*u[2]/u[0]                ; F[2][1] = u[2]*u[2]/u[0] + 0.5*u[0]*u[0];
+    auto g = problem.gravity(e,x);
+    F[0][0] = u[1]                            ; F[0][1] = u[2];
+    F[1][0] = u[1]*u[1]/u[0] + 0.5*g*u[0]*u[0]; F[1][1] = u[1]*u[2]/u[0];
+    F[2][0] = u[1]*u[2]/u[0]                  ; F[2][1] = u[2]*u[2]/u[0] + 0.5*g*u[0]*u[0];
   }
 
   const PROBLEM& problem;

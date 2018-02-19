@@ -13,8 +13,9 @@ public:
 
   using Range = Dune::FieldVector<NUMBER,m>;
 
-  Problem ()
-    : time(0.0)
+  Problem (RangeField gravity = 1.0)
+    : _time(0.0)
+    , _gravity(gravity)
   {
   }
 
@@ -56,15 +57,22 @@ public:
     return u;
   }
 
+  //! gravity
+  RangeField gravity (const E& e, const X& x) const
+  {
+    return _gravity;
+  }
+
   //! set time for subsequent evaluation
   void setTime (NUMBER t)
   {
-    time = t;
+    _time = t;
   }
 
 private:
 
-  NUMBER time;
+  NUMBER _time;
+  RangeField _gravity;
 
 };
 #endif //SHALLOWWATER_RIEMANNPROBLEM
