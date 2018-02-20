@@ -100,7 +100,7 @@ void driver (const GV& gv, Dune::ParameterTree& ptree)
   LS ls(100,2);
   //== Exercise 1.4
   // typedef Dune::PDELab::ISTLBackend_SEQ_BCGS_SSOR LS;
-  // LS ls (5000,true);
+  // LS ls (5000,2);
 
   // Assemble and solve linear problem
   typedef Dune::PDELab::

@@ -117,7 +117,11 @@ int main(int argc, char** argv)
         FEM fem(gv);
         driver(gv,fem,ptree);
       }
-      //add degree 3 for higher order exercise
+      // if (degree==3) {
+      //   using FEM = Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,3>;
+      //   FEM fem(gv);
+      //   driver(gv,fem,ptree);
+      // }
     }
 #endif
 
@@ -154,7 +158,11 @@ int main(int argc, char** argv)
         FEM fem(gv);
         driver(gv,fem,ptree);
       }
-      //add degree 3 for higher order exercise
+      // if (degree==3) {
+      //   using FEM = Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,3>;
+      //   FEM fem(gv);
+      //   driver(gv,fem,ptree);
+      // }
     }
 #endif
 
@@ -192,6 +200,11 @@ int main(int argc, char** argv)
         FEM fem(gv);
         driver(gv,fem,ptree);
       }
+      // if (degree==3) {
+      //   using FEM = Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,3>;
+      //   FEM fem(gv);
+      //   driver(gv,fem,ptree);
+      // }
     }
 #endif
   }
