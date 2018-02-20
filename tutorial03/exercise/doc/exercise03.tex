@@ -60,7 +60,7 @@
     g(x,t) &= \sin(2\pi t) \prod_{i=1}^{d-1} \sin(\pi x_i)^2
     \sin(10\pi x_i)^2\\
     j(x,t) &= 0 \\
-    u_0(x) &= 0 \\
+    u_0(x) &= g(x,0) = 0 \\
     \label{ch1:last}
     t_0&=0 .
   \end{align}
@@ -183,12 +183,12 @@
   \begin{align}
     \label{ch2:first}
     \Gamma_D&=\emptyset \\
-    g(x, t) &= \prod_{i=0}^{d-1}\min\{1,\max\{0,\tilde{f}(x_i)\}\} \\
+    u_0(x) &= g(x, 0) = \prod_{i=0}^{d-1}\min\{1,\max\{0,\tilde{f}(x_i)\}\} \\
         & \qquad\qquad \tilde{f}(\xi):=0.5-8(|\xi-0.5|-0.25) \nonumber \\
     \label{ch2:last}
     j(x,t)&=0 .
   \end{align}
-  The initial condition given by $g$ models a block of constant 1
+  The initial condition given by $u_0$ models a block of constant 1
   concentration in the middle, constant 0 concentration at the border
   and some linear decrease in between.
 
@@ -202,7 +202,7 @@
   time step to the next.
 
   Please implement the initial and boundary conditions
-  (\ref{ch2:first})--(\ref{ch2:last}). When implementing $g_\text{ext}$
+  (\ref{ch2:first})--(\ref{ch2:last}). When implementing $u_0$
   you may be tempted to use the function \lstinline!abs()!. This is
   wrong, \lstinline!abs()! is a function from the C-library to compute
   absolute values for \emph{integers}. If a floating point value is
@@ -249,6 +249,7 @@
     \label{ch3:first}
     \Gamma_D &= \{ x\in\partial\Omega \mid x_0 = 0 \} \\
     g(x,t) &= t/10 \\
+    u_0(x) &= g(x,0) \\
     \label{ch3:last}
     j(x,t) &= -(0.5 + \cos(t)/2) .
   \end{align}

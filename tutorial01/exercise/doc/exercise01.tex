@@ -109,24 +109,23 @@ subsampling=1
     \lstinline{problem.hh} to $f(x)=-2d+\eta(\sum_{i=1}^d(x)_i^2)^2$
     where $d$ is the dimension (and therefore size of $x$).  Then
     $u(x)=\sum_{i=1}^d(x)_i^2=g(x)$ is the exact solution.  Visualize the
-    exact solution like it is done it tutorial 00. We start with the
-    ini file
+    exact solution like it is done in tutorial00. We start with the
+    ini file:
     \begin{lstlisting}
 [grid]
-dim=2        # set to 1 | 2 | 3
-manager=yasp # set to ug | alu | yasp
+manager=yasp # set to ug | yasp
 refinement=1 # be careful
 
 ...
 
 [fem]
-degree=1 # oned: 1..4, ug|alu: 1..3, yasp: 1..2
+degree=1 # set to 1 | 2
 
 [problem]
 eta=100.0
 
 [output]
-filename=yasp_ref_0
+filename=yasp_ref1
 subsampling=1
     \end{lstlisting}
     Use paraview to see how the maximal error $\max|u-u_h|$ behaves

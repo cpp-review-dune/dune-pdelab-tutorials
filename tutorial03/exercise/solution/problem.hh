@@ -45,9 +45,12 @@ public:
   {
     auto global = e.geometry().global(x);
     Number s=1.0;
+    using std::abs;
+    using std::min;
+    using std::max;
     for (std::size_t i=0; i<global.size(); i++) {
-      Number f = 0.5-8*(std::abs(global[i]-0.5) - 0.25);
-      s *= std::min(1.0,std::max(0.0,f));
+      Number f = 0.5-8*(abs(global[i]-0.5) - 0.25);
+      s *= min(1.0,max(0.0,f));
     }
     return s;
   }

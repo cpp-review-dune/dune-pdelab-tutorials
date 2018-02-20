@@ -9,7 +9,7 @@ void driver (const GV& gv, const FEM& fem,
 {
   // dimension and important types
   const int dim = GV::dimension;
-  using RF = double;                   // type for computations
+  using RF = double;
 
   // Make grid function space used per component
   using CON = Dune::PDELab::ConformingDirichletConstraints;
