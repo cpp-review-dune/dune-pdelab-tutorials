@@ -70,7 +70,7 @@ void communicate(const GV& gv, Dune::ParameterTree& ptree){
   const IndexSet& indexSet = gv.indexSet();
 
   // Get the amount of codim 1 entities on this rank and create a data
-  // vector of this size. In the 2D case codim 0 entities are the
+  // vector of this size. In the 2D case codim 1 entities are the
   // edges.
   int cdim=ptree.get("communication.cdim",(int)1);
   const int dataSize = indexSet.size(cdim);
