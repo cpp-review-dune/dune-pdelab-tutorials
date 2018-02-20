@@ -9,7 +9,7 @@ void driver (const GV& gv, const FEM& fem,
 {
   // dimension and important types
   const int dim = GV::dimension;
-  using RF = double;                   // type for computations
+  using RF = double;
 
   // Make grid function space used per component
   using CON = Dune::PDELab::ConformingDirichletConstraints;
@@ -22,6 +22,7 @@ void driver (const GV& gv, const FEM& fem,
     Dune::PDELab::ISTL::VectorBackend<
       Dune::PDELab::ISTL::Blocking::fixed
     >;
+  // using VBE = Dune::PDELab::ISTL::VectorBackend<Dune::PDELab::ISTL::Blocking::none>;
   using OrderingTag = Dune::PDELab::EntityBlockedOrderingTag;
   using GFS =
     Dune::PDELab::PowerGridFunctionSpace<GFS0,2,VBE,OrderingTag>;
@@ -88,11 +89,11 @@ void driver (const GV& gv, const FEM& fem,
 
   // Make instationary grid operator
   double speedofsound=ptree.get("problem.speedofsound",(double)1.0);
-  using LOP = WaveFEM<FEM>;
-  // using LOP = WaveFEMElip<FEM>;
+  // using LOP = WaveFEM<FEM>;
+  using LOP = WaveFEMElip<FEM>;
   LOP lop(speedofsound);
-  using TLOP = WaveL2<FEM>;
-  // using TLOP = WaveElip<FEM>;
+  // using TLOP = WaveL2<FEM>;
+  using TLOP = WaveElip<FEM>;
   TLOP tlop;
   using MBE = Dune::PDELab::ISTL::BCRSMatrixBackend<>;
   int degree = ptree.get("fem.degree",(int)1);
@@ -112,7 +113,7 @@ void driver (const GV& gv, const FEM& fem,
 
   // select and prepare time-stepping scheme
   int torder = ptree.get("fem.torder",(int)1);
-  Dune::PDELab::OneStepThetaParameter<RF> method1(1.0);
+  Dune::PDELab::OneStepThetaParameter<RF> method1(0.5);
   Dune::PDELab::Alexander2Parameter<RF> method2;
   Dune::PDELab::Alexander3Parameter<RF> method3;
   Dune::PDELab::TimeSteppingParameterInterface<RF>* pmethod=&method1;
