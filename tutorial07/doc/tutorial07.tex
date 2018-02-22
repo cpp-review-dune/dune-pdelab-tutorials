@@ -196,15 +196,19 @@ At subdomain boundaries where $c$ is discontinuous $c^2\tilde\rho$
 Let us rewrite \eqref{eq:LinearAcousticsConservative} at conservative hyperbolic system. Note that number of components $m=\Dim+1$
 $$\partial_t u(x,t) + \nabla\cdot F(u(x,t),x,t) = 0,$$
 where 
-$$u = (\varrho,q_1,\dots,\Dim) $$
-and 
-$$F(u(x,t),x,t) = \left( \begin{smallmatrix}
-q_1  & q_2 & \dots & q_\Dim\\
+$$u = \begin{pmatrix}
+\varrho\\
+q_1\\
+\vdots\\
+q_\Dim
+\end{pmatrix} ,\quad
+F(u(x,t),x,t) = \left( \begin{matrix}
+q_1  & q_2 & \dots & q_{\Dim}\\
 c^2\rho & 0 & \dots & 0\\
 0 & c^2\rho & \dots & 0\\
 \vdots & \vdots & \ddots & \vdots\\
 0 & 0 & \dots & c^2\rho 
-\end{smallmatrix} \right)\in \mathbb{R}^{m\times \Dim} $$
+\end{matrix} \right)\in \mathbb{R}^{m\times \Dim} .$$
 
 Linear Acoustics problem has the two nonzero eigenvalues $\pm c$.
 
@@ -228,8 +232,6 @@ u_1u_2h & u_2^2h + \frac{1}{2}gh^2
 Where $h>0$ stands for water height, and $u=(u_1,u_2)$ is the velocity.
 
 In conservative variables $q = (h, u_1h,u_2h)$ system \eqref{eq:swe2D} reads
-To show the hyperbolicity, we need the non-conservative form of \eqref{eq:swe2D:repeat}.
-Therefore we rewrite the equation and introduce conservative variables as in the previous Chapter to obtain
 \begin{align} 
 &\partial_t\begin{pmatrix}
 q_1\\
@@ -242,9 +244,15 @@ q_2^2/q_1 + \frac{1}{2}gq_1^2 & \frac{q_2q_3}{q_1}\\
 \frac{q_2q_3}{q_1} & q_3^2/q_1 + \frac{1}{2}gq_1^2
 \end{matrix} \right) = 0.
 \end{align}
-This modes have three distinct eigenvalues for $h\neq 0$ and therefore the two dimensional Shallow Water Equations are a strictly hyperbolic system for wet domains (i.e. $h>0 \forall (x,t) \in \Omega\times\Sigma$).
 
-In this tutorial we also consider 1d SWE. This is not physical explanation by one can see the 1d SWE as 2x2 block of 2d flux matrix.
+\paragraph{Remarks:}
+\begin{itemize}
+	\item This modes have three distinct eigenvalues for $h\neq 0$ and therefore the two dimensional Shallow Water Equations are a strictly hyperbolic system for wet domains (i.e. $h>0 \forall (x,t) \in \Omega\times\Sigma$).
+	\item In this tutorial we also consider 1d SWE. One dimensional flux of SWE is 2x1 block of 2d flux matrix, however this analogy is not physical.
+	\item SWE is a nonlinear system and in this tutorial works only with LLF flux.
+\end{itemize}
+
+
 
 \subsection{Maxwell's Equations}
 
@@ -295,88 +303,45 @@ Since $D$ and $B$ are conserved quantities we formulate equations \eqref{eq:Fara
 	\end{align}
 \end{subequations}
 Writing out the curl operator $\nabla\times$ and defining the six component
-vector $u=(D_1,D_2,D_3,B_1,B_2,B_3)^T$ we obtain the linear hyperbolic system
-\begin{equation}
-\partial_t u + \sum_{j=1}^3 B_j \partial_{x_j} u + C u = q
-\end{equation}
-with
-\begin{align*}
-B_1 &= \left( \begin{array}{ccc|ccc}
-0 & 0 & 0 & 0 & 0 & 0\\ 
-0 & 0 & 0 & 0 & 0 & \nicefrac{1}{\mu}\\ 
-0 & 0 & 0 & 0 & \nicefrac{-1}{\mu} & 0\\ 
-\hline
-0 & 0 & 0 & 0 & 0 & 0\\ 
-0 & 0 & \nicefrac{-1}{\epsilon} & 0 & 0 & 0\\ 
-0 & \nicefrac{1}{\epsilon} & 0 & 0 & 0 & 0
-\end{array}
-\right), &
-B_2 &= \left( \begin{array}{ccc|ccc}
-0 & 0 & 0 & 0 & 0 & \nicefrac{-1}{\mu}\\ 
-0 & 0 & 0 & 0 & 0 & 0\\ 
-0 & 0 & 0 & \nicefrac{1}{\mu} & 0 & 0\\ 
-\hline
-0 & 0 & \nicefrac{1}{\epsilon} & 0 & 0 & 0\\ 
-0 & 0 & 0 & 0 & 0 & 0\\ 
-\nicefrac{-1}{\epsilon} & 0 & 0 & 0 & 0 & 0
-\end{array}
-\right),\\
-B_3 &= \left( \begin{array}{ccc|ccc}
-0 & 0 & 0 & 0 & \nicefrac{1}{\mu} & 0\\ 
-0 & 0 & 0 & \nicefrac{-1}{\mu} & 0 & 0\\ 
-0 & 0 & 0 & 0 & 0 & 0\\ 
-\hline
-0 & \nicefrac{-1}{\epsilon} & 0 & 0 & 0 & 0\\ 
-\nicefrac{1}{\epsilon} & 0 & 0 & 0 & 0 & 0\\ 
-0 & 0 & 0 & 0 & 0 & 0
-\end{array}
-\right), &
-C &= \left( \begin{array}{ccc|ccc}
-\nicefrac{\sigma}{\epsilon} & 0 & 0 & 0 & 0 & 0\\ 
-0 & \nicefrac{\sigma}{\epsilon} & 0 & 0 & 0 & 0\\ 
-0 & 0 & \nicefrac{\sigma}{\epsilon} & 0 & 0 & 0\\ 
-\hline
-0 & 0 & 0 & 0 & 0 & 0\\ 
-0 & 0 & 0 & 0 & 0 & 0\\ 
-0 & 0 & 0 & 0 & 0 & 0
-\end{array}
-\right),
-\end{align*}
-and $q=(-j_1,-j_2,-j_3,0,0,0)^T$. Hyperbolicity is obtained from the 
-matrix
-\begin{equation}
-B_\text{Maxwell}(y) = \sum_{j=1}^{3} y_jB_j = \left( \begin{array}{ccc|ccc}
-0 & 0 & 0 & 0 & \nicefrac{y_3}{\mu} & \nicefrac{-y_2}{\mu}\\ 
-0 & 0 & 0 & \nicefrac{-y_3}{\mu} & 0 & \nicefrac{y_1}{\mu}\\ 
-0 & 0 & 0 & \nicefrac{y_2}{\mu} & \nicefrac{-y_1}{\mu} & 0\\ 
-\hline
-0 & \nicefrac{-y_3}{\epsilon} & \nicefrac{y_2}{\epsilon} & 0 & 0 & 0\\ 
-\nicefrac{y_3}{\epsilon} & 0 & \nicefrac{-y_1}{\epsilon} & 0 & 0 & 0\\ 
-\nicefrac{-y_2}{\epsilon} & \nicefrac{y_1}{\epsilon} & 0 & 0 & 0 & 0
-\end{array}
-\right) .
-\end{equation}
-Using the diagonal transformation matrix 
-$$T=\text{diag}(\sqrt{\nicefrac{1}{\epsilon}},\sqrt{\nicefrac{1}{\epsilon}},\sqrt{\nicefrac{1}{\epsilon}},
-\sqrt{\nicefrac{1}{\mu}},\sqrt{\nicefrac{1}{\mu}},\sqrt{\nicefrac{1}{\mu}})$$
-we obtain the similarity transformation
-\begin{equation}
-T B_\text{Maxwell}(y) T^{-1} =
-\frac{1}{\sqrt{\epsilon\mu}}\left( \begin{array}{ccc|ccc}
-0 & 0 & 0 & 0 & y_3 & -y_2\\ 
-0 & 0 & 0 & -y_3 & 0 & y_1\\ 
-0 & 0 & 0 & y_2 & -y_1 & 0\\ 
-\hline
-0 & -y_3 & y_2 & 0 & 0 & 0\\ 
-y_3 & 0 & -y_1 & 0 & 0 & 0\\ 
--y_2 & y_1 & 0 & 0 & 0 & 0
-\end{array}
-\right) .
-\end{equation}
-Thus $B_\text{Maxwell}(y)$ is similar to a real symmetric matrix from which the
-set of eigenvalues and eigenvectors can be determined.
+vector $u$, ($m=2d$), we obtain Maxwell system in conservative form
+
+$$\partial_t u(x,t) + \nabla\cdot F(u(x,t),x,t) + g(u)= j,$$
+where
+$$u = \begin{pmatrix}
+D_1\\
+D_2\\
+D_3\\
+B_1\\
+B_2\\
+B_3
+\end{pmatrix} ,\quad
+F= \left( \begin{matrix}
+0  & -\mu^{-1}B_3 & \mu^{-1}B_2\\
+\mu^{-1}B_3 & 0 & -\mu^{-1}B_1\\
+-\mu^{-1}B_2 & \mu^{-1}B_1 & 0\\
+0  & \epsilon^{-1}D_3 & -\epsilon^{-1}D_2\\
+-\epsilon^{-1}D_3 & 0 & \epsilon^{-1}D_1\\
+\epsilon^{-1}D_2 & -\epsilon^{-1}D_1 & 0\\
+\end{matrix} \right),
+g = \begin{pmatrix}
+\nicefrac{\sigma}{\epsilon}D_1\\
+\nicefrac{\sigma}{\epsilon}D_2\\
+\nicefrac{\sigma}{\epsilon}D_3\\
+0\\
+0\\
+0
+\end{pmatrix},
+j = \begin{pmatrix}
+-j_1\\
+-j_2\\
+-j_3\\
+0\\
+0\\
+0
+\end{pmatrix}.
+$$
 It turns out that the eigenvalues 
-of $B_\text{Maxwell}(y)$ are $0$, $c\|y\|$ and $c\|y\|$ each with
+of Maxwell system are $0$, $c\|y\|$ and $c\|y\|$ each with
 multiplicity $2$ and $c=\nicefrac{1}{\sqrt{\epsilon\mu}}$ the speed of light.
 
 
