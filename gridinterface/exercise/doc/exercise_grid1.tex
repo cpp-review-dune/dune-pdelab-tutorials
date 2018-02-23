@@ -60,8 +60,8 @@ visualization after a succesful run of the executable \lstinline!grid-exercise1!
 with:
 
 \begin{lstlisting}
-  [user@dune-vm task]$ ristretto printgrid_0.png
-\end{lstlisting}
+  [user@dune-vm task]$ lximage-qt printgrid_0.png
+\end{lstlisting}%$
 
 By default, a 4x4 grid is generated. You can change this to some
 other number, recompile and rerun the executable and have a look at
@@ -76,7 +76,8 @@ member functions you learned about in the lectures.
 \end{Exercise}
 
 \begin{Exercise}{Integrating a function}
- Write a code that integrates a function using a quadrature formula of given order.
+ Write a code that integrates a function using a quadrature formula of
+ given order using the code in the file \lstinline!integration.cc!.
  Dune provides you with quadrature formulas for many geometry types and integration orders
  with the following simple mechanism:
 

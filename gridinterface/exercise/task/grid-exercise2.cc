@@ -30,14 +30,17 @@ int main(int argc, char** argv)
         Dune::MPIHelper::instance(argc, argv);
 
         // define a static variable for the grid dimension
-        static const  int dim = 2;
+        static const int dim = 2;
 
         // This is a list of the grid types we want to explore in this exercise.
         // Exactly one of those lines should not be a comment.
+        //
+        // Note: You can build an OneDGrid by adjusting dim above and
+        // using the StructuredGridFactory.
         typedef Dune::YaspGrid<dim> GridType;
         //typedef Dune::YaspGrid<dim, Dune::EquidistantOffsetCoordinates<double, dim> > GridType;
         //typedef Dune::YaspGrid<dim, Dune::TensorProductCoordinates<double, dim> > GridType;
-        //typedef Dune::OneDGrid GridType
+        //typedef Dune::OneDGrid GridType;
         //typedef Dune::UGGrid<dim> GridType;
         //typedef Dune::ALUGrid<dim, dim, Dune::simplex,Dune::nonconforming> GridType;
 
