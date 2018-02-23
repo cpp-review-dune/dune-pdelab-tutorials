@@ -196,15 +196,19 @@ At subdomain boundaries where $c$ is discontinuous $c^2\tilde\rho$
 Let us rewrite \eqref{eq:LinearAcousticsConservative} at conservative hyperbolic system. Note that number of components $m=\Dim+1$
 $$\partial_t u(x,t) + \nabla\cdot F(u(x,t),x,t) = 0,$$
 where 
-$$u = (\varrho,q_1,\dots,\Dim) $$
-and 
-$$F(u(x,t),x,t) = \left( \begin{smallmatrix}
-q_1  & q_2 & \dots & q_\Dim\\
+$$u = \begin{pmatrix}
+\varrho\\
+q_1\\
+\vdots\\
+q_\Dim
+\end{pmatrix} ,\quad
+F(u(x,t),x,t) = \left( \begin{matrix}
+q_1  & q_2 & \dots & q_{\Dim}\\
 c^2\rho & 0 & \dots & 0\\
 0 & c^2\rho & \dots & 0\\
 \vdots & \vdots & \ddots & \vdots\\
 0 & 0 & \dots & c^2\rho 
-\end{smallmatrix} \right)\in \mathbb{R}^{m\times \Dim} $$
+\end{matrix} \right)\in \mathbb{R}^{m\times \Dim} .$$
 
 Linear Acoustics problem has the two nonzero eigenvalues $\pm c$.
 
@@ -228,8 +232,6 @@ u_1u_2h & u_2^2h + \frac{1}{2}gh^2
 Where $h>0$ stands for water height, and $u=(u_1,u_2)$ is the velocity.
 
 In conservative variables $q = (h, u_1h,u_2h)$ system \eqref{eq:swe2D} reads
-To show the hyperbolicity, we need the non-conservative form of \eqref{eq:swe2D:repeat}.
-Therefore we rewrite the equation and introduce conservative variables as in the previous Chapter to obtain
 \begin{align} 
 &\partial_t\begin{pmatrix}
 q_1\\
@@ -242,9 +244,15 @@ q_2^2/q_1 + \frac{1}{2}gq_1^2 & \frac{q_2q_3}{q_1}\\
 \frac{q_2q_3}{q_1} & q_3^2/q_1 + \frac{1}{2}gq_1^2
 \end{matrix} \right) = 0.
 \end{align}
-This modes have three distinct eigenvalues for $h\neq 0$ and therefore the two dimensional Shallow Water Equations are a strictly hyperbolic system for wet domains (i.e. $h>0 \forall (x,t) \in \Omega\times\Sigma$).
 
-In this tutorial we also consider 1d SWE. This is not physical explanation by one can see the 1d SWE as 2x2 block of 2d flux matrix.
+\paragraph{Remarks:}
+\begin{itemize}
+	\item This modes have three distinct eigenvalues for $h\neq 0$ and therefore the two dimensional Shallow Water Equations are a strictly hyperbolic system for wet domains (i.e. $h>0 \forall (x,t) \in \Omega\times\Sigma$).
+	\item In this tutorial we also consider 1d SWE. One dimensional flux of SWE is 2x1 block of 2d flux matrix, however this analogy is not physical.
+	\item SWE is a nonlinear system and in this tutorial works only with LLF flux.
+\end{itemize}
+
+
 
 \subsection{Maxwell's Equations}
 
@@ -295,88 +303,45 @@ Since $D$ and $B$ are conserved quantities we formulate equations \eqref{eq:Fara
 	\end{align}
 \end{subequations}
 Writing out the curl operator $\nabla\times$ and defining the six component
-vector $u=(D_1,D_2,D_3,B_1,B_2,B_3)^T$ we obtain the linear hyperbolic system
-\begin{equation}
-\partial_t u + \sum_{j=1}^3 B_j \partial_{x_j} u + C u = q
-\end{equation}
-with
-\begin{align*}
-B_1 &= \left( \begin{array}{ccc|ccc}
-0 & 0 & 0 & 0 & 0 & 0\\ 
-0 & 0 & 0 & 0 & 0 & \nicefrac{1}{\mu}\\ 
-0 & 0 & 0 & 0 & \nicefrac{-1}{\mu} & 0\\ 
-\hline
-0 & 0 & 0 & 0 & 0 & 0\\ 
-0 & 0 & \nicefrac{-1}{\epsilon} & 0 & 0 & 0\\ 
-0 & \nicefrac{1}{\epsilon} & 0 & 0 & 0 & 0
-\end{array}
-\right), &
-B_2 &= \left( \begin{array}{ccc|ccc}
-0 & 0 & 0 & 0 & 0 & \nicefrac{-1}{\mu}\\ 
-0 & 0 & 0 & 0 & 0 & 0\\ 
-0 & 0 & 0 & \nicefrac{1}{\mu} & 0 & 0\\ 
-\hline
-0 & 0 & \nicefrac{1}{\epsilon} & 0 & 0 & 0\\ 
-0 & 0 & 0 & 0 & 0 & 0\\ 
-\nicefrac{-1}{\epsilon} & 0 & 0 & 0 & 0 & 0
-\end{array}
-\right),\\
-B_3 &= \left( \begin{array}{ccc|ccc}
-0 & 0 & 0 & 0 & \nicefrac{1}{\mu} & 0\\ 
-0 & 0 & 0 & \nicefrac{-1}{\mu} & 0 & 0\\ 
-0 & 0 & 0 & 0 & 0 & 0\\ 
-\hline
-0 & \nicefrac{-1}{\epsilon} & 0 & 0 & 0 & 0\\ 
-\nicefrac{1}{\epsilon} & 0 & 0 & 0 & 0 & 0\\ 
-0 & 0 & 0 & 0 & 0 & 0
-\end{array}
-\right), &
-C &= \left( \begin{array}{ccc|ccc}
-\nicefrac{\sigma}{\epsilon} & 0 & 0 & 0 & 0 & 0\\ 
-0 & \nicefrac{\sigma}{\epsilon} & 0 & 0 & 0 & 0\\ 
-0 & 0 & \nicefrac{\sigma}{\epsilon} & 0 & 0 & 0\\ 
-\hline
-0 & 0 & 0 & 0 & 0 & 0\\ 
-0 & 0 & 0 & 0 & 0 & 0\\ 
-0 & 0 & 0 & 0 & 0 & 0
-\end{array}
-\right),
-\end{align*}
-and $q=(-j_1,-j_2,-j_3,0,0,0)^T$. Hyperbolicity is obtained from the 
-matrix
-\begin{equation}
-B_\text{Maxwell}(y) = \sum_{j=1}^{3} y_jB_j = \left( \begin{array}{ccc|ccc}
-0 & 0 & 0 & 0 & \nicefrac{y_3}{\mu} & \nicefrac{-y_2}{\mu}\\ 
-0 & 0 & 0 & \nicefrac{-y_3}{\mu} & 0 & \nicefrac{y_1}{\mu}\\ 
-0 & 0 & 0 & \nicefrac{y_2}{\mu} & \nicefrac{-y_1}{\mu} & 0\\ 
-\hline
-0 & \nicefrac{-y_3}{\epsilon} & \nicefrac{y_2}{\epsilon} & 0 & 0 & 0\\ 
-\nicefrac{y_3}{\epsilon} & 0 & \nicefrac{-y_1}{\epsilon} & 0 & 0 & 0\\ 
-\nicefrac{-y_2}{\epsilon} & \nicefrac{y_1}{\epsilon} & 0 & 0 & 0 & 0
-\end{array}
-\right) .
-\end{equation}
-Using the diagonal transformation matrix 
-$$T=\text{diag}(\sqrt{\nicefrac{1}{\epsilon}},\sqrt{\nicefrac{1}{\epsilon}},\sqrt{\nicefrac{1}{\epsilon}},
-\sqrt{\nicefrac{1}{\mu}},\sqrt{\nicefrac{1}{\mu}},\sqrt{\nicefrac{1}{\mu}})$$
-we obtain the similarity transformation
-\begin{equation}
-T B_\text{Maxwell}(y) T^{-1} =
-\frac{1}{\sqrt{\epsilon\mu}}\left( \begin{array}{ccc|ccc}
-0 & 0 & 0 & 0 & y_3 & -y_2\\ 
-0 & 0 & 0 & -y_3 & 0 & y_1\\ 
-0 & 0 & 0 & y_2 & -y_1 & 0\\ 
-\hline
-0 & -y_3 & y_2 & 0 & 0 & 0\\ 
-y_3 & 0 & -y_1 & 0 & 0 & 0\\ 
--y_2 & y_1 & 0 & 0 & 0 & 0
-\end{array}
-\right) .
-\end{equation}
-Thus $B_\text{Maxwell}(y)$ is similar to a real symmetric matrix from which the
-set of eigenvalues and eigenvectors can be determined.
+vector $u$, ($m=2d$), we obtain Maxwell system in conservative form
+
+$$\partial_t u(x,t) + \nabla\cdot F(u(x,t),x,t) + g(u)= j,$$
+where
+$$u = \begin{pmatrix}
+D_1\\
+D_2\\
+D_3\\
+B_1\\
+B_2\\
+B_3
+\end{pmatrix} ,\quad
+F= \left( \begin{matrix}
+0  & -\mu^{-1}B_3 & \mu^{-1}B_2\\
+\mu^{-1}B_3 & 0 & -\mu^{-1}B_1\\
+-\mu^{-1}B_2 & \mu^{-1}B_1 & 0\\
+0  & \epsilon^{-1}D_3 & -\epsilon^{-1}D_2\\
+-\epsilon^{-1}D_3 & 0 & \epsilon^{-1}D_1\\
+\epsilon^{-1}D_2 & -\epsilon^{-1}D_1 & 0\\
+\end{matrix} \right),
+g = \begin{pmatrix}
+\nicefrac{\sigma}{\epsilon}D_1\\
+\nicefrac{\sigma}{\epsilon}D_2\\
+\nicefrac{\sigma}{\epsilon}D_3\\
+0\\
+0\\
+0
+\end{pmatrix},
+j = \begin{pmatrix}
+-j_1\\
+-j_2\\
+-j_3\\
+0\\
+0\\
+0
+\end{pmatrix}.
+$$
 It turns out that the eigenvalues 
-of $B_\text{Maxwell}(y)$ are $0$, $c\|y\|$ and $c\|y\|$ each with
+of Maxwell system are $0$, $c\|y\|$ and $c\|y\|$ each with
 multiplicity $2$ and $c=\nicefrac{1}{\sqrt{\epsilon\mu}}$ the speed of light.
 
 
@@ -399,6 +364,46 @@ matrix valued flux function with columns $F_j(u,x,t)$.
 
 \subsection{Space Discretization with Discontinuous Galerkin}
 
+
+\subsubsection*{Finite element space}
+
+
+In order to achieve higher order we employ a finite element space with higher-order polynomials:
+\begin{equation}
+V_h^q = \left\{ v\in L^2(\Omega) \,:\, 
+v|_e = p\circ\mu_e^{-1}, p\in\mathbb{P}^{q,d}\right\}
+\end{equation}
+where the differentiable and invertible map $$\mu_e : \hat{E} \to e$$
+maps the reference element $\hat{E}$ to an element $e\in\mathcal{E}_h$ and the multivariate
+polynomials of degree $q$ in $d$ space dimensions are given by
+\begin{equation*}
+\mathbb{P}^{q,d} = \left\{\begin{array}{ll}
+\left\{ p\,:\, p(x_1,\ldots,x_d) = \sum\limits_{0\leq\|\alpha\|_1\leq q} c_\alpha
+x_1^{\alpha_1}\cdot\ldots\cdot x_d^{\alpha_d}\right\} & \text{($\hat{E}$ simplex)}, \\
+\left\{ p\,:\, p(x_1,\ldots,x_d) = \sum\limits_{0\leq\|\alpha\|_\infty\leq q} c_\alpha
+x_1^{\alpha_1}\cdot\ldots\cdot x_d^{\alpha_d}\right\} & \text{($\hat{E}$ cube)},
+\end{array}\right .
+\end{equation*}
+depending on the type of element.
+
+
+
+
+A function $v\in V_h^q$ is two-valued on an interior face $f\in\mathcal{F}_h^i$ and
+for $x\in f$ we denote by $v^-(x)$ the restriction from $e^-(f)$ and by 
+$v^+(x)$ the restriction from $e^+(f)$.
+For any point $x\in f \in \mathcal{F}_h^i$ we define the jump
+\begin{equation}
+\llbracket v \rrbracket (x) = v^-(x)-v^+(x)
+\end{equation}
+and the average
+\begin{equation}
+\{ v \} (x) = \frac12 v^-(x) - \frac12 v^+(x) .
+\end{equation}
+
+
+\subsubsection*{Discretization}
+
 For any test function $v$ being piecewise smooth
 on the mesh $\mathcal{E}_h$ there holds
 \begin{equation}\label{eq:DG_identity}
@@ -417,7 +422,7 @@ on the mesh $\mathcal{E}_h$ there holds
 \end{split}
 \end{equation}
 
-\section{Numerical Fluxes}
+\subsection{Numerical Fluxes}
 
 
 Next step is to construct a numerical flux function. Since the space of discrete solutions $u_h\in V_h$, is not single-valued on the interface the normal flux $ F(\mathbf{u}, \mathbf{x}, t)\cdot~\mathbf{n} $ is not well-defined.
@@ -447,7 +452,7 @@ which provides a single-valued approximation of $F \cdot \mathbf{n}_S$ if we set
 
 In order to obtain physically correct approximations of the solution a numerical flux has to comply with the following properties:
 
-\subsubsection{Consistency of numerical fluxes}
+\subsubsection*{Consistency of numerical fluxes}
 \begin{Def}\label{def:flux:consistency}
 	A numerical flux $\Phi$ is called consistent, if it is linear in its first argument, Lipschitz continuous with respect to the second and third argument and if for all $n\in \mathbb{R}^d, v\in U$ it holds
 	\begin{align}
@@ -457,14 +462,14 @@ In order to obtain physically correct approximations of the solution a numerical
 
 That means it is exact if the solution is continuous between two neighboring elements.
 
-\subsubsection{Conservation of numerical fluxes}
+\subsubsection*{Conservation of numerical fluxes}
 A numerical flux $\Phi$ needs to be conservative, i.e. 
 \begin{equation}
 \Phi(n_1,u_1,u_2) + \Phi(n_2, u_2, u_1) = 0,
 \end{equation}
 where $u_1$ and $u_2$ are the states on elements $T_1, T_2$ sharing an edge $S$ and $n_1$ (resp. $n_2$) is the unit outer normal of $T_1$ (resp. $T_2$) on $S$, thus it holds $n_1 = -n_2$. 
 
-\subsection{Local Lax-Friedrichs}
+\subsubsection{Local Lax-Friedrichs}
 
 For nonlinear problems a possible choice is the local Lax-Friedrichs flux, 
 \begin{equation}
@@ -477,143 +482,45 @@ Thus $\vert u \vert +\sqrt{gh}$ is the largest absolute value for one state and 
 For the two dimensional case, we get similarly $\alpha = \max\limits_{\mathbf{u}^-, \mathbf{u}^+} \vert n^Tu \vert +\sqrt{gh}$, where $n$ is the unit outer normal vector of one of the elements.
 
 
-\subsection{Flux Vector Splitting}
+\subsubsection{Flux Vector Splitting}
 
-Here we only consider the linear 
-constant coefficient case $F_j(u) = B_j u$. Then the normal flux is
+Here we only consider the linear constant coefficient case $F_j(u) = B_j u$. Then the normal flux is
 \begin{equation}
 F(u,x,t)n = \sum_{j=1}^{\Dim} F_j(u) n_j = \sum_{j=1}^{\Dim} (B_j u) n_j
 =\left( \sum_{j=1}^{\Dim} n_j B_j\right) u = B_n u \, .
 \end{equation}
-Due to hyperbolicity the matrix $B_n = \left( \sum_{j=1}^{\Dim} n_j B_j\right)$
-is real diagonalizable for all $n\in\mathbb{R}^{\Dim}$ and we may use the numerical flux function
-\eqref{eq:system_upwind} based on flux vector splitting:
-\begin{equation}
-\Phi_U(u,B_n)(x) = B_n^+ u^-(x) + B_n^- u^+(x) .
-\end{equation}
-
-In order to achive higher order we employ a finite element space with higher-order polynomials:
-\begin{equation}
-V_h^q = \left\{ v\in L^2(\Omega) \,:\, 
-v|_e = p\circ\mu_e^{-1}, p\in\mathbb{P}^{q,d}\right\}
-\end{equation}
-where the differentiable and invertible map $$\mu_e : \hat{E} \to e$$
-maps the reference element $\hat{E}$ to an element $e\in\mathcal{E}_h$ and the multivariate
-polynomials of degree $q$ in $d$ space dimensions are given by
-\begin{equation*}
-\mathbb{P}^{q,d} = \left\{\begin{array}{ll}
-\left\{ p\,:\, p(x_1,\ldots,x_d) = \sum\limits_{0\leq\|\alpha\|_1\leq q} c_\alpha
-x_1^{\alpha_1}\cdot\ldots\cdot x_d^{\alpha_d}\right\} & \text{($\hat{E}$ simplex)}, \\
-\left\{ p\,:\, p(x_1,\ldots,x_d) = \sum\limits_{0\leq\|\alpha\|_\infty\leq q} c_\alpha
-x_1^{\alpha_1}\cdot\ldots\cdot x_d^{\alpha_d}\right\} & \text{($\hat{E}$ cube)},
-\end{array}\right .
-\end{equation*}
-depending on the type of element.
-
-The upwind semi-discrete scheme for multi-dimensional linear hyperbolic systems then reads
-as follows. Find $u_h : \Sigma\to (V_h^q)^m$ s. t.:
-\begin{equation}\label{eq:DG_identity}
-\begin{split}
-d_t (u&,v)_\Omega + b_{DG}(u(t),v) = l_{DG}(v) \,,
-\end{split}
-\end{equation}
-where the DG spatial bilinear form is given by
-\begin{equation}\label{eq:DG_blf}
-\begin{split}
-b_{DG}(u,v) &= -\sum_{e\in\mathcal{E}_h} \int_e F(u,x,t) : \nabla v\,dx\\
-&\quad +\sum_{f\in\mathcal{F}_h^i} \int_f (B_n^+ u^-(s,t) + B_n^- u^+(s,t)) 
-\cdot \llbracket  v \rrbracket \,ds\\
-&\quad + \sum_{f\in\mathcal{F}_h^{\partial\Omega}} \int_f 
-(B_n^+ u^-(s,t)) \cdot v \,ds
-\end{split}
-\end{equation}
-and the right hand side by
-\begin{equation}\label{eq:DG_rhs}
-\begin{split}
-l_{DG} =  (f(t),v)_\Omega - \sum_{f\in\mathcal{F}_h^{\partial\Omega}} \int_f 
-(B_n^- g(s,t))\cdot v \,ds \, .
-\end{split}
-\end{equation}
-
-\paragraph{Boundary flux}
-
-The boundary flux can be used to implement various boundary conditions:
-
-\begin{itemize}
-	\item Absorbing boundary conditions
-	$$B_n^+ u^-(s,t)$$
-	\item Incoming wave
-	$$B_n^+ u^-(s,t) + B_n^- g(s,t) $$
-	\item Reflecting boundary conditions\\
-	$$B_n^+ u^-(s,t) + B_n^- u^-(s,t) $$
-\end{itemize}
-
-\section{Riemann Solvers}
-
-\subsection*{Constant Coefficient Case}
-
-The upwind flux \eqref{eq:system_upwind} can be interpreted with the help of the solution of the
-following so-called \textit{Riemann problem}:
+From Definition \ref{def:HyperbolicSystems} the matrix $B_n = \left( \sum_{j=1}^{\Dim} n_j B_j\right)$
+is real diagonalizable for all $n\in\mathbb{R}^{\Dim}$ and we recall
+that it implies that $B=RDR^{-1}$ with $D=\text{diag}(\lambda_1,\ldots,\lambda_m)$
+and regular $R$ consisting columnwise of the eigenvectors $r_1,\ldots,r_m$.
+$w=R^{-1} u$ transforms a state $u$ to characteristic variables in which the system
+is diagonal and where upwinding can be done in the usual way depending on the 
+sign of the eigenvalues. Therefore we introduce the matrices
 \begin{align*}
-\partial_t u(x,t) + \partial_x (B u(x,t)) &= 0, &&(\text{in $\mathbb{R}\times\mathbb{R}^+$})\\
-u(x,0) &= \left\{\begin{array}{ll}
-U_L & x \leq 0\\ U_R & x > 0
-\end{array}\right ., &&(t=0)\,.
-\end{align*}
-Riemann problems are characterized by an initial condition with two
-constant states and a discontinuity at $x=0$. Here we assume that $B$ is a constant matrix.
-
-The solution of this Riemann problem can be constructed according to
-the discussion in Section \ref{sec:one_d_system}.
-First, transform the left and right states to characteristic variables:
-$W_L = R^{-1}U_L$ and $W_R = R^{-1}U_R$. Let the eigenvalues be sorted
-with $k$ eigenvalues negative and $m-k$ eigenvalues non-negative (there may
-be zero eigenvalues):
-$$ \lambda_1 \leq \lambda_2 \leq \ldots \leq\lambda_k < 0
-\leq \lambda_{k+1} \leq \ldots \leq \lambda_m \,.  $$
-Then the solution is piecewise constant in space time cones as follows:
-\begin{center}
-	\begin{tikzpicture}[scale=1.0]
-	\draw[->] (-7,0) -- (7,0) node[below right] (n) {$x$};
-	\draw[->] (0,0) -- (0,4.5) node[left] (n) {$t$};
-	\draw (0,0) -- (-7,3) node[left] (n) {$\lambda_1$};
-	\draw (0,0) -- (-4,4) node[above] (n) {$\lambda_2$};
-	\draw (0,0) -- (-2,4) node[above] (n) {$\lambda_k$};
-	\draw (0,0) -- (1.5,4) node[above] (n) {$\lambda_{k+1}$};
-	\draw (0,0) -- (7,4) node[above] (n) {$\lambda_{m}$};
-	\node at (-5.5,1) {$\sum_{j=1}^m r_j w_j^L = U_L$};
-	\node at (-5.6,3.5) {$\sum_{j=2}^m r_j w_j^L + w_1^R$};
-	\node at (3.5,3.5) {$r_m w_m^L + \sum_{j=1}^{m-1} r_jw_j^R$};
-	\node at (5,1) {$\sum_{j=1}^{m} r_jw_j^R = U_R$};
-	\end{tikzpicture}
-\end{center}
-The solution along the line $(0,t)$, $t>0$ is given as follows:
-\begin{equation*}
-u(0,t) = \sum_{\lambda_j<0} r_j w_j^R + \sum_{\lambda_j=0} r_j w_j^L + \sum_{\lambda_j>0} r_j w_j^L 
-=   \sum_{j=1}^k r_j w_j^R + \sum_{j=k+1}^m r_j w_j^L
-\end{equation*}
-and the corresponding flux along the line $(0,t)$, $t>0$ is then
+D^+&=\text{diag}(\max(0,\lambda_1),\ldots,\max(0,\lambda_m)), \\
+D^-&=\text{diag}(\min(0,\lambda_1),\ldots,\min(0,\lambda_m)),
+\end{align*} 
+and
 \begin{equation}
-\begin{split}
-F(u(0,t)) &= B u(0,t) = RDR^{-1} \left(\sum_{j=1}^k r_j w_j^R + \sum_{j=k+1}^m r_j w_j^L\right)\\
-&= RDR^{-1} R w^\ast = RD w^\ast = R (D^- + D^+) w^\ast \\
-&= R D^- w^\ast + R D^+ w^\ast = R D^- W_R + R D^+ W_L\\
-&= R D^- R^{-1} U_R + R D^+ R^{-1} U_L\\
-&= B^- U_R + B^+ U_L
-\end{split}
+B^+ = RD^+R^{-1}, \qquad B^- = RD^-R^{-1}, \qquad B = B^+ + B^- \, .
 \end{equation}
-where we used
-$$w^\ast_j = \left\{\begin{array}{ll}
-w_j^R & j\leq k\\
-w_j^L & j>k
-\end{array}\right. .$$
-This shows that \textit{the upwind flux may be interpreted as the flux evaluated
-	for the solution of a Riemann problem located at the interface}. 
-It turns out this construction
-principle is the key to define appropriate numerical fluxes also for nonlinear systems
-of hyperbolic PDEs such as the Euler equations.
+With this we define the numerical flux at an interior point $x\in\mathcal{F}_h^i$ as
+\begin{equation}\label{eq:system_upwind}
+\Phi_U(u)(x) = B^+ u^-(x) + B^- u^+(x) \, .
+\end{equation}
 
-\subsection*{Discontinuous Coefficient Case}
+%\paragraph{Boundary flux}
+%The boundary flux can be used to implement various boundary conditions:
+%\begin{itemize}
+%	\item Absorbing boundary conditions
+%	$$B_n^+ u^-(s,t)$$
+%	\item Incoming wave
+%	$$B_n^+ u^-(s,t) + B_n^- g(s,t) $$
+%	\item Reflecting boundary conditions\\
+%	$$B_n^+ u^-(s,t) + B_n^- u^-(s,t) $$
+%\end{itemize}
+
+\subsubsection{Variable Flux Vector Splitting}
 
 The coefficient matrix $B$ may depend on position $x$. If this dependence is smooth
 one may put the hyperbolic system in nonconservative form an proceed as shown
@@ -763,16 +670,7 @@ Inserting into one of both sides yields
 \end{split}
 \end{equation*}
 
-\section{Examples summary}
 
-$$
-\begin{array}{c|c|c|c}
-	\textbf{Model} & \textbf{Numerical Flux} & \textbf{dimension} & \textbf{components} \\  \hline
-	\text{Linear Acounstics} & \text{Variable FVS} & d = 2 & m = d + 1  \\
- 	\text{Maxwall       }    & \text{FVS} & d = 3 & m = 6 \\
- 	\text{Shallow Water} & \text{LLF} & d = 1,2 & m = d+1
-\end{array}
-$$
 \section{Realization in PDELab}
 
 The structure of the code is similar to previous tutorials. However we have separate files for different models, thus one must replace \lstinline{[model]} with its name: \lstinline{(linear)acoustics/maxwell/shallowwater}. 
@@ -1175,6 +1073,18 @@ That's it! 293 lines of code to implement the finite element method for
 the wave equation.
 
 \subsection{Running the Example}
+
+\paragraph{Examples summary}
+
+$$
+\begin{array}{c|c|c|c|c}
+\textbf{Model} & &\textbf{Numerical Flux}  & \textbf{Dimension} & \textbf{Components} \\  \hline
+\text{Linear Acounstics} & \text{linear}& \text{FVS, LLF} & d = 1,2 & m = d + 1  \\
+\text{Maxwall       }    & \text{linear} & \text{FVS, LLF} & d = 3 & m = 6 \\
+\text{Shallow Water} & \text{non-linear} &\text{LLF} & d = 1,2 & m = d+1
+\end{array}
+$$
+
 
 %\begin{figure}
 %\begin{center}
