@@ -335,11 +335,11 @@
     \end{minipage}
 \end{frame}
 
-\begin{frame} \frametitle{DUNE Release 2.5.0}
-  Current stable version is 2.5.0,
+\begin{frame} \frametitle{DUNE Release 2.6.0}
+  Upcoming stable version is 2.6.0,
   \only<presentation>{  \\ \scriptsize
     \hspace*{4mm}}
-  available since December 2016.
+  currently available as release candidate.
   \footnotesize
   \begin{columns}[t]
     \begin{column}{0.5\textwidth}
@@ -1671,13 +1671,13 @@ for (const auto& edge : edges(gv))
 
   You will be using the
   \footnotesize
-  \lstinline!Dune::MultipleCodimMultipleGeomTypeMapper<GridView,Layout>!.
+  \lstinline!Dune::MultipleCodimMultipleGeomTypeMapper<GridView>!.
 \end{frame}
 
 \begin{frame} \frametitle{Example: Mapper (I)}
 \scriptsize
 \begin{codeblock}
-  \lstinputlisting[lastline=20, basicstyle=\scriptsize\ttfamily]{snippets/indizes_cxx11.cc}
+  \lstinputlisting[lastline=16, basicstyle=\scriptsize\ttfamily]{snippets/indizes_cxx11.cc}
 \end{codeblock}
 \end{frame}
 
@@ -1685,7 +1685,7 @@ for (const auto& edge : edges(gv))
 \begin{frame} \frametitle{Example: Mapper (II)}
 \scriptsize
 \begin{codeblock}
-  \lstinputlisting[firstline=17, basicstyle=\scriptsize\ttfamily]{snippets/indizes_cxx11.cc}
+  \lstinputlisting[firstline=14, basicstyle=\scriptsize\ttfamily]{snippets/indizes_cxx11.cc}
 \end{codeblock}
 \end{frame}
 \end{onlyenv}

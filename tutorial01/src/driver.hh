@@ -84,7 +84,10 @@ void driver (const GV& gv, const FEM& fem,
 
   // Write VTK output file
   int subsampling = ptree.get("output.subsampling",(int)1);
-  Dune::SubsamplingVTKWriter<GV> vtkwriter(gv,Dune::refinementIntervals(subsampling));
+  Dune::SubsamplingVTKWriter<GV> vtkwriter(
+    gv,
+    Dune::refinementIntervals(subsampling)
+    );
   typedef Dune::PDELab::VTKGridFunctionAdapter<ZDGF> VTKF;
   vtkwriter.addVertexData(std::shared_ptr<VTKF>(new
                                          VTKF(zdgf,"fesol")));
