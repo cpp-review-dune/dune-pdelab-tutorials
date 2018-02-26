@@ -20,6 +20,7 @@ public:
   {
   }
 
+  /// tex: llf
   template<typename E, typename X>
   void numericalFlux(const E& inside, const X& x_inside,
                      const E& outside, const X& x_outside,
@@ -49,6 +50,7 @@ public:
     for (size_t i =0 ; i<m;i++)
       f[i] = f[i] + 0.5*alpha*(u_s[i] - u_n[i]);
   }
+  /// tex: llf
 
   const MODEL& model() const
   {
@@ -80,13 +82,12 @@ public:
   {
   }
 
+  /// tex: fvs
   template<typename E, typename X>
   void numericalFlux(const E& inside, const X& x_inside, const E& outside,
                      const X& x_outside,  const Dune::FieldVector<DF,dim> n_F,
                      const Dune::FieldVector<RF,m>& u_s,
                      const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f) const
-                     //const std::vector<Dune::FieldVector<RF,dim> >& gradu_s,
-                     //const std::vector<Dune::FieldVector<RF,dim> >& gradu_n)
   {
     Dune::FieldMatrix<DF,m,m> D(0.0);
     // fetch eigenvalues
@@ -121,6 +122,7 @@ public:
     Bplus.umv(u_s,f);
     Bminus.umv(u_n,f);
   }
+  /// tex: fvs
 
   const MODEL& model() const
   {
@@ -163,11 +165,10 @@ public:
                      const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f) const
   {
     // check for discontinuity
-    //if ( Dune::FloatCmp::eq( model().problem.c(inside,x_inside), model().problem.c(outside,x_outside) ) )
-	  if ( model().problem.material(inside,x_inside) == model().problem.material(outside,x_outside)  )
-	  {
-	    fluxVectorSplitting_.numericalFlux(inside, x_inside, outside, x_outside, n_F, u_s, u_n, f);
-	  }
+   if ( model().problem.material(inside,x_inside) == model().problem.material(outside,x_outside)  )
+    {
+      fluxVectorSplitting_.numericalFlux(inside, x_inside, outside, x_outside, n_F, u_s, u_n, f);
+    }
     else // discontinuous coefficient case
     {
       // fetch eigenvalues

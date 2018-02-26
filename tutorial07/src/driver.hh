@@ -7,13 +7,14 @@
 template<typename GV, typename FEMDG, typename NUMFLUX>
 void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::ParameterTree& ptree)
 {
-  //std::cout << "using degree " << degree << std::endl;
 
+  /// tex: extract
   // Choose domain and range field type
   using RF = typename NUMFLUX::RF; // type for computations
-
   const int dim = numflux.dim;
   const int m = numflux.m; //number of components
+  /// tex: extract
+
 
   //initial condition
   auto u0lambda = [&](const auto& i, const auto& x)
@@ -23,6 +24,7 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
 
   typedef Dune::PDELab::NoConstraints CON;
 
+  /// tex: gfs
   //block size for a component deducted by pdelab
   using VBE0 = Dune::PDELab::ISTL::VectorBackend<>;
 
@@ -39,12 +41,15 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   C cg;
   gfs.update(); // initializing the gfs
   std::cout << "degrees of freedom: " << gfs.globalSize() << std::endl;
+  /// tex: gfs
 
+  /// tex: lop
   // Make instationary grid operator
   using LOP = Dune::PDELab::DGHyperbolicSpatialOperator<NUMFLUX,FEMDG>;
   LOP lop(numflux);
   using TLOP = Dune::PDELab::DGHyperbolicTemporalOperator<NUMFLUX,FEMDG>;
   TLOP tlop(numflux);
+  /// tex: lop
 
   using MBE = Dune::PDELab::ISTL::BCRSMatrixBackend<>;
   MBE mbe(2*dim+1); // Maximal number of nonzeroes per row
@@ -56,6 +61,7 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   using IGO = Dune::PDELab::OneStepGridOperator<GO0,GO1,false>;
   IGO igo(go0,go1);
 
+  /// tex: timestepping
   // select and prepare time-stepping scheme
   int torder = ptree.get("fem.torder",(int)1);
 
@@ -70,6 +76,7 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   if (torder==3) {method=&method3; std::cout << "setting Shu 3" << std::endl;}
   if (torder==4) {method=&method4; std::cout << "setting RK4" << std::endl;}
   if (torder<1||torder>4) std::cout<<"torder should be in [1,4]"<<std::endl;
+  /// tex: timestepping
 
   igo.setMethod(*method);
 
@@ -82,20 +89,19 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   // Make a linear solver backend
   //typedef Dune::PDELab::ISTLBackend_OVLP_ExplicitDiagonal<GFS> LS;
   //LS ls(gfs);
+  /// tex: lsosm
   typedef Dune::PDELab::ISTLBackend_SEQ_UMFPack LS;
   LS ls(false);
-
-
 
   // time-stepping
   Dune::PDELab::ExplicitOneStepMethod<RF,IGO,LS,V,V> osm(*method,igo,ls);
   osm.setVerbosityLevel(2);
+  /// tex: lsosm
 
   // prepare VTK writer and write first file
   int subsampling=ptree.get("output.subsampling",(int)0);
   using VTKWRITER = Dune::SubsamplingVTKWriter<GV>;
   //VTKWRITER vtkwriter(gv,subsampling);
-  //2.6 todo
   VTKWRITER vtkwriter(gv,Dune::refinementLevels(subsampling));
 
   std::string filename=ptree.get("output.filename","output");
