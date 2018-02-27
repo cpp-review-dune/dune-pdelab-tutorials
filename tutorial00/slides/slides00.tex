@@ -355,7 +355,7 @@ g_{T_4}(0) = 1, & g_{T_4}(1) = 5, & g_{T_4}(2) = 4.
 \item {\em Conforming}: Intersection is subentity
 \item {\em Local to global map} : $g_T : \{0,\ldots,d\}\to\mathcal{N}$
 \begin{equation*}
-\forall T\in\mathcal{T}_h, 0\leq i \leq d: g_T(l) = j \Leftrightarrow x_{T,l} = x_{j} .
+\forall T\in\mathcal{T}_h, 0\leq i \leq d: g_T(i) = j \Leftrightarrow x_{T,i} = x_{j} .
 \end{equation*}
 \item {\em Interior and boundary vertex index sets}:
 $\mathcal{I}_h = \mathcal{I}_h^{int}\cup\mathcal{I}_h^{\partial\Omega}$,\\
@@ -572,7 +572,7 @@ f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) |\det B_T| w_d \, + \text{err}. &&\text{
 \begin{equation*}
 (b_T)_m =  f(\mu_T(\hat S_d)) \hat\phi_m(\hat S_d) |\det B_T| w_d \quad \forall m=0,\ldots,d
 \end{equation*}
-\item Define {destriction matrix} $R_T : \mathbb{R}^N \to \mathbb{R}^{d+1}$ with
+\item Define {restriction matrix} $R_T : \mathbb{R}^N \to \mathbb{R}^{d+1}$ with
 \begin{equation*}
 (R_T x)_m = (x)_i \quad \forall \,0\leq m \leq d, \,g_T(m)=i,
 \end{equation*}
