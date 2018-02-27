@@ -737,7 +737,7 @@ template<int dim>
 class YaspPartition : public Dune::YLoadBalance<dim>
 {
   public:
-    typedef Dune::FieldVector<int, dim>  iTuple;
+    typedef std::array<int, dim>  iTuple;
     void loadbalance (const iTuple& size, int P, iTuple& dims) const
     {
       dims[0] = 1;
@@ -758,7 +758,7 @@ auto n = Dune::filledArray<dim, int>(10);
 std::bitset<dim> periodic(false);
 int overlap = 1;
 YaspPartition<2> yp;
-YaspGrid<2> grid(upper,n,periodic,overlap,&yp);
+YaspGrid<2> grid(upper,n,periodic,overlap,helper.getCommunicator(),&yp);
 \end{lstlisting}
 \end{frame}
 
