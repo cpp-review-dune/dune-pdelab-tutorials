@@ -111,20 +111,20 @@ namespace Dune {
             for (size_t i=0; i<dgspace.size(); i++)
               jac.mv(js[i][0],gradphi[i]);
 
+            /// tex: fluxint
             Dune::FieldMatrix<RF,m,dim> F;
-
             numflux.model().flux(eg,ip.position(),u,F);
 
             // integrate
             auto factor = ip.weight() * geo.integrationElement(ip.position());
-            for (size_t k=0; k<dgspace.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
+            for (size_t k=0; k<dgspace.size(); k++)
               {
                 // - F(u) \grad phi
                 for (size_t i=0; i<m; i++)
                   for (size_t j=0; j<dim; j++)
                     r.accumulate(lfsv.child(i),k, - F[i][j]*gradphi[k][j]*factor );
               }
-
+            /// tex: fluxint
           }
       }
 
@@ -163,6 +163,7 @@ namespace Dune {
         const int order_n = dgspace_n.finiteElement().localBasis().order();
         const int intorder = overintegration+1+2*std::max(order_s,order_n);
 
+        /// tex: skelton
         for (const auto& ip : quadratureRule(geo,intorder))
           {
             // Position of quadrature point in local coordinates of elements
@@ -195,7 +196,7 @@ namespace Dune {
               for (size_t i=0; i<m; i++) // loop over all components
                 r_n.accumulate(lfsv_n.child(i),k, - f[i]*phi_n[k]*factor);
           }
-
+        /// tex: skelton
       }
 
       // Skeleton integral depending on test and ansatz functions
@@ -239,6 +240,7 @@ namespace Dune {
                 u_s[i] += x_s(lfsv_s.child(i),k)*phi_s[k];
             // std::cout << "  u_s " << u_s << std::endl;
 
+            /// tex: boundary
             // Evaluate boundary condition
             Dune::FieldVector<RF,m> u_n(numflux.model().problem.g(ig.intersection(),ip.position(),u_s));
 
@@ -250,6 +252,8 @@ namespace Dune {
             for (size_t k=0; k<dgspace_s.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
               for (size_t i=0; i<m; i++) // loop over all components
                 r_s.accumulate(lfsv_s.child(i),k, f[i]*phi_s[k]*factor);
+
+            /// tex: boundary
           }
         // std::cout << "  residual_s: ";
         // for (size_t i=0; i<r_s.size(); i++) std::cout << r_s[i] << " ";
