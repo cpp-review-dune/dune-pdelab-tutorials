@@ -59,11 +59,12 @@
 //===============================================================
 // Include your hyperbolic model and problem to solve
 //===============================================================
-
+/// tex: include
 //Linear Acoustics
 #include"linearacoustics.hh"//model
 #include"linearacousticsproblem.hh"
 #include"numericalflux.hh"
+/// tex: include
 
 #include"driver.hh"
 
@@ -129,6 +130,7 @@ int main(int argc, char** argv)
             using GV = Dune::OneDGrid::LeafGridView;
             GV gv = grid.leafGridView();
 
+            /// tex: promodflux
             //create problem (setting)
             using PROBLEM = Problem<GV,GV::Grid::ctype>;
             PROBLEM problem;
@@ -140,6 +142,7 @@ int main(int argc, char** argv)
             //create numerical flux
             using NUMFLUX = VariableFluxVectorSplitting<MODEL>;
             NUMFLUX numflux(model);
+            /// tex: promodflux
 
             if (degree==0)
               {
@@ -157,10 +160,12 @@ int main(int argc, char** argv)
               }
             if (degree==2)
               {
+                /// tex: fem
                 using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,
                                                                     Dune::PDELab::QkDGBasisPolynomial::legendre>;
                 FEM fem;
                 driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
+                /// tex: fem
               }
             return 0;
 

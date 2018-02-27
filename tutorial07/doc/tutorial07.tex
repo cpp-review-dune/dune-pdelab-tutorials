@@ -31,7 +31,7 @@
 \usepackage{textcase}
 \usepackage{nicefrac}
 \usepackage{stmaryrd}
-\usepackage{showkeys}
+%\usepackage{showkeys}
 
 \theoremstyle{definition}
 \newtheorem{Def}{Definition}
@@ -424,31 +424,11 @@ on the mesh $\mathcal{E}_h$ there holds
 
 \subsection{Numerical Fluxes}
 
-
-Next step is to construct a numerical flux function. Since the space of discrete solutions $u_h\in V_h$, is not single-valued on the interface the normal flux $ F(\mathbf{u}, \mathbf{x}, t)\cdot~\mathbf{n} $ is not well-defined.
-Hence for all $S \in \mathcal{F}$, $\mathbf{u}$ is split up to the so called left and right states, 
-\begin{equation}\label{eq:statesplitting}
-\begin{matrix}
-\mathbf{u}_S^- := \left\lbrace
-\begin{array}{ll}
-\mathbf{u}\vert_{T_1} & \mathrm{if}\ S \in \mathcal{F}^i, \\
-\mathbf{u}\vert_T & \mathrm{if}\ S \in \mathcal{F}^{\partial \Omega},
-\end{array} \right.
-& \mathbf{u}_S^+ := \left\lbrace
-\begin{array}{ll}
-\mathbf{u}\vert_{T_2} & \mathrm{if}\ S \in \mathcal{F}^i, \\
-b & \mathrm{if}\ S \in \mathcal{F}^{\partial \Omega},
-\end{array}\right.
-\end{matrix}
-\end{equation}
-
-where $T_1$ and $T_2$ are the two elements sharing the interface $S \in \mathcal{F}^i$,\\ i.e. \mbox{$\partial T1 \cup \partial T2 = S$},  and \mbox{$b=b(s,t):\partial\Omega\times\Sigma\rightarrow \mathbb{R}^m $} is an external state enforced by a boundary condition.
-How to define the numerical flux depends on the linearity of equation \eqref{eq:sysDG}. Besides, effects like numerical diffusion and the desired stability must be considered.
 In general, a numerical flux is defined as a function
 \begin{align}
 \Phi :  \mathbb{R}^d \times U \times U \rightarrow \mathbb{R},
 \end{align}
-which provides a single-valued approximation of $F \cdot \mathbf{n}_S$ if we set the first argument to $\mathbf{n}_S$, for detailed description we refer to \cite{DiPietro}.
+which provides a single-valued approximation of $F \cdot n$ if we set the first argument to $n$, for detailed description we refer to \cite{DiPietro}.
 
 In order to obtain physically correct approximations of the solution a numerical flux has to comply with the following properties:
 
@@ -456,7 +436,7 @@ In order to obtain physically correct approximations of the solution a numerical
 \begin{Def}\label{def:flux:consistency}
 	A numerical flux $\Phi$ is called consistent, if it is linear in its first argument, Lipschitz continuous with respect to the second and third argument and if for all $n\in \mathbb{R}^d, v\in U$ it holds
 	\begin{align}
-	\Phi(n,v,v) = F(v)\cdot \mathbf{n}.
+	\Phi(n,v,v) = F(v)\cdot n.
 	\end{align}
 \end{Def}
 
@@ -473,13 +453,14 @@ where $u_1$ and $u_2$ are the states on elements $T_1, T_2$ sharing an edge $S$ 
 
 For nonlinear problems a possible choice is the local Lax-Friedrichs flux, 
 \begin{equation}
-\Phi (n_S, \mathbf{u}^-, \mathbf{u}^+) = \frac{1}{2}(F(\mathbf{u}^-)\cdot n_S + F(\mathbf{u}^+)\cdot n_S - \alpha (\mathbf{u}^+ -\mathbf{u}^- )),
+\Phi (n, u^-, u^+) = \frac{1}{2}\left(F(u^-)\cdot n + F(u^+)\cdot n - \alpha (u^+ -u^- )\right),
 \end{equation}
-where $\alpha$ is an estimate of the largest absolute value of the eigenvalues of the Jacobian $\partial_u F(u)\cdot n$ in a neighbourhood of the edge S.
-For hyperbolic systems, we can calculate these eigenvalues as we did in Chapter \ref{ch:modelSWE}.
-For the 1D SWE we have the eigenvalues $\lambda_{1,2} = u \pm \sqrt{gh}$, depending on the physical variables $u$ and $h$.
-Thus $\vert u \vert +\sqrt{gh}$ is the largest absolute value for one state and as we are interested in the maximum in a neighbourhood of $S$, we choose $\alpha = \max\limits_{\mathbf{u}^-, \mathbf{u}^+} \vert u \vert +\sqrt{gh}$.
-For the two dimensional case, we get similarly $\alpha = \max\limits_{\mathbf{u}^-, \mathbf{u}^+} \vert n^Tu \vert +\sqrt{gh}$, where $n$ is the unit outer normal vector of one of the elements.
+where $\alpha$ is an estimate of the largest absolute value of the eigenvalues of the Jacobian $\partial_u F(u)\cdot n$ in a neighbourhood of the interface between $u^+$ and $u^-$. 
+
+
+For hyperbolic systems, we can calculate these eigenvalues.
+For example, the 1D SWE have the eigenvalues $\lambda_{1,2} = u \pm \sqrt{gh}$, depending on the physical variables $u$ and $h$. Thus $\vert u \vert +\sqrt{gh}$ is the largest absolute value for one state and as we are interested in the maximum in a neighbourhood of $S$, we choose $\alpha = \max\limits_{u^-, u^+} \vert u \vert +\sqrt{gh}$.
+%For the two dimensional case, we get similarly $\alpha = \max\limits_{\mathbf{u}^-, \mathbf{u}^+} \vert n^Tu \vert +\sqrt{gh}$, where $n$ is the unit outer normal vector of one of the elements.
 
 
 \subsubsection{Flux Vector Splitting}
@@ -673,7 +654,7 @@ Inserting into one of both sides yields
 
 \section{Realization in PDELab}
 
-The structure of the code is similar to previous tutorials. However we have separate files for different models, thus one must replace \lstinline{[model]} with its name: \lstinline{(linear)acoustics/maxwell/shallowwater}. 
+The structure of the code is similar to previous tutorials. However we have separate files for different models, thus one must replace \lstinline{[model]} with its name: \lstinline{linearacoustics/maxwell/shallowwater}. 
 
 Source directory consists of the following files:
 \begin{enumerate}[1)]
@@ -689,34 +670,27 @@ Source directory consists of the following files:
 	The purpose of the \lstinline{main} function is
 	to instantiate DUNE grid objects and call the \lstinline{driver} function.
 	\item File \lstinline{driver.hh} instantiates the necessary PDELab classes
-	for solving a linear instationary problem and finally solves the problem.
+	for solving a instationary problem and finally solves the problem.
 	\item File \lstinline{hyperbolicdg.hh} contains the local operator classes \\
-	\lstinline{DGLinearHyperbolicSpatialOperator} and \\
-	\lstinline{DGLinearHyperbolicTemporalOperator} realizing the spatial
+	\lstinline{DGHyperbolicSpatialOperator} and 
+	\lstinline{DGHyperbolicTemporalOperator} realizing the spatial
 	and temporal residual forms.
 	
 \end{enumerate}
 
-
-In what follows we put  \lstinline{model = linearacoustics} and describe the structure of the source files in that particular case.
 
 \subsection{Ini-File}
 
 The ini-file contains the usual sections for \lstinline{[grid]}. The
 \lstinline{[fem]} section is the same as in tutorial 01 and allows to set
 the polynomial degree, temporal integration order and the time step size. In \lstinline{[problem]} section we set final time and \lstinline{[output]} defines filename,
-subsampling, and every (timestep cout to save a solution).     
+subsampling, and every (timestep count to save a solution).     
 
 
-
-%\lstinputlisting[firstline=6, lastline=8,
-%basicstyle=\ttfamily\small,
-%frame=single,
-%backgroundcolor=\color{listingbg}]{../src/tutorial07-acoustics.ini}
 
 \subsection{Problem file \lstinline{linearacousticsproblem.hh}}
 
-In the problem we define all the properties of the problem we want to solve. Here we explain what we mean by problem not to confuse with model, namely the system of equations. %For example we confine to linear acoustics and define:
+In the problem we define all the properties of the problem we want to solve. Here we explain what we mean by problem (not to confuse with model which is the system of equations). We can define following problem specific:
 
 Material
 
@@ -754,11 +728,15 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/linearacousticsproblem.hh}
 
+
+\begin{Rem}
+	The material property \textit{speed of sound} is specific to linearacoustic problem. In the case of Maxwell system we define permabiliy. User must provide material function that is used to decide if we work in discontinuous coefficient case.
+\end{Rem}
+
+
 \subsection{Model file \lstinline{[model].hh} }
 
-
-
-
+Model contains all necessary information about your system that later will be used to determine numerical flux. 
 
 
 \lstinputlisting[linerange=eigenvectors-eigenvectors,
@@ -766,28 +744,26 @@ basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/linearacoustics.hh}
 
-
-The order of eigenvalues is important, the implementation of VariableFluxVectorSplitting flux requires consequently: positive, negative and zero eigenvalues.
-
- 
 \lstinputlisting[linerange=diagonal-diagonal,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/linearacoustics.hh}
-
-
 
 \lstinputlisting[linerange=flux-flux,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/linearacoustics.hh}
 
+\begin{Rem}
+	The order of eigenvalues is important, the implementation of VariableFluxVectorSplitting flux requires consequently: positive, negative and zero eigenvalues. Implementation of the SWE example is based on class specialisation for one and two dimensions. Note, also that information contained in model must agree with the numerical flux you are willing to use.
+\end{Rem}
+
 \subsection{Numerical flux \lstinline{numericalflux.hh}}
 
 This class implements different numerical fluxes. Currently including: Local Lax-Friedrisch and  Flux Vector Splitting (also in variable coefficient case).
 
-
-\lstinputlisting[firstline=39, lastline=67,
+The implementation of Flux Vector Splitting method reads as follows:
+\lstinputlisting[linerange=fvs-fvs,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/numericalflux.hh}
@@ -797,17 +773,15 @@ backgroundcolor=\color{listingbg}]{../src/numericalflux.hh}
 
 The \lstinline{main} function is very similar to the one in previous tutorials. However there are differences specific to hyperbolic solver.
 
-
-
 We include our hyperbolic model and problem to solve
-\lstinputlisting[firstline=60, lastline=67,
+\lstinputlisting[linerange=include-include,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial07-linearacoustics.cc}
 
 
 Calling Problem and Model constructors and choose proper numerical flux
-\lstinputlisting[firstline=123, lastline=136,
+\lstinputlisting[linerange=promodflux-promodflux,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial07-linearacoustics.cc}
@@ -815,13 +789,13 @@ backgroundcolor=\color{listingbg}]{../src/tutorial07-linearacoustics.cc}
 
 
 Build FEM space and call driver
-\lstinputlisting[firstline=152, lastline=158,
+\lstinputlisting[linerange=fem-fem,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial07-linearacoustics.cc}
 
-
-
+Not that we pass \lstinline{numflux} to \lstinline{driver} but indeed it contains both \lstinline{model}   and \lstinline{problem}. Dependencies reads
+\lstinline{numflux} <- \lstinline{model} <- \lstinline{problem}.
 \subsection{Function \lstinline{driver}}
 \label{sec:funct-driver}
 
@@ -832,137 +806,72 @@ the given mesh.
 There are several changes now in the driver due to the system of PDEs.
 
 At first we extract range field, dimension and number of components
-\lstinputlisting[firstline=12, lastline=16,
+\lstinputlisting[linerange=extract-extract,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
-
-
-
-
-\lstinputlisting[firstline=24, lastline=41,
-basicstyle=\ttfamily\small,
-frame=single,
-backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 
 Now we can set up the grid function space using the given finite
-element map.
-
-The next step is to set up the product space containing
+element map and set up the product space containing
 two components. This is done by the following code section:
 
- The one used here is \lstinline{PowerGridFunctionSpace} which creates
-a product of a compile-time given number ($m$ here)
-of \textit{identical} function spaces (\lstinline{GFS0} here)
-which may only differ in the constraints. 
+\lstinputlisting[linerange=gfs-gfs,
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
-%We also have to set up names for the child spaces to facilitate VTK output later on:
-% \lstinputlisting[linerange={31-33},
-% basicstyle=\ttfamily\small,
-% frame=single,
-% backgroundcolor=\color{listingbg}]{../src/driver.hh}
+Here we use \lstinline{PowerGridFunctionSpace} which creates
+a product of a compile-time given number ($m$ here) of \textit{identical} function spaces (\lstinline{GFSDG} here). 
 
 
 An important aspect of product spaces is the ordering of the corresponding degrees
 of freedom. Often the solvers need to exploit an underlying block structure
-of the matrices.
-
-This works in two stages: An ordering has first to be specified when creating product spaces
+of the matrices. This works in two stages: An ordering has first to be specified when creating product spaces
 which is then subsequently exploited in the backend.
 Here we use the \lstinline{EntityBlockedOrderingTag} to specify that all degrees of
 freedom related to a geometric entity should be numbered consecutively in
 the coefficient vector.
-% Other options are the \lstinline{LexicographicOrderingTag} ordering first all degrees of freedom of the first component space, then all of the second component space and so on.
 
-With the Iterative Solver Template Library ISTL it is now
-possible to exploit the block structure at compile-time.
-Here we use the tag \lstinline{fixed} in the ISTL vector backend to indicate
-that at this level we want to create blocks of fixed size (in this case the block size will be two --
-corresponding to the degrees of freedom per entity). Another option
-would be the tag \lstinline{none} which is the default. Then the degrees
-of freedom are still ordered in the specified way but no block structure is
-introduced on the ISTL level. \textit{Important notice:} Using fixed block
-structure in ISTL requires that there is the same number of degrees of freedom
-per entity. This is true for polynomial degrees one and two but \textit{not}
-for higher polynomial degree!
 
-In order to define a function that specifies the initial value we can
-use the same techniques as in the scalar case. We first define a lambda
-closure
-% \lstinputlisting[linerange={35-41},
-% basicstyle=\ttfamily\small,
-% frame=single,
-% backgroundcolor=\color{listingbg}]{../src/driver.hh}
-% now returning two components in a \lstinline{FieldVector}.
-% The first component is the initial value for $u$ and the second component
-% is the initial value for $\partial_t u$. Then a PDELab grid function
-% can be constructed from the lambda closure
-% \lstinputlisting[linerange={42-42},
-% basicstyle=\ttfamily\small,
-% frame=single,
-% backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
-% Using the grid function a coefficient vector can now be initialized:
-% \lstinputlisting[linerange={45-48},
-% basicstyle=\ttfamily\small,
-% frame=single,
-% backgroundcolor=\color{listingbg}]{../src/driver.hh}
+%With the Iterative Solver Template Library ISTL it is now
+%possible to exploit the block structure at compile-time.
+%Here we use the tag \lstinline{fixed} in the ISTL vector backend to indicate
+%that at this level we want to create blocks of fixed size (in this case the block size will be two --
+%corresponding to the degrees of freedom per entity). Another option
+%would be the tag \lstinline{none} which is the default. Then the degrees
+%of freedom are still ordered in the specified way but no block structure is
+%introduced on the ISTL level. \textit{Important notice:} Using fixed block
+%structure in ISTL requires that there is the same number of degrees of freedom
+%per entity. This is true for polynomial degrees one and two but \textit{not}
+%for higher polynomial degree!
 
-% Given a product function space it is also possible to
-% extract the individual component spaces from the product
-% space. This is done by the following code section:
-% \lstinputlisting[linerange={43-48},
-% basicstyle=\ttfamily\small,
-% frame=single,
-% backgroundcolor=\color{listingbg}]{../src/driver.hh}
-% In fact, one could have a tree-structured function space and
-% extract an arbitrary node as a function space.
+%In order to define a function that specifies the initial value we can use the same techniques as in the scalar case. We first define a lambda closure
 
-% The component spaces can now be used to build
-% up discrete grid functions for the two solution components:
-% \lstinputlisting[linerange={51-54},
-% basicstyle=\ttfamily\small,
-% frame=single,
-% backgroundcolor=\color{listingbg}]{../src/driver.hh}
-% Note that the full solution vector \lstinline{z} is passed as an argument.
-% The subspace automatically extracts the required components from the solution vector.
 
-The next step is to assemble the constraints container for the composite
-function space. Unfortunately there is currently no way to define the
-constraints for both components in one go. We need to
-set up a separate lambda closure for each component:
-% \lstinputlisting[linerange={50-55},
-% basicstyle=\ttfamily\small,
-% frame=single,
-% backgroundcolor=\color{listingbg}]{../src/driver.hh}
-% and then combine it using:
-% \lstinputlisting[linerange={56-59},
-% basicstyle=\ttfamily\small,
-% frame=single,
-% backgroundcolor=\color{listingbg}]{../src/driver.hh}
-% Note that you could define different constraints for each component
-% space although it is the same underlying function space.
+Next, we create local operators
 
-% Now the constraints container can be assembled as before:
-% \lstinputlisting[linerange={61-63},
-% basicstyle=\ttfamily\small,
-% frame=single,
-% backgroundcolor=\color{listingbg}]{../src/driver.hh}
+\lstinputlisting[linerange=lop-lop,
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
-% As we do not want to manually extract the subspaces for $u_0$ and $u_1$ from the
-% overall space to add to them to the VTK writer, we call a PDELab helper function that
-% handles this automatically:
-% \lstinputlisting[linerange={86-86},
-% basicstyle=\ttfamily\small,
-% frame=single,
-% backgroundcolor=\color{listingbg}]{../src/driver.hh}
-Note that in order to use this function, we have to set the names of the subspaces,
-as we did earlier in the tutorial.
+Pick time stepping scheme
+\lstinputlisting[linerange=timestepping-timestepping,
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 The rest of the driver is the same as for tutorial 03 except that
 a linear solver is used instead of Newton's method.
+
+\lstinputlisting[linerange=lsosm-lsosm,
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/driver.hh}
+
 
 \subsection{Spatial Local Operator}
 
@@ -972,110 +881,41 @@ a linear solver is used instead of Newton's method.
 \subsubsection*{\lstinline{alpha_volume} method}
 
 The method \lstinline{alpha_volume} has the \textit{same} interface
-as in the scalar case:
-%\lstinputlisting[linerange={53-56},
-%basicstyle=\ttfamily\small,
-%frame=single,
-%backgroundcolor=\color{listingbg}]{../src/hyperbolicdg.hh}
-However the trial and test function spaces \lstinline{LFSU} and \lstinline{LFSV}
+as in previous exercises, however the trial and test function spaces \lstinline{LFSU} and \lstinline{LFSV}
 now reflect the component structure of the global function space, i.e.
-they consist of two components.
+they consist of $m-$components.
 
 \textit{Important notice: Here we assume that trial and test space are identical
 (up to constraints) and that also both components are identical!}
 
-The two components can be extracted with the following code
 
+In the loop over the quadrature points we need to evaluate flux and compute residuum
 
-
-and may now loop over the quadrature points.
-
-\lstinputlisting[firstline=124, lastline=136,
+\lstinputlisting[linerange=fluxint-fluxint,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/hyperbolicdg.hh}
 
 
-
-\lstinputlisting[firstline=224, lastline=235,
+\subsubsection*{\lstinline{alpha_skelton} method}
+In the \lstinline{alpha_skelton} method we evaluate numerical flux and its jump on the internal boundary
+\lstinputlisting[linerange=skelton-skelton,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/hyperbolicdg.hh}
 
 
-\lstinputlisting[firstline=303, lastline=311,
+\subsubsection*{\lstinline{alpha_boundary} method}
+The same is done in the \lstinline{alpha_boundary} however the outside value is determined via problem setup  
+\lstinputlisting[linerange=boundary-boundary,
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/hyperbolicdg.hh}
 
-
-\lstinputlisting[firstline=339, lastline=350,
-basicstyle=\ttfamily\small,
-frame=single,
-backgroundcolor=\color{listingbg}]{../src/hyperbolicdg.hh}
-
-
-\subsubsection*{\lstinline{jacobian_volume} method}
-
-As the problem is linear it is advisable to also implement the
-\lstinline{jacobian_volume} method for efficiency and accuracy.
-
-%The interface is the same as in the scalar case:
-%\lstinputlisting[linerange={111-114},
-%basicstyle=\ttfamily\small,
-%frame=single,
-%backgroundcolor=\color{listingbg}]{../src/hyperbolicdg.hh}
-%
-%Component selection, quadrature rule selection and
-%basis evaluation are the same as in \lstinline{alpha_volume}.
-%We only consider the accumulation of the Jacobian entries here:
-%\lstinputlisting[linerange={141-149},
-%basicstyle=\ttfamily\small,
-%frame=single,
-%backgroundcolor=\color{listingbg}]{../src/hyperbolicdg.hh}
-%Note how the diagonal sub-blocks of the Jacobian with respect to
-%the first and second component are accessed.
-
-
-
-\subsection{Temporal Local Operator}
-
-
-The temporal residual form \eqref{eq:TemporalResForm} is
-implemented by the local operator \lstinline{WaveL2} in
-file \lstinline{hyperbolicdg.hh}. Cache construction and flags settings
-are the same as in tutorial 01 and 03. Only volume terms are used here.
-
-\subsubsection*{\lstinline{alpha_volume} method}
-
-The \lstinline{alpha_volume} method is pretty similar
-to the one in the spatial operator, except that the value of $u_0$
-is needed instead of the gradient.
-
-Here we just show the residual accumulation:
-%\lstinputlisting[linerange={233-237},
-%basicstyle=\ttfamily\small,
-%frame=single,
-%backgroundcolor=\color{listingbg}]{../src/hyperbolicdg.hh}
-Note that $u_1$ is integrated with respect to test function $v_0$
-and vice versa.
-
-\subsubsection*{\lstinline{jacobian_volume} method}
-
-The corresponding Jacobian entries are accumulated in the
-\lstinline{jacobian_volume} method:
-%\lstinputlisting[linerange={264-271},
-%basicstyle=\ttfamily\small,
-%frame=single,
-%backgroundcolor=\color{listingbg}]{../src/hyperbolicdg.hh}
-
-That's it! 293 lines of code to implement the finite element method for
-the wave equation.
 
 \subsection{Running the Example}
 
-\paragraph{Examples summary}
-
+Following models and fluxes are implemented: 
 $$
 \begin{array}{c|c|c|c|c}
 \textbf{Model} & &\textbf{Numerical Flux}  & \textbf{Dimension} & \textbf{Components} \\  \hline
@@ -1086,37 +926,6 @@ $$
 $$
 
 
-%\begin{figure}
-%\begin{center}
-%\includegraphics[width=0.499\textwidth]{wave_0}\hfill
-%\includegraphics[width=0.499\textwidth]{wave_1}
-%\includegraphics[width=0.499\textwidth]{wave_2}\hfill
-%\includegraphics[width=0.499\textwidth]{wave_3}
-%\end{center}
-%\caption{Solution of the wave equation at four different times. Time is proceeding left
-%to right, top to bottom.}
-%\label{fig:Bunt}
-%\end{figure}
-
-%The example solves the wave equation in the domain
-%$\Omega = (0,2.5)\times (0,1)^{d-1}$ with a bump-like
-%initial condition. The results for the two-dimensional case are
-%illustrated in Figure \ref{fig:Bunt}. The initial bump has a height of 1
-%while the color code corresponds to blue for $-0.5$ and red for $0.5$.
-
-\section{Outlook}
-
-The following ideas could be explored from this tutorial:
-\begin{itemize}
-\item Explore polynomial degree greater than $2$ by changing the blocking
-to \lstinline{none}.
-\item Compute the total energy $E(t) = \|\partial_t u\|_{0,\Omega}^2 +
-  \|\nabla u\|_{0,\Omega}^2$ and check its conservation in
-the numerical scheme.
-\item Try various time integrators, in particular the Crank-Nicolson method.
-\item Implement the elliptic projection method of \cite{Eriksson} from
-equation \eqref{eq:Eriksson}.
-\end{itemize}
 
 % bibtex bibliography
 \bibliographystyle{plain}
