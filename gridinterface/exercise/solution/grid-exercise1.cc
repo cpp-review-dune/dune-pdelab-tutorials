@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 
                 std::cout << " Intersection endpoints: ";
                 // Output the corner and center coordinates of the intersection
-                // (the methods cornor and center return global coordinates)
+                // (the methods corner and center return global coordinates)
 
                 for (int i = 0; i < fgeo.corners(); ++i)
                     std::cout << "(" << fgeo.corner(i) << ") ";
