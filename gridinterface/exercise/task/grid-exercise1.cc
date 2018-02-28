@@ -67,8 +67,7 @@ int main(int argc, char** argv)
                 {
                     // The coordinate of the center of an intersection with respect to the intersection itself is 0.5.
                     // You can as well extract it from the reference element:
-                    Dune::FieldVector<double,1> localcenter =
-                      Dune::ReferenceElements<double,1>::general(fgt).position(0,0);
+                    Dune::FieldVector<double,1> localcenter = referenceElement(fgeo).position(0,0);
 
                     // Furthermore, the very same point can be expressed
                     // 1.) in global coordinates with respect to the domain origin,
