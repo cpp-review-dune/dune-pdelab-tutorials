@@ -73,6 +73,52 @@ some information about the grid cells and the intersections (but it
 does not yet).  The file is intermingled by suggestions what to print.
 You are invited to follow these suggestions or to try any of the
 member functions you learned about in the lectures.
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize, scale=1.0]
+  % Reference elements
+  \draw (0,0) rectangle (1,1);
+  \draw (5,0) -- (6,0) -- (5,1) -- cycle;
+
+  % Reference intersection
+  \draw (3,0) -- (3,1);
+
+  % Elements
+  \draw (3.3,2.2) -- (2.55,3.7) -- (1.5,3.9) -- (1.8,2.0) -- cycle;
+  \draw (3.3,2.2) -- (2.8,3.2) -- (4.0,3.4) -- cycle;
+
+  % Mark inersection in red
+  \draw[thick,red] (3,0) -- (3,1);
+  \draw[thick,red] (1,0) -- (1,0.5);
+  \draw[thick,red] (5,1) -- (6,0);
+  \draw[thick,red] (3.3,2.2) -- (2.8,3.2);
+
+   % Coordinates for drawing dashed arrows
+   %
+   % r -> reference
+   % w -> world
+   \path
+   (3.0,0.5) coordinate(ir)
+   (1,0.25) coordinate(ie1r)
+   (5.5,0.5) coordinate(ie2r)
+   (3.05,2.7) coordinate(iw)
+   (0.5,0.5) coordinate(e1r)
+   (5.25,0.25) coordinate(e2r)
+   (2.2,2.8) coordinate(e1w)
+   (3.4,2.9) coordinate(e2w);
+
+   % Draw dashed arrows for mappings
+   \draw[dashed] (ir) edge[->,bend left] (iw);
+   \draw[dashed] (ir) edge[->,bend left] (ie1r);
+   \draw[dashed] (ir) edge[->,bend right] (ie2r);
+   \draw[dashed] (e1r) edge[->,bend left] (e1w);
+   \draw[dashed] (e2r) edge[->,bend right] (e2w);
+
+   \node (fgeo_self) at (2.0, -0.3) {fgeo\_self};
+   \node (fgeo_self) at (3.2, 1.5) {fgeo};
+\end{tikzpicture}
+\end{center}
+
 \end{Exercise}
 
 \begin{Exercise}{Integrating a function}
