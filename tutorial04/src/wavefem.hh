@@ -2,7 +2,6 @@
 
 #include<dune/common/exceptions.hh>
 #include<dune/common/fvector.hh>
-
 #include<dune/geometry/referenceelements.hh>
 #include<dune/geometry/type.hh>
 
@@ -114,9 +113,9 @@ public:
   void jacobian_volume (const EG& eg, const LFSU& lfsu, const X& x,
                         const LFSV& lfsv, M& mat) const
   {
-    // select the two components (assume Galerkin scheme U=V)
-    auto lfsu0 = lfsu.template child<0>();
-    auto lfsu1 = lfsu.template child<1>();
+    using namespace Dune::TypeTree::Indices;
+    auto lfsu0 = lfsu.child(_0);
+    auto lfsu1 = lfsu.child(_1);
 
     // select quadrature rule
     auto geo = eg.geometry();
