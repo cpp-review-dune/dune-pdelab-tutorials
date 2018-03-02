@@ -60,15 +60,14 @@ int main(int argc, char** argv)
 
                 std::cout << " Intersection endpoints: ";
                 // Output the corner and center coordinates of the intersection
-                // (the methods cornor and center return global coordinates)
+                // (the methods corner and center return global coordinates)
                 // *** ADD CODE HERE (2/4) ***
 
                 if (is.neighbor())       // intersection with a neighboring cell
                 {
                     // The coordinate of the center of an intersection with respect to the intersection itself is 0.5.
                     // You can as well extract it from the reference element:
-                    Dune::FieldVector<double,1> localcenter =
-                      Dune::ReferenceElements<double,1>::general(fgt).position(0,0);
+                    Dune::FieldVector<double,1> localcenter = referenceElement(fgeo).position(0,0);
 
                     // Furthermore, the very same point can be expressed
                     // 1.) in global coordinates with respect to the domain origin,
