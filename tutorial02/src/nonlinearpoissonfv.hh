@@ -180,7 +180,7 @@ public:
     auto face_volume = facegeo.volume();
 
     // contribution to residual on inside and outside elements
-    auto dudn = (x_o(lfsu_i,0)-x_i(lfsu_o,0))/distance;
+    auto dudn = (x_o(lfsu_o,0)-x_i(lfsu_i,0))/distance;
     r_i.accumulate(lfsv_i,0,-dudn*face_volume);
     r_o.accumulate(lfsv_o,0, dudn*face_volume);
   }
