@@ -1,0 +1,523 @@
+\documentclass[a4paper,
+		     12pt,
+		     DIV10,
+		     DIVcalc,
+		     headings=normal,
+		     oneside,
+		     bibliography=totoc,
+		     headsepline=false,
+		     headinclude]{scrartcl}
+
+% font
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+%\usepackage[automark,komastyle]{scrpage2}
+
+% german; comment out if not needed
+%\usepackage[ngerman]{babel}
+%\usepackage[german]{varioref} 
+%\usepackage{bibgerm}
+
+% enlarge page size
+\usepackage[cm]{fullpage}
+
+% often used packages
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amscd}
+\usepackage{grffile}
+\usepackage{tikz} 
+\usepackage{eurosym} 
+\usepackage{graphicx}
+\usepackage{psfrag}
+\usepackage{listings}
+\lstset{language=C++, basicstyle=\ttfamily, 
+  keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
+  commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
+\usepackage{curves}
+\usepackage{calc}
+\usepackage{picinpar}
+\usepackage{enumerate}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{bm}
+\usepackage{multibib}
+\usepackage{hyperref}
+\usepackage{textcase}
+\usepackage{nicefrac}
+
+\theoremstyle{definition}
+\newtheorem{Def}{Definition}
+\newtheorem{Thm}[Def]{Theorem}
+\newtheorem{Prop}[Def]{Proposition}
+\newtheorem{Lem}[Def]{Lemma}
+\newtheorem{Assumption}[Def]{Assumption}
+\newtheorem{Exm}[Def]{Example}
+\newtheorem{Obs}[Def]{Observation}
+\newtheorem{Pro}[Def]{Proposition}
+\newtheorem{Cor}[Def]{Corollary}
+\newtheorem{Rem}[Def]{Remark}
+\newtheorem{Alg}[Def]{Algorithm}
+\newtheorem{Rep}[Def]{Repetition}
+
+\title{Tutorial 8\\ Unsteady Incompressible Navier-Stokes Equations}
+\author{\textsc{Peter Bastian}\\
+  Universität Heidelberg\\
+  Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
+  Im Neuenheimer Feld 368, D-69120 Heidelberg\\
+mail: \url{Peter.Bastian@iwr.uni-heidelberg.de}
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Provide a vanilla implementation of an unsteady incompressible Navier-Stokes
+solver based on i) conforming Taylor-Hood finite elements, ii) grad-div stabilization to
+improve satisfaction of the divergence constraint, iii) directional do-nothing condition
+for improvement of the outflow boundary conditions and iv) Navier-slip condition for
+modelling rought domains.
+\end{abstract}
+
+\tableofcontents
+
+\section{Incompressible Navier-Stokes Equations}
+
+We consider the incompressible Navier-Stokes equations in a $d$-dimensional domain $\Omega$ and time
+interval $\Sigma$ which read in strong form \cite{JohnLectureNotes}:
+\begin{subequations}
+\begin{align}
+\partial_t u + \nabla\cdot(u u^T)  &= \nabla \cdot \mathbb{S} + f &&\text{in $\Omega\times\Sigma$},\\
+\mathbb{S} &= \nu \left( \nabla u + (\nabla u)^T \right) - pI,\\
+\nabla\cdot u &= 0 .
+\end{align}
+\end{subequations}
+Here $u:\Omega\times\Sigma\to\mathbb{R}^d$ is the unknown velocity field, 
+$p:\Omega\times\Sigma\to\mathbb{R}$ is the unknown pressure (rescaled by constant mass density),
+$\mathbb{S} = 2\nu\mathbb{D}(u)-pI$ is the stress tensor, $\nu$ is the kinematic viscosity,
+$\mathbb{D}(u)=\frac12 \left( \nabla u + (\nabla u)^T \right)$ is the symmetric velocity gradient and $f$ are external sources.
+
+This model is equipped with boundary conditions
+\begin{subequations}
+\begin{align}
+u &= g                             &&\text{on $\Gamma_D$}, &&\text{(Dirichlet)}\\
+\mathbb{S} n &= \frac12 (u\cdot n)_- u  &&\text{on $\Gamma_O$}, &&\text{(directional do-nothing)}\\
+u\cdot n &= 0, \ n\times [\mathbb{S} n] \times n + \beta u = 0 &&\text{on $\Gamma_S$}. &&\text{(Navier slip)}
+\end{align}
+\end{subequations}
+As usual, $n$ denotes the unit outer normal vector to the domain $\Omega$. The directional do-nothing condition, with 
+$$(u\cdot n)_- = \left\{\begin{array}{ll}
+0 & u\cdot n \geq 0,\\
+(u\cdot n) & u\cdot n < 0,
+\end{array} \right. $$ was introduced in \cite{Braack2014} with $\mathbb{S}$ replaced
+by $\mathbb{T} = \nu \nabla u - pI$ and the form presented here is mentioned in \cite{JohnLectureNotes}.
+The Navier slip condition is discussed in \cite{Neustupa2007}.
+
+\begin{Rem}
+This weak formulation is based in the symmetric gradient in order to be able to incorporate the
+Navier slip condition. In most formulations of the incompressible Navier-Stokes equations one exploits
+the divergence constraint in the momentum equation leading to $2\nabla\cdot\mathbb{D}(u) = \nabla\cdot\nabla u + \nabla\cdot(\nabla u)^T
+=  \nabla\cdot\nabla u + \nabla(\nabla\cdot u) =  \nabla\cdot\nabla u$ as well as $\nabla\cdot(uu^T) = (\nabla u) u + u (\nabla\cdot u)$. Since 
+$\nabla\cdot u = 0$ does not hold in general in the discrete case we prefer to start from the formulation given here.
+\end{Rem}
+
+\section{Weak Formulation}
+
+We recall the compact notation $$(f,g)_{0,\Omega} = \left\{\begin{array}{ll}
+\int_\Omega fg \ dx & \text{$f,g$ scalar valued}\\
+\int_\Omega f\cdot g \ dx & \text{$f,g$ vector valued}\\
+\int_\Omega f : g \ dx & \text{$f,g$ matrix valued}
+\end{array}\right. ,$$
+and the integration by parts formula 
+$$(\nabla\cdot\mathbb{A},v)_{0,\Omega} = - (\mathbb{A},\nabla v)_{0,\Omega} + (\mathbb{A}n,v)_{0,\partial\Omega}$$
+for any matrix valued function $\mathbb{A}$ and vector valued function $v$.  
+
+Then, for any test function with $v=0$ on $\Gamma_D$ we obtain the weak form of the momentum equation
+\begin{equation*}
+\begin{split}
+(\partial_t u &+ \nabla\cdot(uu^T) - \nabla\cdot\mathbb{S},v)_{0,\Omega} = 
+\partial_t( u,v )_{0,\Omega} + (\nabla\cdot(uu^T),v)_{0,\Omega} + (\mathbb{S},\nabla v)_{0,\Omega} - (\mathbb{S}n,v)_{0,\partial\Omega}\\
+&= \partial_t( u,v )_{0,\Omega} + (\nabla\cdot(uu^T),v)_{0,\Omega} + 2\nu(\mathbb{D}(u),\nabla v)_{0,\Omega} - (p,\nabla\cdot v)_{0,\Omega}
+- \frac12 ( (u\cdot n)_- u , v)_{0,\Gamma_O} + \beta (u,v)_{0,\Gamma_S} \\
+&= (f,v)_{0,\Omega} 
+\end{split}
+\end{equation*}
+under the additional constraint $u\cdot n=0$ on $\Gamma_S$.
+The weak form of the continuity equation reads for any test function $q$:
+\begin{equation*}
+(\nabla\cdot u , q)_{0,\Omega} = 0 .
+\end{equation*}
+Introducing the forms
+\begin{align}
+a(u,v) &= 2\nu(\mathbb{D}(u),\nabla v)_{0,\Omega} \\
+b(u,q) &= -(\nabla\cdot u , q)_{0,\Omega},\\
+c(u,w,v) &=  (\nabla\cdot(uw^T),v)_{0,\Omega} = ( (\nabla u)w , v )_{0,\Omega} + (u\cdot v, \nabla\cdot w)_{0,\Omega},\\
+s(u,v) &=  \beta (u,v)_{0,\Gamma_S} - \frac12 ( (u\cdot n)_- u , v)_{0,\Gamma_O} 
+\end{align}
+and the function spaces
+\begin{align}
+V &= \left\{ v\in (H^1(\Omega))^d : \text{$v=0$ on $\Gamma_D$ and $v\cdot n=0$ on $\Gamma_S$} \right\},\\
+U &= \left\{ u\in (H^1(\Omega))^d : \text{$u=u_g+v$ with $v\in V$ and $u_g=g$ on $\Gamma_D$ and $u_g\cdot n=0$ on $\Gamma_S$} \right\},\\
+Q &= \left\{ q\in L_2(\Omega) : \text{ $(q,1)_{0,\Omega}=0$ if $\Gamma_D=\partial\Omega$} \right\},
+\end{align}
+we obtain the following weak formulation. Find $(u,p)\in U\times Q$ such that
+\begin{align}
+\partial_t (u,v)_{0,\Omega} + c(u,u,v) + a(u,v) + b(v,p) + s(u,v)  &= (f,v)_{0,\Omega} &&\forall v\in V,\\
+b(u,q) &= 0 &&\forall q\in Q.
+\end{align}
+\begin{Rem}
+This weak formulation has the following properties:
+\begin{itemize}
+\item The boundary terms give a positive contribution when inserting $v=u$, i.e. $s(u,u) > 0$ for $u\neq 0$.
+\item $a$ is a symmetric bilinear form since $(\nabla u)^T : \nabla v = \nabla u : (\nabla v)^T$. Coercivity is established by Korn's inequality.
+\end{itemize}
+\end{Rem}
+
+\section{Finite Element Formulation}
+
+We employ a conforming finite element method here, the so-called Taylor-Hood element. It uses the function spaces
+\begin{align}
+V_h &= \left\{ v\in (\mathbb{P}_{r+1})^d : \text{$v=0$ on $\Gamma_D$ and $v\cdot n=0$ on $\Gamma_S$} \right\},\\
+U_h &= \left\{ u\in (\mathbb{P}_{r+1})^d : \text{$u=u_g+v$ with $v\in V_h$ and $u_g=g$ on $\Gamma_D$ and $u_g\cdot n=0$ on $\Gamma_S$} \right\},\\
+Q_h &= \left\{ q\in \mathbb{P}_r : \text{ $(q,1)_{0,\Omega}=0$ if $\Gamma_D=\partial\Omega$} \right\},
+\end{align}
+and is based on the following discrete weak formulation. Find $(u_h,p_h)\in U_h\times Q_h$ such that
+\begin{align}
+\partial_t (u_h,v)_{0,\Omega} + c(u_h,u_h,v) + a(u_h,v) + b(v,p_h) + s(u_h,v) + \gamma (\nabla\cdot u_h, \nabla\cdot v) &= (f,v)_{0,\Omega} &&\forall v\in V_h,\\
+b(u_h,q) &= 0 &&\forall q\in Q_h.
+\end{align}
+\begin{Rem}
+\begin{itemize}
+\item Here, the grad-div stabilization was added with a factor $\gamma\geq 0$ in order to improve the pressure
+robustness of the method, see the review \cite{John_etal_2017} on this topic.
+\item The slip boundary condition is most simple to implement when $n$ points in the direction of a single coordinate.
+\end{itemize}
+\end{Rem}
+
+\subsection{Element Integrals}
+
+\subsubsection*{Basic Tools} First we collect some basic tools and notation for element-wise computations.
+
+\paragraph{Element Transformation}
+
+Given an element $T\in\mathcal{T}_h$ the transformation from the reference element to the real element is denoted by $T = \mu_T(\hat T)$
+with the Jacobian inverse transposed $J_T(\hat x) = \nabla\mu_T^{-T}(\hat x)$.
+
+\paragraph{Basis Functions and Gradients.} For polynomial degree $r$ introduce the global basis functions
+\begin{equation}
+\mathbb{P}_{r+1}=\text{span}\{ \phi_1,\ldots,\phi_{N_u}\}, \qquad 
+\mathbb{P}_{r}=\text{span}\{ \psi_1,\ldots,\phi_{N_p}\}
+\end{equation}
+and then set
+\begin{equation}
+(\mathbb{P}_{r+1})^d = \text{span}\left\{ \Phi_{i,k} = \phi_k e_i, 1\leq k \leq N_u, 1\leq i \leq d    \right\}
+\end{equation}
+with the unit vectors $(e_i)_j=\delta_{ij}$. Using that notation we have
+\begin{equation}
+u_h(x) = \sum_{l=1}^{N_u} \sum_{j=1}^d z_{j,l} \phi_l e_j, \qquad p_h(x) = \sum_{m=1}^{N_p} y_{m}\psi_m(x)
+\end{equation}
+
+The basis function $\phi_k$ at a point $T\ni x = \mu_{T}(\hat x)$
+is generated from a basis function $\hat\phi_l$ on the reference element via $\phi_k(\mu_T(\hat x)) = \hat\phi_l(\hat x)$ 
+and we define the vector of local basis function evaluations
+$$ \hat \phi(\hat x) = \left( \hat\phi_1(\hat x),\ldots,\hat\phi_{n_u}(\hat x) \right)^T, \qquad
+\hat\psi(\hat x) =  \left( \hat\psi_1(\hat x),\ldots,\hat\psi_{n_p}(\hat x) \right)^T$$
+where $n_u=n_{r+1}$ is the number of basis functions of velocity space on the reference element and
+$n_p=n_r$ is the number of pressure basis functions on the reference element.
+Then we can evaluate
+\begin{equation}
+\label{eq:evalu}
+\begin{split}
+u_h(x) &=  \sum_{l=1}^{n_u} \sum_{j=1}^d z_{j,l}   \phi_l(x) e_j  = \sum_{l=1}^{n_u} \phi_l(x) \left(\begin{array}{c}
+z_{1,l}\\ \vdots\\ z_{d,l} \end{array}\right)
+= Z_T \hat\phi(\hat x)
+\end{split}
+\end{equation}
+where $(Z_T)_{j,l} = z_{j,l}$ is the matrix of coefficients on element $T$.
+In a similar way the pressure on an element is evaluated as
+\begin{equation}
+\label{eq:evalp}
+\begin{split}
+p_h(x) &=  \sum_{m=1}^{n_p} y_{m} \psi_m(x) 
+= Y_T \cdot \hat\psi(\hat x)
+\end{split}
+\end{equation}
+where $Y_T$ is the vector of pressure degrees of freedom on element $T$.
+
+For the gradients we define the matrices (no gradients of pressure basis functions is needed)
+$$\hat G(\hat x) = \left[ \hat\nabla\hat\phi_1,\ldots,\hat\nabla\hat\phi_{n_u}\right] \qquad \text{and} \qquad
+G_T(x) = J_T(\hat x) \hat G(\hat x)$$
+and now seek to compute $\nabla u(x) $ for $T\ni x = \mu_{T}(\hat x)$:
+\begin{equation}
+\label{eq:evalgradu}
+\begin{split}
+\nabla u_h(x) &=  \sum_{l=1}^{n_u} \sum_{j=1}^d z_{j,l} \nabla(  \phi_l(x) e_j ) 
+= \sum_{l=1}^{n_u} \sum_{j=1}^d z_{j,l} e_j (\nabla\phi_l(x))^T\\
+&= \sum_{l=1}^{n_u} \left(\sum_{j=1}^d  z_{j,l} e_j\right)  (J_T(\hat x) \hat\nabla\hat\phi_l(\hat x) )^T
+= \sum_{l=1}^{n_u} z_{\ast,l}  (J_T(\hat x) \hat\nabla\hat\phi_l(\hat x) )^T\\
+&= Z_T G^T_T(x) = Z_T  ({\hat G}(\hat x))^T J^T_T(\hat x) .
+\end{split}
+\end{equation}
+ 
+Now for the divergence:
+\begin{equation}
+\label{eq:evaldivu}
+\begin{split}
+\nabla\cdot u_h(x) &=  \sum_{l=1}^{n_u} \sum_{j=1}^d z_{j,l} \nabla\cdot(  \phi_l(x) e_j ) 
+= \sum_{l=1}^{n_u} \sum_{j=1}^d z_{j,l} \partial_{x_j} \phi_l(x) 
+= \sum_{l=1}^{n_u} \sum_{j=1}^d z_{j,l} (G_T(x))_{j,l} = Z_T : G_T(x).
+\end{split}
+\end{equation}
+ 
+
+\paragraph{Quadrature.}
+
+The integral of a function $q : T \to\mathbb{R}$ is approximated by a generic quadrature rule
+\begin{equation}
+\int_T q(x)\,dx = \int_{\hat T} q(\mu_T(\hat x))  \text{det} \nabla\mu_T(\hat x) \,d\hat x
+= \sum_{\alpha=1}^{M_T} q(\mu_T(\hat x_\alpha))  \text{det} \nabla\mu_T(\hat x_\alpha)  \hat w_\alpha + \text{error}.
+\end{equation}
+The weights are collected in the column vector $w_T\in\mathbb{R}^M$ with $(w_T)_\alpha = 
+\text{det} \nabla\mu_T(\hat x_\alpha)  \hat w_\alpha$.
+
+Boundary integrals are treated in a similar way. Let $F$ be a face of element $T\in\mathcal{T}_h$. $F$ has the reference
+element $\hat F$ and there are two maps $\eta_F : \hat F \to F$ and $\xi_{F,T} : \hat F \to \hat T$ that satisfy
+$\eta_F(\hat s) = \mu_T( \xi_{F,T}(\hat s) )$. Then the integral of a function $q : T \to\mathbb{R}$ over the
+face $F$ of $T$ can be computed by
+\begin{equation}
+\int_F q(s) \,ds = \int_{\hat F} q(\mu_T(\xi_{F,T}(\hat s))) \Delta_{F,T}(\hat s) \, d\hat s
+= \sum_{\alpha=1}^{M_F} q(\mu_T(\xi_{F,T}(\hat s_\alpha))) \Delta_{F,T}(\hat s_\alpha) \hat w_\alpha + \text{error}
+\end{equation}
+with the integration element $\Delta_{F,T}(\hat s) = \sqrt{|\text{det}\left((\nabla\eta(\hat s))^T \nabla\eta(\hat s)\right)|}$.
+We collect the weights in the vector $(w_F)_\alpha = \Delta_{F,T}(\hat s_\alpha) \hat w_\alpha$.
+
+\subsubsection*{Stress Term}
+
+For element $T\in\mathcal{T}_h$ we seek to compute the integrals 
+$$(R^\mathbb{S}_T)_{i,k} = 2\nu(\mathbb{D}(u),\nabla\Phi_{i,k})_{0,T}$$ for all test functions $\Phi_{i,k}$
+with support intersecting $T$. $R^\mathbb{S}_T$ is represented as a $d\times n_u$ matrix.
+
+Using the representation of $\nabla u(x)$ from \eqref{eq:evalgradu} we obtain
+\begin{equation}
+S_T(x) = 2\mathbb{D}(u)(x) = \nabla u(x) + (\nabla u(x))^T
+= Z_T G^T_T(x) + G_T(x) Z^T_T 
+\end{equation}
+and may compute
+\begin{equation*}
+\begin{split}
+\left(R^\mathbb{S}_T \right)_{i,k} &= 2\nu \int_T \mathbb{D}(u) : \nabla\Phi_{i,k} \, dx
+= \nu \int_T (\nabla u + (\nabla u)^T) :( e_i (\nabla\phi_k)^T) \, dx \\
+&= \nu \int_T \nabla u_i \cdot \nabla\phi_k + \partial_i u \cdot \nabla\phi_k \, dx
+\end{split}
+\end{equation*}
+which gives for a column
+\begin{equation*}
+\begin{split}
+\left(R^\mathbb{S}_T \right)_{\ast,k} 
+&= \nu \int_T \nabla u \cdot \nabla\phi_k + (\nabla u)^T \nabla\phi_k \, dx
+= 2\nu \int_T \mathbb{D}(u) \nabla\phi_k \, dx,
+\end{split}
+\end{equation*}
+and results in
+\begin{equation}
+\begin{split}
+R^\mathbb{S}_T &= 2\nu \int_T \mathbb{D}(u) G_T(x) \, dx = \nu \int_T S_T(x) G_T(x) \, dx 
+\approx \nu \sum_\alpha S_T(x_\alpha) G_T(x_\alpha) (w_T)_\alpha
+\end{split}
+\end{equation}
+after inserting quadrature.
+
+\subsubsection*{Grad-Div Stabilization Term}
+
+For element $T\in\mathcal{T}_h$ we seek to compute the integrals 
+$(R^{\nabla\nabla\cdot}_T)_{i,k} = (\nabla\cdot u,\nabla\cdot\Phi_{i,k})_{0,T}$ for all test functions $\Phi_{i,k}$
+with support intersecting $T$. $R^C_T$ is represented as a $d\times n_u$ matrix. Observe
+\begin{equation*}
+(R^{\nabla\nabla\cdot}_T)_{i,k} = \left(\nabla\cdot u,\Phi_{i,k}\right)_{0,T} 
+= \left(\nabla\cdot u,\nabla\cdot(\phi_{k}e_i) \right )_{0,T} 
+= \left(\nabla\cdot u, \partial_{x_i}\phi_{k} \right )_{0,T} 
+= \left(\nabla\cdot u, (G_T)_{i,k} \right )_{0,T} 
+\end{equation*}
+and therefore
+\begin{equation*}
+\begin{split}
+R^{\nabla\nabla\cdot}_T &= \int_T \nabla\cdot u(x) G_T(x)  \,dx
+\approx \sum_\alpha (Z_T : G_T(\mu_T(\hat x_\alpha)) G_T(\mu_T(\hat x_\alpha)) (w_T)_\alpha
+\end{split}
+\end{equation*}
+
+\subsubsection*{Pressure Term}
+
+For element $T\in\mathcal{T}_h$ we seek to compute the integrals 
+$(R^{p}_T)_{i,k} = ( p, \nabla\cdot\Phi_{i,k})_{0,T}$ for all test functions $\Phi_{i,k}$
+with support intersecting $T$. $R^p_T$ is represented as a $d\times n_u$ matrix:
+\begin{equation*}
+(R^{p}_T)_{i,k} = \left( p,\nabla\cdot\Phi_{i,k}\right)_{0,T} =  \left( p,\partial_{x_i}\phi_{k}\right)_{0,T} 
+=  \left( p, (G_T(x))_{i,k} \right)_{0,T}
+\end{equation*}
+which gives in matrix form:
+\begin{equation}
+R^{p}_T = \int_{\hat T} p(\mu_T(\hat x)) G_T(\mu_T(\hat x) ) \, \text{det} \nabla\mu_T(\hat x) \,d\hat x
+\approx \sum_\alpha (Y_T \cdot \hat\psi(\hat x_\alpha) ) G_T(\mu_T(\hat x_\alpha))  (w_T)_\alpha
+\end{equation}
+
+\subsubsection*{Convection Term}
+
+For element $T\in\mathcal{T}_h$ we seek to compute the integrals 
+$(R^C_T)_{i,k} = (\nabla\cdot(uu^T),\Phi_{i,k})_{0,T}$ for all test functions $\Phi_{i,k}$
+with support intersecting $T$. $R^C_T$ is represented as a $d\times n_u$ matrix.
+Using the product rule $\nabla\cdot(uu^T)(x) = \nabla u(x) u(x) + u(x) \nabla\cdot u(x)$ we can reuse \eqref{eq:evalu},  \eqref{eq:evalgradu},
+\eqref{eq:evaldivu}:
+\begin{equation*}
+(R^C_T)_{i,k} = \left(\nabla\cdot(uu^T),\Phi_{i,k}\right)_{0,T} = \left(\nabla\cdot(uu^T),\phi_{k}e_i \right )_{0,T} = 
+\left(\left[\nabla\cdot(uu^T)\right]_i,\phi_{k}\right)_{0,T}
+\end{equation*}
+and therefore
+\begin{equation}
+\begin{split}
+R^C_T &= \int_T \nabla\cdot(uu^T) \hat\phi^T(\hat x) \text{det} \nabla\mu_T(\hat x) \,dx\\
+&\approx \sum_\alpha \left[  \nabla u_h(\mu_T(\hat x_\alpha)) \hat u_h(\hat x_\alpha) 
++ \hat u_h(\hat x_\alpha) \nabla\cdot u_h(\mu_T(\hat x_\alpha)) \right] \hat\phi^T(\hat x_\alpha) (w_T)_\alpha.
+\end{split}
+\end{equation}
+
+\begin{Rem}
+The efficient evaluation of this expression should follow the following rules:
+\begin{itemize}
+\item Do a right to left evaluation to minimize flop count.
+\item Vectorize over quadrature points.
+\end{itemize}
+\end{Rem}
+
+\subsubsection*{Mass Term}
+
+For element $T\in\mathcal{T}_h$ we seek to compute the integrals 
+$(R^{M}_T)_{i,k} = ( u, \Phi_{i,k})_{0,T}$ for all test functions $\Phi_{i,k}$
+with support intersecting $T$. $R^M_T$ is represented as a $d\times n_u$ matrix:
+\begin{equation*}
+(R^{M}_T)_{i,k} = \left( u,\Phi_{i,k}\right)_{0,T} =  \left( u,\phi_{k} e_i\right)_{0,T} =  \left( u\cdot e_i,\phi_{k}\right)_{0,T}
+\end{equation*}
+which gives in matrix form
+\begin{equation}
+R^{M}_T = \int_{\hat T} u(\mu_T(\hat x)) \hat\phi^T(\hat x)  \, \text{det} \nabla\mu_T(\hat x) \,d\hat x
+\approx \sum_\alpha (Z_T \hat\phi(\hat x_\alpha)) \hat\phi^T(\hat x_\alpha) (w_T)_\alpha
+\end{equation}
+
+
+\subsubsection*{External Force Term}
+
+For element $T\in\mathcal{T}_h$ we seek to compute the integrals 
+$(R^{f}_T)_{i,k} = ( f, \Phi_{i,k})_{0,T}$ for all test functions $\Phi_{i,k}$
+with support intersecting $T$. $R^f_T$ is represented as a $d\times n_u$ matrix:
+\begin{equation*}
+(R^{f}_T)_{i,k} = \left( f,\Phi_{i,k}\right)_{0,T} =  \left( f,\phi_{k} e_i\right)_{0,T} =  \left( f\cdot e_i,\phi_{k}\right)_{0,T}
+\end{equation*}
+which gives in matrix form
+\begin{equation}
+R^{f}_T = \int_{\hat T} f(\mu_T(\hat x)) \hat\phi^T(\hat x)  \, \text{det} \nabla\mu_T(\hat x) \,d\hat x
+\approx \sum_\alpha f(\mu_T(\hat x_\alpha)) \hat\phi^T(\hat x_\alpha) (w_T)_\alpha
+\end{equation}
+
+\subsubsection*{Divergence Term}
+
+For element $T\in\mathcal{T}_h$ we seek to compute the integrals 
+$(R^{\nabla\cdot}_T)_{k} = ( \nabla\cdot u, \psi_{k})_{0,T}$ for all pressure test functions $\psi_{k}$
+with support intersecting $T$. $R^{\nabla\cdot}_T$ is represented as a column vector with $n_p$ components:
+\begin{equation*}
+(R^{\nabla\cdot}_T)_{k} = \left( \nabla\cdot u,\psi_{k}\right)_{0,T} 
+= \left( Z_T:G_T,\psi_{k}\right)_{0,T} 
+\end{equation*}
+which gives 
+\begin{equation*}
+R^{\nabla\cdot}_T = \int_{\hat T} (Z_T : G_T(\mu_T(\hat x))) \hat\psi(\hat x) \, \text{det} \nabla\mu_T(\hat x) \,d\hat x
+\approx \sum_\alpha  (Z_T : G_T(\mu_T(\hat x_\alpha))) \hat\psi(\hat x_\alpha) (w_T)_\alpha
+\end{equation*}
+
+\subsubsection*{Navier Slip Boundary Term}
+
+For boundary face $F$ of element $T\in\mathcal{T}_h$ we seek to compute the integrals 
+$(R^{S}_T)_{i,k} = \beta ( u , \Phi_{i,k})_{0,F}$ for all test functions $\Phi_{i,k}$
+with support intersecting $T$. $R^{S}_T$ is represented as a $d\times n_u$ matrix:
+\begin{equation*}
+(R^{S}_T)_{i,k} = \beta ( u , \Phi_{i,k})_{0,F} = \beta ( u , \phi_{k}e_i )_{0,F} = \beta ( u\cdot e_i , \phi_{k} )_{0,F} ,
+\end{equation*}
+so
+\begin{equation}
+R^{S}_T = \beta \int_{\hat F} u(\mu_T(\xi_{F,T}(\hat s)))  \hat\phi^T(\xi_{F,T}(\hat s)) \Delta_{F,T}(\hat s) \,d\hat s
+\approx \sum_\alpha (Z_T \hat\phi(\xi_{F,T}(\hat s_\alpha))) \hat\phi^T(\xi_{F,T}(\hat s_\alpha))  (w_F)_\alpha .
+\end{equation}
+
+
+\subsubsection*{Directional Do-Nothing Boundary Term}
+
+For boundary face $F$ of element $T\in\mathcal{T}_h$ we seek to compute the integrals 
+$(R^{O}_T)_{i,k} = \frac12 ( (u\cdot n)_-u, \Phi_{i,k})_{0,F}$ for all test functions $\Phi_{i,k}$
+with support intersecting $T$. $R^{O}_T$ is represented as a $d\times n_u$ matrix:
+\begin{equation*}
+(R^{O}_T)_{i,k} = \frac12 ( (u\cdot n)_-u  , \Phi_{i,k})_{0,F} = \frac12 ( (u\cdot n)_- (u\cdot e_i), \phi_{k} )_{0,F} ,
+\end{equation*}
+so
+\begin{equation}
+\begin{split}
+R^{O}_T &= \frac12 \int_{\hat F} (u(\mu_T(\xi_{F,T}(\hat s)))\cdot n)_- u(\mu_T(\xi_{F,T}(\hat s)))  \hat\phi^T(\xi_{F,T}(\hat s)) \Delta_{F,T}(\hat s) \,d\hat s\\
+&\approx \sum_\alpha ( (Z_T \hat\phi(\xi_{F,T}(\hat s_\alpha))) \cdot n)_- (Z_T \hat\phi(\xi_{F,T}(\hat s_\alpha))) \hat\phi^T(\xi_{F,T}(\hat s_\alpha))  (w_F)_\alpha .
+\end{split}
+\end{equation}
+
+
+Quadraturformeln
+
+
+Triangle quadrature
+dim=2 order=1 m=1
+dim=2 order=2 m=3
+dim=2 order=3 m=4
+dim=2 order=4 m=6
+dim=2 order=5 m=7
+dim=2 order=6 m=12
+dim=2 order=7 m=12
+dim=2 order=8 m=16
+dim=2 order=9 m=19
+dim=2 order=10 m=25
+dim=2 order=11 m=28
+dim=2 order=12 m=33
+dim=2 order=13 m=56
+dim=2 order=14 m=64
+dim=2 order=15 m=72
+dim=2 order=16 m=81
+dim=2 order=17 m=90
+dim=2 order=18 m=100
+dim=2 order=19 m=110
+dim=2 order=20 m=121
+
+Quadrilateral quadrature
+order of volume quadrature with 121 points is 20
+order of volume quadrature with 100 points is 19
+order of volume quadrature with 100 points is 18
+order of volume quadrature with 81 points is 17
+order of volume quadrature with 81 points is 16
+order of volume quadrature with 64 points is 15
+order of volume quadrature with 64 points is 14
+order of volume quadrature with 49 points is 13
+order of volume quadrature with 49 points is 12
+order of volume quadrature with 36 points is 11
+order of volume quadrature with 36 points is 10
+order of volume quadrature with 25 points is 9
+order of volume quadrature with 25 points is 8
+order of volume quadrature with 16 points is 7
+order of volume quadrature with 16 points is 6
+order of volume quadrature with 9 points is 5
+order of volume quadrature with 9 points is 4
+order of volume quadrature with 4 points is 3
+order of volume quadrature with 4 points is 2
+order of volume quadrature with 1 points is 1
+
+
+% bibtex bibliography
+\bibliographystyle{plain}
+\bibliography{tutorial08.bib}
+
+\end{document}
