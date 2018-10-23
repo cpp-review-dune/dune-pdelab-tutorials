@@ -58,6 +58,7 @@
 #include<dune/pdelab/finiteelement/l2orthonormal.hh>
 #include<dune/pdelab/finiteelement/qkdglagrange.hh>
 #include<dune/pdelab/newton/newton.hh>
+#include<dune/pdelab/function/discretegridviewfunction.hh>
 
 #include"timecapsule.hh"
 #include"schemes.hh"
@@ -83,19 +84,19 @@ int main(int argc, char** argv)
 
     // open ini file and parse it in
     Dune::ParameterTree ptree;
-    const std::string config_filename("navier-stokes-cylinder.ini");
+    const std::string config_filename("navier-stokes-driven-cavity.ini");
     try {
       Dune::ParameterTreeParser::readINITree(config_filename, ptree);
       Dune::ParameterTreeParser ptreeparser;
       ptreeparser.readOptions(argc,argv,ptree);
     }
     catch(...) {
-      std::cerr << "The configuration file \"navier-stokes-cylinder.ini\" could not be read. "
+      std::cerr << "The configuration file \"navier-stokes-driven-cavity.ini\" could not be read. "
 	"Exiting..." << std::endl;
       exit(1);
     }
 
-    // read in a simplicial grid
+    // construct grid
     std::string filename = ptree.get<std::string>("grid.meshfile");
     const int refinement = ptree.get<int>("grid.refinement");
 #if HAVE_UG // see if we have UG
@@ -104,6 +105,13 @@ int main(int argc, char** argv)
     std::cout << "Example requires UG grid!" << std::endl;
 #endif
 #if HAVE_UG
+    // Dune::StructuredGridFactory<Grid> factory;
+    // Dune::FieldVector<double,2> lowerLeft(0.0);
+    // Dune::FieldVector<double,2> upperRight(1.0);
+    // auto cells = ptree.get<std::array<unsigned int,2> >("grid.cells");
+    // auto gridp = factory.createSimplexGrid(lowerLeft,upperRight,cells);
+    //auto gridp = factory.createCubeGrid(lowerLeft,upperRight,cells);
+
     // construct grid with factory; this may be a simplex or cube mesh
     Dune::GridFactory<Grid> factory;
     Dune::GmshReader<Grid>::read(factory,filename,true,true);
@@ -111,7 +119,7 @@ int main(int argc, char** argv)
     Dune::Timer timer;
     gridp->globalRefine(refinement);
     std::cout << "Time for mesh refinement " << timer.elapsed()
-	      << " seconds" << std::endl;
+    	      << " seconds" << std::endl;
 
     // types & constants
     typedef Grid::ctype DF;
@@ -128,24 +136,21 @@ int main(int argc, char** argv)
     // c) boundary values and initial condition function
     
     // make a scalar boundary condition type function for the whole system
-    const double domainX = 2.2;  // extend of domain in X
-    const double domainY = 0.41; // extend of domain in Y
-    const double eps=1e-7;       // accuracy for boundary detection
+    const RF domainX = 1.0; // extend of domain in X
+    const RF domainY = 1.0; // extend of domain in Y
+    const RF eps=1e-7;       // accuracy for boundary detection
     auto bctypelambda = [&](const auto& x){ // Dirichlet for x-component of velocity
-      if (x[0]>domainX-eps) return Dune::PDELab::NavierStokesBoundaryCondition::donothing;
-      return Dune::PDELab::NavierStokesBoundaryCondition::noslip;
+      return Dune::PDELab::NavierStokesBoundaryCondition::noslip; // means Dirichlet
     };
     // auto bctype = Dune::PDELab::makeBoundaryConditionFromCallable(gv,bctypelambda);
 
     // define matching constraints on solution components
     // we assume that type of b.c. does not depend on time
     auto buxlambda = [&](const auto& x){ // Dirichlet for x-component of velocity
-      if (x[0]>domainX-eps) return false;
       return true;
     };
     auto bux = Dune::PDELab::makeBoundaryConditionFromCallable(gv,buxlambda);
     auto buylambda = [&](const auto& x){ // Dirichlet for y-component of velocity
-      if (x[0]>domainX-eps) return false;
       return true;
     };
     auto buy = Dune::PDELab::makeBoundaryConditionFromCallable(gv,buylambda);
@@ -158,17 +163,17 @@ int main(int argc, char** argv)
     TimeCapsule tc(0.0);
     
     // make combined Dirichlet and initial value function
-    const RF meanflow = ptree.get<RF>("problem.meanflow");
     auto gulambda = [&](const auto& x){
-      Dune::FieldVector<RF,dim> rv(0.0);
-      if (x[0]<eps)
+      Dune::FieldVector<RF,dim> u(0.0); // zero velocity is default
+      if (x[0]>eps && x[0]<domainX-eps && x[1]>eps && x[1]<domainY-eps) return u;
+      if (x[1]>domainY-eps)
 	{
-	  if (tc.getTime()<=4.0)
-	    rv[0] = meanflow*4*x[1]*(domainY-x[1])/(domainY*domainY)*sin(M_PI*tc.getTime()/8.0);
+	  if (tc.getTime()<=2.0)
+	    u[0] = sin(M_PI*tc.getTime()/4.0)*sin(M_PI*tc.getTime()/4.0);
 	  else
-	    rv[0] = meanflow*4*x[1]*(domainY-x[1])/(domainY*domainY);
+	    u[0] = 1.0;
 	}
-      return rv;
+      return u;
     };
     auto gu = Dune::PDELab::makeInstationaryGridFunctionFromCallable(gv,gulambda,tc);
     auto gplambda = [&](const auto& x){
@@ -178,7 +183,7 @@ int main(int argc, char** argv)
     auto g = Dune::PDELab::CompositeGridFunction<decltype(gu),decltype(gp)>(gu,gp);
     
     // call the general driver
-    driver_flow(gv,TaylorHood_32_Triangle(gv),bctypelambda,bconstraints,g,ptree);
+    driver_flow(gv,TaylorHood_21_Triangle(gv),bctypelambda,bconstraints,g,ptree);
     
 #endif
 
