@@ -112,8 +112,8 @@ int main(int argc, char** argv)
     Dune::FieldVector<double,2> lowerLeft(0.0);
     auto upperRight = ptree.get<Dune::FieldVector<double,2> >("grid.upperRight");
     auto cells = ptree.get<std::array<unsigned int,2> >("grid.cells");
-    //auto gridp = factory.createSimplexGrid(lowerLeft,upperRight,cells);
-    auto gridp = factory.createCubeGrid(lowerLeft,upperRight,cells);
+    auto gridp = factory.createSimplexGrid(lowerLeft,upperRight,cells);
+    //auto gridp = factory.createCubeGrid(lowerLeft,upperRight,cells);
 
     // construct grid with factory; this may be a simplex or cube mesh
     // Dune::GridFactory<Grid> factory;
@@ -172,8 +172,10 @@ int main(int argc, char** argv)
       return u;
     };
     auto gu = Dune::PDELab::makeInstationaryGridFunctionFromCallable(gv,gulambda,tc);
+    auto rho_1 = ptree.get<RF>("problem.rho_1"); // rho = rho_1 - kappa*temperature
     auto gplambda = [&](const auto& x){
-      RF s = 0.0; return s;
+      RF s = rho_1*(0.5*domainY-x[1]);
+      return s;
     };
     auto gp = Dune::PDELab::makeInstationaryGridFunctionFromCallable(gv,gplambda,tc);
     auto g = Dune::PDELab::CompositeGridFunction<decltype(gu),decltype(gp)>(gu,gp);
@@ -189,9 +191,14 @@ int main(int argc, char** argv)
 
     // ... and combined Dirichlet and initial value function for temperature distribution
     TimeCapsule tc2(0.0); // another time capsule for the temperature
-    auto ramp = 0.05*domainY;
+    auto width = 0.05*domainX;
     auto Tglambda = [&](const auto& x){
       RF T = 0.0;
+      RF ramp;
+      if (x[0]>=8.0/21.0 && x[0]<=9.0/21.0)
+	ramp = 0.025*domainY * (1.0 + std::sin( x[0]*21.0*M_PI ));
+      else
+	ramp = 0.025*domainY;	
       if (x[1]>=ramp) return T;
       T = (1.0-x[1]/ramp)*(1.0-x[1]/ramp);
       return T;
@@ -199,7 +206,7 @@ int main(int argc, char** argv)
     auto Tg = Dune::PDELab::makeInstationaryGridFunctionFromCallable(gv,Tglambda,tc2);
 
     // call the general driver
-    auto scheme = TaylorHood_21_Quadrilateral(gv);
+    auto scheme = TaylorHood_32_Triangle(gv);
     driver_coupled(gv,scheme,bctypelambda,bconstraints,g,Tbctypelambda,Tg,ptree);
     
 #endif
