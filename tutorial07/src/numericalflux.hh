@@ -29,6 +29,7 @@ public:
                      const Dune::FieldVector<RF,m>& u_n,
                      Dune::FieldVector<RF,m>& f) const
   {
+    f = 0.0;
     // fetch flux
     Dune::FieldMatrix<RF,m,dim> Fs;
     Dune::FieldMatrix<RF,m,dim> Fn;
