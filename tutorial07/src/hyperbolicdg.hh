@@ -1,4 +1,4 @@
-// -*- tab-width: 4; indent-tabs-mode: nil -*-
+// -*- tab-width: 2; indent-tabs-mode: nil -*-
 #ifndef DUNE_PDELAB_LOCALOPERATOR_HYPERBOLICDG_HH
 #define DUNE_PDELAB_LOCALOPERATOR_HYPERBOLICDG_HH
 
@@ -93,30 +93,31 @@ namespace Dune {
         const int intorder = overintegration+2*order;
         for (const auto& ip : quadratureRule(geo,intorder))
           {
+            const auto qp = ip.position();
             // evaluate basis functions
-            auto& phi = cache[order].evaluateFunction(ip.position(),dgspace.finiteElement().localBasis());
+            auto& phi = cache[order].evaluateFunction(qp,dgspace.finiteElement().localBasis());
 
             // evaluate u
             u = 0.0;
             for (size_t k=0; k<m; k++) // for all components
               for (size_t j=0; j<dgspace.size(); j++) // for all basis functions
                 u[k] += x(lfsv.child(k),j)*phi[j];
-            // std::cout << "  u at " << ip.position() << " : " << u << std::endl;
+            // std::cout << "  u at " << qp << " : " << u << std::endl;
 
             // evaluate gradient of basis functions (we assume Galerkin method lfsu=lfsv)
-            auto& js = cache[order].evaluateJacobian(ip.position(),dgspace.finiteElement().localBasis());
+            auto& js = cache[order].evaluateJacobian(qp,dgspace.finiteElement().localBasis());
 
             // compute global gradients
-            jac = geo.jacobianInverseTransposed(ip.position());
+            jac = geo.jacobianInverseTransposed(qp);
             for (size_t i=0; i<dgspace.size(); i++)
               jac.mv(js[i][0],gradphi[i]);
 
             /// tex: fluxint
             Dune::FieldMatrix<RF,m,dim> F;
-            numflux.model().flux(eg,ip.position(),u,F);
+            numflux.model().flux(eg,qp,u,F);
 
             // integrate
-            auto factor = ip.weight() * geo.integrationElement(ip.position());
+            auto factor = ip.weight() * geo.integrationElement(qp);
             for (size_t k=0; k<dgspace.size(); k++)
               {
                 // - F(u) \grad phi
@@ -166,9 +167,10 @@ namespace Dune {
         /// tex: skelton
         for (const auto& ip : quadratureRule(geo,intorder))
           {
+            const auto qp = ip.position();
             // Position of quadrature point in local coordinates of elements
-            auto iplocal_s = geo_in_inside.global(ip.position());
-            auto iplocal_n = geo_in_outside.global(ip.position());
+            auto iplocal_s = geo_in_inside.global(qp);
+            auto iplocal_n = geo_in_outside.global(qp);
 
             // Evaluate basis functions
             auto& phi_s = cache[order_s].evaluateFunction(iplocal_s,dgspace_s.finiteElement().localBasis());
@@ -185,10 +187,10 @@ namespace Dune {
                 u_n[i] += x_n(lfsv_n.child(i),k)*phi_n[k];
 
             // Compute numerical flux at  the integration point
-            numflux.numericalFlux(cell_inside,iplocal_s,cell_outside,iplocal_n,ig.centerUnitOuterNormal(),u_s,u_n,f);
+            numflux.numericalFlux(cell_inside,iplocal_s,cell_outside,iplocal_n,ig.unitOuterNormal(qp),u_s,u_n,f);
 
             // Integrate
-            auto factor = ip.weight() * geo.integrationElement(ip.position());
+            auto factor = ip.weight() * geo.integrationElement(qp);
             for (size_t k=0; k<dgspace_s.size(); k++) // loop over all vector-valued basis functions
               for (size_t i=0; i<m; i++) // loop over all components
                 r_s.accumulate(lfsv_s.child(i),k, f[i]*phi_s[k]*factor);
@@ -228,8 +230,9 @@ namespace Dune {
         const int intorder = overintegration+1+2*order_s;
         for (const auto& ip : quadratureRule(geo,intorder))
           {
+            const auto qp = ip.position();
             // Position of quadrature point in local coordinates of elements
-            auto iplocal_s = geo_in_inside.global(ip.position());
+            auto iplocal_s = geo_in_inside.global(qp);
             // Evaluate basis functions
             auto& phi_s = cache[order_s].evaluateFunction(iplocal_s,dgspace_s.finiteElement().localBasis());
 
@@ -242,13 +245,13 @@ namespace Dune {
 
             /// tex: boundary
             // Evaluate boundary condition
-            Dune::FieldVector<RF,m> u_n(numflux.model().problem.g(ig.intersection(),ip.position(),u_s));
+            Dune::FieldVector<RF,m> u_n(numflux.model().problem.g(ig.intersection(),qp,u_s));
 
             // Compute numerical flux at integration point
-            numflux.numericalFlux(cell_inside,iplocal_s,cell_inside,iplocal_s,ig.centerUnitOuterNormal(),u_s,u_n,f);
+            numflux.numericalFlux(cell_inside,iplocal_s,cell_inside,iplocal_s,ig.unitOuterNormal(qp),u_s,u_n,f);
 
             // Integrate
-            auto factor = ip.weight() * geo.integrationElement(ip.position());
+            auto factor = ip.weight() * geo.integrationElement(qp);
             for (size_t k=0; k<dgspace_s.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
               for (size_t i=0; i<m; i++) // loop over all components
                 r_s.accumulate(lfsv_s.child(i),k, f[i]*phi_s[k]*factor);
@@ -282,14 +285,15 @@ namespace Dune {
         const int intorder = overintegration+2*order_s;
         for (const auto& ip : quadratureRule(geo,intorder))
           {
+            const auto qp = ip.position();
             // Evaluate right hand side q
-            auto q(numflux.model().problem.q(cell,ip.position()));
+            auto q(numflux.model().problem.q(cell,qp));
 
             // Evaluate basis functions
-            auto& phi = cache[order_s].evaluateFunction(ip.position(),dgspace.finiteElement().localBasis());
+            auto& phi = cache[order_s].evaluateFunction(qp,dgspace.finiteElement().localBasis());
 
             // Integrate
-            auto factor = ip.weight() * geo.integrationElement(ip.position());
+            auto factor = ip.weight() * geo.integrationElement(qp);
             for (size_t k=0; k<m; k++) // for all components
               for (size_t i=0; i<dgspace.size(); i++) // for all test functions of this component
                 r.accumulate(lfsv.child(k),i, - q[k]*phi[i]*factor);
