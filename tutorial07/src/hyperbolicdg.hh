@@ -164,7 +164,7 @@ namespace Dune {
         const int order_n = dgspace_n.finiteElement().localBasis().order();
         const int intorder = overintegration+1+2*std::max(order_s,order_n);
 
-        /// tex: skelton
+        /// tex: skeleton
         for (const auto& ip : quadratureRule(geo,intorder))
           {
             const auto qp = ip.position();
@@ -198,7 +198,7 @@ namespace Dune {
               for (size_t i=0; i<m; i++) // loop over all components
                 r_n.accumulate(lfsv_n.child(i),k, - f[i]*phi_n[k]*factor);
           }
-        /// tex: skelton
+        /// tex: skeleton
       }
 
       // Skeleton integral depending on test and ansatz functions
