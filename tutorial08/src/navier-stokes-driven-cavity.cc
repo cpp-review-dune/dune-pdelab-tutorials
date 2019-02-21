@@ -65,6 +65,10 @@
 #include"navier-stokes-lop.hh"
 #include"driver_flow.hh"
 
+#define STRUCTURED
+#define CUBE
+#define DEGREE 2
+
 //===============================================================
 // Main program with grid setup
 //===============================================================
@@ -105,17 +109,21 @@ int main(int argc, char** argv)
     std::cout << "Example requires UG grid!" << std::endl;
 #endif
 #if HAVE_UG
-    // Dune::StructuredGridFactory<Grid> factory;
-    // Dune::FieldVector<double,2> lowerLeft(0.0);
-    // Dune::FieldVector<double,2> upperRight(1.0);
-    // auto cells = ptree.get<std::array<unsigned int,2> >("grid.cells");
-    // auto gridp = factory.createSimplexGrid(lowerLeft,upperRight,cells);
-    //auto gridp = factory.createCubeGrid(lowerLeft,upperRight,cells);
-
-    // construct grid with factory; this may be a simplex or cube mesh
+#ifdef STRUCTURED
+    Dune::StructuredGridFactory<Grid> factory;
+    Dune::FieldVector<double,2> lowerLeft(0.0);
+    Dune::FieldVector<double,2> upperRight(1.0);
+    auto cells = ptree.get<std::array<unsigned int,2> >("grid.cells");
+#ifdef CUBE
+    auto gridp = factory.createCubeGrid(lowerLeft,upperRight,cells);
+#else
+    auto gridp = factory.createSimplexGrid(lowerLeft,upperRight,cells);
+#endif
+#else
     Dune::GridFactory<Grid> factory;
     Dune::GmshReader<Grid>::read(factory,filename,true,true);
     std::shared_ptr<Grid> gridp(factory.createGrid());
+#endif
     Dune::Timer timer;
     gridp->globalRefine(refinement);
     std::cout << "Time for mesh refinement " << timer.elapsed()
@@ -183,8 +191,16 @@ int main(int argc, char** argv)
     auto g = Dune::PDELab::CompositeGridFunction<decltype(gu),decltype(gp)>(gu,gp);
     
     // call the general driver
+#ifdef CUBE 
+    driver_flow(gv,TaylorHood_21_Quadrilateral(gv),bctypelambda,bconstraints,g,ptree);
+#else
+#if (DEGREE==2)
     driver_flow(gv,TaylorHood_21_Triangle(gv),bctypelambda,bconstraints,g,ptree);
-    
+#endif
+#if (DEGREE==3)
+    driver_flow(gv,TaylorHood_32_Triangle(gv),bctypelambda,bconstraints,g,ptree);
+#endif
+#endif
 #endif
 
    }
