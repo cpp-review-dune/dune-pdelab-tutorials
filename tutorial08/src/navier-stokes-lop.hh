@@ -161,10 +161,10 @@ namespace Dune {
         Dune::GeometryType gt = felu.type();
         std::cout << "New Navier-Stokes LOP on " << gt << std::endl;
         int ordervol=-1; // volume rule
-        // for (int order=20; order>=1; order--)
+        // for (int order=1; order<=20; order++)
         //   {
         //     const Dune::QuadratureRule<DF,dim>& rule = Dune::QuadratureRules<DF,dim>::rule(gt,order);
-        //     std::cout << "order of volume quadrature with " << rule.size() << " points is " << order << std::endl;
+        //     std::cout << " order " << order << "qpoints " << rule.size() << std::endl;
         //   }
         // exit(1);
         for (int order=20; order>=1; order--)

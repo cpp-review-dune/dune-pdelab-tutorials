@@ -208,14 +208,14 @@ void driver_coupled (const GV& gv, Scheme scheme,
   DGFT dgfT(gfsT,zT);
 
   // compute force from temperature locally in the element
-  auto rho_1 = ptree.get<RF>("problem.rho_1"); // rho = rho_1 - kappa*temperature
-  auto kappa = ptree.get<RF>("problem.kappa");
+  auto rho_0 = ptree.get<RF>("problem.rho_0"); // rho = rho_0 - kappa*temperature
+  auto alpha = ptree.get<RF>("problem.alpha");
   auto flambda = [&](const auto& entity, const auto& position) {
     Dune::FieldVector<RF,dim> f(0.0); // return value is the force vector
     Dune::FieldVector<DF,dim> x; for (int i=0; i<dim; i++) x[i] = position[i];
     typename DGFT::Traits::RangeType temperature;
     dgfT.evaluate(entity,x,temperature);
-    f[dim-1] = -(rho_1 - kappa*temperature); // force is vertically down
+    f[dim-1] = -(rho_0 - alpha*temperature); // force is vertically down
     return f;
   };
 
@@ -354,6 +354,8 @@ void driver_coupled (const GV& gv, Scheme scheme,
   // the time loop
   const RF dt = ptree.get<RF>("problem.dt");
   const RF T = ptree.get<RF>("problem.T");
+  const auto every = ptree.get<int>("output.every");
+  int step=1;
   while (time<T-1e-9)
     {
       // do time step for flow
@@ -370,6 +372,8 @@ void driver_coupled (const GV& gv, Scheme scheme,
       time += dt;
       
       // store results
-      vtkSequenceWriter.write(time,Dune::VTK::appendedraw);
+      if (step%every==0)
+	vtkSequenceWriter.write(time,Dune::VTK::appendedraw);
+      step++;
     }
 }

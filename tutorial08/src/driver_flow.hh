@@ -147,6 +147,8 @@ void driver_flow (const GV& gv, const Scheme& scheme,
   // the time loop
   const RF dt = ptree.get<RF>("problem.dt");
   const RF T = ptree.get<RF>("problem.T");
+  const auto every = ptree.get<int>("output.every");
+  int step=1;
   while (time<T-1e-9)
     {
       // do time step
@@ -158,6 +160,8 @@ void driver_flow (const GV& gv, const Scheme& scheme,
       time += dt;
       
       // store results
-      vtkSequenceWriter.write(time,Dune::VTK::appendedraw);
+      if (step%every==0)
+	vtkSequenceWriter.write(time,Dune::VTK::appendedraw);
+      step++;
     }
 }
