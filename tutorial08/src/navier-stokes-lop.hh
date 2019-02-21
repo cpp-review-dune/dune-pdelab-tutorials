@@ -159,7 +159,7 @@ namespace Dune {
         // find quadrature rules with the given number of points and
         // evaluate quadrature rules
         Dune::GeometryType gt = felu.type();
-        std::cout << "New Navier-Stokes LOP on " << gt << std::endl;
+        //std::cout << "New Navier-Stokes LOP on " << gt << std::endl;
         int ordervol=-1; // volume rule
         // for (int order=1; order<=20; order++)
         //   {
@@ -173,7 +173,7 @@ namespace Dune {
             if (rule.size()==mvol)
               {
                 ordervol = order;
-                std::cout << "order of volume quadrature with " << mvol << " points is " << order << std::endl;
+                //std::cout << "order of volume quadrature with " << mvol << " points is " << order << std::endl;
                 for (int i=0; i<mvol; i++) {
                   qpvol[i] = rule[i].position();
                   wvol[i] = rule[i].weight();
@@ -195,7 +195,7 @@ namespace Dune {
             if (rule.size()==mbnd)
               {
                 orderbnd = order;
-                std::cout << "order of boundary quadrature with " << mbnd << " points is " << order << std::endl;
+                //std::cout << "order of boundary quadrature with " << mbnd << " points is " << order << std::endl;
                 for (int i=0; i<mbnd; i++) {
                   qpbnd[i] = rule[i].position();
                   wbnd[i] = rule[i].weight();
@@ -225,7 +225,7 @@ namespace Dune {
           {
             auto fgeo_self = is.geometryInInside();
             int face = is.indexInInside();
-            std::cout << "face " << face << std::endl;
+            //std::cout << "face " << face << std::endl;
             for (int k=0; k<mbnd; k++) // loop over face quadrature points
               {
                 auto qp = fgeo_self.global(qpbnd[k]);
