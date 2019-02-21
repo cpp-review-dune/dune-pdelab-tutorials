@@ -64,6 +64,9 @@
 #include"navier-stokes-lop.hh"
 #include"driver_flow.hh"
 
+#define SIMPLEX
+#define DEGREE 2
+
 //===============================================================
 // Main program with grid setup
 //===============================================================
@@ -178,8 +181,16 @@ int main(int argc, char** argv)
     auto g = Dune::PDELab::CompositeGridFunction<decltype(gu),decltype(gp)>(gu,gp);
     
     // call the general driver
+#ifdef CUBE 
+    driver_flow(gv,TaylorHood_21_Quadrilateral(gv),bctypelambda,bconstraints,g,ptree);
+#else
+#if (DEGREE==2)
+    driver_flow(gv,TaylorHood_21_Triangle(gv),bctypelambda,bconstraints,g,ptree);
+#endif
+#if (DEGREE==3)
     driver_flow(gv,TaylorHood_32_Triangle(gv),bctypelambda,bconstraints,g,ptree);
-    
+#endif
+#endif    
 #endif
 
    }
