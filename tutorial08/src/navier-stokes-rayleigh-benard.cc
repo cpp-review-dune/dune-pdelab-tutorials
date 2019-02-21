@@ -68,6 +68,10 @@
 #include"navier-stokes-lop.hh"
 #include"driver_coupled.hh"
 
+#define STRUCTURED
+#define SIMPLEX
+#define DEGREE 3
+
 //===============================================================
 // Main program with grid setup
 //===============================================================
@@ -108,18 +112,22 @@ int main(int argc, char** argv)
     std::cout << "Example requires UG grid!" << std::endl;
 #endif
 #if HAVE_UG
+#ifdef STRUCTURED
     Dune::StructuredGridFactory<Grid> factory;
     Dune::FieldVector<double,2> lowerLeft(0.0);
-    auto upperRight = ptree.get<Dune::FieldVector<double,2> >("grid.upperRight");
+    auto upperRight = ptree.get<Dune::FieldVector<double,2> >("grid.extend");
     auto cells = ptree.get<std::array<unsigned int,2> >("grid.cells");
+#ifdef CUBE
+    auto gridp = factory.createCubeGrid(lowerLeft,upperRight,cells);
+#else
     auto gridp = factory.createSimplexGrid(lowerLeft,upperRight,cells);
-    //auto gridp = factory.createCubeGrid(lowerLeft,upperRight,cells);
-
-    // construct grid with factory; this may be a simplex or cube mesh
-    // Dune::GridFactory<Grid> factory;
-    // Dune::GmshReader<Grid>::read(factory,filename,true,true);
-    // std::shared_ptr<Grid> gridp(factory.createGrid());
-
+#endif
+#else
+    Dune::GridFactory<Grid> factory;
+    Dune::GmshReader<Grid>::read(factory,filename,true,true);
+    std::shared_ptr<Grid> gridp(factory.createGrid());
+#endif
+    
     // refine grid
     Dune::Timer timer;
     gridp->globalRefine(refinement);
@@ -172,9 +180,9 @@ int main(int argc, char** argv)
       return u;
     };
     auto gu = Dune::PDELab::makeInstationaryGridFunctionFromCallable(gv,gulambda,tc);
-    auto rho_1 = ptree.get<RF>("problem.rho_1"); // rho = rho_1 - kappa*temperature
+    auto rho_0 = ptree.get<RF>("problem.rho_0"); // rho = rho_0 - alpha*temperature
     auto gplambda = [&](const auto& x){
-      RF s = rho_1*(0.5*domainY-x[1]);
+      RF s = rho_0*(0.5*domainY-x[1]);
       return s;
     };
     auto gp = Dune::PDELab::makeInstationaryGridFunctionFromCallable(gv,gplambda,tc);
@@ -206,7 +214,18 @@ int main(int argc, char** argv)
     auto Tg = Dune::PDELab::makeInstationaryGridFunctionFromCallable(gv,Tglambda,tc2);
 
     // call the general driver
+#ifdef CUBE 
+    auto scheme = TaylorHood_21_Quadrilateral(gv);
+#else
+#if (DEGREE==2)
+    auto scheme = TaylorHood_21_Triangle(gv);
+#endif
+#if (DEGREE==3)
     auto scheme = TaylorHood_32_Triangle(gv);
+#endif
+#endif
+
+    // call driver
     driver_coupled(gv,scheme,bctypelambda,bconstraints,g,Tbctypelambda,Tg,ptree);
     
 #endif
