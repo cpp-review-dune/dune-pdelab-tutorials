@@ -47,12 +47,12 @@ public:
     Range u(0.0);
 
     //hump
+    using std::pow; using std::exp;
     auto tmp = 0.0;
-    for (int i=0; i<dim; i++){
-      tmp += std::pow((xglobal[i]-.5)/.2,2)/2;
-    }
+    for (int i=0; i<dim; i++)
+      tmp += pow((xglobal[i]-0.5)/0.2,2)/2;
 
-    u[0] += exp(-tmp) + .5;
+    u[0] += exp(-tmp) + 0.5;
 
     return u;
   }

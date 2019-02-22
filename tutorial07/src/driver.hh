@@ -1,7 +1,7 @@
 // -*- tab-width: 4; indent-tabs-mode: nil -*-
 
 //===============================================================
-// driver for general pouropse hyperbolic solver
+// driver for general purpose hyperbolic solver
 //===============================================================
 
 template<typename GV, typename FEMDG, typename NUMFLUX>
@@ -87,11 +87,11 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   Dune::PDELab::interpolate(u0,gfs,xold);
 
   // Make a linear solver backend
-  //typedef Dune::PDELab::ISTLBackend_OVLP_ExplicitDiagonal<GFS> LS;
-  //LS ls(gfs);
+  typedef Dune::PDELab::ISTLBackend_OVLP_ExplicitDiagonal<GFS> LS;
+  LS ls(gfs);
   /// tex: lsosm
-  typedef Dune::PDELab::ISTLBackend_SEQ_UMFPack LS;
-  LS ls(false);
+  //typedef Dune::PDELab::ISTLBackend_SEQ_UMFPack LS;
+  //LS ls(false);
 
   // time-stepping
   Dune::PDELab::ExplicitOneStepMethod<RF,IGO,LS,V,V> osm(*method,igo,ls);
@@ -138,13 +138,13 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
       // do time step
       osm.apply(time,dt,xold,x);
 
-      //output to VTK file every n-th timestep
-      counter++;
-      if(counter % every == 0)
-        vtkSequenceWriter.write(time,Dune::VTK::appendedraw);
-
+      // accept time step
       xold = x;
       time += dt;
+      counter++;
+
+      //output to VTK file every n-th timestep
+      if(counter % every == 0)
+        vtkSequenceWriter.write(time,Dune::VTK::appendedraw);
     }
 }
-
