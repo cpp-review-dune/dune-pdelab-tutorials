@@ -115,6 +115,21 @@ public:
     D[5][0] = 0.0; D[5][1] = 0.0; D[5][2] = 0.0; D[5][3] = 0.0; D[5][4] = 0.0; D[5][5] = 0.0;
   }
 
+  template<typename E, typename X, typename RF>
+  void max_eigenvalue (const E& inside, const X& x_inside,
+                       const E& outside, const X& x_outside,
+                       const Dune::FieldVector<RF,m>& u_s,
+                       const Dune::FieldVector<RF,m>& u_n,
+                       const Dune::FieldVector<RF,dim>& n_F,
+                       RF& alpha) const
+  {
+    using std::sqrt;
+    using std::max;
+    RangeField c_inside = 1./sqrt(problem.eps(inside,x_inside) * problem.mu(inside,x_inside));
+    RangeField c_outside = 1./sqrt(problem.eps(outside,x_outside) * problem.mu(outside,x_outside));
+    alpha = max(c_inside,c_outside);
+  }
+
   //Flux function
   template<typename E, typename X, typename RF>
   void flux (const E& e, const X& x, const Dune::FieldVector<RF,m>& u, Dune::FieldMatrix<RF,m,dim>& F) const
