@@ -28,13 +28,15 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   //block size for a component deducted by pdelab
   using VBE0 = Dune::PDELab::ISTL::VectorBackend<>;
 
-  using VBE = Dune::PDELab::ISTL::VectorBackend<Dune::PDELab::ISTL::Blocking::fixed>;
+  using VBE = Dune::PDELab::ISTL::VectorBackend<
+    Dune::PDELab::ISTL::Blocking::fixed>;
   using OrderingTag = Dune::PDELab::EntityBlockedOrderingTag;
 
   using GFSDG = Dune::PDELab::GridFunctionSpace<GV,FEMDG,CON,VBE0>;
   GFSDG gfsdg(gv,femdg);
 
-  using GFS = Dune::PDELab::PowerGridFunctionSpace<GFSDG,m,VBE,OrderingTag>;
+  using GFS = Dune::PDELab::PowerGridFunctionSpace<
+    GFSDG,m,VBE,OrderingTag>;
   GFS gfs(gfsdg);
 
   typedef typename GFS::template ConstraintsContainer<RF>::Type C;
@@ -71,11 +73,20 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   Dune::PDELab::RK4Parameter<RF> method4;
   Dune::PDELab::TimeSteppingParameterInterface<RF> *method;
 
-  if (torder==1) {method=&method1; std::cout << "setting explicit Euler" << std::endl;}
-  if (torder==2) {method=&method2; std::cout << "setting Heun" << std::endl;}
-  if (torder==3) {method=&method3; std::cout << "setting Shu 3" << std::endl;}
-  if (torder==4) {method=&method4; std::cout << "setting RK4" << std::endl;}
-  if (torder<1||torder>4) std::cout<<"torder should be in [1,4]"<<std::endl;
+  if (torder==1) {
+    method=&method1;
+    std::cout << "setting explicit Euler" << std::endl;}
+  if (torder==2) {
+    method=&method2;
+    std::cout << "setting Heun" << std::endl;}
+  if (torder==3) {
+    method=&method3;
+    std::cout << "setting Shu 3" << std::endl;}
+  if (torder==4) {
+    method=&method4;
+    std::cout << "setting RK4" << std::endl;}
+  if (torder<1||torder>4)
+    std::cout << "torder should be in [1,4]" << std::endl;
   /// tex: timestepping
 
   igo.setMethod(*method);
