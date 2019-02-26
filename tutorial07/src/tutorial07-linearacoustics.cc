@@ -161,8 +161,9 @@ int main(int argc, char** argv)
             if (degree==2)
               {
                 /// tex: fem
-                using FEM = Dune::PDELab::QkDGLocalFiniteElementMap<GV::Grid::ctype,double,2,dim,
-                                                                    Dune::PDELab::QkDGBasisPolynomial::legendre>;
+                using FEM = Dune::PDELab::QkDGLocalFiniteElementMap
+                  <GV::Grid::ctype, double, 2, dim,
+                   Dune::PDELab::QkDGBasisPolynomial::legendre>;
                 FEM fem;
                 driver<GV,FEM, NUMFLUX>(gv,fem,numflux,ptree);
                 /// tex: fem

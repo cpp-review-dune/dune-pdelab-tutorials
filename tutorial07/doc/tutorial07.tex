@@ -13,12 +13,56 @@
 \usepackage{graphicx}
 \usepackage{color}
 \usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily,
-  keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-  commentstyle=\itshape, extendedchars=true, escapeinside={/*@}{@*/},
+\lstset{language=C++,
+  basicstyle=\ttfamily,
+  keywordstyle=\color{black}\bfseries,
+  tabsize=4,
+  stringstyle=\ttfamily,
+  commentstyle=\itshape,
+  extendedchars=true,
+  escapeinside={/*@}{@*/},
   rangebeginprefix = ///\ tex:\ ,
   rangeendprefix   = ///\ tex:\ ,
   includerangemarker=false }
+
+% Some lines in some listings are much to long to fit them into the
+% page. Linebreaking also leads to listings that are just unreadable. For
+% listings you put directly into the tex file you can use the gobble option to
+% remove leading whitespace. Unfortunately this does not work for
+% lstinputlisting from source files.
+%
+% Someone put some code on stackoverflow that extends the listing command:
+%
+% https://tex.stackexchange.com/questions/48903/how-to-extend-the-lstinputlisting-command
+%
+% This way it is possible to define a variable widthgobble that can delete
+% trailing whitespace. This is an ugly solution that kind of works (you have to
+% fiddle around with the parameter for every listing). A better solution might
+% be switching to minted. Minted should have an 'autogobble' option that just
+% removes all trailing whitespace without parameter fiddling. One would first
+% need to check if include marker in source files work (like: "/// tex:
+% fluxint").
+\makeatletter
+\newlength{\singlespace}
+\newlength{\gobble}
+\newlength{\numbersep}
+% The width of a single space.
+\settowidth{\singlespace}{\lst@basicstyle \ }
+\setlength{\singlespace}{-\singlespace}
+\lst@Key{firstlineandnumber}\relax{\def\lst@firstline{#1\relax}\def\lst@firstnumber{#1\relax}}
+\lst@Key{widthgobble}{0}{%
+    \setlength{\gobble}{0.9\singlespace}% reindent a bit
+    \setlength{\gobble}{\lst@tabsize\gobble}% multiply by tabsize
+    \setlength{\gobble}{#1\gobble}% multiply by number of tabs
+    \def\lst@xleftmargin{\gobble}% move left margin left
+    \def\lst@framexleftmargin{\gobble}% move left frameborder left
+    \setlength{\numbersep}{\gobble}%
+    \addtolength{\numbersep}{10pt}%
+    \def\lst@numbersep{\numbersep}% distance between numbers and left frameborder
+}
+\makeatother
+
+
 \usepackage{paralist}
 \usepackage{curves}
 \usepackage{calc}
@@ -72,7 +116,7 @@
 \definecolor{listingbg}{gray}{0.95}
 
 \title{DUNE PDELab Tutorial 07 \\
-Discontinuous Galerkin Method for Hyperbolic conservation laws}
+Discontinuous Galerkin Method for Hyperbolic Conservation Laws}
 \author{DUNE/PDELab Team}
 \date{\today}
 
@@ -785,6 +829,7 @@ Calling Problem and Model constructors and choose proper numerical flux
 \lstinputlisting[linerange=promodflux-promodflux,
 basicstyle=\ttfamily\small,
 frame=single,
+widthgobble=3.5,
 backgroundcolor=\color{listingbg}]{../src/tutorial07-linearacoustics.cc}
 
 
@@ -793,6 +838,7 @@ Build FEM space and call driver
 \lstinputlisting[linerange=fem-fem,
 basicstyle=\ttfamily\small,
 frame=single,
+widthgobble=4.7,
 backgroundcolor=\color{listingbg}]{../src/tutorial07-linearacoustics.cc}
 
 Not that we pass \lstinline{numflux} to \lstinline{driver} but indeed it contains both \lstinline{model}   and \lstinline{problem}. Dependencies reads
@@ -895,6 +941,7 @@ In the loop over the quadrature points we need to evaluate flux and compute resi
 \lstinputlisting[linerange=fluxint-fluxint,
 basicstyle=\ttfamily\small,
 frame=single,
+widthgobble=3.5,
 backgroundcolor=\color{listingbg}]{../src/hyperbolicdg.hh}
 
 
@@ -903,6 +950,7 @@ In the \lstinline{alpha_skeleton} method we evaluate numerical flux and its jump
 \lstinputlisting[linerange=skeleton-skeleton,
 basicstyle=\ttfamily\small,
 frame=single,
+widthgobble=2.5,
 backgroundcolor=\color{listingbg}]{../src/hyperbolicdg.hh}
 
 
@@ -911,6 +959,7 @@ The same is done in the \lstinline{alpha_boundary} however the outside value is 
 \lstinputlisting[linerange=boundary-boundary,
 basicstyle=\ttfamily\small,
 frame=single,
+widthgobble=3.5,
 backgroundcolor=\color{listingbg}]{../src/hyperbolicdg.hh}
 
 

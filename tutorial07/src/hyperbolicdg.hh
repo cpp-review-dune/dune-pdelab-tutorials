@@ -123,7 +123,7 @@ namespace Dune {
                 // - F(u) \grad phi
                 for (size_t i=0; i<m; i++)
                   for (size_t j=0; j<dim; j++)
-                    r.accumulate(lfsv.child(i),k, - F[i][j]*gradphi[k][j]*factor );
+                    r.accumulate(lfsv.child(i),k,-F[i][j]*gradphi[k][j]*factor);
               }
             /// tex: fluxint
           }
@@ -173,28 +173,34 @@ namespace Dune {
             auto iplocal_n = geo_in_outside.global(qp);
 
             // Evaluate basis functions
-            auto& phi_s = cache[order_s].evaluateFunction(iplocal_s,dgspace_s.finiteElement().localBasis());
-            auto& phi_n = cache[order_n].evaluateFunction(iplocal_n,dgspace_n.finiteElement().localBasis());
+            auto& phi_s = cache[order_s].evaluateFunction(
+              iplocal_s,dgspace_s.finiteElement().localBasis());
+            auto& phi_n = cache[order_n].evaluateFunction(
+              iplocal_n,dgspace_n.finiteElement().localBasis());
 
             // Evaluate u from inside and outside
             u_s = 0.0;
             for (size_t i=0; i<m; i++) // for all components
-              for (size_t k=0; k<dgspace_s.size(); k++) // for all basis functions
+              for (size_t k=0; k<dgspace_s.size(); k++)
                 u_s[i] += x_s(lfsv_s.child(i),k)*phi_s[k];
             u_n = 0.0;
             for (size_t i=0; i<m; i++) // for all components
-              for (size_t k=0; k<dgspace_n.size(); k++) // for all basis functions
+              for (size_t k=0; k<dgspace_n.size(); k++)
                 u_n[i] += x_n(lfsv_n.child(i),k)*phi_n[k];
 
             // Compute numerical flux at  the integration point
-            numflux.numericalFlux(cell_inside,iplocal_s,cell_outside,iplocal_n,ig.unitOuterNormal(qp),u_s,u_n,f);
+            numflux.numericalFlux(cell_inside, iplocal_s,
+                                  cell_outside, iplocal_n,
+                                  ig.unitOuterNormal(qp),u_s,u_n,f);
 
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(qp);
-            for (size_t k=0; k<dgspace_s.size(); k++) // loop over all vector-valued basis functions
+            // loop over all vector-valued basis functions
+            for (size_t k=0; k<dgspace_s.size(); k++)
               for (size_t i=0; i<m; i++) // loop over all components
                 r_s.accumulate(lfsv_s.child(i),k, f[i]*phi_s[k]*factor);
-            for (size_t k=0; k<dgspace_n.size(); k++) // loop over all vector-valued basis functions
+            // loop over all vector-valued basis functions
+            for (size_t k=0; k<dgspace_n.size(); k++)
               for (size_t i=0; i<m; i++) // loop over all components
                 r_n.accumulate(lfsv_n.child(i),k, - f[i]*phi_n[k]*factor);
           }
@@ -245,14 +251,19 @@ namespace Dune {
 
             /// tex: boundary
             // Evaluate boundary condition
-            Dune::FieldVector<RF,m> u_n(numflux.model().problem.g(ig.intersection(),qp,u_s));
+            Dune::FieldVector<RF,m> u_n(
+              numflux.model().problem.g(ig.intersection(),qp,u_s));
 
             // Compute numerical flux at integration point
-            numflux.numericalFlux(cell_inside,iplocal_s,cell_inside,iplocal_s,ig.unitOuterNormal(qp),u_s,u_n,f);
+            numflux.numericalFlux(cell_inside, iplocal_s,
+                                  cell_inside, iplocal_s,
+                                  ig.unitOuterNormal(qp),u_s,u_n,f);
 
             // Integrate
             auto factor = ip.weight() * geo.integrationElement(qp);
-            for (size_t k=0; k<dgspace_s.size(); k++) // loop over all vector-valued (!) basis functions (with identical components)
+            // loop over all vector-valued (!) basis functions
+            // (with identical components)
+            for (size_t k=0; k<dgspace_s.size(); k++)
               for (size_t i=0; i<m; i++) // loop over all components
                 r_s.accumulate(lfsv_s.child(i),k, f[i]*phi_s[k]*factor);
 
