@@ -30,7 +30,7 @@ public:
 
   /// tex: eigenvectors
   template<typename E, typename X, typename T2, typename T3>
-  void eigenvectors (const E& e, const X& x, 
+  void eigenvectors (const E& e, const X& x,
                      const Dune::FieldVector<T2,dim>& n,
                      Dune::FieldMatrix<T3,m,m>& RT) const
   {
@@ -52,14 +52,15 @@ public:
 
   /// tex: diagonal
   template<typename E, typename X, typename RF>
-  void diagonal (const E& e, const X& x, Dune::FieldMatrix<RF,m,m>& D) const
+  void diagonal (const E& e, const X& x,
+                 Dune::FieldMatrix<RF,m,m>& D) const
   {
     auto c = problem.c(e,x);
 
-    for (size_t i=0; i<m; i++) 
-      for (size_t j=0; j<m; j++) 
+    for (size_t i=0; i<m; i++)
+      for (size_t j=0; j<m; j++)
         D[i][j] = 0.0;
-    D[0][0] = c;   
+    D[0][0] = c;
     D[1][1] = -c ;
   }
   /// tex: diagonal
@@ -73,14 +74,14 @@ public:
                        const Dune::FieldVector<RF,dim>& n_F,
                        RF& alpha) const
   {
-    alpha = std::max( problem.c(inside,x_inside), 
+    alpha = std::max( problem.c(inside,x_inside),
                       problem.c(outside,x_outside) );
   }
 
   /// tex: flux
   //Flux function
   template<typename E, typename X, typename RF>
-  void flux (const E& e, const X& x, 
+  void flux (const E& e, const X& x,
              const Dune::FieldVector<RF,m>& u,
              Dune::FieldMatrix<RF,m,dim>& F) const
   {
@@ -88,7 +89,7 @@ public:
 
     for (size_t i=0; i<dim; i++) {
       F[0][i] = u[i+1];
-      F[i+1][i] = c*c*u[0];  
+      F[i+1][i] = c*c*u[0];
     }
 
   }

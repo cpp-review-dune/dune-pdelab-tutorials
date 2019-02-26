@@ -85,10 +85,12 @@ public:
 
   /// tex: fvs
   template<typename E, typename X>
-  void numericalFlux(const E& inside, const X& x_inside, const E& outside,
-                     const X& x_outside,  const Dune::FieldVector<DF,dim> n_F,
+  void numericalFlux(const E& inside, const X& x_inside,
+                     const E& outside, const X& x_outside,
+                     const Dune::FieldVector<DF,dim> n_F,
                      const Dune::FieldVector<RF,m>& u_s,
-                     const Dune::FieldVector<RF,m>& u_n,Dune::FieldVector<RF,m>& f) const
+                     const Dune::FieldVector<RF,m>& u_n,
+                     Dune::FieldVector<RF,m>& f) const
   {
     Dune::FieldMatrix<DF,m,m> D(0.0);
     // fetch eigenvalues
@@ -98,7 +100,9 @@ public:
     Dune::FieldMatrix<DF,m,m> Dminus(0.0);
 
     for (size_t i =0 ; i<m;i++)
-      (D[i][i] > 0) ? Dplus[i][i] = D[i][i] : Dminus[i][i] = D[i][i];
+      (D[i][i] > 0)
+        ? Dplus[i][i] = D[i][i]
+        : Dminus[i][i] = D[i][i];
 
     // fetch eigenvectors
     Dune::FieldMatrix<DF,m,m> Rot;
