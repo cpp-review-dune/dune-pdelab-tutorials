@@ -6,8 +6,9 @@ typedef Dune::SomeGrid::LeafGridView GridView;
 
 /* create a mapper*/
 // Layout description
-Dune::MCMGLayout layout = [](Dune::GeometryType gt, int griddim) {
-       return gt.dim() == griddim;
+Dune::MCMGLayout layout =
+     [](Dune::GeometryType gt, int griddim) {
+         return gt.dim() == griddim;
      };
 
 // mapper for elements (codim=0) on leaf

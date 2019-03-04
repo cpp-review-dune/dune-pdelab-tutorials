@@ -10,3 +10,5 @@
 *.out
 *.nav
 *.snm
+*.lst
+*.vrb
