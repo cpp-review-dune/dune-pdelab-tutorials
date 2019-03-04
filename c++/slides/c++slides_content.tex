@@ -82,7 +82,7 @@
   \frametitle{Goals of this introduction}
   A number of advanced C++ features is required to use DUNE or makes
   its usage much easier. Some of them were introduced in the last
-  C++ language-standard  C++11 and C++14. We will specifically look at:
+  C++ language-standards  C++11, C++14 and C++17. We will specifically look at:
   \begin{itemize}
   \item Compiling Programs on Linux-based systems
   \item Object-Oriented Programming
@@ -98,10 +98,15 @@
 \section{Compiling Programs on Linux}
 \begin{frame}[fragile]
   \frametitle<presentation>{Compiling Programs}
-  On Linux-based systems, the (GNU-)C++ compiler is called \inline!g++!. In order to compile a program from the source file \inline!main.cc! and create an executable called \inline!myprogram! using the features of the C++14 language standard, you run it like this:
+  On Linux-based systems, the (GNU-)C++ compiler is called \inline!g++!. In order to compile a program from the source file \inline!main.cc! and create an executable called \inline!myprogram! you run it like this:
   \begin{lstlisting}
-  g++ -std=c++14 -o myprogram main.cc
+  g++ -o myprogram main.cc
   \end{lstlisting}
+With \lstinline!g++! the C++14 standard is the default since version 6.1. If you want to use C++17 or if you use the Intel compiler or \lstinline!clang!, you can set the standard with the option \lstinline!-std=c++14! or \lstinline!-std=c++17! (on Windows systems the options may be different), e.g.
+  \begin{lstlisting}
+  g++ -std=c++17 -o myprogram main.cc
+  \end{lstlisting}
+
 If your program was compiled successfully (without error messages), you run it with:
   \begin{lstlisting}
   ./myprogram
@@ -209,7 +214,7 @@ private:
     \begin{lstlisting}
       std::cout << p.x << std::endl; // compiler error!
     \end{lstlisting}
-  \item It is advisable to make the data members of a \inline!class! private. This is called \emph{encapsulation} and facilitates a later change the way the data is stored, which can often greatly improve performance. 
+  \item It is advisable to make the data members of a \inline!class! private. This is called \emph{encapsulation} and facilitates a later change of the way the data is stored, which can often greatly improve performance. 
   \end{itemize}
 \end{frame}
 
@@ -281,7 +286,7 @@ Just write the namespace \inline!std::! in front of the functions and types inst
 \begin{frame}
 \frametitle<presentation>{Automatic Type Deduction}
 
-With C++11 the type needed for a variable can be detected automatically if it can be deduced from the initialization of the variable. This is indicated with the keyword \inline!auto!.
+Since C++11 the type needed for a variable can be detected automatically if it can be deduced from the initialization of the variable. This is indicated with the keyword \inline!auto!.
 
 \lstinputlisting{auto.cc}
 
@@ -297,7 +302,7 @@ With C++11 the type needed for a variable can be detected automatically if it ca
 \item If you write \inline!auto!, the compiler can choose the right type, reducing the risk of errors.
 \item When using advanced libraries like DUNE, the types of variables can become very complicated, making it difficult to read code that spells out those types.
 \end{itemize}
-\item It is not possible to use \inline!auto! in function definitions and declarations (see \inline!decltype!)
+\item Only since C++14 it is possible to use \inline!auto! in function definitions and declarations.
 \end{itemize}
 
 \end{frame}
@@ -357,6 +362,7 @@ For type deduction with \inline!auto! the usual rules for C++ literals apply:
 \item Often the same algorithms are needed for different data types.
 \item Without generic programming one has to write the same function for all data types, which is tedious and error-prone, e.g.
 \end{itemize}
+\vspace*{-10mm}
 \begin{multicols}{2}
     \begin{lstlisting}
       int Square(int x)
@@ -368,7 +374,9 @@ For type deduction with \inline!auto! the usual rules for C++ literals apply:
       {
         return(x*x);
       }
+    \end{lstlisting}
 
+    \begin{lstlisting}
       long Square(long x)
       {
         return(x*x);
@@ -377,7 +385,7 @@ For type deduction with \inline!auto! the usual rules for C++ literals apply:
       double Square(double x)
       {
         return(x*x);
-      }
+      }      
     \end{lstlisting}
 \end{multicols}
 \vskip-7mm
@@ -596,7 +604,7 @@ auto coord = P(8,1); // Now P means the same as Point2D
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{C++11: Template Aliases}
+\frametitle{Template Aliases}
 \begin{lstlisting}
 template <typname U>    // create partially defined templates 
 using VectorSpace = Dune::PDELab::Backend::Vector<GFS,U>::type;
@@ -614,8 +622,7 @@ int main()
 
 
 \begin{itemize}
-\item C++11 provides an alternative method to define abbreviations for long type names.
-It is called ``template aliasing''.
+\item An alternative method to define abbreviations for long type names is called ``template aliasing''.
 \item Also partial template aliasing is possible fixing some of the template arguments.
 \end{itemize}
 
@@ -801,7 +808,7 @@ int main()
 
 \begin{frame}[fragile]
   \frametitle<presentation>{Range-based \texttt{for} Loops}
-  C++11 introduces range-based \inline!for! loops to write the same operation (iterating over a whole container) simpler:
+  With range-based \inline!for! loops the same operation (iterating over a whole container) can be written much simpler:
   \begin{lstlisting}
     auto vec = std::vector<double>(8);
     for (auto d : vec)
@@ -841,30 +848,20 @@ int main()
 \end{frame}
 
 \section{Type Deduction for Function Argumetns}
+
 \begin{frame}[fragile]
-\frametitle{C++11: decltype}
+\frametitle{Decltype}
 \begin{itemize}
-\item As mentioned before \inline!auto! can not be used directly for function definitions or declarations. 
-\item The return type of a function can be determined depending on the type of the function arguments with \inline!decltype!
-\item \inline!decltype! determines the type of a given operation.
-\item In the easiest version, \inline!auto! is used as return type and \inline!-> decltype(op)! is added after the argument list of the function, where \inline!op! is a given operation:
-\end{itemize}
+\item \lstinline!decltype! determines the result type of an expression (not the result value). It can be used to make matching variables.
 \begin{lstlisting}
-template<typename T, typename U>
-auto add(T t, U u) -> decltype(t + u);
+int a,b;
+decltype(a+b) c;
 \end{lstlisting}
-
-\end{frame}
-
-
-\begin{frame}[fragile]
-\frametitle{C++14: improved decltype}
-\begin{itemize}
-\item Combined with template aliasing it can also be used to store types:
+\item Together with template aliasing it can 
+be used to store types:
 \inline!using type = decltype(expression)! 
 \item Difference to \inline!auto!: Does not create a variable of the same type but stores the type, also preserves references.
 \item Good if you want to store the result of a function call in a container.
-\item With C++14 you can determine the return type from the actual return value:
 \end{itemize}
 \begin{lstlisting}
 template<typename Vector>
@@ -876,6 +873,21 @@ auto squareroot_values(const Vector& v)
     result.push_back(std::sqrt(d)); 
   return result;
 }
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Historic: \lstinline!decltype! and return values in C++11}
+\begin{itemize}
+\item In C++11 \inline!auto! could not be used directly for function definitions or declarations. This is only possible since C++14.
+\item The return type of a function could be determined depending on the type of the function arguments with \inline!decltype!
+\item \inline!decltype! determines the type of a given operation.
+\item In the easiest version, \inline!auto! is used as return type and \inline!-> decltype(op)! is added after the argument list of the function, where \inline!op! is a given operation:
+\end{itemize}
+\begin{lstlisting}
+template<typename T, typename U>
+auto add(T t, U u) -> decltype(t + u);
 \end{lstlisting}
 
 \end{frame}
@@ -914,6 +926,7 @@ auto f = [](auto x) { return std::sin(x); };
   \item Two types of capture: by value (creates a copy) or by reference (points to the original variable)
   \item Usage: List variable names, add ampersand (\inline!&!) for references
   \item Shortcuts: \inline![=]! capture all variables by value, \inline![&]! capture all variables by reference
+  \item Since C++17 it is also possible to capture a variable as constant reference: \inline![&v=std::as_const(v)]!
   \item \structure{Caution:} When using capture by reference, make sure the original variable still exists when calling the lambda function!
   \end{itemize}
 \end{frame}
@@ -982,11 +995,6 @@ Bjarne Stroustrup.
 The cppreference community.
 \newblock \emph{The community C++ reference web site.}
 \newblock \alert<2>{\url{http://cppreference.com}}.
-
-\bibitem[Josuttis(1999)]{josuttis99:stl}
-Nicolai~M. Josuttis.
-\newblock \emph{The C++ Standard Template Library: A Tutorial and Reference}.
-\newblock Adisson Wesley, 1999.
 
 \end{thebibliography}
 \end{frame}
