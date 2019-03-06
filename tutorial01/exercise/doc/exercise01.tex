@@ -49,11 +49,11 @@ The code of tutorial 01 solves the problem
 with the nonlinear function $q(u)=\eta u^2$.  Compared to the tutorial
 code this exercise covers less variability (e.g. only 2D) for
 increased compilation speed. Still you can easily change the degree of
-the discretization, the grid or the nonlinearity.
+the discretization, the grid, or the nonlinearity.
 
 In this exercise you will get to know the code, play around with
 different settings and implement a different way to handle the
-Dirichlet boundary condition.
+Dirichlet boundary conditions.
 
 
 \begin{Exercise}{Warming Up}
@@ -94,15 +94,15 @@ subsampling=1
       \end{lstlisting}
       Try all combinations of \lstinline{degree=1|2} and
       \lstinline{subsampling=1|2} with appropriate
-      \lstinline{filename}.  Look at your solutions using paraview and
+      \lstinline{filename}.  Look at your solutions using ParaView and
       the \lstinline{warp by scalar} filter.  You can see the
       underlying grid by choosing \lstinline{surface with edges}
-      instead of \lstinline{surface} in the parview drop down menu.
+      instead of \lstinline{surface} in the ParaView drop down menu.
       How does subsampling change the output?
     \end{itemize}
 
   \item It is easy to implement different nonlinearities.  Use
-    $q(u)=\exp(au)$ by adjusting the file \lstinline{problem.hh}.
+    $q(u)=\exp(\eta u)$ by adjusting the file \lstinline{problem.hh}.
 
   \item Go back to $q(u)=\eta u^2$.  Now we want to see how good our
     approximation is.  Change the function $f(x)$ in the file
@@ -128,8 +128,8 @@ eta=100.0
 filename=yasp_ref1
 subsampling=1
     \end{lstlisting}
-    Use paraview to see how the maximal error $\max|u-u_h|$ behaves
-    for diferent refienement levels \lstinline{refinement=1|...|5}.
+    Use ParaView to see how the maximal error $\max|u-u_h|$ behaves
+    for different refinement levels \lstinline{refinement=1|...|5}.
     Then try again for \lstinline{degree=2}.  What happens here?  Does
     the behaviour change when you use \lstinline{ug} instead of
     \lstinline{yasp}?
@@ -140,7 +140,7 @@ subsampling=1
     conditions}
   In this exercise we want to implement Dirichlet boundary conditions
   in a weak sense by using Nitsche's method.  Instead of
-  incorporating the Dirichlet boundary condition into the Ansatzspace
+  incorporating the Dirichlet boundary condition into the Ansatz space
   we modify the residual:
   \begin{align*}
     r^{\text{Nitsche}}(u,v) &= \int_\Omega \nabla u \cdot \nabla v + (q(u)-f)v\,dx + \int_{\Gamma_N} jv\,ds \\
@@ -149,7 +149,7 @@ subsampling=1
   \end{align*}
   Here $\eta_{stab}$ denotes a stabilization parameter that should be
   equal to $\eta_{stab}=c/h$ for a constant $c>0$ large enough.  This
-  stabilization term is needed to ensure coercivity of the bilinear
+  stabilization term is necessary to ensure coercivity of the bilinear
   form.
 
   In order to implement this method you have to do the following:
@@ -157,8 +157,8 @@ subsampling=1
   \item Go to \lstinline{exercise01.cc} and include the new file
     \lstinline{nitschenonlinearpoissonfem} instead of
     \lstinline{nonlinearpoissonfem}.
-  \item In the file \lstinline{driver.hh} you have to turn of the
-    constraints.  The code is already there you just have to
+  \item In the file \lstinline{driver.hh} you have to turn off the
+    constraints. The code is already there and you just have to
     comment/uncomment the parts marked with
     \begin{lstlisting}
 //== Exercise 2 {
@@ -193,7 +193,7 @@ const auto S = geo_inside.jacobianInverseTransposed(local);
 
   \end{itemize}
 
-  When you have done all that test your implementation.  Use the test
+  When you have done all that, test your implementation. Use the test
   case from exercise 1 with $f(x)=-2d+\eta(\sum_{i=1}^d(x)_i^2)^2$ and
   exact solution $u(x)=\sum_{i=1}^d(x)_i^2=g(x)$ and compare it to
   your approximation.

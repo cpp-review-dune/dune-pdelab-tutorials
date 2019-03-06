@@ -87,7 +87,7 @@ cd dune-course/release-build/dune-pdelab-tutorials/tutorial00/exercise/task
   levels. Visualize the solution in ParaView, use the Calculator
   filter to visualize the difference $|u-u_h|$ and determine the
   maximum error. Note that $u$ and $u_h$ are called \lstinline{exact}
-  and \lstinline{fesol} in the parview output.
+  and \lstinline{fesol} in the ParaView output.
 
 \item {\sc Solving a new problem}:\\
   Now consider
@@ -102,13 +102,13 @@ cd dune-course/release-build/dune-pdelab-tutorials/tutorial00/exercise/task
   refinements $0, 1, 2, \ldots$ with suitable output
   filenames. Visualize the error $|u-u_h|$ in Para\-View and determine
   the maximum error on each level.  If you want you can also try to
-  calculate the L2-norm of the error in paraview and determine the
+  calculate the L2-norm of the error in ParaView and determine the
   convergence rate by hand. In a later exercise you will see how to
   calculate the L2-norm directly in the c++ source.
 
 \item {\sc Use a different solver}:\\
   You may also try to exchange the iterative linear solver by
-  replacing it with the following lines int the source file
+  replacing it with the following lines in the source file
   \lstinline{exercise00.cc}:
   \begin{lstlisting}
 typedef Dune::PDELab::ISTLBackend_SEQ_BCGS_SSOR LS;
@@ -136,7 +136,7 @@ Now consider the extended equation of the form
 with scalar functions $k(x)$, $a(x)$.
 
 \begin{enumerate}
-\item In a first step show that the weak formulation of the problem
+\item In the first step show that the weak formulation of the problem
   involves the new bilinear form
   \begin{align}
     a(u,v) = \int_\Omega k(x) \nabla u(x) \cdot \nabla v(x) + a(x) u(x) v(x) \,dx .
