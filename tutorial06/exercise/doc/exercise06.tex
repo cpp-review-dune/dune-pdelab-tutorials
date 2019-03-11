@@ -78,8 +78,9 @@ mpirun -np 2 ./exercise06-1
   \item First run the code from \lstinline{exercise06-1} and try out
     different settings. Don't forget to use \lstinline{mpirun} if you
     want to use more than one process.
-  \item Right now the program calculates the squared L2 error for
-    on every process. Use \lstinline{CollectiveCommunication}
+  \item Right now the program calculates the squared L2 error separately on
+    every process without communicating. Use
+    \lstinline{CollectiveCommunication}
     \footnote{\href{https://www.dune-project.org/doxygen/pdelab/master/classDune\_1\_1CollectiveCommunication.html}{https://www.dune-project.org/doxygen/pdelab/master/classDune\_1\_1CollectiveCommunication.html}}
     to calculate the sum over the local L2 errors (squared).
   \item You could also try different solver backends.
@@ -87,10 +88,19 @@ mpirun -np 2 ./exercise06-1
 \end{Exercise}
 
 \begin{Exercise}{Communication over the Grid}
-  In this exercise you will communicate data using overlapping grids
-  and a \lstinline{DataHandle}. The source code for this exercise can
-  be found in the file \lstinline{exercise06-2.cc}. Right now the code
-  does the following:
+  In this exercise you will learn how to communicate data using overlapping
+  grids and a \lstinline{DataHandle}. This can be useful if you need to write a
+  parallel application and if you need to do something that is not covered by
+  the \lstinline{CollectiveCommunication} class.
+
+  Communication in the overlap happens entity-wise. That means you have entity
+  related data and each entity in the overlap can send this data to the
+  corresponding entity of the other processor. You can control which
+  codim-entities should send data and for which part of the overlap
+  communication will happen (see partition types in the slides for tutorial06).
+
+  The source code for this exercise can be found in the file
+  \lstinline{exercise06-2.cc}. Right now the code does the following:
   \begin{itemize}
   \item It creates an overlapping \lstinline{YaspGrid} in two
     dimensions. You can set the overlap in the ini file
