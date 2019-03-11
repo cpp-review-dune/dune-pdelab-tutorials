@@ -74,6 +74,8 @@
 \usepackage[binary-units]{siunitx}
 \usepackage{xcolor,tabu}
 
+\usepackage{svg}
+
 \definecolor{niceblue}{rgb}{0.122,0.396,0.651}   %% 31, 101, 166 or #1F65A6
 \definecolor{niceorange}{RGB}{255,205,86}        %% #FFCD56
 \definecolor{nicered}{RGB}{220,20,60}                      %% rgb(220, 20, 60)
@@ -338,7 +340,7 @@
 \begin{frame}
   \frametitle{Some historic remarks}
   \centering
-  \includegraphics[width=0.9\linewidth]{dunetimeline}
+  \includesvg[width=0.9\linewidth]{dunetimeline}
 \end{frame}
 
 \begin{frame} \frametitle{DUNE Release 2.6.0}
@@ -431,7 +433,7 @@
         \item[dune-subgrid:] allows you to work on a subset of a given DUNE
           grid.
         \item[dune-foamgrid:] non-manifold grids of 1d or 2d entities
-          in higher-dimensional world.      
+          in higher-dimensional world.
         \item[dune-prismgrid:] is a tensorgrid of a 2D simplex grid and a
           1D grid.
         \item[dune-cornerpoint:] a cornerpoint mesh, compatible with the
@@ -485,7 +487,7 @@
       \end{itemize}
     \end{column}
     \begin{column}{0.3\linewidth}
-      \includegraphics[width=\linewidth]{Gnome-emblem-package}\\\centering
+      \includesvg[width=\linewidth]{Gnome-emblem-package}\\\centering
       \tiny Source: gnome
     \end{column}
   \end{columns}
@@ -502,7 +504,7 @@
 
   \medskip
   \structure{\ldots{}} works without \cmd{make install}
-  
+
 \end{frame}
 
 % \begin{frame} \frametitle{DUNE ecosystem}
@@ -1278,7 +1280,7 @@ for (const auto& qp : quad)
 \begin{frame}[fragile]
 \frametitle{Example: Average of a function f on a GridView}
 \begin{equation*}
-\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x\approx\frac{1}{\sum_{E \in GV} |e|}\sum_{E \in GV}\sum_{i \in QR} f(T_e(x_i)) w_i |\det J_E^T(x_i)|^{1/2}
+\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x\approx\frac{1}{\sum_{E \in GV} |e|}\sum_{E \in GV}\sum_{i \in QR} f(T_e(x_i)) w_i |\det J_E^T(x_i) J_E(x_i)|^{1/2}
 \end{equation*}
 \begin{cppcode}
 double value = 0.0, volume = 0.0;
@@ -1692,13 +1694,13 @@ for (const auto& edge : edges(gv))
   \item map from the consecutive, zero-starting index $I_{E'} =
     \{0, \ldots, |E'|-1\}$ to the data set $D(E')$.
   \end{itemize}
-  
+
   \medskip
   Mappers can be easily implemented upon the Index Sets and Id Sets.
 
   \pause \medskip
   You will be using the
-  
+
   \centering
   %\footnotesize
   \lstinline!Dune::MultipleCodimMultipleGeomTypeMapper<GridView>!.

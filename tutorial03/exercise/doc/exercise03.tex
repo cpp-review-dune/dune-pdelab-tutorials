@@ -152,11 +152,17 @@
 
   \textbf{Note that} there is no special one step parameter class for
   Crank-Nicolson.  Crank-Nicolson is however the special case of the one
-  step $\theta$ scheme with $\theta=0.5$.  So you can create a parameter
-  object for Crank-Nicolson with
-  \lstinline!Dune::PDELab::OneStepThetaParameter<RF>(0.5)!.  A parameter
-  object for the Fractional Step $\theta$ scheme can be created with
-  \lstinline!Dune::PDELab::FractionalStepParameter<RF>()!.
+  step $\theta$ scheme with $\theta=0.5$.  You can create a parameter
+  object for Crank-Nicolson with:
+  \begin{lstlisting}
+Dune::PDELab::OneStepThetaParameter<RF> pmethod(0.5);
+  \end{lstlisting}
+
+  A parameter object for the Fractional Step $\theta$ scheme can be created
+  with:
+  \begin{lstlisting}
+Dune::PDELab::FractionalStepParameter<RF> pmethod;
+  \end{lstlisting}
 
   \paragraph{Step 3: Different Initial and Boundary Conditions}
   \quad \newline
