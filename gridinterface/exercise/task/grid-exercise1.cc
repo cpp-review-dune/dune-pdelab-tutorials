@@ -37,7 +37,7 @@ int main(int argc, char** argv)
         // You could use a different grid view here -- the grid itself is not used anymore
         auto gridview = grid->leafGridView();
 
-        // iterate over all elements (cells) of the grid
+        // iterate over all entities of the grid
         for (const auto& e : elements(gridview))
         {
             auto geo = e.geometry();
