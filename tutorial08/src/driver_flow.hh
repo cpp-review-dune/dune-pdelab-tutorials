@@ -65,7 +65,7 @@ void driver_flow (const GV& gv, const Scheme& scheme,
   Dune::PDELab::interpolate(g,gfsth,z);
 
   // local operator setup
-  auto flambda = [](const auto& entity, const auto& position) { // right hand side function for momentum equation
+  auto flambda = [dim](const auto& entity, const auto& position) { // right hand side function for momentum equation
     Dune::FieldVector<RF,dim> f(0.0); 
     return f;
   };
