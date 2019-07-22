@@ -37,6 +37,9 @@ add_subdirectory(tutorial05)
 add_subdirectory(tutorial06)
 add_subdirectory(tutorial07)
 add_subdirectory(tutorial08)
+if (dune-codegen_FOUND)
+  add_subdirectory(tutorial09)
+endif()
 
 # finalize the dune project, e.g. generating config.h etc.
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)

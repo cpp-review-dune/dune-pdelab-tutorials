@@ -1,0 +1,29 @@
+cell = triangle
+
+x = SpatialCoordinate(cell)
+
+dim = 2
+eta = 2
+g = x[0]*x[0] + x[1]*x[1]
+f = - 2*dim + eta*g*g
+
+# sgn = conditional(x[1] > 0.5, 1., -1.)
+# j = -2.*sgn*(x[1]-0.5)*g
+# bctype = conditional(Or(x[1]<1e-8, x[1]>1.-1e-8), 0, 1)
+
+V = FiniteElement("CG", cell, degree)
+u = TrialFunction(V)
+v = TestFunction(V)
+
+# ds = ds(subdomain_data=bctype)
+
+def q(u):
+    return eta*u*u
+
+r = (inner(grad(u), grad(v)) + q(u)*v - f*v) *dx
+#  - j*v*ds(0)
+
+exact_solution = g
+# is_dirichlet = bctype
+is_dirichlet = 1
+interpolate_expression = g
