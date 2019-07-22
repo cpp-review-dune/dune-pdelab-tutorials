@@ -8,3 +8,4 @@ Version: 0.0
 Maintainer: peter.bastian@iwr.uni-heidelberg.de
 #depending on
 Depends: dune-pdelab dune-uggrid
+Suggests: dune-codegen

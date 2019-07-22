@@ -1,0 +1,15 @@
+__name = nonlinear_poisson_nietschebc_{__exec_suffix}
+__exec_suffix = {deg_suffix}
+
+deg_suffix = deg{formcompiler.ufl_variants.degree}
+
+lowerleft = 0.0 0.0
+upperright = 1.0 1.0
+elements = 32 32
+elementType = simplical
+
+[formcompiler]
+compare_l2errorsquared = 1e-7
+
+[formcompiler.ufl_variants]
+degree = 1, 2 | expand deg

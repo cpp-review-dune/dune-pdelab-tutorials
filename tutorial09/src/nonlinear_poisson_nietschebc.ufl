@@ -1,0 +1,30 @@
+cell = triangle
+
+x = SpatialCoordinate(cell)
+
+
+dim = 2
+eta = 2
+g = x[0]*x[0] + x[1]*x[1]
+f = - 2*dim + eta*g*g
+
+V = FiniteElement("CG", cell, degree)
+u = TrialFunction(V)
+v = TestFunction(V)
+
+n = FacetNormal(cell)('+')
+
+def q(u):
+    return eta*u*u
+
+stab = 100
+
+r = inner(grad(u), grad(v)) * dx \
+  + q(u) * v * dx \
+  - f * v * dx \
+  - inner(grad(u), n) * v *  ds \
+  - (u-g) * inner(grad(v), n) * ds \
+  + stab * (u-g) * v * ds
+
+exact_solution = g
+interpolate_expression = g
