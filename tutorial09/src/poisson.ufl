@@ -1,17 +1,15 @@
 cell = triangle
-
-x = SpatialCoordinate(cell)
-
-c = (0.5-x[0])**2 + (0.5-x[1])**2
-g = exp(-1.*c)
-f = 4*(1.-c)*g
-
 V = FiniteElement("CG", cell, 1)
 u = TrialFunction(V)
 v = TestFunction(V)
 
+dim = 2
+x = SpatialCoordinate(cell)
+g = x[0]*x[0] + x[1]*x[1]
+f = -2*dim
 
 r = (inner(grad(u), grad(v)) - f*v)*dx
+
 exact_solution = g
 interpolate_expression = g
 is_dirichlet = 1

@@ -39,6 +39,7 @@
 \lstset{language=C++, basicstyle=\ttfamily,
   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
+\usepackage{minted}
 \usepackage{curves}
 %\usepackage{epic}
 \usepackage{calc}
@@ -104,6 +105,10 @@
 \newtheorem{Alg}[Def]{Algorithm}
 \newtheorem{Prp}[Def]{Proposition}
 \newtheorem{Lst}[Def]{Listing}
+
+
+%% Typesetting C++
+\def\CC{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny\bf ++}}}
 
 % Delete this, if you do not want the table of contents to pop up at
 % the beginning of each subsection:
@@ -172,10 +177,164 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Introduction}
+
+  \lstinline{dune-codegen}, UFL, Workflow, Goal, Interface to dune-pdelab
+\end{frame}
 
 \begin{frame}
-  \frametitle{Test}
-  Test
+  \frametitle{Poisson Problem from Tutorial00}
+
+  \begin{subequations}
+    Strong formulation:
+    \begin{align*}
+      -\Delta u & = f \qquad\text{in $\Omega$}, \\
+      u &= g \qquad\text{on $\partial\Omega$},
+    \end{align*}
+
+    Weak formulation: Find $u_h \in U_h$ with
+    \begin{equation*}
+      r_h^{Poisson}(u_h, v_h) = \int_\Omega \nabla u_h \cdot \nabla v_h \, dx
+      - \int_\Omega f \, v_h \, dx = 0 \qquad \forall v_h \in V_h
+    \end{equation*}
+
+    Parameter functions:
+    \begin{align*}
+      f(x) = -2d \\
+      g(x) = \| x \|_2^2
+    \end{align*}
+  \end{subequations}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UFL Formulation for the Poisson Problem}
+  % \inputminted[fontsize=\scriptsize]{python}{../src/poisson.ufl}
+  \lstinputlisting[basicstyle=\scriptsize]{../src/poisson.ufl}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Nonlinear Poisson from Tutorial01}
+
+    Strong formulation:
+    \begin{align*}
+      -\Delta u + q(u) & = f \qquad\text{in $\Omega$}, \\
+      u &= g \qquad\text{on $\partial\Omega$}, \\
+      -\nabla u \cdot \mu = j
+    \end{align*}
+
+    Weak formulation: Find $u_h \in U_h$ with
+    \begin{align*}
+      r_h^{NLP}(u_h, v_h) & =
+      \int_\Omega \nabla u_h \cdot \nabla v_h \, dx
+      + \int_\Omega q(u) \, v \, dx \\
+      &\quad - \int_\Omega f \, v_h \, dx
+      + \int_{\Gamma_N} j \, v \, ds
+      = 0 \qquad \forall v_h \in V_h
+    \end{align*}
+
+    Parameter functions:
+    \begin{align*}
+      f(x) = -2d \\
+      g(x) = \| x \|_2^2
+    \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UFL: Adding the Nonlinearity}
+  \begin{itemize}
+  \item Adjust parameter functions $f$ and $g$
+  \item Define nonlinearity
+  \item Add nonlinearity to residual
+  \end{itemize}
+
+  \vfill
+
+  \lstinputlisting[basicstyle=\scriptsize,
+  linerange={6-15}]{../src/nonlinear_poisson.ufl}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UFL: Using Nitsche Boundary Condition}
+  \begin{itemize}
+  \item Add Nitsche boundary implementation
+  \item Remove \lstinline{is_dirichlet} part, since the boundary condition is not built into the ansatz space.
+  \end{itemize}
+
+  \vfill
+
+  \lstinputlisting[basicstyle=\scriptsize,
+  linerange={18-26}]{../src/nonlinear_poisson_nitschebc.ufl}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Something about instationary?}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UFL language}
+  jump, avg, normal,
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{CMake: \lstinline{dune_add_generated_executable}}
+
+  \begin{itemize}
+  \item We need to generate \CC\ code and compile it
+  \item Add a code generation target to your \lstinline{CMakeLists.txt}
+    \inputminted[fontsize=\scriptsize]{cmake}{generated_executable.txt}
+  \item \lstinline{UFLFILE}: UFL file describing the PDE
+  \item \lstinline{INIFILE}: Ini file with code generation option under \lstinline{[formcompiler]} section
+  \item \lstinline{TARGET}: Name of the executable
+  \item \lstinline{SOURCE}: \CC\ file used for building the target. This is
+    optional, if omitted a minimal driver willl be generated
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{CMake: \lstinline{dune_add_generated_executable}}
+
+  \begin{itemize}
+  \item Automated driver generation is mainly developed for software tests
+  \item For complicated applications handwritten drivers will be
+    necessary. This requires control over the file- and classname of the
+    generated local operator.
+  \item Can be done in the ini file
+    \inputminted[fontsize=\scriptsize]{ini}{classname_filename.ini}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Options?}
+
+  Global Options:
+
+  \begin{lstlisting}
+  explicit_time_stepping
+  exact_solution_expression
+  compare_l2errorsquared
+  \end{lstlisting}
+
+  Form Options:
+
+  \begin{lstlisting}
+  filename
+  classname
+  ? numerical_jacobian
+  quadrature_order
+  geometry_mixins
+  ? enable_volume
+  ? enable_skeleton
+  ? enable_boundary
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{CMake: \lstinline{dune_add_generated_executable}}
+
+  Examples?
+
+  \inputminted[fontsize=\scriptsize, firstline=1, lastline=4]{cmake}{../src/CMakeLists.txt}
 \end{frame}
 
 \end{document}
