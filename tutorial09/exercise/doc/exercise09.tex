@@ -1,0 +1,127 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,total={150mm,240mm}]{geometry}
+\usepackage[american]{babel}
+
+\usepackage{float}
+\usepackage{babel}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{todonotes}
+
+
+\usepackage{listings}
+\definecolor{listingbg}{gray}{0.95}
+\lstset{language=C++,basicstyle=\ttfamily\small,frame=single,backgroundcolor=\color{listingbg}}
+% \lstset{language=C++, basicstyle=\ttfamily,
+%   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
+%   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
+
+\usepackage{stmaryrd}
+\newcommand\jump[1]{\llbracket #1 \rrbracket}
+\newcommand\avg[1]{\{ #1 \}}
+\newcommand\avgw[1]{\{ #1 \}_{\omega}}
+\newcommand{\vx}{\vec x}
+\newcommand{\grad}{\vec \nabla}
+\newcommand{\wind}{\vec \beta}
+\newcommand{\Laplace}{\Delta}
+\newcommand{\mycomment}[1]{}
+
+% Exercise stylesheet
+\usepackage{exercise}
+
+\title{\textbf{Exercises for Tutorial09}}
+\subtitle{Generating Local Operators}
+\exerciselabel{Exercise}
+
+\begin{document}
+
+\exerciseheader
+
+In tutorial09 you learned how to use the \lstinline{dune-codegen} module to
+generate local operators.
+
+\begin{Exercise}{Something Simple?}
+\end{Exercise}
+
+\begin{Exercise}{Navier Stokes}
+
+\end{Exercise}
+
+\begin{Exercise}{Nonlinear Poisson with Discontinuous Galerkin Method}
+  In this exercise we will solve the nonlinear Poisson equation
+  \begin{equation}
+    \begin{aligned}
+      -\Delta u + q(u) &= f &&\text{in $\Omega$},\\
+      u &= g &&\text{on $\partial\Omega$}
+    \end{aligned}
+    \label{eq:nonlinear_poisson}
+  \end{equation}
+
+  with the nonlinear function $q(u)=\eta u^2$ and the parameters functions
+  \begin{align*}
+    g(x) = \|x\|_2^2 \\
+    f(x) = -2d + \eta \, g(x)^2
+  \end{align*}
+  using the discontinuous Galerkin
+  (DG) method. We will focus on the implementation of this method in UFL to
+  show the power of this approach without going into details about the
+  numerical method.\footnote{For further insight into DG methods see e.g. Di Pietro, Daniele Antonio and Ern, Alexandre: Mathematical aspects of discontinuous Galerkin methods}
+
+  In contrast to continuous Galerkin methods DG methods use piecewise
+  polynomial basis functions on the grid and allow for discontinuities along
+  faces. In order to get a discritzation that still approximates the solution
+  of our PDE we introduce penalty terms along the faces. Dirichlet boundary
+  conditions are not build into the ansatz space but enforced in a weak way
+  like it was done in exercise01 using Nitsche boundary condition.
+
+  A\footnote{There are different DG discretizations. We use symmetric interior penalty here.} DG discretization of problem \eqref{eq:nonlinear_poisson} reads the
+  following: Find $u_h$ in $U_h$ with
+  \begin{equation*}
+    r_h(u_h, v_h) = 0 \qquad \forall v_h \in V_h
+  \end{equation*}
+  with the residual
+  \begin{equation}
+    \label{eq:nonlinear_poisson_dg}
+    \begin{aligned}
+      r_h(u, v) & = \sum_{T\in\mathcal{T}_h}\int_T \nabla u\cdot\nabla v + q(u)v - fv\ dx\\
+      &\quad - \sum_{F\in\mathcal{F}_h}\int_F (\avg{\nabla u}, \vec{n})\jump{v} + \jump{u}(\avg{\nabla v}, \vec{n}) - \gamma_F\jump{u}\jump{v}\ ds\\
+      &\quad - \sum_{F\in\mathcal{B}_h}\int_F(\nabla u, \vec{n})v + (u-g)(\nabla v, \vec{n}) - \gamma_F(u-g)v\ ds
+    \end{aligned}
+  \end{equation}
+
+  We need to explain some notation: \footnote{For faces we sometimes refer to the inner or the outer cell. For a given face it doesn't matter which cell is the inner and which is the outer as long as it is always treated the same for this face. This is not important for this exercise.}
+
+  \begin{itemize}
+  \item $\mathcal{T}_h$: Set of mesh elements. Use \lstinline{...*dx} in UFL
+    file for volume integrals. You don't need to care about the sum in front of
+    the integral. UFL describes only the local integrals.
+  \item $\mathcal{B}_h$: Set of boundary faces. Use \lstinline{...*ds} in UFL
+    file for integrals over boundary faces.
+  \item $\mathcal{F}_h$: Set of inner faces. Use \lstinline{...*dS} in UFL file
+    for integrals over inner faces.
+  \item $\vec{n}$: Unit outer normal vector pointing from the inner cell to the outer cell. In UFL file use \lstinline{n = FacetNormal(cell)('+')}
+  \item $\avg{.}$: Average of the values at the inside cell and the outside cell. Only makes sense at faces. In UFL file use \lstinline{avg(.)}.
+  \item $\jump{.}$: Value at the inside cell minus value at the outside cell. Only makes sense at faces. In UFL file use \lstinline{jump(.)}.
+  \item $\gamma_F$: Penalty parameter of the DG scheme. For this exercise we
+    just choose $\gamma_F = 100$. A good choice of $\gamma_F$ depends on the
+    dimension, degree of your discretization and geometry informations. See the
+    book mentioned above for further detail.
+  \end{itemize}
+
+  After reading all this text we can finally start doing some work:
+  \begin{enumerate}
+  \item In the \lstinline{task} folder the basic infrastructure is already set
+    up: You can find the files \lstinline{nonlinear_poisson_dg.ufl} and
+    \lstinline{nonlinear_poisson_dg.mini} and a target is defined in the
+    \lstinline{CMakeLists.txt} file.
+  \item You need to implement the residual \eqref{eq:nonlinear_poisson_dg} in
+    the UFL file.
+  \end{enumerate}
+
+\end{Exercise}
+
+\end{document}
