@@ -10,15 +10,18 @@
 \usepackage{tikz}
 \usepackage{graphicx}
 \usepackage{amssymb}
-\usepackage{todonotes}
-
+\usepackage{tikz}
 
 \usepackage{listings}
 \definecolor{listingbg}{gray}{0.95}
-\lstset{language=C++,basicstyle=\ttfamily\small,frame=single,backgroundcolor=\color{listingbg}}
-% \lstset{language=C++, basicstyle=\ttfamily,
-%   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-%   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
+\lstset{
+  language=c++,
+  basicstyle=\ttfamily\small,
+  frame=single,
+  backgroundcolor=\color{listingbg},
+  breaklines=true,
+  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
+}
 
 \usepackage{stmaryrd}
 \newcommand\jump[1]{\llbracket #1 \rrbracket}
@@ -41,14 +44,121 @@
 
 \exerciseheader
 
-In tutorial09 you learned how to use the \lstinline{dune-codegen} module to
-generate local operators.
+In tutorial09 we learned how to use the \lstinline{dune-codegen} module to
+generate local operators. In this exercise you will learn how this can simplify
+the implementation of complicated discretizations.
 
-\begin{Exercise}{Something Simple?}
-\end{Exercise}
+The build directory of this exercise is
+\begin{lstlisting}
+cd dune-course/release-build/dune-pdelab-tutorials/tutorial09/exercise/task
+\end{lstlisting}
+
+The corresponding source directory can be found under
+\begin{lstlisting}
+cd dune-course/dune/dune-pdelab-tutorials/tutorial09/exercise/task
+\end{lstlisting}
+or by following the symlink in the build directory
+\begin{lstlisting}
+cd dune-course/release-build/dune-pdelab-tutorials/tutorial09/exercise/task/src_dir
+\end{lstlisting}
+
 
 \begin{Exercise}{Navier Stokes}
+  In this exercise we will implement the Navier Stokes equation for a flow
+  around a cylinder\footnote{See
+    http://www.featflow.de/en/benchmarks/cfdbenchmarking/flow/dfg\_benchmark2\_re100.html
+    for a more detailed benchmark description} on a two dimenisional domain
+  $\Omega$ and the time interval $\Sigma$.
 
+  \begin{equation}
+    \begin{aligned}
+      \partial_t \vec{u} - \nu \Laplace \vec{u} + (\nabla \vec{u}) \vec{u} + \nabla p &= 0 \qquad \text{in $\Omega$}\\
+      \nabla \cdot \vec{u} &= 0 \qquad \text{in $\Omega$}
+    \end{aligned}
+    \label{eq:navier-stokes}
+  \end{equation}
+
+  Here $u:\Omega\times\Sigma\to\mathbb{R}^2$ is the unknown velocity field,
+  $p:\Omega\times\Sigma\to\mathbb{R}$ is the unknown pressure and $\nu$ is the
+  kinematic viscosity. In the formulation above we assume that the fluid has a
+  constant density of $\rho=1$.
+
+  \begin{center}
+    \begin{tikzpicture}[scale=5]
+      \coordinate (a) at (0,0);
+      \coordinate (b) at (2.2,0);
+      \coordinate (c) at (2.2,0.41);
+      \coordinate (d) at (0,0.41);
+
+      \coordinate (e) at (0,0.2);
+      \coordinate (f) at (0.2,0.41);
+
+
+      \draw[thick] (a) -- (b) -- (c) -- (d) --cycle;
+      \draw (0.2,0.2) circle (0.05);
+
+      \draw[<->] ([yshift=-2]a) -- ([yshift=-2]b) node[midway, below]{2.2};
+      \draw[<->] ([xshift=2]b) -- ([xshift=2]c) node[midway, right]{0.41};
+
+      \draw[<->] ([xshift=-2]a) -- ([xshift=-2]e) node[midway, left]{0.2};
+      \draw[<->] ([xshift=-2]e) -- ([xshift=-2]d) node[midway, left]{0.21};
+      \draw[<->] ([yshift=2]d) -- ([yshift=2]f) node[midway, above]{0.2};
+
+      \node at (0.5,0.2) {$r=0.05$};
+    \end{tikzpicture}
+  \end{center}
+
+  As boundary conditions we use
+  \begin{align*}
+    \vec{u} &= 0 && \text{on $\partial\Omega \cap (0,2.2)\times(0,0.41)$} \\
+    \vec{u} &=
+    \begin{pmatrix}
+      1.5 \cdot 4 \cdot x_1 \frac{0.41-x_1}{0.41^2} \cdot q(t) \\ 0
+    \end{pmatrix} && \text{on $0\times[0,0.41]$}\\
+    \nu \, \nabla \vec{u} \, \vec{n} - p\vec{n} &= 0 && \text{on $2.2\times[0,0.41]$}
+  \end{align*}
+  and the initial conditions are simply
+  \begin{align*}
+    \vec{u}|_{t=0} &= 0 \\
+    p|_{t=0} &= 0. \\
+  \end{align*}
+
+  A discretization of this equation is: Find
+  $(\vec{u}_h,p_h) \in U_h\times Q_h$ with
+  \begin{equation*}
+    r_h(\vec{u}_h, p_h, v_h, q_h) = 0 \qquad \forall (v_h,q_h) \in V_h\times Q_h
+  \end{equation*}
+  for appropriate function spaces $U_h$, $V_h$, $Q_h$ and residual
+  \begin{equation}
+    r_h(u,p,v,q)
+    = \nu (\nabla(u), \nabla(v))_{0,\Omega}
+    - (p, \nabla \cdot v)_{0,\Omega}
+    - (q, \nabla \cdot u)_{0, \Omega}
+    + \rho ((\nabla u) u, v)_{0, \Omega}
+    \label{eq:ns-residual}
+  \end{equation}
+
+  Go to the source directory of this exercise. There you will find the files
+  \lstinline{navier_stokes.ufl} and \lstinline{navier_stokes.ini}. Open the UFL
+  file and implement the correct residual and boundary condition. Right now the
+  program will build but not do anything useful.
+
+  Help:
+  \begin{itemize}
+  \item UFL has a conditional:
+    \begin{displaymath}
+      \text{\lstinline{conditional(cond, A, B)}} = \left\{
+        \begin{array}{lr}
+          \text{\lstinline{A}}\ \ \ \ & \text{\lstinline{cond is True}} \\
+          \text{\lstinline{B}} & \text{\lstinline{cond is False}}
+        \end{array}
+      \right.
+    \end{displaymath}
+  \item UFL has \lstinline{grad(.)} and \lstinline{div(.)}
+  \item \lstinline{inner(.,.)*dx} will do the right thing for all scalar
+    products of equation \eqref{eq:ns-residual}. Just make sure that the
+    dimensions of the two arguments match.
+  \end{itemize}
 \end{Exercise}
 
 \begin{Exercise}{Nonlinear Poisson with Discontinuous Galerkin Method}
