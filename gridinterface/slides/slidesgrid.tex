@@ -100,6 +100,7 @@
 \mode<presentation>
 {
 \theoremstyle{definition}
+\setbeamertemplate{footline}[frame number]
 }
 % \newtheorem{Def}{Definition}%[section]
 % \newtheorem{Exm}[Def]{Example}
@@ -269,7 +270,7 @@
       \begin{enumerate}
       \item Static Polymorphism
         \begin{itemize}
-        \item Engine Concept (see STL)
+        \item Duck Typing (see STL)
         \item Curiously Recurring Template Pattern (Barton and Nackman)
         \end{itemize}
       \item Grid Entity Ranges
@@ -297,7 +298,7 @@
             \item Code is split into separate modules.
             \item Applications use only the modules they need.
             \item Modules are sorted according to level of maturaty.
-            \item Everybody can provide their own modules.
+            \item Everybody can provide her/his own modules.
             \end{itemize}
           \end{onlyenv}
         \item Portability
@@ -340,7 +341,8 @@
 \begin{frame}
   \frametitle{Some historic remarks}
   \centering
-  \includesvg[width=0.9\linewidth]{dunetimeline}
+%  \includesvg[width=0.9\linewidth]{dunetimeline}
+  \includegraphics[width=1.0\linewidth]{dunetimeline}
 \end{frame}
 
 \begin{frame} \frametitle{DUNE Release 2.6.0}
@@ -399,7 +401,7 @@
 
 \only<article>{\enlargethispage{4ex}}
 
-\begin{frame}[t] \frametitle{DUNE ecosystem}
+\begin{frame}[t] \frametitle{DUN(E)iverse}
 
   \hfill\includegraphics[height=0.21\linewidth]{brick}
   \vspace*{-0.21\linewidth}
@@ -417,8 +419,8 @@
       \begin{description}[dune-networkgrid:]
         % \item[dune-disc:] shapefunctions, discretization schemes, \dots
       \item[\alert<3>{dune-pdelab:}]
-        {discretization module based on dune-localfunctions.}
-      \item[dune-fem:] Alternative implementation of finite element functions.
+        {Discretization module based on dune-localfunctions.}
+      \item[dune-fem:] Discretization module based on dune-localfunctions.
       \item[dune-functions:] A new initiative to provide unified
         interfaces for functions and function spaces.
       \end{description}
@@ -487,7 +489,8 @@
       \end{itemize}
     \end{column}
     \begin{column}{0.3\linewidth}
-      \includesvg[width=\linewidth]{Gnome-emblem-package}\\\centering
+%      \includesvg[width=\linewidth]{Gnome-emblem-package}\\\centering
+      \includegraphics[width=\linewidth]{Gnome-emblem-package}\\\centering
       \tiny Source: gnome
     \end{column}
   \end{columns}
@@ -588,19 +591,14 @@
     a(u,v) = \int_\Omega \nabla u \cdot \nabla v \diffd x,
   \end{equation*}
   \raisebox{2ex}{with spatial domain $\Omega \subset \R^d$.}
-  \pause
-  \begin{center}
-    \structure{How to evaluate the integrals?}
-  \end{center}
 
-  \begin{itemize}
-  \item No analytic integrals available for $a(u,v)$ and $l(v)$.
-  \item No analytic description for the shape of $\Omega \subset \R^d$.
-  \end{itemize}
-\pause
-\begin{center}
-  \rightarrownice Use a numerical quadrature scheme!
-\end{center}
+  \pause
+Grids are necessary for at least three reasons:
+  \begin{enumerate}
+  \item Piecewise description of the complicated domain $\Omega$
+  \item Piecewise approximation of functions (by polynomials)
+  \item Piecewise computation of integrals (by numerical quadrature)
+  \end{enumerate}
 \end{frame}
 
 
@@ -609,7 +607,7 @@
   \begin{itemize}
   \item Approximate integral by a weighted sum of function evaluations at sampling points:
   \begin{equation*}
-    \int_\Omega f(x) \diffd x \approx \sum_{i = 1}^N w_i f(x_i)
+    \int_{\hat\Omega} f(x) \diffd x \approx \sum_{i = 1}^N w_i f(x_i)
   \end{equation*}
   with weights $w_i$ and sampling points $x_i$, $i = 1,\dots,N$.\\[1em]
 \item Different construction methods for $w_i$ and $x_i$
@@ -617,7 +615,7 @@
   \item Typically uses series of polynomials (Legendre, Lagrange, Lobatto, \dots).
   \item Exact for polynomial $f$ up to a predefined order.
   \end{itemize}
-\item Quadrature scheme depends on $\Omega$!
+\item Quadrature scheme depends on $\hat\Omega$!
   \begin{itemize}
   \item Most schemes only available for simple shapes (triangle, square, tetrahedron, \dots).
   \item Quadrature on complicated shapes done by approximating $\Omega$ by small volumes of regular shape.
@@ -656,7 +654,7 @@
   \item \texttt{dune-grid} provides the interfaces, following the concept
     of a \emph{Grid}.
 
-  \item Is implementation follows the three \emph{design principles} of
+  \item Its implementation follows the three \emph{design principles} of
     DUNE:
     \begin{description}[~~~Legacy Code:]
     \item[Flexibility:]
@@ -920,6 +918,12 @@ for (const auto& e : entities(gv,Dune::Codim<2>{}))
 // Iterates over entities with a given dimension (here: 2)
 for (const auto& e : entities(gv,Dune::Dim<2>{}))
   \end{cppcode}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{center}
+Go to code example 1 \ldots
+\end{center}
 \end{frame}
 
 % \begin{frame}
@@ -1278,27 +1282,30 @@ for (const auto& qp : quad)
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Example: Average of a function f on a GridView}
+\frametitle{Example: Integrating a function u on a GridView}
 \begin{equation*}
-\frac{1}{|\Omega|}\int_{\Omega}f(x) \diffd x\approx\frac{1}{\sum_{E \in GV} |e|}\sum_{E \in GV}\sum_{i \in QR} f(T_e(x_i)) w_i |\det J_E^T(x_i) J_E(x_i)|^{1/2}
+\int_{\Omega}u(x) \diffd x\approx \sum_{E \in GV}\sum_{i \in QR} u(T_e(x_i)) w_i |\det J_E^T(x_i) J_E(x_i)|^{1/2}
 \end{equation*}
-\begin{cppcode}
-double value = 0.0, volume = 0.0;
-for (const auto& cell : elements(gv)) {
-  auto geo = cell.geometry();
-  // integrate with numerical quadrature
-  for (auto& qp : Dune::PDELab::quadratureRule(geo,2)) {
-    auto x_local = qp.position();
-    auto x_global = geo.global(x_local);
-    // accumulate integral contribution
-    value += f(x_global) *
-             qp.weight() * geo.integrationElement(x_local);
-  }
-  volume += geo.volume();
-}
-std::cout << "Average: " << value / volume << std::endl;
-\end{cppcode}
-
+%\begin{cppcode}
+%double value = 0.0, volume = 0.0;
+%for (const auto& cell : elements(gv)) {
+%  auto geo = cell.geometry();
+%  // integrate with numerical quadrature
+%  for (auto& qp : Dune::PDELab::quadratureRule(geo,2)) {
+%    auto x_local = qp.position();
+%    auto x_global = geo.global(x_local);
+%    // accumulate integral contribution
+%    value += f(x_global) *
+%             qp.weight() * geo.integrationElement(x_local);
+%  }
+%  volume += geo.volume();
+%}
+%std::cout << "Average: " << value / volume << std::endl;
+%\end{cppcode}
+\bigskip
+\begin{center}
+Go to code example 2 \ldots
+\end{center}
 \end{frame}
 
 \subsection{Intersections}
@@ -1538,7 +1545,18 @@ for (const auto& cell : elements(gv))
 \end{cppcode}
 \end{frame}
 
+\begin{frame}[fragile] \frametitle{Example: Elementwise divergence of a vector field}
+\begin{equation*}
+\int_{\Omega_e} \nabla\cdot f(x) \,dx = \int_{\partial \Omega_e} f\cdot n_e \,ds
+\end{equation*}
+\bigskip
+\begin{center}
+Go to code example 3 \ldots
+\end{center}
+\end{frame}
+
 \section{Attaching Data to the Grid}
+
 \begin{frame} \frametitle{Attaching Data to the Grid}
 
   For computations we need to associate data with grid entities:
@@ -1611,6 +1629,22 @@ auto edge_lengths = std::vector<double>(index_set.size(1));
 for (const auto& edge : edges(gv))
   lengths[index_set.index(edge)] = edge.geometry().volume();
 \end{cppcode}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Sequential finite volume solver}
+Consider the first-order linear PDE
+$$ \partial_t u + \nabla\cdot(vu) = 0$$
+with given vector field $v(x)$ and unknown solution $u(x,t)$.
+
+The explicit cell-centered finite volume method reads
+$$ \bar{u}_e^{k+1} = \bar{u}_e^{k} - \frac{\Delta t}{|\Omega_e|} \sum_{(e,e')\in I(e)} 
+\Phi(v\cdot n_e,\bar{u}_e^{k},\bar{u}_{e'}^{k}) |I(e,e')|$$
+with the numerical flux function $\Phi$ chosen as upwind flux here.
+
+\begin{center}
+Go to code example 4 \ldots
+\end{center}
 \end{frame}
 
 \begin{frame}
@@ -1729,15 +1763,15 @@ for (const auto& edge : edges(gv))
     \frametitle{Further Reading}
     \only<presentation>{\framesubtitle{What we didn't discuss\dots{}}}
     \begin{itemize}
-    \item grid creation
-      \medskip
-    \item I/O
-      \medskip
+%    \item grid creation
+%      \medskip
+%    \item I/O
+%      \medskip
     \item grid adaptation
       \medskip
-    \item parallelization
+    \item parallelization, load balancing
       \medskip
-    \item further specialized methods
+    \item further specialized methods (e.g. related to grid hierarchy)
     \end{itemize}
   \end{frame}
 \end{onlyenv}
