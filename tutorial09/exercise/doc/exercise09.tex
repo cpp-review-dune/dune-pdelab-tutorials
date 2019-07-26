@@ -130,25 +130,26 @@ dune-course/release-build/dune-pdelab-tutorials/tutorial09/exercise/task/src_dir
     p|_{t=0} &= 0. \\
   \end{align*}
 
-  A discretization of this equation is: Find
+  A semi-discretization in space of this equation is: Find
   $(\vec{u}_h,p_h) \in U_h\times Q_h$ with
   \begin{equation*}
-    r_h(\vec{u}_h, p_h, v_h, q_h) = 0 \qquad \forall (v_h,q_h) \in V_h\times Q_h
+    \rho (\partial_t \vec{u}_h, \vec{v}_h)_\Omega + r_h(\vec{u}_h, p_h, \vec{v}_h, q_h) = 0 \qquad \forall (\vec{v}_h,q_h) \in V_h\times Q_h
   \end{equation*}
   for appropriate function spaces $U_h$, $V_h$, $Q_h$ and residual
   \begin{equation}
-    r_h(u,p,v,q)
-    = \nu (\nabla u, \nabla v)_{0,\Omega}
-    - (p, \nabla \cdot v)_{0,\Omega}
-    - (q, \nabla \cdot u)_{0, \Omega}
-    + \rho ((\nabla u) u, v)_{0, \Omega}
+    r_h(\vec{u},p,\vec{v},q)
+    = \nu (\nabla \vec{u}, \nabla \vec{v})_{0,\Omega}
+    - (p, \nabla \cdot \vec{v})_{0,\Omega}
+    - (q, \nabla \cdot \vec{u})_{0, \Omega}
+    + \rho ((\nabla \vec{u}) \vec{u}, \vec{v})_{0, \Omega}
     \label{eq:ns-residual}
   \end{equation}
 
   Go to the source directory of this exercise. There you will find the files
   \lstinline{navier_stokes.ufl} and \lstinline{navier_stokes.ini}. Open the UFL
-  file and implement the correct residual and boundary conditions. For
-  generating the \CC\ file and compiling go to the build directory and type
+  file and implement the correct residual for the spatial discretization and
+  the correct boundary conditions. For generating the \CC\ file and compiling
+  go to the build directory and type
   \begin{lstlisting}
 make navier_stokes
   \end{lstlisting}
