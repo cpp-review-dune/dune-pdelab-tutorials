@@ -920,11 +920,11 @@ for (const auto& e : entities(gv,Dune::Dim<2>{}))
   \end{cppcode}
 \end{frame}
 
-\begin{frame}[fragile]
-\begin{center}
-Go to code example 1 \ldots
-\end{center}
-\end{frame}
+% \begin{frame}[fragile]
+% \begin{center}
+% Go to code example 1 \ldots
+% \end{center}
+% \end{frame}
 
 % \begin{frame}
 %   \frametitle{LevelGridView versus LeafGridView}
@@ -1011,6 +1011,46 @@ for (const auto& cell : elements(gv)) {
 \end{frame}
 
 \begin{frame}[fragile]
+  \frametitle{Dimension and Codimension}
+  Each entity has a \structure{dimension}:
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+      \item \lstinline!dim(vertex) == 0!
+      \item \lstinline!dim(line) == 1!
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+      \item \lstinline!dim(triangle) == 2!
+      \item \dots
+      \end{itemize}
+    \end{column}
+    \end{columns}
+  \pause\vspace*{2em}
+  When writing dimension-independent code, it is often easier to instead use the \structure{codimension}.\\[1em]
+  The codimension of an entity $e$ is always relative to the dimension of the grid and is given by:
+  \begin{equation*}
+    \mathrm{codim}(e) = \mathrm{dim}(grid) - \mathrm{dim}(e)
+  \end{equation*}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+      \item \lstinline!codim(cell) == 0!
+      \item \lstinline!codim(face) == 1!
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+      \item \dots
+      \item \lstinline!codim(vertex) == dim(grid)!
+      \end{itemize}
+    \end{column}
+    \end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]
   \frametitle{Storing Entities}
 
   \vfill
@@ -1048,14 +1088,13 @@ auto entity = grid.entity(entity_seed);
 % \only<article>{\newpage}
 
 \subsection{Reference Elements}
-\begin{frame} \frametitle{Reference Elements}
+\begin{frame}[fragile] \frametitle{Reference Elements}
 
   \begin{description}
   \item[\tt Dune::GeometryType] identifies the type of the
-    entities Referenceelement.\only<presentation>{\\}
-    It bundles a \emph{topology ID} and the dimension.
-  \item[\tt Grid::Codim<c>::Entity::type()] \only<presentation>{~\\}
-    returns the GeometryType of the entity.
+    entity's reference element.
+  \item[\tt Grid::Codim<c>::Entity::type()]
+    returns the \lstinline!GeometryType! of an entity.
   \end{description}
 
   \begin{onlyenv}<presentation>
@@ -1105,10 +1144,69 @@ auto entity = grid.entity(entity_seed);
         prism (faces) & prism (edges) & pyramid (faces) & pyramid (edges)\\
       \end{tabular}
     \end{center}
-    For more information see the documentation on reference elements
-    (\url{https://www.dune-project.org/doxygen/2.5.0/group__GeometryReferenceElements.html})
   \end{onlyenv}
 \end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Geometry Types}
+  \lstinline!GeometryType! is a simple identifier for a reference element
+  \begin{itemize}
+  \item Obtain from entity or geometry object using \lstinline!.type()!
+  \item \lstinline!GeometryType! for specific reference elements in namespace \lstinline!Dune::GeometryTypes!:
+\begin{cppcode}
+namespace GeometryTypes = Dune::GeometryTypes;
+Dune::GeometryType gt;
+
+gt = GeometryTypes::vertex;
+gt = GeometryTypes::line;
+gt = GeometryTypes::triangle;
+gt = GeometryTypes::square;
+gt = GeometryTypes::hexahedron;
+gt = GeometryTypes::cube(dim);
+gt = GeometryTypes::simplex(dim);
+\end{cppcode}
+\item \lstinline!GeometryType!s are cheap, always store and pass around copies (don't use references)
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{ReferenceElement (I)}
+  A reference element provides topological and geometrical information about the embedding of subentities:\\
+    ~\hfill\includegraphics[width=0.24\linewidth]{gg_triangle}
+    \hfill\includegraphics[width=0.28\linewidth]{gg_hexahedron}
+    \hfill\includegraphics[width=0.22\linewidth]{gg_prism}
+    \hfill~
+
+    ~\hfill\parbox{0.24\linewidth}{\centering simplex 2D}
+    \hfill\parbox{0.28\linewidth}{\centering cube 3D}
+    \hfill\parbox{0.22\linewidth}{\centering prism} \hfill~\\
+    \begin{itemize}
+    \item Numbering of subentities within the reference element
+    \item Geometrical mappings from reference elements of subentities to the current reference element
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{ReferenceElement (II)}
+    \begin{itemize}
+    \item Reference elements are templated on the dimension and the coordinate field type
+\begin{cppcode}
+Dune::ReferenceElement<double,dim> ref_el = ...;
+\end{cppcode}
+\item The function \lstinline!Dune::referenceElement()! will extract the reference element from most objects
+  that have one:
+\begin{cppcode}
+auto ref_el = Dune::referenceElement(entity.geometry());
+\end{cppcode}
+    When using this function, you don't have to figure out the template parameters.
+    \item \lstinline!ReferenceElement!s are cheap, always store and pass around copies (don't use references)
+    \end{itemize}
+    For more information see the documentation on reference elements
+    (\url{https://dune-project.org/doxygen/master/group__GeometryReferenceElements.html})
+\end{frame}
+
 
 %\only<article>{\newpage}
 
@@ -1248,29 +1346,67 @@ J_inv.mv(tmp,gradient);
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Quadrature Rules}
+  \frametitle{Obtaining Quadrature Rules}
+  Recall: Numerical quadrature rules given by
+  \begin{equation*}
+    \int_{\hat\Omega} f(x) \diffd x \approx \sum_{i = 1}^N w_i f(x_i)
+  \end{equation*}
 
   \begin{itemize}
-  \item guarantees exact integration of polynomial functions of order $k$.
-  \item Part of dune-geometry
-  \item Given
-    \lstinline!Geometry! and quadrature
-    order, we obtain the \lstinline!QuadratureRule!.
-  \item A \lstinline!QuadratureRule! is a range of
-    \lstinline!QuadraturePoint!.
-  \item \lstinline!QuadraturePoint! gives weight an position:\\
-    \lstinline!QuadraturePoint::weight()!\hfill
-    \lstinline!QuadraturePoint::position()!
+  \item \lstinline!dune-geometry! provides pre-defined quadrature rules for common geometry types:
+\begin{cppcode}
+int order = ...;
+Dune::GeometryType gt = ...;
+auto& qr = Dune::QuadratureRules<double,dim>::rule(gt,order);
+\end{cppcode}
+\item The rule factory is parameterized by the number type (typically use \lstinline!Grid::ctype!) and the dimension of the
+  integration domain
+\item The rule is exact for polynomials up to the given \lstinline!order!
+\item Use \lstinline!auto&! for the type of the rule to avoid expensive copies
+\item Optional third parameter to select type of rule (Jacobi, Legendre, Lobatto)
   \end{itemize}
 
-  \pause\footnotesize
-  \em Note: Simple access to \lstinline!QuadratureRule! provided by
-  dune-pdelab\em
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Using Quadrature Rules}
+  \begin{itemize}
+  \item A \lstinline!QuadratureRule! is a range of
+    \lstinline!QuadraturePoint!.
+  \item \lstinline!QuadraturePoint! provides weight and position:
+    \begin{itemize}
+    \item \lstinline!QuadraturePoint::weight()!
+    \item \lstinline!QuadraturePoint::position()!
+    \end{itemize}
+  \end{itemize}
+  \pause
+  \structure{Example}{\footnotesize
+\begin{cppcode}
+auto f = some_function_to_integrate(...);
+double integral = 0.0;
+for (const auto& qp : rule)
+{
+  integral += f(qp.position()) * qp.weight();
+}
+\end{cppcode}
+} \pause \structure{Attention:} When integrating over cells in a grid, keep in mind that the quadrature
+point coordinates are local to the reference element and need to be transformed when integrating an analytical function!
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Quadrature Rule Access in PDELab}
+
+  Most of the time, you want a quadrature rule for an entity geometry\\[.5em]
+  $\Longrightarrow$ no need to specify template types\\[1em]
+
+  PDELab extension to simplify access:
 \begin{cppcode}
 #include <dune/pdelab/common/quadraturerules.hh>
 
 ...
 
+// PDELab quadrature rules wrap dune-geometry rules and are
+// cheap to copy, so use "auto" instead of "auto&"
 auto quad = Dune::PDELab::quadratureRule(geometry,order);
 for (const auto& qp : quad)
 {
@@ -1281,32 +1417,32 @@ for (const auto& qp : quad)
 
 \end{frame}
 
-\begin{frame}[fragile]
-\frametitle{Example: Integrating a function u on a GridView}
-\begin{equation*}
-\int_{\Omega}u(x) \diffd x\approx \sum_{E \in GV}\sum_{i \in QR} u(T_e(x_i)) w_i |\det J_E^T(x_i) J_E(x_i)|^{1/2}
-\end{equation*}
-%\begin{cppcode}
-%double value = 0.0, volume = 0.0;
-%for (const auto& cell : elements(gv)) {
-%  auto geo = cell.geometry();
-%  // integrate with numerical quadrature
-%  for (auto& qp : Dune::PDELab::quadratureRule(geo,2)) {
-%    auto x_local = qp.position();
-%    auto x_global = geo.global(x_local);
-%    // accumulate integral contribution
-%    value += f(x_global) *
-%             qp.weight() * geo.integrationElement(x_local);
-%  }
-%  volume += geo.volume();
-%}
-%std::cout << "Average: " << value / volume << std::endl;
-%\end{cppcode}
-\bigskip
-\begin{center}
-Go to code example 2 \ldots
-\end{center}
-\end{frame}
+% \begin{frame}[fragile]
+% \frametitle{Example: Integrating a function u on a GridView}
+% \begin{equation*}
+% \int_{\Omega}u(x) \diffd x\approx \sum_{E \in GV}\sum_{i \in QR} u(T_e(x_i)) w_i |\det J_E^T(x_i) J_E(x_i)|^{1/2}
+% \end{equation*}
+% %\begin{cppcode}
+% %double value = 0.0, volume = 0.0;
+% %for (const auto& cell : elements(gv)) {
+% %  auto geo = cell.geometry();
+% %  // integrate with numerical quadrature
+% %  for (auto& qp : Dune::PDELab::quadratureRule(geo,2)) {
+% %    auto x_local = qp.position();
+% %    auto x_global = geo.global(x_local);
+% %    // accumulate integral contribution
+% %    value += f(x_global) *
+% %             qp.weight() * geo.integrationElement(x_local);
+% %  }
+% %  volume += geo.volume();
+% %}
+% %std::cout << "Average: " << value / volume << std::endl;
+% %\end{cppcode}
+% \bigskip
+% \begin{center}
+% Go to code example 2 \ldots
+% \end{center}
+% \end{frame}
 
 \subsection{Intersections}
 
@@ -1638,7 +1774,7 @@ $$ \partial_t u + \nabla\cdot(vu) = 0$$
 with given vector field $v(x)$ and unknown solution $u(x,t)$.
 
 The explicit cell-centered finite volume method reads
-$$ \bar{u}_e^{k+1} = \bar{u}_e^{k} - \frac{\Delta t}{|\Omega_e|} \sum_{(e,e')\in I(e)} 
+$$ \bar{u}_e^{k+1} = \bar{u}_e^{k} - \frac{\Delta t}{|\Omega_e|} \sum_{(e,e')\in I(e)}
 \Phi(v\cdot n_e,\bar{u}_e^{k},\bar{u}_{e'}^{k}) |I(e,e')|$$
 with the numerical flux function $\Phi$ chosen as upwind flux here.
 
