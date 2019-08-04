@@ -189,20 +189,12 @@
   \begin{itemize}
   \item This tutorial gives a short introduction to using
     \lstinline{dune-codegen}\footnote{https://gitlab.dune-project.org/extensions/dune-codegen}
-  \item Partially based on ``Code Generation for High Performance PDE Solvers
-    on Modern Architectures'' by Dominic Kempf
-  \item Partially based on \url{https://fenics.readthedocs.io/projects/ufl/en/latest/index.html}
-  \end{itemize}
-
-  \vfill
-
-  \textbf{Goal}
-  \begin{itemize}
-  \item Describe weak formulation using a domain-specific language
-  \item We use UFL\footnote{https://bitbucket.org/fenics-project/ufl} for this
-  \item Generate \CC\ code for the local integration kernels as a PDELab
-    \lstinline{LocalOperator}
-  \item Make it easier to use PDELab for your application
+  \item \lstinline{dune-codegen} uses code generation to solve PDEs. This is
+    done by describing the PDE in a domain-specific language (DSL) and
+    generating \CC\ code for the local integration kernels
+  \item We use UFL\footnote{https://bitbucket.org/fenics-project/ufl} as DSL
+  \item The generated code can be used in \lstinline{dune-pdelab}
+  \item This makes it easier to use PDELab for your application
   \end{itemize}
 \end{frame}
 
@@ -235,7 +227,12 @@
 
 \begin{frame}
   \frametitle{UFL file for Poisson Problem}
-  % \inputminted[fontsize=\scriptsize]{python}{../src/poisson.ufl}
+
+  Discrete weak formulation: Find $u_h \in U_h$ with
+  \begin{equation*}
+    r_h^{Poisson}(u_h, v_h) = \int_\Omega \nabla u_h \cdot \nabla v_h \, dx
+    - \int_\Omega f \, v_h \, dx = 0 \qquad \forall v_h \in V_h
+  \end{equation*}
   \lstinputlisting[basicstyle=\scriptsize, backgroundcolor=\color{listingbg}]{../src/poisson.ufl}
 \end{frame}
 
@@ -245,7 +242,7 @@
   \textbf{Goals of this talk}
   \begin{itemize}
   \item Explain how to write down PDEs in UFL
-  \item Show how we modify/extend UFL
+  \item Show how \lstinline{dune-codegen} modifies/extends UFL
   \item Show how it is integrated into the build system
   \end{itemize}
   \vfill
@@ -256,22 +253,53 @@
   \end{itemize}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Resources}
+  This tutorial is partially based on
+  \begin{itemize}
+  \item ``Code Generation for High Performance PDE Solvers
+    on Modern Architectures'' by Dominic Kempf
+  \item ``Unified Form Language: A domain-specific language for weak
+    formulations of partial differential equations'' M. S. Alnaes, A. Logg,
+    K. B. Ølgaard, M. E. Rognes and G. N. Wells
+  \item UFL documentation
+    \url{https://fenics.readthedocs.io/projects/ufl/en/latest/index.html}
+  \end{itemize}
+
+\end{frame}
 \section{The Big Picture}
 
 \begin{frame}[fragile]
-  \frametitle{Big Picture}
+  \frametitle{The Big Picture}
   \begin{itemize}
-  \item Generate code for a well developed \CC\ framework
   \item Research goals of \lstinline{dune-codegen}:
     \begin{itemize}
     \item Generate high performance code
-    \item Do performance optimizations on intermediate representation
-      (e.g. SIMD vectorization)l
+    \item Do performance optimizations on intermediate representation (in our
+      case Loopy\footnote{https://mathema.tician.de/software/loopy/}),
+      e.g. SIMD vectorization
     \end{itemize}
-  \item FEniCS
+  \item Difference to other code generation approaches:
+    \begin{itemize}
+    \item Do not generate everything. Instead generate code against a well
+      defined interface of a \CC\ framework.
+    \item The workflow is CMake and \CC\ driven and not controlled through
+      python.
+    \item Main focus on generating high performance code
+    \end{itemize}
   \end{itemize}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Typical Workflow}
+  \begin{itemize}
+  \item Have a dune module that depends on \lstinline{dune-codegen}
+  \item Write an UFL file describing the PDE
+  \item Add a target in CMake (see build system part)
+  \item Go to the build directory and type make. CMake will generate the \CC\
+    code and compile the executable.
+  \end{itemize}
+\end{frame}
 
 \begin{frame}
  \frametitle{Form Compiler Approach}
@@ -279,15 +307,11 @@
  \includegraphics[width=4.5in]{figures/approach.pdf}
 \end{frame}
 
-\begin{frame}
-  \lstinline{dune-codegen}, UFL, Workflow, Goal, Interface to \lstinline{dune-pdelab}
-\end{frame}
 
-
-\section{Writing down PDEs}
+\section{Hello World: Poisson}
 
 \begin{frame}
-  \frametitle{Poisson}
+  \frametitle{UFL: Poisson}
   Discrete weak formulation: Find $u_h \in U_h$ with
   \begin{equation*}
     r_h^{Poisson}(u_h, v_h) = \int_\Omega \nabla u_h \cdot \nabla v_h \, dx
@@ -297,6 +321,18 @@
   UFL file:
   \lstinputlisting[basicstyle=\scriptsize, backgroundcolor=\color{listingbg},
 ]{../src/poisson.ufl}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UFL: About}
+  \begin{itemize}
+  \item Domain specific language for describing weak formulations of PDE
+    discretizations
+  \item Notation stays close to methematical formulation
+  \item Embedded in python
+  \item Only desribes cell/facet local computations. There is no notion of a
+    grid or a description of an element loop
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -350,7 +386,8 @@ V = FiniteElement(family, cell, degree)
   \begin{itemize}
   \item \lstinline{TrialFunction} and \lstinline{TestFunction} represent finite element functions.
   \item Take \lstinline{FiniteElement} as argument
-  \item Note: In contrast to UFL our forms need not be linear in the \lstinline{TrailFunction}
+  \item Note: In contrast to other UFL based frameworks our forms need not be
+    linear in the \lstinline{TrialFunction}
   \end{itemize}
 \end{frame}
 
@@ -365,7 +402,8 @@ V = FiniteElement(family, cell, degree)
     \begin{equation*}
       A:B = \sum_{i_0}\cdots\sum_{i_{n-1}}A_{i_0\cdots i_{n-1}}B_{i_0\cdots i_{n-1}}
     \end{equation*}
-  \item \lstinline{dx}: Volume integral over cell $\int_T \cdots \, dx$
+  \item \lstinline{dx}: Multiplication with \lstinline{dx} indicates a volume
+    integral
   \end{itemize}
 \end{frame}
 
@@ -375,98 +413,233 @@ V = FiniteElement(family, cell, degree)
   \vfill
   \begin{itemize}
   \item Main goal of \lstinline{dune-codegen} is to generate the local integration kernel
-  \item For testing and solving simple problem an automated driver can be
+  \item For tesitng and solving simple problem an automated driver can be
     generated. For the correct handling of the boundary condition we need to
     add some information to the UFL file
-  \item \lstinline{exact_solution}: TODO
-  \item \lstinline{interpolate_expression}: TODO
-  \item \lstinline{is_dirichlet}: TODO
+  \item \lstinline{exact_solution}: Can be set for writing tests if solution is known
+  \item \lstinline{is_dirichlet}: Expression that may depend on $x$ and returns
+    $1$ if this is a dirichlet boundary condition. This is used only for driver
+    generation.
+  \item \lstinline{interpolate_expression}: This is used as Dirichlet boundary value
+  \end{itemize}
+\end{frame}
+
+\section{UFL: Towards More Complex Forms}
+
+\begin{frame}
+  \frametitle{UFL: Towards More Complex Forms}
+  In the following we show some important features of UFL. This is by no means
+  complete, see the official documentation for further details
+  \url{https://fenics.readthedocs.io/projects/ufl/en/latest/index.html}.
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{UFL: Math Expressions}
+  \begin{itemize}
+  \item Math functions, e.g. \lstinline{*}, \lstinline{/}, \lstinline{+},
+    \lstinline{-}, \lstinline{abs}, \lstinline{exp}, \lstinline{ln},
+    \lstinline{sqrt}, trigonometric functions, ...
+  \item Comparison operator: \lstinline{eq}, \lstinline{ne}, \lstinline{le},
+    \lstinline{ge}, \lstinline{lt} and \lstinline{gt}
+  \item Conditionals:
+    \begin{displaymath}
+      \text{\lstinline{conditional(cond, A, B)}} = \left\{
+        \begin{array}{lr}
+          \text{\lstinline{A}}\ \ \ \ & \text{\lstinline{cond is True}} \\
+          \text{\lstinline{B}} & \text{\lstinline{cond is False}}
+        \end{array}
+      \right.
+    \end{displaymath}
+  \item Vector-, matrix- and tensor-valued objects can be created through
+    \lstinline{as_vector}, \lstinline{as_matrix} and \lstinline{as_tensor}
+    \begin{lstlisting}
+a = as_matrix([[1.0, 2.0],[3.0, 4.0]])
+    \end{lstlisting}
+  \item See the official documentation for tensor algebra operations
   \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{TODO}
+  \frametitle{UFL: Geometric Quantities}
+  \begin{itemize}
+  \item \lstinline{SpatialCoordinate(cell)}: Global coordinate
+  \item \lstinline{FacetNormal(cell)}: Unit outer normal vector
+  \item \lstinline{CellVolume(cell)} and   \lstinline{FacetArea(cell)}
+  \end{itemize}
+\end{frame}
 
-  UFL: triangle, FiniteElement, TrialFunction, TestFunction, SpatialCoordinate, grad, inner, dx
-
-  dune-codegen: exact\_solution?, interpolate expression, is\_dirichlet
-
-  TODO: VectorElement, MixedElement
+\begin{frame}[fragile]
+  \frametitle{UFL: Integral Measures}
+  \begin{itemize}
+  \item Multiplication with a measure describes an integral object over a local
+    cell or facet
+  \item \lstinline{dx}: Integral over cell
+  \item \lstinline{ds}: Integral over boundary facet
+  \item \lstinline{dS}: Integral over interior facet
+  \item Measures can be restricted to a subdomain. See the example about mixed
+    Dirichlet and Neumann conditions on the next slides
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Nonlinear Poisson}
+  \frametitle{Example: Mixed Boundary Conditions}
 
-    Strong formulation:
-    \begin{align*}
-      -\Delta u + q(u) & = f \qquad\text{in $\Omega\subset\mathbb{R}^d$}, \\
-      u &= g \qquad\text{on $\Gamma_D\subset\partial\Omega$}, \\
-      -\nabla u \cdot \mu &= j \qquad\text{on $\Gamma_N\subset\partial\Omega$}
-    \end{align*}
+  Strong formulation:
+  \begin{align*}
+    -\Delta u + q(u) & = f \qquad\text{in $\Omega$}, \\
+    u &= g \qquad\text{on $\Gamma_D\subset\partial\Omega$}, \\
+    -\nabla u \cdot \nu &= j \qquad\text{on $\Gamma_N\subset\partial\Omega$}
+  \end{align*}
 
-    Weak formulation: Find $u_h \in U_h$ with
-    \begin{align*}
-      r_h^{NLP}(u_h, v_h) & =
-      \int_\Omega \nabla u_h \cdot \nabla v_h \, dx
+  Weak discrete formulation: Find $u_h \in U_h$ with
+  \begin{align*}
+    r_h^{NLP}(u_h, v_h)
+    & = \int_\Omega \nabla u_h \cdot \nabla v_h \, dx
       + \int_\Omega q(u) \, v \, dx \\
-      &\quad - \int_\Omega f \, v_h \, dx
+    &\quad - \int_\Omega f \, v_h \, dx
       + \int_{\Gamma_N} j \, v \, ds
       = 0 \qquad \forall v_h \in V_h
-    \end{align*}
+  \end{align*}
 
-    Parameter functions:
-    \begin{align*}
-      f(x) = -2d \\
-      g(x) = \| x \|_2^2
-    \end{align*}
-
-    TODO: Neumann Boundary
+  Parameter functions:
+  \begin{align*}
+    f(x) = -2d \\
+    g(x) = \| x \|_2^2\\
+    j(x) = -
+    \begin{pmatrix}
+      2x_0 \\ 2x_1
+    \end{pmatrix}
+    \cdot \nu
+  \end{align*}
 \end{frame}
 
 \begin{frame}
-  \frametitle{UFL: Adding the Nonlinearity}
+  \frametitle{Example: Mixed Boundary Conditions}
+  \lstinputlisting[basicstyle=\tiny,  backgroundcolor=\color{listingbg}]{../src/nonlinear_poisson.ufl}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{UFL: DG Operators} UFL provides operators for implementation of
+  Discontinuous Galerkin (DG) methods. These methods are discontinuous at
+  interior facets. This means you have two values for the 'inside' cell and the
+  'outside' cell.
   \begin{itemize}
-  \item Adjust parameter functions $f$ and $g$
-  \item Define nonlinearity
-  \item Add nonlinearity to residual
+  \item \lstinline{avg(u)}: Average between those values
+    $\frac{1}{2}(u|_{T^+}+u|_{T^-})$
+  \item \lstinline{jump(u)}: Difference between the values $u|_{T^+}-u|_{T^-}$
+  \item Restriction: Expression can be restricted to the inside or the outside
+    cell by typing \lstinline{u('+')} or \lstinline{u('-')}\footnote{In the
+      literature '-' usually denotes the inside and '+' the outside cell.}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{UFL: FiniteElement}
+  \textbf{VectorElement}\\
+  \lstinline[basicstyle=\small]{V= VectorElement(family, cell, degree[, size])}
+  \begin{itemize}
+  \item Combination of a basic element for a vector field
+  \item \lstinline{familty}, lstinline{cell}, \lstinline{degree} like \lstinline{FiniteElement} above
+  \item \lstinline{size}: Optional, default equal to dimension
   \end{itemize}
 
-  \vfill
-
-  \lstinputlisting[basicstyle=\scriptsize,
-  linerange={6-15}]{../src/nonlinear_poisson.ufl}
-
-  TODO: Neumann Boundary
-\end{frame}
-
-\begin{frame}
-  UFL: Different types of boundary
-\end{frame}
-
-\begin{frame}
-  \frametitle{UFL: Using Nitsche Boundary Condition}
-  TODO: Formulation
-
+  \textbf{TensorElement}\\
+  \lstinline[basicstyle=\small]{V = TensorElement(family, cell, degree[, shape, symmetry])}
   \begin{itemize}
-  \item Add Nitsche boundary implementation
-  \item Remove \lstinline{is_dirichlet} part, since the boundary condition is not built into the ansatz space.
+  \item Like \lstinline{VectorElement} but for \lstinline{shape} given as tuple
+  \item Symmetry can be expressed as python dictionary
+    \lstinline|symmetry={(0,1): (1,0)}|
   \end{itemize}
 
-  \vfill
 
-  \lstinputlisting[basicstyle=\scriptsize,
-  linerange={18-26}]{../src/nonlinear_poisson_nitschebc.ufl}
+  \textbf{MixedElement}\\
+  \lstinline[basicstyle=\small]{V = MixedElement(element1, element2[,...])}
+  \begin{itemize}
+  \item Arbitrary combination of finite elements
+  \item Can also be created like this \lstinline{V = element1*element2}
+  \end{itemize}
+\end{frame}
 
-  TODO: Neumann Boundary
+
+\begin{frame}[fragile]
+  \frametitle{UFL: Trialfunctions and Testfunctions}
+  \begin{itemize}
+  \item You can get the test- and trialfunctions of these spaces using the
+    \lstinline{split} command
+  \begin{lstlisting}[basicstyle=\small, backgroundcolor=\color{listingbg}]
+FE_V = VectorElement('CG', triangle, 2)
+FE_P = FiniteElement('CG', triangle, 1)
+TH = FE_V * FE_P
+u, p = split(TrialFunction(TH))
+v, q = split(TestFunction(TH))
+  \end{lstlisting}
+  \item There is also an abbreviation (don't miss the additional s)
+    \begin{lstlisting}[basicstyle=\small, backgroundcolor=\color{listingbg}]
+u, p = TrialFunctions(TH)
+v, q = TestFunctions(TH)
+    \end{lstlisting}
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Something about instationary?}
+  TODO: Example of a system
 \end{frame}
 
-\begin{frame}
-  \frametitle{UFL language}
-  jump, avg, normal,
+\begin{frame}[fragile]
+  \frametitle{UFL: Derivatives}
+  \begin{itemize}
+  \item \lstinline{grad(u)}: Gradient of u
+  \item \lstinline{div(u)}: Divergence of u
+  \item \lstinline{curl(u)}: Curl of u (only for finite element functions with
+    three components)
+  \item \lstinline{u.dx(d)}: D'th partial derivative $\frac{\partial u}{\partial x_d}$
+  \item UFL can also compute derivatives of forms or expressions wrt to
+    \lstinline{Variables} or \lstinline{Coefficients} (Note: In
+    \lstinline{dune-codegen} the \lstinline{TrialFunction} is a
+    \lstinline{Coefficient})
+    \begin{lstlisting}[basicstyle=\scriptsize, backgroundcolor=\color{listingbg}]
+u = Coefficient(element)
+w = sin(u**2)
+w = variable(w)
+F = w**2
+
+# Derivative of expression F
+dF_w = diff(F, w)
+dF_u = diff(F, u)
+    \end{lstlisting}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{UFL: \lstinline{dune-codegen} Specific}
+  \begin{itemize}
+  \item As mentioned before \lstinline{dune-codegen} uses the residual
+    formulation. The provided residual form may be nonlinear in the trial
+    function.\footnote{In our case the trialfunction is a Coefficient and not
+      an Argument.}
+  \item Your UFL file may contain multiple forms. \lstinline{dune-codegen} will
+    generate local operators for all forms listed in the ini file, eg
+    \inputminted[fontsize=\small, firstline=12, lastline=13]{ini}{../src/heatequation.ini}
+  \item See the build system part of this tutorial for more options!
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{UFL: \lstinline{dune-codegen} Specific}
+  \begin{itemize}
+  \item For testing automated drivers can be generated. We use the following
+    convention for instationary problems: If there are exactly two forms and
+    one is called \lstinline{mass} we assume that the problem is instationary
+    and generate a suitable driver.\footnote{Keep in mind that
+      \lstinline{dune-codegen} was developed to generate local operator. The
+      driver generation was mainly done for testing.}
+  \item Instationary problems can have time dependent parameters but UFL has no
+    notion of time. In \lstinline{dune-codegen} you can get a variable
+    representing the time by
+    \begin{lstlisting}[basicstyle=\small, backgroundcolor=\color{listingbg}]
+t = get_time(cell)
+    \end{lstlisting}
+    \end{itemize}
 \end{frame}
 
 \section{Build System Integration}
@@ -490,7 +663,8 @@ V = FiniteElement(family, cell, degree)
   \frametitle{CMake: \lstinline{dune_add_generated_executable}}
 
   \begin{itemize}
-  \item Automated driver generation is mainly developed for software tests
+  \item Automated driver generation is mainly developed for automated software
+    tests
   \item For complicated applications handwritten drivers will be
     necessary. This requires control over the file- and classname of the
     generated local operator.
@@ -500,44 +674,119 @@ V = FiniteElement(family, cell, degree)
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Options?}
+  \frametitle{Ini File: Global Options}
 
-  Global Options:
-
-  \begin{lstlisting}
-  explicit_time_stepping
-  exact_solution_expression
-  compare_l2errorsquared
-  \end{lstlisting}
-
-  Form Options:
-
-  \begin{lstlisting}
-  filename
-  classname
-  ? numerical_jacobian
-  quadrature_order
-  geometry_mixins
-  ? enable_volume
-  ? enable_skeleton
-  ? enable_boundary
-  \end{lstlisting}
+  \begin{itemize}
+  \item \lstinline{operators}: Comma separated list of form names for which
+    want to generate operators \lstinline{[default r]}
+  \item \lstinline{explicit_time_stepping}: Use explicit time stepping (in
+    instationary case) \lstinline{[0/1, default 0]}
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{CMake: \lstinline{dune_add_generated_executable}}
+  \frametitle{Ini File: Form Options}
 
-  TODO: Maybe add an example where we do not generate a driver to have a meaningful example.
+  \begin{itemize}
+  \item Options for a form called \lstinline{r} need to be put into the
+    \lstinline{[formcompiler.r]} section
+  \item \lstinline{filename}: Name of the generated local
+    operator file \lstinline{[str, optional]}
+  \item \lstinline{classname}: Name of the local operator class
+    \lstinline{[str, optional]}
+  \item \lstinline{numerical_jacobian}: Use numerical differentiation for
+    assembling the Jacobian of the residual \lstinline{[0/1, default 0]}
+  \item \lstinline{quadrature_order}: Order of quadrature \lstinline{[int>0,],optional, guessed by UFL if omitted)}
+  \item \lstinline{geometry_mixins}: Information about grid properties that can
+    lead to simplified gemometry evaluations
+    \lstinline{[generic/axiparallel/equidistant]}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Ini File: Options for Generated Driver}
+  \textbf{Grid generation}
+
+
+  \begin{itemize}
+  \item Grid generation options are at the top under no section
+  \item Quadrilateral grid
+    \inputminted[fontsize=\tiny, firstline=1, lastline=2]{ini}{../src/heatequation.ini}
+  \item Simplex grid
+    \inputminted[fontsize=\tiny, firstline=1, lastline=4]{ini}{../src/poisson.ini}
+  \item Gmsh grid
+    \inputminted[fontsize=\tiny, firstline=1, lastline=1]{ini}{../exercise/task/navier_stokes.ini}
+
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Ini File: Options for Generated Driver}
   \vfill
+  \textbf{Name of vtk output}
+  \begin{itemize}
+  \item Under section \lstinline{[wrapper.vtkcompare]}
+  \item \lstinline{name}: Basename (without ending) of vtk output
+  \end{itemize}
+  \vfill
+  \textbf{Parameters for Instationary problems}
+  \begin{itemize}
+  \item Need to be put into the \lstinline{[instat]} section
+  \item \lstinline{T}: End of time intervall
+  \item \lstinline{dt}: Time step size
+  % \item \lstinline{theta}: The one step theta method is used if an implicit
+  %   time stepping method of first order is chosen. This is the parameter of the
+  %   method
+  \item \lstinline{output_every_nth}: Write visualization output for every nth time
+    step
+  \end{itemize}
+  \vfill
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{CMake: Example Heatequation}
+
+  \lstinputlisting[basicstyle=\tiny, backgroundcolor=\color{listingbg}]{../src/heatequation.ufl}
   \lstinline{CMakeLists.txt}
-  \inputminted[fontsize=\scriptsize, firstline=1, lastline=4]{cmake}{../src/CMakeLists.txt}
-  \vfill
-  \lstinline{poison.ini}
-  \inputminted[fontsize=\scriptsize]{ini}{../src/poisson.ini}
+  \inputminted[fontsize=\tiny, firstline=3, lastline=9]{cmake}{../src/CMakeLists.txt}
 \end{frame}
 
 \begin{frame}
-  TODO: Slide for the inspire course how to navigate the exercise
+  \frametitle{CMake: Example Heatequation}
+  \lstinline{heatequation.ini}
+  \inputminted[fontsize=\tiny]{ini}{../src/heatequation.ini}
+\end{frame}
+
+\begin{frame}
+  \vfill
+  \centering
+  \textbf{Questions?}
+  \vfill
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Exercise}
+  \begin{itemize}
+  \item Make sure that the virtual env in your docker is \textbf{not activated}
+    for doing these exercises.
+  \item The slides can be found on the host machine under
+    \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
+/path/to/runschooldocker/inspire/doc/slides09.pdf
+    \end{lstlisting}
+  \item Read the exercise description here
+    \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
+/path/to/runschooldocker/inspire/doc/exercise09.pdf
+    \end{lstlisting}
+  \item Edit the sources here
+    \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
+/path/to/runschooldocker/inspire/dune/dune-pdelab-tutorials/tutorial09/exercise/task
+    \end{lstlisting}
+  \item Build using \lstinline{make} here
+    \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
+dune@school:/inspire/release-build/dune-pdelab-tutorials/tutorial09/exercise/task
+    \end{lstlisting}
+  \end{itemize}
 \end{frame}
 
 \end{document}
