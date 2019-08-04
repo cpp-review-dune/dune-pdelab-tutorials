@@ -284,7 +284,7 @@
     \item Do not generate everything. Instead generate code against a well
       defined interface of a \CC\ framework.
     \item The workflow is CMake and \CC\ driven and not controlled through
-      python.
+      Python.
     \item Main focus on generating high performance code
     \end{itemize}
   \end{itemize}
@@ -294,7 +294,7 @@
   \frametitle{Typical Workflow}
   \begin{itemize}
   \item Have a dune module that depends on \lstinline{dune-codegen}
-  \item Write an UFL file describing the PDE
+  \item Write a UFL file describing the PDE
   \item Add a target in CMake (see build system part)
   \item Go to the build directory and type make. CMake will generate the \CC\
     code and compile the executable.
@@ -329,7 +329,7 @@
   \item Domain specific language for describing weak formulations of PDE
     discretizations
   \item Notation stays close to methematical formulation
-  \item Embedded in python
+  \item Embedded in Python
   \item Only desribes cell/facet local computations. There is no notion of a
     grid or a description of an element loop
   \end{itemize}
@@ -413,7 +413,7 @@ V = FiniteElement(family, cell, degree)
   \vfill
   \begin{itemize}
   \item Main goal of \lstinline{dune-codegen} is to generate the local integration kernel
-  \item For tesitng and solving simple problem an automated driver can be
+  \item For testing and solving simple problem an automated driver can be
     generated. For the correct handling of the boundary condition we need to
     add some information to the UFL file
   \item \lstinline{exact_solution}: Can be set for writing tests if solution is known
@@ -547,7 +547,7 @@ a = as_matrix([[1.0, 2.0],[3.0, 4.0]])
   \lstinline[basicstyle=\small]{V = TensorElement(family, cell, degree[, shape, symmetry])}
   \begin{itemize}
   \item Like \lstinline{VectorElement} but for \lstinline{shape} given as tuple
-  \item Symmetry can be expressed as python dictionary
+  \item Symmetry can be expressed as Python dictionary
     \lstinline|symmetry={(0,1): (1,0)}|
   \end{itemize}
 
@@ -581,9 +581,9 @@ v, q = TestFunctions(TH)
   \end{itemize}
 \end{frame}
 
-\begin{frame}
-  TODO: Example of a system
-\end{frame}
+% \begin{frame}
+%   TODO: Example of a system
+% \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{UFL: Derivatives}
