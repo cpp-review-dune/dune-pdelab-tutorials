@@ -3,6 +3,8 @@ cell = quadrilateral
 x = SpatialCoordinate(cell)
 time = get_time(cell)
 
+g = cos(2*pi*time)*cos(pi*x[0])**2*cos(pi*x[1])**2
+
 V = FiniteElement("CG", cell, 1)
 u = TrialFunction(V)
 v = TestFunction(V)
@@ -10,7 +12,5 @@ v = TestFunction(V)
 mass = (u*v)*dx
 poisson = inner(grad(u), grad(v))*dx
 
-# This example uses a hand written driver so these ar not needed!
-# g = cos(2*pi*time)*cos(pi*x[0])**2*cos(pi*x[1])**2
-# interpolate_expression = g
-# is_dirichlet = 1
+interpolate_expression = g
+is_dirichlet = 1

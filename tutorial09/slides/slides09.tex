@@ -332,7 +332,25 @@
   \item Embedded in Python
   \item Only desribes cell/facet local computations. There is no notion of a
     grid or a description of an element loop
+  \item The form is described by an abstract syntax trees (AST)
+  \item UFL can apply transformation on the AST e.g.:
+    \begin{itemize}
+    \item Calculation of the Jacobian of the residual
+    \item Geometry lowering
+    \end{itemize}
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UFL: AST}
+  \centering
+  \includegraphics[scale=0.4]{figures/ufl_ast.pdf}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UFL: AST - Preprocessed}
+  \centering
+  \includegraphics[scale=0.2]{figures/ufl_ast_preprocessed.pdf}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -636,11 +654,17 @@ dF_u = diff(F, u)
   \item Instationary problems can have time dependent parameters but UFL has no
     notion of time. In \lstinline{dune-codegen} you can get a variable
     representing the time by
-    \begin{lstlisting}[basicstyle=\small, backgroundcolor=\color{listingbg}]
+    \begin{lstlisting}[basicstyle=\scriptsize, backgroundcolor=\color{listingbg}]
 t = get_time(cell)
     \end{lstlisting}
     \end{itemize}
 \end{frame}
+
+\begin{frame}
+  \frametitle{Example: Heatequation}
+  \lstinputlisting[basicstyle=\tiny, backgroundcolor=\color{listingbg}]{heatequation_gen.ufl}
+\end{frame}
+
 
 \section{Build System Integration}
 
@@ -770,6 +794,15 @@ t = get_time(cell)
   \begin{itemize}
   \item Make sure that the virtual env in your docker is \textbf{not activated}
     for doing these exercises.
+  \item Go to the docker and do:
+    \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
+cd /inspire
+git pull
+    \end{lstlisting}
+  \item Build using \lstinline{make} here
+    \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
+dune@school:/inspire/release-build/dune-pdelab-tutorials/tutorial09/exercise/task
+    \end{lstlisting}
   \item The slides can be found on the host machine under
     \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
 /path/to/runschooldocker/inspire/doc/slides09.pdf
@@ -781,10 +814,6 @@ t = get_time(cell)
   \item Edit the sources here
     \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
 /path/to/runschooldocker/inspire/dune/dune-pdelab-tutorials/tutorial09/exercise/task
-    \end{lstlisting}
-  \item Build using \lstinline{make} here
-    \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
-dune@school:/inspire/release-build/dune-pdelab-tutorials/tutorial09/exercise/task
     \end{lstlisting}
   \end{itemize}
 \end{frame}
