@@ -24,6 +24,11 @@ dune_add_generated_executable(TARGET nonlinear_poisson_nitschebc
                               INIFILE nonlinear_poisson_nitschebc.ini
                               )
 
+dune_add_generated_executable(TARGET wave_equation
+                              UFLFILE wave_equation.ufl
+                              INIFILE wave_equation.ini
+                              )
 
 
-dune_symlink_to_source_files(FILES poisson.ini nonlinear_poisson.ini nonlinear_poisson_nitschebc.ini)
+
+dune_symlink_to_source_files(FILES poisson.ini nonlinear_poisson.ini nonlinear_poisson_nitschebc.ini wave_equation.ini)

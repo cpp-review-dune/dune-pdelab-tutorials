@@ -129,7 +129,7 @@
 \mode<presentation>
 {
   \title{DUNE PDELab Tutorial 09\\
-  {\small  Using code generation to create local operators}}
+  {\small  Using Code Generation to Create Local Operators}}
   \author{PDELab Team}
   \institute[]
   {
@@ -427,7 +427,7 @@ V = FiniteElement(family, cell, degree)
 
 \begin{frame}
   \frametitle{UFL: \lstinline{dune-codegen} Specific}
-  \lstinputlisting[basicstyle=\scriptsize, backgroundcolor=\color{listingbg}, linerange={13-15}]{../src/poisson.ufl}
+  \lstinputlisting[basicstyle=\scriptsize, backgroundcolor=\color{listingbg}, linerange={13-16}]{../src/poisson.ufl}
   \vfill
   \begin{itemize}
   \item Main goal of \lstinline{dune-codegen} is to generate the local integration kernel
@@ -439,6 +439,8 @@ V = FiniteElement(family, cell, degree)
     $1$ if this is a dirichlet boundary condition. This is used only for driver
     generation.
   \item \lstinline{interpolate_expression}: This is used as Dirichlet boundary value
+  \item \lstinline{dune-codegen} imports everything from the UFL module via
+    \lstinline{from UFL import *}
   \end{itemize}
 \end{frame}
 
@@ -597,11 +599,48 @@ u, p = TrialFunctions(TH)
 v, q = TestFunctions(TH)
     \end{lstlisting}
   \end{itemize}
+  % TODO: Maybe write something about u=Trialfunction(V) und u[0] and u[1] but
+  % I'm not sure how that works out for Navier Stokes ;)
 \end{frame}
 
-% \begin{frame}
-%   TODO: Example of a system
-% \end{frame}
+\begin{frame}
+  \frametitle{Example: Wave Equation as First Order System}
+  Strong formulation as first order system:
+  \begin{subequations}
+    \label{eq:SystemForm1}
+    \begin{align*}
+      \partial_t u_1 - c^2\Delta u_0 &=0 &&\text{in $\Omega\times\Sigma$},\\
+      \partial_t u_0 - u_1 &=0 &&\text{in $\Omega\times\Sigma$},\\
+      u_0 &= 0 &&\text{on $\partial\Omega$},\\
+      u_1 &= 0 &&\text{on $\partial\Omega$},\\
+      u_0 &= q &&\text{at $t=0$},\\
+      u_1 &= w &&\text{at $t=0$}.
+    \end{align*}
+  \end{subequations}
+
+  Weak discrete formulation: Find $(u_0(t),u_1(t))\in U_0\times U_1$ s.t.
+  \begin{align*}
+    d_t (u_1,v_0)_{0,\Omega} + c^2 (\nabla u_0, \nabla v_0)_{0,\Omega}
+    &= 0 \quad \forall v_0 \in U_0 \notag \\
+    d_t (u_0,v_1)_{0,\Omega} - (u_1,v_1)_{0,\Omega}
+    &= 0 \quad \forall v_1 \in U_1
+  \end{align*}
+
+  Parameters: Speed of sound $c=1$
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example: Wave Equation as First Order System}
+
+  \begin{align*}
+    d_t (u_1,v_0)_{0,\Omega} + c^2 (\nabla u_0, \nabla v_0)_{0,\Omega}
+    &= 0 \quad \forall v_0 \in U_0 \notag \\
+    d_t (u_0,v_1)_{0,\Omega} - (u_1,v_1)_{0,\Omega}
+    &= 0 \quad \forall v_1 \in U_1
+  \end{align*}
+
+  \lstinputlisting[basicstyle=\scriptsize, lastline=14, backgroundcolor=\color{listingbg}]{../src/wave_equation.ufl}
+\end{frame}
 
 \begin{frame}[fragile]
   \frametitle{UFL: Derivatives}
@@ -782,39 +821,20 @@ t = get_time(cell)
   \inputminted[fontsize=\tiny]{ini}{../src/heatequation.ini}
 \end{frame}
 
-\begin{frame}
-  \vfill
-  \centering
-  \textbf{Questions?}
-  \vfill
-\end{frame}
-
 \begin{frame}[fragile]
-  \frametitle{Exercise}
+  \frametitle{Examples}
+  In the folder \lstinline{tutorial09/src} you can find several examples:
   \begin{itemize}
-  \item Make sure that the virtual env in your docker is \textbf{not activated}
-    for doing these exercises.
-  \item Go to the docker and do:
-    \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
-cd /inspire
-git pull
-    \end{lstlisting}
-  \item Build using \lstinline{make} here
-    \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
-dune@school:/inspire/release-build/dune-pdelab-tutorials/tutorial09/exercise/task
-    \end{lstlisting}
-  \item The slides can be found on the host machine under
-    \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
-/path/to/runschooldocker/inspire/doc/slides09.pdf
-    \end{lstlisting}
-  \item Read the exercise description here
-    \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
-/path/to/runschooldocker/inspire/doc/exercise09.pdf
-    \end{lstlisting}
-  \item Edit the sources here
-    \begin{lstlisting}[basicstyle=\scriptsize,breaklines=true,]
-/path/to/runschooldocker/inspire/dune/dune-pdelab-tutorials/tutorial09/exercise/task
-    \end{lstlisting}
+  \item Poisson equation from tutorial00
+  \item Nonlinear Poisson equation with mixed boundary from tutorial01
+  \item Heat equation from tutorial03
+  \item Wave equation from tutorial04
+  \end{itemize}
+
+  In the exercises you will additionally find examples for:
+  \begin{itemize}
+  \item Navier Stokes equation modeling the flow around a cylinder from tutorial08
+  \item Discontinuous Galerkin discretization of the Poisson equation
   \end{itemize}
 \end{frame}
 

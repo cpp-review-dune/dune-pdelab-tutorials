@@ -75,16 +75,17 @@ dune-course/release-build/dune-pdelab-tutorials/tutorial09/exercise/task/src_dir
 
   \begin{equation}
     \begin{aligned}
-      \partial_t \vec{u} - \nu \Laplace \vec{u} + (\nabla \vec{u}) \vec{u} + \nabla p &= 0 \qquad \text{in $\Omega$}\\
+      \rho \partial_t \vec{u} - \nu \Laplace \vec{u} + \rho (\nabla \vec{u}) \vec{u} + \nabla p &= 0 \qquad \text{in $\Omega$}\\
       \nabla \cdot \vec{u} &= 0 \qquad \text{in $\Omega$}
     \end{aligned}
     \label{eq:navier-stokes}
   \end{equation}
 
   Here $\vec{u}:\Omega\times\Sigma\to\mathbb{R}^2$ is the unknown velocity
-  field, $p:\Omega\times\Sigma\to\mathbb{R}$ is the unknown pressure and
-  $\nu=0.001$ is the kinematic viscosity. In the formulation above we assume
-  that the fluid has a constant density of $\rho=1$.
+  field and $p:\Omega\times\Sigma\to\mathbb{R}$ is the unknown pressure. We
+  assume that the kinematic viscosity $\nu=0.001$ and the fluid density
+  $\rho=1$ are constant. The domain $\Omega$ is a rectangle with a circular
+  hole.
 
   \begin{center}
     \begin{tikzpicture}[scale=5]
@@ -113,16 +114,20 @@ dune-course/release-build/dune-pdelab-tutorials/tutorial09/exercise/task/src_dir
 
   As boundary conditions we use
   \begin{align*}
-    \vec{u} &= 0 && \text{on $\partial\Omega \cap (0,2.2)\times(0,0.41)$} \\
+    \vec{u} &= 0 && \text{on $\partial\Omega \cap (0,2.2)\times[0,0.41]$} \\
     \vec{u} &=
     \begin{pmatrix}
-      1.5 \cdot 4 \cdot x_1 \frac{0.41-x_1}{0.41^2} \cdot q(t) \\ 0
+      1.5 \cdot 4 \cdot x_1 \frac{0.41-x_1}{0.41^2} \cdot s(t) \\ 0
     \end{pmatrix} && \text{on $0\times[0,0.41]$}\\
     \nu \, \nabla \vec{u} \, \vec{n} - p\vec{n} &= 0 && \text{on $2.2\times[0,0.41]$}
   \end{align*}
   with the function
   \begin{equation*}
-    q(t) = \sin\left(\frac{\pi t}{8}\right).
+    s(t) =
+    \begin{cases}
+      \sin\left(\frac{\pi t}{8}\right) \qquad &\text{if $t<4$}\\
+      1 \qquad &\text{else}
+    \end{cases}
   \end{equation*}
   The initial conditions are simply
   \begin{align*}
@@ -160,7 +165,7 @@ make navier_stokes
     \begin{displaymath}
       \text{\lstinline{conditional(cond, A, B)}} = \left\{
         \begin{array}{lr}
-          \text{\lstinline{A}}\ \ \ \ & \text{\lstinline{cond is True}} \\
+          \text{\lstinline{A}} & \text{\lstinline{cond is True}} \\
           \text{\lstinline{B}} & \text{\lstinline{cond is False}}
         \end{array}
       \right.
