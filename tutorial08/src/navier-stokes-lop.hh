@@ -111,15 +111,15 @@ namespace Dune {
       RF Ghat[dim][nu][mvol];          // gradients of velocity basis functions (volume only)
       RF phihatbnd[faces][nu][mbnd];   // velocity
 
+      // coefficient functions
+      const FLOCAL& flocal;
+      const BCType& bctype;
+
       // physical and numerical parameters
       RF viscosity; // kinematic viscosity $\mu/\rho$
       RF gamma;     // parameter in grad div stabilization
       RF beta;      // parameter in Navier slip condition
 
-      // coefficient functions
-      const FLOCAL& flocal;
-      const BCType& bctype;
-      
     public:
 
       // pattern assembly flags
