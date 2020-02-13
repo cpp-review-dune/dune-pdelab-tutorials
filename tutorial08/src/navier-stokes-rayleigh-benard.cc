@@ -99,7 +99,7 @@ int main(int argc, char** argv)
     }
     catch(...) {
       std::cerr << "The configuration file \"navier-stokes-rayleigh-benard.ini\" could not be read. "
-	"Exiting..." << std::endl;
+        "Exiting..." << std::endl;
       exit(1);
     } 
 
@@ -132,10 +132,9 @@ int main(int argc, char** argv)
     Dune::Timer timer;
     gridp->globalRefine(refinement);
     std::cout << "Time for mesh refinement " << timer.elapsed()
-    	      << " seconds" << std::endl;
+              << " seconds" << std::endl;
 
     // types & constants
-    typedef Grid::ctype DF;
     typedef Grid::LeafGridView GV;
     typedef double RF;
     const int dim = GV::dimension;
@@ -188,7 +187,7 @@ int main(int argc, char** argv)
     auto gp = Dune::PDELab::makeInstationaryGridFunctionFromCallable(gv,gplambda,tc);
     auto g = Dune::PDELab::CompositeGridFunction<decltype(gu),decltype(gp)>(gu,gp);
 
-		  
+
     // Parameters for the transport problem
 
     // first we have the boundary condition type
@@ -204,9 +203,9 @@ int main(int argc, char** argv)
       RF T = 0.0;
       RF ramp;
       if (x[0]>=8.0/21.0 && x[0]<=9.0/21.0)
-	ramp = 0.025*domainY * (1.0 + std::sin( x[0]*21.0*M_PI ));
+        ramp = 0.025*domainY * (1.0 + std::sin( x[0]*21.0*M_PI ));
       else
-	ramp = 0.025*domainY;	
+        ramp = 0.025*domainY;
       if (x[1]>=ramp) return T;
       T = (1.0-x[1]/ramp)*(1.0-x[1]/ramp);
       return T;

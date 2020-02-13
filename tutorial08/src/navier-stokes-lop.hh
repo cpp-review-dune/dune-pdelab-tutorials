@@ -97,7 +97,7 @@ namespace Dune {
 
       enum {dim=LocalBasisTypeU::Traits::dimDomain};
 
-      RF time; // guess what
+      RF time = 0.0; // guess what
 
       // quadrature rules
       Dune::FieldVector<DF,dim> qpvol[mvol];   // quadrature points on volume
@@ -133,7 +133,7 @@ namespace Dune {
       // constructor
       template<typename GV>
       ConformingNavierStokesLOP (const FLOCAL& flocal_, const BCType& bctype_, const FEMU& femu, const FEMP& femp, const GV& gv, RF viscosity_, RF gamma_, RF beta_)
-        : flocal(flocal_), bctype(bctype_), time(0.0), viscosity(viscosity_), gamma(gamma_), beta(beta_)
+        : flocal(flocal_), bctype(bctype_), viscosity(viscosity_), gamma(gamma_), beta(beta_)
       {
         // The idea is to do all computations on the reference element only once here in the constructor.
         // This implies we assume all elements are of the same type, e.g. simplices,
@@ -313,11 +313,7 @@ namespace Dune {
       template<typename EG, typename LFSTrial, typename X, typename LFSTest, typename Residual>
       void alpha_volume (const EG& eg, const LFSTrial& lfstrial, const X& x, const LFSTest& lfstest, Residual& residual) const
       {
-        // define types
         using namespace TypeTree::Indices;
-        using LFSU = typename LFSTrial::template Child<0>::Type;   // the velocity node
-        using LFSU0 = typename LFSU::template Child<0>::Type;     // first velocity component
-        using LFSP = typename LFSTrial::template Child<1>::Type; // pressure
 
         // extract local function spaces
         const auto& lfsu = lfstrial.template child<0>();    // velocity node
@@ -518,10 +514,7 @@ namespace Dune {
         auto bct = bctype(ig.geometry().center());
         if (bct == NavierStokesBoundaryCondition::noslip) return;
 
-        // define types
         using namespace TypeTree::Indices;
-        using LFSU = typename LFSTrial::template Child<0>::Type;   // the velocity node
-        using LFSU0 = typename LFSU::template Child<0>::Type;     // first velocity component
 
         // extract local function spaces
         const auto& lfsu = lfstrial.template child<0>();    // velocity node
@@ -536,9 +529,7 @@ namespace Dune {
 
         // evaluate geometry
         auto facegeo = ig.geometry(); // map from face refelem to face
-        auto facecenterlocal = referenceElement(facegeo).position(0,0);
         int face = ig.indexInInside(); // number of face
-        auto geo = ig.geometryInInside(); // element geometry
 
         // quadrature factor. Note: we integrate over face refefrence element
         RF factor[mbnd];       // quadrature weight times determinant
@@ -642,7 +633,7 @@ namespace Dune {
 
       enum {dim=LocalBasisTypeU::Traits::dimDomain};
 
-      RF time; // guess what
+      RF time = 0.0; // guess what
 
       // quadrature rules
       Dune::FieldVector<DF,dim> qpvol[mvol];   // quadrature points on volume
@@ -662,7 +653,6 @@ namespace Dune {
       // constructor
       template<typename GV>
       ConformingNavierStokesMassLOP (const FEMU& femu, const GV& gv)
-        : time(0.0)
       {
         // The idea is to do all computations on the reference element only once here in the constructor.
         // This implies we assume all elements are of the same type, e.g. simplices,
@@ -722,10 +712,7 @@ namespace Dune {
       template<typename EG, typename LFSTrial, typename X, typename LFSTest, typename Residual>
       void alpha_volume (const EG& eg, const LFSTrial& lfstrial, const X& x, const LFSTest& lfstest, Residual& residual) const
       {
-        // define types
         using namespace TypeTree::Indices;
-        using LFSU = typename LFSTrial::template Child<0>::Type;   // the velocity node
-        using LFSU0 = typename LFSU::template Child<0>::Type;     // first velocity component
 
         // extract local function spaces
         const auto& lfsu = lfstrial.template child<0>();    // velocity node
@@ -788,10 +775,7 @@ namespace Dune {
       void jacobian_volume (const EG& eg, const LFSTrial& lfstrial, const X& x, const LFSTest& lfstest,
                             M& mat) const
       {
-        // define types
         using namespace TypeTree::Indices;
-        using LFSU = typename LFSTrial::template Child<0>::Type;  // the velocity node
-        using LFSU0 = typename LFSU::template Child<0>::Type;     // first velocity component
 
         // extract local function spaces, assume Galerkin property: lfstrial = lfstest
         const auto& lfsu = lfstrial.template child<0>();    // velocity node
