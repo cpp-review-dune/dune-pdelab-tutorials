@@ -71,16 +71,11 @@ void driver (const GV& gv, const FEM& fem,
   LS ls(100,2);
 
   // set up nonlinear solver
-  Dune::PDELab::Newton<GO,LS,Z> newton(go,z,ls);
-  newton.setReassembleThreshold(0.0); // always reassemble J
-  newton.setVerbosityLevel(3);        // be verbose
-  newton.setReduction(1e-10);         // total reduction
-  newton.setMinLinearReduction(1e-4); // min. red. in lin. solve
-  newton.setMaxIterations(25);        // limit number of its
-  newton.setLineSearchMaxIterations(10); // limit line search
+  Dune::PDELab::NewtonMethod<GO,LS> newton(go,ls);
+  newton.setParameters(ptree.sub("newton"));
 
   // solve nonlinear problem
-  newton.apply();
+  newton.apply(z);
 
   // Write VTK output file
   int subsampling = ptree.get("output.subsampling",(int)1);
