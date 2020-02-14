@@ -53,7 +53,7 @@
 #include<dune/pdelab/localoperator/variablefactories.hh>
 #include<dune/pdelab/backend/istl.hh>
 #include<dune/pdelab/stationary/linearproblem.hh>
-#include<dune/pdelab/newton/newton.hh>
+#include<dune/pdelab/solver/newton.hh>
 
 // include all components making up this tutorial
 #include"../../tutorial01/src/nonlinearpoissonfem.hh"
