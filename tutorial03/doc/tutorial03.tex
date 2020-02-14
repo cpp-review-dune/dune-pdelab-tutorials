@@ -421,14 +421,14 @@ in the same way as before, just using the \lstinline{OneStepGridOperator}.
 Then a time-stepping scheme in the form of
 the matrices $A$, $B$ and the vector $d$ introduced above needs to be selected.
 Several classes are already provided and it is very easy to write your own class:
-\lstinputlisting[linerange={85-87},
+\lstinputlisting[linerange={80-82},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 The selection mechanism for the time-stepping scheme
 is implemented by setting a pointer to an appropriate method:
-\lstinputlisting[linerange={88-95},
+\lstinputlisting[linerange={83-90},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -438,7 +438,7 @@ which all time stepping parameter classes derive.
 Then an object of class \lstinline{OneStepMethod} can be instantiated.
 This class is able to compute a single time step of a general
 Runge-Kutta one step method.
-\lstinputlisting[linerange={96-98},
+\lstinputlisting[linerange={91-93},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -457,23 +457,23 @@ backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 Now a \lstinline{SubsamplingVTKWriter} and a \lstinline{VTKSequenceWriter}
 can be instantiated:
-\lstinputlisting[linerange={111-116},
+\lstinputlisting[linerange={106-111},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 filled with data
-\lstinputlisting[linerange={117-119},
+\lstinputlisting[linerange={112-114},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 and the first file is written
-\lstinputlisting[linerange={120-120},
+\lstinputlisting[linerange={115-115},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 Now the time loop is under user control:
-\lstinputlisting[linerange={123-141},
+\lstinputlisting[linerange={118-136},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}

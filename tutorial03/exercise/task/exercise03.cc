@@ -57,7 +57,7 @@
 #include<dune/pdelab/backend/istl.hh>
 #include<dune/pdelab/stationary/linearproblem.hh>
 #include<dune/pdelab/instationary/onestep.hh>
-#include<dune/pdelab/newton/newton.hh>
+#include<dune/pdelab/solver/newton.hh>
 
 // include all components making up this tutorial
 #include"nonlinearheatfem.hh"

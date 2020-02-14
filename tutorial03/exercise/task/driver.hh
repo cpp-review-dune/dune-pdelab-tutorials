@@ -72,14 +72,9 @@ void driver (const GV& gv, const FEM& fem, Dune::ParameterTree& ptree)
   LS ls(100,0);
 
   // solve nonlinear problem
-  typedef Dune::PDELab::Newton<IGO,LS,Z> PDESOLVER;
-  PDESOLVER pdesolver(igo,z,ls);
-  pdesolver.setReassembleThreshold(0.0);
-  pdesolver.setVerbosityLevel(2);
-  pdesolver.setReduction(1e-8);
-  pdesolver.setMinLinearReduction(1e-4);
-  pdesolver.setMaxIterations(25);
-  pdesolver.setLineSearchMaxIterations(10);
+  typedef Dune::PDELab::NewtonMethod<IGO,LS> PDESOLVER;
+  PDESOLVER pdesolver(igo,ls);
+  pdesolver.setParameters(ptree.sub("newton"));
 
   // select and prepare time-stepping scheme
   Dune::PDELab::Alexander2Parameter<RF> pmethod;
