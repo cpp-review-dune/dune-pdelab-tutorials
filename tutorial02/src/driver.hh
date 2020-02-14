@@ -59,14 +59,9 @@ void driver (const GV& gv, Dune::ParameterTree& ptree)
   LS ls(100,2);
 
   // solve nonlinear problem
-  Dune::PDELab::Newton<GO,LS,Z> newton(go,z,ls);
-  newton.setReassembleThreshold(0.0);
-  newton.setVerbosityLevel(3);
-  newton.setReduction(1e-10);
-  newton.setMinLinearReduction(1e-4);
-  newton.setMaxIterations(25);
-  newton.setLineSearchMaxIterations(10);
-  newton.apply();
+  Dune::PDELab::NewtonMethod<GO,LS> newton(go,ls);
+  newton.setParameters(ptree.sub("newton"));
+  newton.apply(z);
 
   // Write VTK output file
   Dune::VTKWriter<GV> vtkwriter(gv,Dune::VTK::conforming);
