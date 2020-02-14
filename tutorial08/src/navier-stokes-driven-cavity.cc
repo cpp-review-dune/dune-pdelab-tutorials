@@ -57,7 +57,7 @@
 #include<dune/pdelab/gridoperator/gridoperator.hh>
 #include<dune/pdelab/finiteelement/l2orthonormal.hh>
 #include<dune/pdelab/finiteelement/qkdglagrange.hh>
-#include<dune/pdelab/newton/newton.hh>
+#include<dune/pdelab/solver/newton.hh>
 #include<dune/pdelab/function/discretegridviewfunction.hh>
 
 #include"timecapsule.hh"

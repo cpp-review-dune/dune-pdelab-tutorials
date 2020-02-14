@@ -254,17 +254,9 @@ void driver_coupled (const GV& gv, Scheme scheme,
   LinearSolver ls(lineariterationsmax,linearsolververbosity);
 
   // nonlinear solver setup
-  auto nonlinearreduction = ptree.get<double>("solver.nonlinearreduction");
-  auto nonlinearabslimit = ptree.get<double>("solver.nonlinearabslimit");
-  typedef Dune::PDELab::Newton<IGO,LinearSolver,Z> Newton;
+  typedef Dune::PDELab::NewtonMethod<IGO,LinearSolver> Newton;
   Newton newton(igo,ls);
-  newton.setReassembleThreshold(0.0);
-  newton.setVerbosityLevel(2);
-  newton.setMaxIterations(50);
-  newton.setReduction(nonlinearreduction);
-  newton.setAbsoluteLimit(nonlinearabslimit);
-  newton.setLineSearchMaxIterations(40);
-  newton.setLineSearchStrategy(Newton::hackbuschReuskenAcceptBest);
+  newton.setParameters(ptree.sub("newton"));
 
   // time integrator setup
   Dune::PDELab::OneStepThetaParameter<RF> crank_nicolson(0.5);
