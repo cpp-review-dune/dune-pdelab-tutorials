@@ -579,13 +579,21 @@ with $$q(u)=\eta u^2, \quad f(x) = -2d, \quad \Gamma_D=\partial\Omega,
 \quad g(x)=\|x\|^2 .$$
 The parameter $\eta$ in the nonlinear term is read from the ini-file.
 
-\lstinputlisting[linerange={31-33},
+The behavior of the newton solver is also controlled by the ini-file.
+\lstinputlisting[linerange={31-41},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
+
+
 The \lstinline{output} section controls the output of the solution
 to a \lstinline{vtk}-file using DUNE's \lstinline{SubsamplingVTKWriter}.
 The user can give the name of the output file and specify the number of subsampling intervals.
+
+\lstinputlisting[linerange={43-46},
+basicstyle=\ttfamily\small,
+frame=single,
+backgroundcolor=\color{listingbg}]{../src/tutorial01.ini}
 
 \subsection{Function \lstinline{main}}
 
@@ -740,19 +748,19 @@ Since the problem is nonlinear we use the implementation of
 Newton's method in PDELab. It provides the inexact Newton method
 in the sense that the iterative solution of the linear subproblems is
 stopped early and uses line search as globalization strategy:
-\lstinputlisting[linerange={73-80},
+\lstinputlisting[linerange={73-75},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 Now, finally do all the work and solve the problem:
-\lstinputlisting[linerange={82-83},
+\lstinputlisting[linerange={77-78},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 
 At the end we can write the VTK file with subsampling:
-\lstinputlisting[linerange={85-95},
+\lstinputlisting[linerange={80-90},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}

@@ -100,10 +100,10 @@ int main(int argc, char** argv){
     
     // Set up (non)linear solvers...    
     using LinearSolver = Dune::PDELab::ISTLBackend_SEQ_SuperLU;
-    using SNP = Dune::PDELab::Newton<IGO, LinearSolver, V_POISSON>;
     LinearSolver ls(false);
-    SNP snp(igo, x_poisson, ls);
-    
+    using SNP = Dune::PDELab::NewtonMethod<IGO, LinearSolver>;
+    SNP snp(igo, ls);
+
     // Do visualization...    
     using VTKSW = Dune::VTKSequenceWriter<GV>;
     using VTKWriter = Dune::SubsamplingVTKWriter<GV>;

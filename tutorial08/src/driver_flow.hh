@@ -101,15 +101,9 @@ void driver_flow (const GV& gv, const Scheme& scheme,
   LinearSolver ls(lineariterationsmax,linearsolververbosity);
 
   // nonlinear solver setup
-  typedef Dune::PDELab::Newton<IGO,LinearSolver,Z> Newton;
+  typedef Dune::PDELab::NewtonMethod<IGO,LinearSolver> Newton;
   Newton newton(igo,ls);
-  newton.setReassembleThreshold(0.0);
-  newton.setVerbosityLevel(2);
-  newton.setMaxIterations(50);
-  newton.setReduction(1e-10);
-  newton.setAbsoluteLimit(1e-13);
-  newton.setLineSearchMaxIterations(40);
-  newton.setLineSearchStrategy(Newton::hackbuschReuskenAcceptBest);
+  newton.setParameters(ptree.sub("newton"));
 
   // time integrator setup
   Dune::PDELab::OneStepThetaParameter<RF> crank_nicolson(0.5);

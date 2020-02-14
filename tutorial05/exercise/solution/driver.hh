@@ -84,14 +84,9 @@ void driver (Grid& grid, Dune::ParameterTree& ptree)
     LS ls(100,0);
 
     // solve nonlinear problem
-    Dune::PDELab::Newton<GO,LS,Z> newton(go,z,ls);
-    newton.setReassembleThreshold(0.0);
-    newton.setVerbosityLevel(2);
-    newton.setReduction(1e-6);
-    newton.setMinLinearReduction(1e-6);
-    newton.setMaxIterations(25);
-    newton.setLineSearchMaxIterations(10);
-    newton.apply();
+    Dune::PDELab::NewtonMethod<GO,LS> newton(go,ls);
+    newton.setParameters(ptree.sub("newton"));
+    newton.apply(z);
 
     // set up error estimator
     typedef Dune::PDELab::P0LocalFiniteElementMap<DF,RF,dim> P0FEM;

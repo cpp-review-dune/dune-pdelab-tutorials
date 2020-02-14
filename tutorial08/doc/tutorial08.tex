@@ -600,15 +600,16 @@ Pr = \frac{\nu}{\kappa}, \qquad Ra = \frac{\alpha}{\nu\kappa},
 where $Pr$ is the Prandtl number and $Ra$ is the Rayleigh number.
 
 The \lstinline{[solver]} section sets some parameters controlling the operation of the
-nonlinear (Newton) and linear (ILU-preconditioned BiCGStab) solvers.
+linear (ILU-preconditioned BiCGStab) solvers.
 
 \begin{tabular}{rl}
 \texttt{lineariterationsmax} &  max. BiCGStab iterations allowed\\
 \texttt{linearsolververbosity} & amount of output of linear solver\\
-\texttt{nonlinearabslimit} & smallest absolute residual norm in Newton\\
-\texttt{nonlinearreduction} & relative reduction required in Newton\\
 \texttt{linearreduction} & relative reduction required for BiCGStab
 \end{tabular}
+
+Paremters for the nonlinear Newton solver can be set in the \lstinline{[newton]} section of the
+ini file.
 
 \begin{figure}
 \begin{center}

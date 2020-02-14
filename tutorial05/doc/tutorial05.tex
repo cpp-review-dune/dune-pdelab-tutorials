@@ -261,7 +261,7 @@ The \lstinline{problem} section provides parameters for the specific problem to 
 tutorial solves the Laplace equation with a known reference solution, and therefore $\eta = 0$ in
 the ini-file. However, the error estimator remains applicable if different values are chosen.
 
-\lstinputlisting[linerange={18-20},
+\lstinputlisting[linerange={30-32},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/tutorial05.ini}
@@ -358,14 +358,14 @@ about the mesh and could therefore also be created outside of the loop. The glob
 however, has to take the discretization into account and therefore has to be updated after
 each iteration.
 
-\lstinputlisting[linerange={82-94},
+\lstinputlisting[linerange={82-89},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
 The next few lines construct a linear solver backend and an instance of the Newton solver
 and solve the nonlinear problem on the current mesh.
 
-\lstinputlisting[linerange={96-111},
+\lstinputlisting[linerange={91-106},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -380,7 +380,7 @@ estimator needs access to the problem definition. These components are then used
 construct a grid operator of type \lstinline{ESTGO} which is a representation of the
 element-wise computation of the error estimate.
 
-\lstinputlisting[linerange={113-119},
+\lstinputlisting[linerange={108-114},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -390,7 +390,7 @@ the assembler for the residual form of the PDE can be reused for this task. The 
 a vector containing the squared values of the local error estimates. The norm of the
 estimated error is then printed to provide feedback about the refinement process.
 
-\lstinputlisting[linerange={121-136},
+\lstinputlisting[linerange={116-131},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -398,7 +398,7 @@ A VTK output of the finite element solution and the squared error is created. Th
 careful inspection of the estimated error and how it changes in the course of the
 adaptive refinement.
 
-\lstinputlisting[linerange={138-141},
+\lstinputlisting[linerange={133-136},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -407,7 +407,7 @@ solution can be accepted. Additional refinement is unnecessary and the loop is e
 also happens if the last iteration is reached, since the modified mesh would not be
 used for further computations.
 
-\lstinputlisting[linerange={143-150},
+\lstinputlisting[linerange={138-145},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -423,7 +423,7 @@ threshold is set to zero. Afterwards the function \lstinline{mark_grid} is calle
 all elements which have a value in \lstinline{z0} that is larger than \lstinline{eta_refine}
 to request their refinement.
 
-\lstinputlisting[linerange={152-154},
+\lstinputlisting[linerange={147-149},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}
@@ -442,7 +442,7 @@ underlying mesh, and the solution is transferred to the new grid function space,
 through local $L^2$ projection onto the elements of the new mesh. The last argument specifies
 the order of the quadrature rule that is used in this process.
 
-\lstinputlisting[linerange={156-166},
+\lstinputlisting[linerange={151-161},
 basicstyle=\ttfamily\small,
 frame=single,
 backgroundcolor=\color{listingbg}]{../src/driver.hh}

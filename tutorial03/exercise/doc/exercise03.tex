@@ -114,8 +114,8 @@
   \lstinline!StationaryLinearProblemSolver!. Search in the driver for
   the lines starting with
   \begin{lstlisting}
-    typedef Dune::PDELab::Newton<IGO,LS,Z> PDESOLVER;
-    PDESOLVER pdesolver(igo,z,ls);
+    typedef Dune::PDELab::Newton<IGO,LS> PDESOLVER;
+    PDESOLVER pdesolver(igo,ls);
     ...
   \end{lstlisting}
   and change to the \lstinline!StationaryLinearProblemSolver!.
