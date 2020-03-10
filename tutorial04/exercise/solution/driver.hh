@@ -29,7 +29,7 @@ void driver (const GV& gv, const FEM& fem,
   GFS gfs(gfs0);
 
   // Add names to the components for VTK output
-  using namespace Dune::TypeTree::Indices;
+  using namespace Dune::Indices;
   gfs.child(_0).name("u0");
   gfs.child(_1).name("u1");
 
@@ -126,9 +126,11 @@ void driver (const GV& gv, const FEM& fem,
 
 
   // subspaces
-  using U0SUB = Dune::PDELab::GridFunctionSubSpace<GFS,Dune::TypeTree::TreePath<0> >;
+  using Path0 = Dune::TypeTree::HybridTreePath<Dune::index_constant<0>>;
+  using Path1 = Dune::TypeTree::HybridTreePath<Dune::index_constant<1>>;
+  using U0SUB = Dune::PDELab::GridFunctionSubSpace<GFS,Path0>;
   U0SUB u0sub(gfs);
-  using U1SUB = Dune::PDELab::GridFunctionSubSpace<GFS,Dune::TypeTree::TreePath<1> >;
+  using U1SUB = Dune::PDELab::GridFunctionSubSpace<GFS,Path1>;
   U1SUB u1sub(gfs);
 
   // Make discrete grid functions for components

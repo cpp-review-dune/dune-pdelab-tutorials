@@ -172,9 +172,11 @@ void driver_coupled (const GV& gv, Scheme scheme,
   Dune::PDELab::interpolate(g,gfsth,z);
 
   // make a vector valued grid function out of the velocity
-  typedef typename Dune::PDELab::GridFunctionSubSpace<GFSTH,Dune::TypeTree::TreePath<0> > VelocitySubGFS;
+  using Path0 = Dune::TypeTree::HybridTreePath<Dune::index_constant<0>>;
+  using Path1 = Dune::TypeTree::HybridTreePath<Dune::index_constant<1>>;
+  using VelocitySubGFS = Dune::PDELab::GridFunctionSubSpace<GFSTH,Path0>;
   VelocitySubGFS velocitysubgfs(gfsth); // subspace
-  typedef Dune::PDELab::VectorDiscreteGridFunction<VelocitySubGFS,Z> VDGF;
+  using VDGF = Dune::PDELab::VectorDiscreteGridFunction<VelocitySubGFS,Z>;
   VDGF vdgf(velocitysubgfs,z); // current velocity as a grid function
 
   //=============================
@@ -333,7 +335,7 @@ void driver_coupled (const GV& gv, Scheme scheme,
   //////////////////////
   // subspace
   //////////////////////
-  // typedef typename Dune::PDELab::GridFunctionSubSpace<GFSTH,Dune::TypeTree::TreePath<1> > PressureSubGFS;
+  // using PressureSubGFS = Dune::PDELab::GridFunctionSubSpace<GFSTH,Path1>;
   // PressureSubGFS pressuresubgfs(gfsth);
   // auto pfunc = Dune::PDELab::DiscreteGridViewFunction<PressureSubGFS,Z>(pressuresubgfs,z);
   // auto plocal = localFunction(pfunc);

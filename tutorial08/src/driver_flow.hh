@@ -130,9 +130,10 @@ void driver_flow (const GV& gv, const Scheme& scheme,
   // add data field for all components of the space to the VTK writer
   Dune::PDELab::addSolutionToVTKWriter(vtkSequenceWriter,gfsth,z,Dune::PDELab::vtk::DefaultFunctionNameGenerator("th"));
   // add divergence
-  typedef typename Dune::PDELab::GridFunctionSubSpace<GFSTH,Dune::TypeTree::TreePath<0> > VelocitySubGFS;
+  using Path0 = Dune::TypeTree::HybridTreePath<Dune::index_constant<0>>;
+  using VelocitySubGFS = Dune::PDELab::GridFunctionSubSpace<GFSTH,Path0>;
   VelocitySubGFS velocitysubgfs(gfsth);
-  typedef Dune::PDELab::VectorDiscreteGridFunctionDiv<VelocitySubGFS,Z> VDivDGF;
+  using VDivDGF = Dune::PDELab::VectorDiscreteGridFunctionDiv<VelocitySubGFS,Z>;
   VDivDGF vdivdgf(velocitysubgfs,z);
   vtkSequenceWriter.addVertexData(std::make_shared<Dune::PDELab::VTKGridFunctionAdapter<VDivDGF> >(vdivdgf,"div(v)"));
 
