@@ -257,7 +257,6 @@ namespace Dune {
       void lambda_volume (const EG& eg, const LFSTest& lfstest, Residual& residual) const
       {
         // define types
-        using namespace TypeTree::Indices;
         using LFSV = typename LFSTest::template Child<0>::Type;   // the velocity node
         using LFSV0 = typename LFSV::template Child<0>::Type;     // first velocity component
 
@@ -313,8 +312,6 @@ namespace Dune {
       template<typename EG, typename LFSTrial, typename X, typename LFSTest, typename Residual>
       void alpha_volume (const EG& eg, const LFSTrial& lfstrial, const X& x, const LFSTest& lfstest, Residual& residual) const
       {
-        using namespace TypeTree::Indices;
-
         // extract local function spaces
         const auto& lfsu = lfstrial.template child<0>();    // velocity node
         const auto& lfsp = lfstrial.template child<1>();  // pressure
@@ -514,8 +511,6 @@ namespace Dune {
         auto bct = bctype(ig.geometry().center());
         if (bct == NavierStokesBoundaryCondition::noslip) return;
 
-        using namespace TypeTree::Indices;
-
         // extract local function spaces
         const auto& lfsu = lfstrial.template child<0>();    // velocity node
 
@@ -712,8 +707,6 @@ namespace Dune {
       template<typename EG, typename LFSTrial, typename X, typename LFSTest, typename Residual>
       void alpha_volume (const EG& eg, const LFSTrial& lfstrial, const X& x, const LFSTest& lfstest, Residual& residual) const
       {
-        using namespace TypeTree::Indices;
-
         // extract local function spaces
         const auto& lfsu = lfstrial.template child<0>();    // velocity node
 
@@ -775,8 +768,6 @@ namespace Dune {
       void jacobian_volume (const EG& eg, const LFSTrial& lfstrial, const X& x, const LFSTest& lfstest,
                             M& mat) const
       {
-        using namespace TypeTree::Indices;
-
         // extract local function spaces, assume Galerkin property: lfstrial = lfstest
         const auto& lfsu = lfstrial.template child<0>();    // velocity node
 

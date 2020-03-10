@@ -44,7 +44,7 @@ public:
   void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
   {
     // select the two components (but assume Galerkin scheme U=V)
-    using namespace Dune::TypeTree::Indices;
+    using namespace Dune::Indices;
     auto lfsu0 = lfsu.child(_0);
     auto lfsu1 = lfsu.child(_1);
 
@@ -103,7 +103,7 @@ public:
                         M& mat) const
   {
     // select the two components (assume Galerkin scheme U=V)
-    using namespace Dune::TypeTree::Indices;
+    using namespace Dune::Indices;
     auto lfsu0 = lfsu.child(_0);
     auto lfsu1 = lfsu.child(_1);
 
@@ -191,7 +191,7 @@ public:
   void alpha_volume (const EG& eg, const LFSU& lfsu, const X& x, const LFSV& lfsv, R& r) const
   {
     // select the two components (assume Galerkin scheme U=V)
-    using namespace Dune::TypeTree::Indices;
+    using namespace Dune::Indices;
     auto lfsu0 = lfsu.child(_0);
     auto lfsu1 = lfsu.child(_1);
 
@@ -250,7 +250,7 @@ public:
                         M& mat) const
   {
     // get first child, assuming PowerGridFunctionSpace
-    using namespace Dune::TypeTree::Indices;
+    using namespace Dune::Indices;
     auto lfsu0 = lfsu.child(_0);
     auto lfsu1 = lfsu.child(_1);
 

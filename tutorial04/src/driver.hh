@@ -28,7 +28,7 @@ void driver (const GV& gv, const FEM& fem,
   GFS gfs(gfs0);
 
   // Add names to the components for VTK output
-  using namespace Dune::TypeTree::Indices;
+  using namespace Dune::Indices;
   gfs.child(_0).name("u0");
   gfs.child(_1).name("u1");
 

@@ -65,7 +65,7 @@ void driver_flow (const GV& gv, const Scheme& scheme,
   Dune::PDELab::interpolate(g,gfsth,z);
 
   // local operator setup
-  auto flambda = [](const auto& entity, const auto& position) { // right hand side function for momentum equation
+  auto flambda = [dim](const auto& entity, const auto& position) { // right hand side function for momentum equation
     Dune::FieldVector<RF,dim> f(0.0); 
     return f;
   };
@@ -130,9 +130,10 @@ void driver_flow (const GV& gv, const Scheme& scheme,
   // add data field for all components of the space to the VTK writer
   Dune::PDELab::addSolutionToVTKWriter(vtkSequenceWriter,gfsth,z,Dune::PDELab::vtk::DefaultFunctionNameGenerator("th"));
   // add divergence
-  typedef typename Dune::PDELab::GridFunctionSubSpace<GFSTH,Dune::TypeTree::TreePath<0> > VelocitySubGFS;
+  using Path0 = Dune::TypeTree::HybridTreePath<Dune::index_constant<0>>;
+  using VelocitySubGFS = Dune::PDELab::GridFunctionSubSpace<GFSTH,Path0>;
   VelocitySubGFS velocitysubgfs(gfsth);
-  typedef Dune::PDELab::VectorDiscreteGridFunctionDiv<VelocitySubGFS,Z> VDivDGF;
+  using VDivDGF = Dune::PDELab::VectorDiscreteGridFunctionDiv<VelocitySubGFS,Z>;
   VDivDGF vdivdgf(velocitysubgfs,z);
   vtkSequenceWriter.addVertexData(std::make_shared<Dune::PDELab::VTKGridFunctionAdapter<VDivDGF> >(vdivdgf,"div(v)"));
 

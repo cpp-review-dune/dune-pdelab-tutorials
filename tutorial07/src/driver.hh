@@ -11,8 +11,8 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   /// tex: extract
   // Choose domain and range field type
   using RF = typename NUMFLUX::RF; // type for computations
-  const int dim = numflux.dim;
-  const int m = numflux.m; //number of components
+  static constexpr int dim = NUMFLUX::dim;
+  static constexpr int m = NUMFLUX::m; //number of components
   /// tex: extract
 
 
