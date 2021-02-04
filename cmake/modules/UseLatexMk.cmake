@@ -7,6 +7,8 @@
 #                    [REQUIRED]
 #                    [FATHER_TARGET father1 [father2 ...]]
 #                    [RCFILE rcfile1 [rcfile2 ...]]
+#                    [INSTALL destination]
+#                    [BUILD_ON_INSTALL]
 #                    )
 #
 # The arguments:
@@ -14,6 +16,8 @@
 #   Required argument with a single tex source that defines the document to be built
 # TARGET
 #   An optional target name, defaults to a suitable mangling of the given source and its path.
+#   An additional target with _clean appended will be added as well, which cleans the output
+#   and all auxiliary files.
 # EXCLUDE_FROM_ALL
 #   Set this to avoid the target from being built by default. If the FATHER_TARGET
 #   parameter is set, this option is automatically set.
@@ -31,7 +35,16 @@
 #   You may also use CMake variables within @'s (like @CMAKE_CURRENT_BINARY_DIR@) and have
 #   them replaced with the matching CMake variables (see cmake's configure_file command).
 #   Note, that this is a powerful, but advanced feature. For details on what can be achieved
-#   see the latexmk manual.
+#   see the latexmk manual. Note, that triggering non-PDF builds through latexmkrc files might
+#   cause problems with other features of UseLatexMk.
+# INSTALL
+#   Set this option to an install directory to create an installation rule for this document.
+# BUILD_ON_INSTALL
+#   Set this option, if you want to trigger a build of this document during installation.
+#
+# Furthermore, UseLatexMk defines a CMake target clean_latex which cleans the build tree from
+# all PDF output and all auxiliary files. Note, that (at least for the Unix Makefiles generator)
+# it is not possible to connect this process with the builtin clean target.
 #
 # Please note the following security restriction:
 #
@@ -101,12 +114,22 @@ find_file(LATEXMKRC_TEMPLATE
                 ${CMAKE_SOURCE_DIR}
                 ${CMAKE_SOURCE_DIR}/cmake
                 ${CMAKE_SOURCE_DIR}/cmake/modules
+          NO_CMAKE_FIND_ROOT_PATH
           )
+
+# Add the clean_latex target
+if(TARGET clean_latex)
+  message(WARNING "clean_latex target already exists. UseLatexMk attaches clean rules to it!")
+else()
+  add_custom_target(clean_latex)
+endif()
+
+set(LATEXMK_SOURCES_BUILD_FROM)
 
 function(add_latexmk_document)
   # Parse the input parameters to the function
-  set(OPTION REQUIRED EXCLUDE_FROM_ALL)
-  set(SINGLE SOURCE TARGET)
+  set(OPTION REQUIRED EXCLUDE_FROM_ALL BUILD_ON_INSTALL)
+  set(SINGLE SOURCE TARGET INSTALL)
   set(MULTI FATHER_TARGET RCFILE)
   include(CMakeParseArguments)
   cmake_parse_arguments(LMK "${OPTION}" "${SINGLE}" "${MULTI}" ${ARGN})
@@ -129,6 +152,20 @@ function(add_latexmk_document)
   if(LMK_FATHER_TARGET)
     set(LMK_EXCLUDE_FROM_ALL TRUE)
   endif()
+  if(LMK_BUILD_ON_INSTALL AND (NOT LMK_INSTALL))
+    message(WARNING "Specified to build on installation, but not installing!")
+  endif()
+
+  # Verify that each source is used exactly once
+  set(ABS_SOURCE ${LMK_SOURCE})
+  if(NOT IS_ABSOLUTE ${ABS_SOURCE})
+    get_filename_component(ABS_SOURCE ${ABS_SOURCE} ABSOLUTE)
+  endif()
+  list(FIND LATEXMK_SOURCES_BUILD_FROM ${ABS_SOURCE} ALREADY_BUILT)
+  if(NOT "${ALREADY_BUILT}" STREQUAL "-1")
+    message(FATAL_ERROR "UseLatexMk: You are building twice from the same source, which is unsupported!")
+  endif()
+  set(LATEXMK_SOURCES_BUILD_FROM ${LATEXMK_SOURCES_BUILD_FROM} ${ABS_SOURCE} PARENT_SCOPE)
 
   # Check the existence of the latexmk executable and skip/fail if not present
   if(NOT (LATEXMK_FOUND AND PDFLATEX_COMPILER))
@@ -138,6 +175,10 @@ function(add_latexmk_document)
       return()
     endif()
   endif()
+
+  # Determine the output name
+  get_filename_component(output ${LMK_SOURCE} NAME_WE)
+  set(OUTPUT_PDF ${CMAKE_CURRENT_BINARY_DIR}/${output}.pdf)
 
   # Inspect the EXCLUDE_FROM_ALL option
   if(LMK_EXCLUDE_FROM_ALL)
@@ -165,20 +206,26 @@ function(add_latexmk_document)
   # Add the BYPRODUCTS parameter, if the CMake version supports it
   set(BYPRODUCTS_PARAMETER "")
   if (CMAKE_VERSION VERSION_GREATER "3.2")
-    # Determine output PDF
-    get_filename_component(output ${LMK_SOURCE} NAME_WE)
-    set(BYPRODUCTS_PARAMETER BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${output}.pdf)
+    set(BYPRODUCTS_PARAMETER BYPRODUCTS ${OUTPUT_PDF})
   endif()
 
   # Maybe allow latexmk the use of absolute paths
+  set(ENV_COMMAND "")
   if(NOT LATEXMK_PARANOID)
-    set($ENV{openout_any} "a")
+    set(ENV_COMMAND ${CMAKE_COMMAND} -E env openout_any="a")
   endif()
 
+  # Get an absolute path to the source
+  set(LMK_SOURCE_REPLACED ${CMAKE_CURRENT_BINARY_DIR}/${LMK_TARGET}_source.cc)
+  configure_file(${LMK_SOURCE} ${LMK_SOURCE_REPLACED} @ONLY)
+
   # Call the latexmk executable
+  # NB: Using add_custom_target here results in the target always being outofdate.
+  #     This offloads the dependency tracking from cmake to latexmk. This is an
+  #     intentional decision of UseLatexMk to avoid listing dependencies of the tex source.
   add_custom_target(${LMK_TARGET}
                     ${ALL_OPTION}
-                    COMMAND ${LATEXMK_EXECUTABLE} ${LATEXMKRC_OPTIONS} ${LMK_SOURCE}
+                    COMMAND ${ENV_COMMAND} ${LATEXMK_EXECUTABLE} ${LATEXMKRC_OPTIONS} ${LMK_SOURCE_REPLACED}
                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                     COMMENT "Building PDF from ${LMK_SOURCE}..."
                     ${BYPRODUCTS_PARAMETER}
@@ -191,4 +238,22 @@ function(add_latexmk_document)
     endif()
     add_dependencies(${father} ${LMK_TARGET})
   endforeach()
+
+  # Add installation rules
+  if(LMK_BUILD_ON_INSTALL)
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} --build . --target ${LMK_TARGET} --config $<CONFIGURATION>)")
+  endif()
+  if(LMK_INSTALL)
+    install(FILES ${OUTPUT_PDF}
+            DESTINATION ${LMK_INSTALL}
+            OPTIONAL)
+  endif()
+
+  # Add a clean up rule to the clean_latex target
+  add_custom_target(${LMK_TARGET}_clean
+                    COMMAND ${ENV_COMMAND} ${LATEXMK_EXECUTABLE} -C ${LATEXMKRC_OPTIONS}  ${LMK_SOURCE_REPLACED}
+                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                    COMMENT "Cleaning build results from target ${LMK_TARGET}"
+                    )
+  add_dependencies(clean_latex ${LMK_TARGET}_clean)
 endfunction()
