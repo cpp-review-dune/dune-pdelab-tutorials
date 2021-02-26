@@ -16,6 +16,7 @@
 \RequirePackage{calc}
 \RequirePackage{lmodern}
 \RequirePackage{tikz}
+\RequirePackage{graphicx}
 \usetikzlibrary{calc}
 %\usetikzlibrary{math}
 %\usetikzlibrary{patterns}
@@ -50,7 +51,7 @@
         \includegraphics[width=\paperwidth]{duneslides-logo}};
     \node[anchor=west,inner sep=5mm,color=duneorange]
       at (header.west) {%
-      \fontfamily{phv}\selectfont\LARGE\textbf{DUNE/PDELab Course \theyear}};
+      \fontfamily{phv}\selectfont\LARGE\textbf{DUNE/PDELab Course \the\year}};
   }
 }
 
@@ -236,6 +237,7 @@
   emph={[2]\#include,\#define,\#ifdef,\#endif}, emphstyle={[2]\color{green!60!black}},
   emph={[3]Dune,Grid,SomeGrid,TheGrid,LeafIterator,LevelIterator,LeafIntersectionIterator,LevelIntersectionIterator,Geometry,GeometryType,QuadraturePoint,QuadratureRule,PDELab,Entity,EntityPointer,Codim,FieldVector,FieldMatrix}, emphstyle={[3]\color{dunedarkblue}}
 }
+
 \newenvironment{codeblock}{%
   \begin{tcolorbox}[size=small,oversize,boxrule=0pt,opacityframe=0,colback=blue!30!black!5!white]}{%
   \end{tcolorbox}}
