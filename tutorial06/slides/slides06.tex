@@ -1,82 +1,94 @@
-\documentclass[ignorenonframetext,11pt]{beamer}
-
-\usepackage{graphicx}
-\graphicspath{{./figures/}}
-
-\usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily\small, 
-  keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-  commentstyle=\itshape, extendedchars=true, escapeinside={/*@}{@*/},inputpath=src_examples}
-
-\usepackage[english]{babel}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% A general frame for lecture slides and lecture notes in one file
+% using LaTeX beamer
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[aspectratio=169,11pt]{beamer}
+%\usepackage[ngerman]{babel}
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{lmodern}
 \usepackage{amsmath,amssymb,amsfonts}
-\usepackage{url}
+
 
 % only presentation
 \mode<presentation>
 {
-  \usetheme{default}
-  \setbeamercovered{transparent}
-  \usefonttheme{structurebold}
-  \setbeamertemplate{theorems}[numbered]
-  \usepackage{amscd}
+  \usepackage[course]{dunestyle-beamer}
 }
+\usepackage{listings}
+\lstset{inputpath=src_examples}
 
+% all after
+\usepackage{amscd}
+
+\usepackage{pgfplots,adjustbox}
+\usepackage{eurosym}
+\usepackage{graphicx}
+\graphicspath{{.}{figures/}{../../latexstyle/layout/}}
+%\usepackage{picinpar}
+%\usepackage{fancybox}
+%\usepackage{xspace}
 \usepackage{enumerate}
+\usepackage{algpseudocode}
+\usepackage{color}
+\usepackage{bold-extra}
+\usepackage{bm}
 \usepackage{stmaryrd}
-\usepackage{calc}
+%\usepackage[squaren]{SIunits}
+\usepackage{nicefrac}
+
+\usepackage{fancyvrb,bbm,xspace}
 \usepackage{lmodern}
 \usepackage{expl3,xparse}
+\usepackage{fancyvrb,bbm,xspace}
+\usepackage[binary-units]{siunitx}
+\usepackage{xcolor,tabu}
 
-% Seems to brake things:
-% \usepackage{lstlinebgrd}
+\usepackage{lmodern}
+\usepackage{inconsolata}
+\usepackage{nimbusmononarrow}
+%\renewcommand*\ttdefault{txtt}
+\usepackage{dsfont}
 
-\ExplSyntaxOn
-\NewDocumentCommand \lstcolorlines { O{green} m }
+\mode<presentation>
 {
- \clist_if_in:nVT { #2 } { \the\value{lstnumber} }{ \color{#1} }
+\theoremstyle{definition}
 }
-\ExplSyntaxOff
+\newtheorem{Def}{Definition}%[section]
+\newtheorem{Exm}[Def]{Example}
+\newtheorem{Lem}[Def]{Lemma}
+\newtheorem{Rem}[Def]{Remark}
+\newtheorem{Rul}[Def]{Rule}
+\newtheorem{Thm}[Def]{Theorem}
+\newtheorem{Cor}[Def]{Corollary}
+\newtheorem{Obs}[Def]{Observation}
+\newtheorem{Ass}[Def]{Assumption}
+\newtheorem{Pro}[Def]{Property}
+\newtheorem{Alg}[Def]{Algorithm}
+\newtheorem{Prp}[Def]{Proposition}
+\newtheorem{Lst}[Def]{Listing}
+
+% Delete this, if you do not want the table of contents to pop up at
+% the beginning of each subsection:
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{Contents}
+    \tableofcontents[sectionstyle=show/shaded,subsectionstyle=hide/hide/hide]
+%\tableofcontents[currentsection]
+  \end{frame}
+}
 
 % Title definition
-\title{DUNE PDELab Tutorial 06\\
-{\small  Paralleles Rechnen}}
+\title{DUNE PDELab Tutorial 06}
+\subtitle{Parallel Computing}
 \author{Olaf Ippisch}
 \institute[]
 {
-  Institut für Mathematik, TU Clausthal\\
-  Erzstr. 1, D-38678 Clausthal-Zellerfeld \\[6pt]
-}
-\date[\today]{\today}
-
-
-% logo nach oben
-\mode<presentation>
-{
-% No navigation symbols and no lower logo
-\setbeamertemplate{sidebar right}{}
-
-% logo
-\newsavebox{\logobox}
-\sbox{\logobox}{%
-    \hskip\paperwidth%
-    \rlap{%
-      % putting the logo should not change the vertical possition
-      \vbox to 0pt{%
-        \vskip-\paperheight%
-        \vskip0.35cm%
-        \llap{\insertlogo\hskip0.1cm}%
-        % avoid overfull \vbox messages
-        \vss%
-      }%
-    }%
-}
-
-\addtobeamertemplate{footline}{}{%
-    \usebox{\logobox}%
-}
+  Institut für Mathematik\\TU Clausthal
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -89,11 +101,7 @@
 
 \begin{document}
 
-\begin{onlyenv}<article>
-\maketitle
-\end{onlyenv}
-
-\frame{\titlepage}
+\frame[plain, noframenumbering]{\titlepage}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
