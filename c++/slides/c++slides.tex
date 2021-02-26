@@ -133,7 +133,7 @@ $(1,3)$ and $(5,0)$ are different vectors, but they share the same structure.\\
 
 \begin{frame}[fragile]
   \frametitle{Classes}
-  \begin{lstlisting}
+  \begin{cppcode}
 class Point2D {
 public:
   Point2D(double x_, double y_)
@@ -152,7 +152,7 @@ public:
 private:
   double x, y;
 };
-  \end{lstlisting}
+  \end{cppcode}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -160,19 +160,19 @@ private:
  Classes define a new data type. 
 \begin{itemize}
   \item Variables of \inline!class! type are called objects and can be used like other types (\inline!int!, \inline!double!, \dots):
-    \begin{lstlisting}
+    \begin{cppcode}
       // calls constructor, initialises data
       Point2D p = Point2D(3.0,4.1); 
-    \end{lstlisting}
+    \end{cppcode}
   \item The member variables and functions of an \emph{object} are accessed over the variable name followed by a dot and the name of the variable/function:
-    \begin{lstlisting}
+    \begin{cppcode}
       std::cout << p.norm() << std::endl;
-    \end{lstlisting}
+    \end{cppcode}
   \item Objects of a \inline!class! can be used like ordinary variables:
-    \begin{lstlisting}
+    \begin{cppcode}
       Point2D p2 = p; // create a copy of p
       p.add(p2);
-    \end{lstlisting}
+    \end{cppcode}
   \end{itemize}
 \end{frame}
 
@@ -181,9 +181,9 @@ private:
   \begin{itemize}
   \item Data members and methods of a \inline!class! can be either \inline!public! (accessible from outside the \inline!class!) or \inline!private! (accessible only from methods of the same \inline!class!).
   \item If you try to access a \inline!private! member from outside the class, you get a compiler error:
-    \begin{lstlisting}
+    \begin{cppcode}
       std::cout << p.x << std::endl; // compiler error!
-    \end{lstlisting}
+    \end{cppcode}
   \item It is advisable to make the data members of a \inline!class! private. This is called \emph{encapsulation} and facilitates a later change of the way the data is stored, which can often greatly improve performance. 
   \end{itemize}
 \end{frame}
@@ -204,18 +204,18 @@ private:
 \begin{frame}[fragile]
   \frametitle<presentation> {Namespaces}
   C++ uses namespaces, which allows an easy resolution of this problem:
-\begin{lstlisting}
-  namespace linsolv {
-    #include<linear_solver.h>
-  }
-  namespace nonlinsolv {
-    #include<nonlinear_solver.h>
-  }
-  int main() {
-    linsolv::solve_problem();
-    nonlinsolv::solve_problem();
-  }
-\end{lstlisting}
+\begin{cppcode}
+namespace linsolv {
+  #include<linear_solver.h>
+}
+namespace nonlinsolv {
+  #include<nonlinear_solver.h>
+}
+int main() {
+  linsolv::solve_problem();
+  nonlinsolv::solve_problem();
+}
+\end{cppcode}
 Each \inline!class! automatically defines a namespace with the name of the \inline!class! which contains its data members and functions.
 \end{frame}
 
@@ -224,9 +224,9 @@ Each \inline!class! automatically defines a namespace with the name of the \inli
   \begin{itemize}
   \item C++ also contains a library of useful functions and classes the so called standard library. 
   \item Beginners often write 
-  \begin{lstlisting}
+  \begin{cppcode}
   using namespace std;
-  \end{lstlisting}
+  \end{cppcode}
 at the top of their program, which imports all functions of the standard library into the global namespace.
   \item You should \emph{NEVER} do this as it can lead to name conflicts and reduces flexibility in further development!
   \end{itemize}
@@ -236,18 +236,18 @@ at the top of their program, which imports all functions of the standard library
 \begin{frame}[fragile]
   \frametitle<presentation>{Builtin Namespace \texttt{std}}
 Just write the namespace \inline!std::! in front of the functions and types instead:
-  \begin{lstlisting}
-    #include <iostream>
-    #include <cmath>
+  \begin{cppcode}
+#include <iostream>
+#include <cmath>
 
-    int main()
-    {
-      double v = 2.0;
-      double s = sqrt(v);
-      std::cout << "The square root of " << v
-                << " is " << s << std::endl;
-    }
-  \end{lstlisting}
+int main()
+{
+  double v = 2.0;
+  double s = sqrt(v);
+  std::cout << "The square root of " << v
+            << " is " << s << std::endl;
+}
+  \end{cppcode}
   If you use the auto-completion features of modern editors, this is not much typing overhead and much less work than rewriting your code later.
 \end{frame}
 
@@ -258,8 +258,9 @@ Just write the namespace \inline!std::! in front of the functions and types inst
 
 Since C++11 the type needed for a variable can be detected automatically if it can be deduced from the initialization of the variable. This is indicated with the keyword \inline!auto!.
 
-\lstinputlisting{auto.cc}
-
+\begin{codeblock}
+  \lstinputlisting{auto.cc}
+\end{codeblock}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -282,8 +283,9 @@ Since C++11 the type needed for a variable can be detected automatically if it c
 
 For type deduction with \inline!auto! the usual rules for C++ literals apply:
 
-\lstinputlisting{auto3.cc}
-
+\begin{codeblock}
+  \lstinputlisting{auto3.cc}
+\end{codeblock}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -303,20 +305,20 @@ For type deduction with \inline!auto! the usual rules for C++ literals apply:
   \item If you want to make a variable a reference with automatic type deduction write \inline!auto &! instead of \inline!auto!:
   \end{itemize}
 
-  \begin{lstlisting}
-    /* Copying */
-    auto i = 4;
-    auto j = i;  // i = 4, j = 4, j is a copy
-    i += 1;      // i = 5, j = 4
-    j -= 1;      // i = 5, j = 3
-    j  = i;      // i = 5, j = 5
+  \begin{cppcode}
+/* Copying */
+auto i = 4;
+auto j = i;  // i = 4, j = 4, j is a copy
+i += 1;      // i = 5, j = 4
+j -= 1;      // i = 5, j = 3
+j  = i;      // i = 5, j = 5
 
-    /* Referencing */
-    auto &k = i; // i = 5, k = 5, k is a reference to i
-    i  = 2;      // i = 2, j = 5, k = 2
-    i += 1;      // i = 3, j = 5, k = 3
-    k  = 8;      // i = 8, j = 5, k = 8
-  \end{lstlisting}
+/* Referencing */
+auto &k = i; // i = 5, k = 5, k is a reference to i
+i  = 2;      // i = 2, j = 5, k = 2
+i += 1;      // i = 3, j = 5, k = 3
+k  = 8;      // i = 8, j = 5, k = 8
+  \end{cppcode}
 \end{frame}
 
 
@@ -333,32 +335,36 @@ For type deduction with \inline!auto! the usual rules for C++ literals apply:
 \item Without generic programming one has to write the same function for all data types, which is tedious and error-prone, e.g.
 \end{itemize}
 \vspace*{-1em}
-\begin{multicols}{2}
-    \begin{lstlisting}
-      int Square(int x)
-      {
-        return(x*x);
-      }
+\begin{columns}
+  \begin{column}{0.\linewidth}
+  \end{column}
+  \begin{column}{0.4\linewidth}
+\begin{cppcode}
+int Square(int x)
+{
+  return(x*x);
+}
 
-      float Square(float x)
-      {
-        return(x*x);
-      }
-    \end{lstlisting}
+float Square(float x)
+{
+  return(x*x);
+}
+\end{cppcode}
+  \end{column}
+  \begin{column}{0.4\linewidth}
+\begin{cppcode}
+long Square(long x)
+{
+  return(x*x);
+}
 
-    \begin{lstlisting}
-      long Square(long x)
-      {
-        return(x*x);
-      }
-
-      double Square(double x)
-      {
-        return(x*x);
-      }      
-    \end{lstlisting}
-\end{multicols}
-\vskip-7mm
+double Square(double x)
+{
+  return(x*x);
+}      
+\end{cppcode}
+  \end{column}
+\end{columns}
 \begin{itemize}
 \item Generic programming allows to write the algorithm once and parametrise it with the
 data type.
@@ -373,18 +379,18 @@ data type.
 \begin{itemize}%[<+->]
 \item A function template starts with the keyword \inline|template| and a list of one or more template arguments
 in angle brackets separated by commas:
-\begin{lstlisting}
+\begin{cppcode}
 template<typename T>
 T Square(T a)
 {
     return(a*a);
 }
-\end{lstlisting}
+\end{cppcode}
 \item If a template is used, the compiler can automatically generate the function from the function template according to the function arguments (as with overloading the return type is not relevant).
  \item The template arguments can also be specified explicitly:
- \begin{lstlisting}
-     std::cout << Square<int>(4) << std::endl;
- \end{lstlisting}
+ \begin{cppcode}
+std::cout << Square<int>(4) << std::endl;
+ \end{cppcode}
  \item The argument types must fit the declaration
 \end{itemize}
 \end{frame}
@@ -393,7 +399,7 @@ T Square(T a)
 
 \begin{frame}[fragile]
 \frametitle{Example: Unary Template Function}
-\begin{lstlisting}
+\begin{cppcode}
 #include<cmath>
 #include<iostream>
 
@@ -409,14 +415,14 @@ int main()
     std::cout << Square<double>(M_PI) << std::endl;
     std::cout << Square(3.14) << std::endl;
 }
-\end{lstlisting}
+\end{cppcode}
 \end{frame}
 
 %-----------------------------------------------------------------------------
 
 \begin{frame}[fragile]
 \frametitle{Example: Binary Template Function}
-\begin{lstlisting}
+\begin{cppcode}
 #include<cmath>
 #include<iostream>
 
@@ -436,7 +442,7 @@ int main()
  std::cout << max<double>(6.1,4) << std::endl; // correct
  std::cout << max<int>(6.1,4) << std::endl;    // warning
 }
-\end{lstlisting}
+\end{cppcode}
 \end{frame}
 
 %-----------------------------------------------------------------------------
@@ -447,19 +453,19 @@ The C++ standard library already provides some useful template functions:
 \begin{itemize}%[<+->]
 \item \inline!const T& std::min(const T& a, const T& b)! \\
   minimum of a and b\\
-  \begin{lstlisting}
+  \begin{cppcode}
     auto c = std::min(a,b);
-  \end{lstlisting}
+  \end{cppcode}
 \item \inline!const T& std::max(const T& a, const T& b)! \\
   maximum of a and b\\
-  \begin{lstlisting}
+  \begin{cppcode}
     auto c = std::max(a,b);
-  \end{lstlisting}
+  \end{cppcode}
 \item \inline!void std::swap(T& a, T& b)! \\
   swap a and b\\
-  \begin{lstlisting}
+  \begin{cppcode}
     std::swap(a,b);
-  \end{lstlisting}
+  \end{cppcode}
 \end{itemize}
 \end{frame}
 
@@ -468,7 +474,7 @@ The C++ standard library already provides some useful template functions:
 
 \begin{frame}[fragile]
 \frametitle{Class Templates, Non-type Template arguments, \\ default arguments}
-\begin{lstlisting}
+\begin{cppcode}
 template<typename T, int dimension = 3>
 class NumericalSolver
 {
@@ -476,7 +482,7 @@ class NumericalSolver
   protected:
     T variable;
 };
-\end{lstlisting}
+\end{cppcode}
 \begin{itemize}%[<+->]
 \item Template arguments can be used in class declarations.
 \item Not only types, but also integer values can be used as template arguments. The values used in the template instantiation have to be compile time constants.
@@ -490,7 +496,7 @@ class NumericalSolver
 
 \begin{frame}[fragile]
 \frametitle{Inheritance from Class Templates}
-\begin{lstlisting}
+\begin{cppcode}
 template<typename T>
 class MyNumericalSolver : public NumericalSolver<T,3>
 {
@@ -503,7 +509,7 @@ class MyNumericalSolver : public NumericalSolver<T,3>
                 << std::endl;
     };
 };
-\end{lstlisting}
+\end{cppcode}
 \begin{itemize}%[<+->]
 \item If a class is derived from a template class, the template arguments have to be given as
 part of the base class name.
@@ -518,7 +524,7 @@ of base class members and methods.
 
 \begin{frame}[fragile]
 \frametitle{Using Members of a Template Base Class}
-\begin{lstlisting}
+\begin{cppcode}
 template<typename T>
 class MyNumericalSolver : public NumericalSolver<T,3>
 {
@@ -530,7 +536,7 @@ class MyNumericalSolver : public NumericalSolver<T,3>
         this->variable=val;
     };
 };
-\end{lstlisting}
+\end{cppcode}
 \begin{itemize}
 \item The members of a template base class are often not automatically resolved correctly
 \item To avoid problems, it is (as a rule of thumb) helpful to always prefix
@@ -565,17 +571,17 @@ time the whole function definition not only its declaration.
 class templates can also be instantiated for types which do not support all necessary operations as long
 as the methods where they are needed are never called.
 \item If template classes have long argument lists, typedefs are helpful:
-\begin{lstlisting}
+\begin{cppcode}
 typedef Point2D P;
 auto coord = P(8,1); // Now P means the same as Point2D
-\end{lstlisting}
+\end{cppcode}
 
 \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Template Aliases}
-\begin{lstlisting}
+\begin{cppcode}
 template <typname U>    // create partially defined templates 
 using VectorSpace = Dune::PDELab::Backend::Vector<GFS,U>::type;
 
@@ -588,7 +594,7 @@ int main()
   using Function = void (*)(double);  // function types
   VectorSpace<float> blub;
 }
-\end{lstlisting}
+\end{cppcode}
 
 
 \begin{itemize}
@@ -603,7 +609,7 @@ int main()
 
 \begin{frame}[fragile]
 \frametitle{Keyword \texttt{typename}}
-\begin{lstlisting}
+\begin{cppcode}
 template<typename T, int dimension = 3>
 class NumericalSolver : public T::ClassType
 {
@@ -613,7 +619,7 @@ class NumericalSolver : public T::ClassType
   private:
     typename T::SubType variable;
 }
-\end{lstlisting}
+\end{cppcode}
 \begin{itemize}%[<+->]
 \item In C++ by default a member of a class template is assumed not to be a type but
 a (static) variable.
@@ -630,9 +636,10 @@ in a constructor definition
 
 %-----------------------------------------------------------------------------
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,t]
 \frametitle{Keyword \texttt{.template}}
-\begin{lstlisting}
+\vspace*{-1em}
+\begin{cppcode}
 class A
 {
   public:
@@ -648,9 +655,9 @@ template<class U,typename V> V doSomethingMore(U *variable)
 {
     return variable->template doSomething<V>();
 }
-\end{lstlisting}
+\end{cppcode}
 \begin{itemize}%[<+->]
-\item C++ assumes by default that every \inline!<! character following an object is the start of a comparison.
+\item C++ assumes by default that every '\inline!<!' character following an object is the start of a comparison.
 \item The keyword \inline!template! in front of such a method name indicates that
 an explicit template parameter follows.
 \end{itemize}
@@ -735,7 +742,7 @@ figure from: \cite{josuttis99:stl}
 \begin{frame}[fragile]
 \frametitle{Vector Example}
 The following example shows how to use a \inline!std::vector!:
-\begin{lstlisting}
+\begin{cppcode}
 #include <iostream>
 #include <vector>
 
@@ -750,7 +757,7 @@ int main()
     std::cout << b.size() << std::endl; // still 7
     b.push_back(3.8); // make b larger and append the value 3.8
 }
-\end{lstlisting}
+\end{cppcode}
 \end{frame}
 
 \begin{frame}
@@ -771,7 +778,9 @@ int main()
 \item To access the element to which the iterator points, you have to dereference it, e.g. \inline!*it!
 \item If the element of the container is an object of a class, you can also use the operator \inline!it->! to access data members or functions of the class.
 \end{itemize}
-\lstinputlisting{iterator.cc}
+\begin{codeblock}
+  \lstinputlisting{iterator.cc}
+\end{codeblock}
 \end{frame}
 
 \section{Range-based for Loops}
@@ -779,11 +788,11 @@ int main()
 \begin{frame}[fragile]
   \frametitle<presentation>{Range-based \texttt{for} Loops}
   With range-based \inline!for! loops the same operation (iterating over a whole container) can be written much simpler:
-  \begin{lstlisting}
+  \begin{cppcode}
     auto vec = std::vector<double>(8);
     for (auto d : vec)
       std::cout << d << std::endl; // prints all entries of vec
-  \end{lstlisting}
+  \end{cppcode}
   \begin{itemize}
   \item Works for C arrays and all STL containers.
   \item Also important for using DUNE!
@@ -796,44 +805,46 @@ int main()
 
   You can get either a copy or a reference (if you write \inline!auto &!) of the element currently accessed.
 
-  \begin{lstlisting}
-    #include<iostream>
-    #include<vector>
+\begin{cppcode}
+#include<iostream>
+#include<vector>
 
-    int main()
-    {
-      std::vector<double> x(5);
-      int i=0;
-      for (auto &y : x) {       // with reference
-        y = i * 1.2;            // can be changed
-        ++i;
-      }
-      for (auto y : x) {        // with copy
-        y *= y;                 // original container unchanged
-        std::cout << y << std::endl;
-      }
-    }
-  \end{lstlisting}
+int main()
+{
+  std::vector<double> x(5);
+  int i=0;
+  for (auto &y : x) {       // with reference
+    y = i * 1.2;            // can be changed
+    ++i;
+  }
+  for (auto y : x) {        // with copy
+    y *= y;                 // original container unchanged
+    std::cout << y << std::endl;
+  }
+}
+\end{cppcode}
 
 \end{frame}
 
 \section{Type Deduction for Function Argumetns}
 
 \begin{frame}[fragile]
-\frametitle{Decltype}
+  \frametitle{Decltype}
 \begin{itemize}
 \item \lstinline!decltype! determines the result type of an expression (not the result value). It can be used to make matching variables.
-\begin{lstlisting}
+\small
+  \begin{cppcode}
 int a,b;
 decltype(a+b) c;
-\end{lstlisting}
+\end{cppcode}
 \item Together with template aliasing it can 
 be used to store types:
 \inline!using type = decltype(expression)! 
 \item Difference to \inline!auto!: Does not create a variable of the same type but stores the type, also preserves references.
 \item Good if you want to store the result of a function call in a container.
 \end{itemize}
-\begin{lstlisting}
+\small
+\begin{cppcode}
 template<typename Vector>
 auto squareroot_values(const Vector& v)
 {
@@ -843,8 +854,7 @@ auto squareroot_values(const Vector& v)
     result.push_back(std::sqrt(d)); 
   return result;
 }
-\end{lstlisting}
-
+\end{cppcode}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -855,10 +865,10 @@ auto squareroot_values(const Vector& v)
 \item \inline!decltype! determines the type of a given operation.
 \item In the easiest version, \inline!auto! is used as return type and \inline!-> decltype(op)! is added after the argument list of the function, where \inline!op! is a given operation:
 \end{itemize}
-\begin{lstlisting}
+\begin{cppcode}
 template<typename T, typename U>
 auto add(T t, U u) -> decltype(t + u);
-\end{lstlisting}
+\end{cppcode}
 
 \end{frame}
 
@@ -870,17 +880,17 @@ auto add(T t, U u) -> decltype(t + u);
   \begin{itemize}
   \item C++11 introduced a simplified possibility to create (mostly temporary) functions, so-called lambda expressions or lambdas.
   \item Example:
-\begin{lstlisting}
+\begin{cppcode}
 auto f = [](auto x) -> double 
 {
   double y = x;
   return std::sin(y);
 };
-\end{lstlisting}
+\end{cppcode}
 \item There is an even shorter version for single expressions (return type auto-deduced):
-\begin{lstlisting}
+\begin{cppcode}
 auto f = [](auto x) { return std::sin(x); };
-\end{lstlisting}
+\end{cppcode}
 \item Lambdas can be stored like variables, the type of lambda functions is implementation-defined. Thus \inline!auto! variables have to be used.
   \end{itemize}
 \end{frame}
@@ -903,7 +913,7 @@ auto f = [](auto x) { return std::sin(x); };
 
 \begin{frame}[fragile]
 \frametitle{Lambda functions: Capture Example}
-\begin{lstlisting}
+\begin{cppcode}
 auto pi = 3.14;
 auto f = [pi](auto x) { return pi * x; };
 auto g = [&pi](auto x) { return pi * x; };
@@ -921,7 +931,7 @@ auto h = [&](auto x)
 }
 h(1); // returns 4.141
 std::cout << call_count << std::endl; // prints 1
-\end{lstlisting}
+\end{cppcode}
 
 \end{frame}
 
@@ -932,7 +942,7 @@ Lambda functions are very useful for template algorithms as e.g. defined by the 
 
 \vspace*{2em}
 
-  \begin{lstlisting}
+  \begin{cppcode}
 auto coll = std::vector<double>();
 // fill coll with data...
 int count = 0;
@@ -940,7 +950,7 @@ double sum = 0;
 std::for_each(coll.begin(),coll.end(),
               [&](auto x){ ++count; sum += x; } );
 std::cout << sum / count << std::endl;
-  \end{lstlisting}
+  \end{cppcode}
 \end{frame}
 
 

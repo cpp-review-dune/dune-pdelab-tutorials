@@ -17,6 +17,7 @@
 \RequirePackage{lmodern}
 \RequirePackage{tikz}
 \RequirePackage{graphicx}
+\RequirePackage{relsize}
 \usetikzlibrary{calc}
 %\usetikzlibrary{math}
 %\usetikzlibrary{patterns}
@@ -227,7 +228,7 @@
 % \lstset{language=C++, basicstyle=\ttfamily,
 %   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
 %   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
-\lstset{language=C++, basicstyle=\lst@ifdisplaystyle\scriptsize\fi\ttfamily,
+\lstset{language=C++, basicstyle=\lst@ifdisplaystyle\smaller[2]\fi\ttfamily,
   keywordstyle=\bfseries, tabsize=4, stringstyle=\ttfamily,morekeywords={decltype},
   extendedchars=true, escapeinside={/*@}{@*/}}
 \lstset{keywordstyle=\color{green!40!black},
@@ -256,7 +257,7 @@
   \endgroup
   \begin{codeblock}
     \vspace*{-1ex}
-    \lstinputlisting[basicstyle=\scriptsize\ttfamily]{\jobname.lst}
+    \lstinputlisting[inputpath=.]{\jobname.lst}
     \vspace*{-1ex}
   \end{codeblock}}
 \makeatother
