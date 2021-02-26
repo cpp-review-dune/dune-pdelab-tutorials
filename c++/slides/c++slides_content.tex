@@ -321,7 +321,7 @@ For type deduction with \inline!auto! the usual rules for C++ literals apply:
 \item Often the same algorithms are needed for different data types.
 \item Without generic programming one has to write the same function for all data types, which is tedious and error-prone, e.g.
 \end{itemize}
-\vspace*{-10mm}
+\vspace*{-1em}
 \begin{multicols}{2}
     \begin{lstlisting}
       int Square(int x)
@@ -886,7 +886,7 @@ auto f = [](auto x) { return std::sin(x); };
   \item Usage: List variable names, add ampersand (\inline!&!) for references
   \item Shortcuts: \inline![=]! capture all variables by value, \inline![&]! capture all variables by reference
   \item Since C++17 it is also possible to capture a variable as constant reference: \inline![&v=std::as_const(v)]!
-  \item \structure{Caution:} When using capture by reference, make sure the original variable still exists when calling the lambda function!
+  \item \alert{Caution:} When using capture by reference, make sure the original variable still exists when calling the lambda function!
   \end{itemize}
 \end{frame}
 
