@@ -6,42 +6,26 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[ignorenonframetext,11pt]{beamer}
+\documentclass[aspectratio=169,11pt]{beamer}
 %\usepackage[ngerman]{babel}
-%\usepackage[T1]{fontenc}
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{lmodern}
 \usepackage{amsmath,amssymb,amsfonts}
 
 
 % only presentation 
 \mode<presentation>
 {
-  \usetheme{default}
-%  \usecolortheme{crane}
-  \setbeamercovered{transparent}
-%  \setlength{\parindent}{0pt}
-%  \setlength{\parskip}{1.35ex plus 0.5ex minus 0.3ex}
-%  \usefonttheme{structuresmallcapsserif}
-  \usefonttheme{structurebold}
-  \setbeamertemplate{theorems}[numbered]
-  \usepackage{amscd}
+  \usepackage[course]{dunestyle-beamer}
 }
 
 % all after
-\usepackage{tikz} 
+\usepackage{amscd}
+
 \usepackage{pgfplots,adjustbox}
 \usepackage{eurosym} 
 \usepackage{graphicx}
-\usepackage{multimedia}
-\usepackage{psfrag}
-\usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily, 
-  keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-  commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
-\usepackage{curves}
-%\usepackage{epic}
-\usepackage{calc}
+\graphicspath{{.}{figures/}{../../latexstyle/layout/}}
 %\usepackage{picinpar}
 %\usepackage{fancybox}
 %\usepackage{xspace}
@@ -60,32 +44,11 @@
 \usepackage[binary-units]{siunitx}
 \usepackage{xcolor,tabu}
 
-\definecolor{niceblue}{rgb}{0.122,0.396,0.651}   %% 31, 101, 166 or #1F65A6
-\definecolor{niceorange}{RGB}{255,205,86}        %% #FFCD56
-\definecolor{nicered}{RGB}{220,20,60}                      %% rgb(220, 20, 60)
-\definecolor{niceteal}{HTML}{00A9AB}
-\definecolor{niceviolet}{HTML}{820080}
-
-\definecolor{niceblueLight}{HTML}{91CAFB}
-\definecolor{niceblueVeryLight}{HTML}{DDEFFF}
-
+\usepackage{lmodern}
+\usepackage{inconsolata}
+\usepackage{nimbusmononarrow}
+%\renewcommand*\ttdefault{txtt}
 \usepackage{dsfont}
-
-%\newcommand{\hlineabove}{\rule{0pt}{2.6ex}}
-%\newcommand{\hlinebelow}{\rule[-1.2ex]{0pt}{0pt}}
-
-%\usecolortheme[RGB={37,75,123}]{structure}
-% \definecolor{structurecolor}{rgb}{0.905,0.318,0.071}
-
-% \setbeamercolor{frametitle}{fg=black,bg=}
-% \setbeamercolor{sidebar left}{fg=,bg=}
-
-% \setbeamertemplate{headline}{\vskip4em}
-% \setbeamersize{sidebar width left=.9cm}
-
-% \setbeamertemplate{navigation symbols}{}
-%\setbeamertemplate{blocks}[rounded][shadow=true]
-%\setbeamertemplate{itemize items}[square]
 
 \mode<presentation> 
 {
@@ -117,45 +80,13 @@
 }
 
 % Title definition
-\mode<presentation>
-{
-  \title{DUNE PDELab Tutorial 07 - Overview\\
-  {\small  Discontinuous Galerkin for Hyperbolic conservation laws }}
-  \author{Linus Seelinger}
-  \institute[]
+\title{DUNE PDELab Tutorial 07 - Overview}
+\subtitle{Discontinuous Galerkin for Hyperbolic conservation laws }
+\author{Linus Seelinger}
+\institute[]
   {
-   Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
-   Im Neuenheimer Feld 205, D-69120 Heidelberg \\[6pt]
-  }
-  \date[\today]{\today}
-}
-
-
-% logo nach oben
-\mode<presentation>
-{
-% No navigation symbols and no lower logo
-\setbeamertemplate{sidebar right}{}
-
-% logo
-\newsavebox{\logobox}
-\sbox{\logobox}{%
-    \hskip\paperwidth%
-    \rlap{%
-      % putting the logo should not change the vertical possition
-      \vbox to 0pt{%
-        \vskip-\paperheight%
-        \vskip0.35cm%
-        \llap{\insertlogo\hskip0.1cm}%
-        % avoid overfull \vbox messages
-        \vss%
-      }%
-    }%
-}
-
-\addtobeamertemplate{footline}{}{%
-    \usebox{\logobox}%
-}
+  IWR\\
+  Heidelberg University
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -168,7 +99,7 @@
 
 \begin{document}
 
-\frame{\titlepage}
+\frame[plain, noframenumbering]{\titlepage}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -182,10 +113,9 @@ Discontinuous Galerkin methods offer
 \end{itemize}
 \end{frame}
 
-\begin{frame}
-\begin{center}
-\Large\textbf{First-Order Hyperbolic PDEs}
-\end{center}
+\part{First-Order Hyperbolic PDEs}
+\begin{frame}[plainb,noframenumbering]
+  \partpage
 \end{frame}
 
 \begin{frame}
@@ -249,13 +179,7 @@ u(x,0) = u_0(x)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}
-\begin{center}
-\Large\textbf{Examples}
-\end{center}
-\end{frame}
-
-\begin{frame}
-\frametitle{Acoustic Wave Equation}
+\frametitle{Example: Acoustic Wave Equation}
 
 Linearized conservation laws:
 
@@ -272,7 +196,7 @@ Linearized conservation laws:
 \end{frame}
 
 \begin{frame}
-\frametitle{Acoustic Wave Equation}
+\frametitle{Example: Acoustic Wave Equation}
 As hyperbolic system:
 
 $$\partial_t u(x,t) + \nabla\cdot F(u(x,t),x,t) = 0,$$
@@ -298,7 +222,7 @@ c^2\rho & 0 & \dots & 0\\
 
 
 \begin{frame}
-\frametitle{Shallow Water Equations}
+\frametitle{Example: Shallow Water Equations}
 
 \begin{equation*}\label{eq:swe2D}
 \partial_t \begin{pmatrix}
@@ -323,10 +247,9 @@ u_1u_2h & u_2^2h + \frac{1}{2}gh^2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}
-\begin{center}
-\Large\textbf{Discontinuous Galerkin Methods}
-\end{center}
+\part{Discontinuous Galerkin Methods}
+\begin{frame}[plain,nopagenumbering]
+\partpage
 \end{frame}
 
 \begin{frame}
@@ -382,12 +305,6 @@ approximating $F \cdot n$ on interfaces, fulfilling
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}
-\begin{center}
-\Large\textbf{Implementation in DUNE}
-\end{center}
-\end{frame}
 
 \begin{frame}
 \frametitle{Implementation in DUNE}
