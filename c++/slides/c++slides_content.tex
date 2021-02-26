@@ -5,59 +5,46 @@
 \usepackage{amsmath,amssymb,amsfonts}
 
 
-% only presentation 
-\mode<presentation>
-{
-  \usetheme{default}
-  \setbeamercovered{transparent}
-  \usefonttheme{structurebold}
-  \setbeamertemplate{theorems}[numbered]
-  \usepackage{amscd}
-}
-
 \usepackage{multicol}
 \usepackage{enumerate}
 \usepackage{color}
 \usepackage{stmaryrd}
 \usepackage{lmodern}
 
-
-
 \title{DUNE PDELab Tutorial C++ Refresher}
 \author{Olaf Ippisch}
 \institute[]
 {
-  Institut für Mathematik, TU Clausthal\\
-  Erzstr. 1, D-38678 Clausthal-Zellerfeld \\[6pt]
+  Institut für Mathematik\\TU Clausthal
 }
 \date[\today]{\today}
 
-% logo nach oben
-\mode<presentation>
-{
-% No navigation symbols and no lower logo
-\setbeamertemplate{sidebar right}{}
+% % logo nach oben
+% \mode<presentation>
+% {
+% % No navigation symbols and no lower logo
+% \setbeamertemplate{sidebar right}{}
 
-% logo
-\newsavebox{\logobox}
-\sbox{\logobox}{%
-    \hskip\paperwidth%
-    \rlap{%
-      % putting the logo should not change the vertical possition
-      \vbox to 0pt{%
-        \vskip-\paperheight%
-        \vskip0.35cm%
-        \llap{\insertlogo\hskip0.1cm}%
-        % avoid overfull \vbox messages
-        \vss%
-      }%
-    }%
-}
+% % logo
+% \newsavebox{\logobox}
+% \sbox{\logobox}{%
+%     \hskip\paperwidth%
+%     \rlap{%
+%       % putting the logo should not change the vertical possition
+%       \vbox to 0pt{%
+%         \vskip-\paperheight%
+%         \vskip0.35cm%
+%         \llap{\insertlogo\hskip0.1cm}%
+%         % avoid overfull \vbox messages
+%         \vss%
+%       }%
+%     }%
+% }
 
-\addtobeamertemplate{footline}{}{%
-    \usebox{\logobox}%
-}
-}
+% \addtobeamertemplate{footline}{}{%
+%     \usebox{\logobox}%
+% }
+% }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -73,7 +60,7 @@
 \maketitle
 \end{onlyenv}
 
-\frame{\titlepage}
+\frame[plain,noframenumbering]{\titlepage}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

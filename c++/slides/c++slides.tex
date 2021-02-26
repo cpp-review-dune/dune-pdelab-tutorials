@@ -1,7 +1,11 @@
-\documentclass[ignorenonframetext,11pt]{beamer}
+\documentclass[aspectratio=169,ignorenonframetext,11pt]{beamer}
 
-\usepackage{graphicx}
-\graphicspath{{./figures/}}
+% only presentation
+\mode<presentation>
+{
+  \usepackage[course]{dunestyle-beamer}
+}
+\graphicspath{{./figures/}{../../latexstyle/layout/}}
 
 \usepackage{listings}
 \lstset{language=C++, basicstyle=\scriptsize\ttfamily,
@@ -11,7 +15,7 @@
   stringstyle=\color{orange},
   emph={bool,int,unsigned,char,true,false,void}, emphstyle=\color{blue},
   emph={[2]\#include,\#define,\#ifdef,\#endif}, emphstyle={[2]\color{violet}},
-  emph={[3]Dune,Grid,GridView,LeafGridView,LevelGridView,SomeGrid,TheGrid,LeafIterator,Iterator,LevelIterator,LeafIntersectionIterator,LevelIntersectionIterator,IntersectionIterator,LeafMultipleCodimMultipleGeomTypeMapper,Geometry,Entity,EntityPointer,Codim,FieldVector,FieldMatrix}, emphstyle={[3]\color{blue}},
+  emph={[3]Dune,Grid,GridView,LeafGridView,LevelGridView,SomeGrid,TheGrid,LeafIterator,Iterator,LevelIterator,LeafIntersectionIterator,LevelIntersectionIterator,IntersectionIterator,LeafMultipleCodimMultipleGeomTypeMapper,Geometry,Entity,EntityPointer,Codim,FieldVector,FieldMatrix}, emphstyle={[3]\color{dunedarkblue}},
   extendedchars=true, escapeinside={/*@}{@*/}, morekeywords={decltype},inputpath=src_samples}
 \def\inline{\lstinline[basicstyle=\small\ttfamily]}
 
