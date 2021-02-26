@@ -6,56 +6,27 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[11pt]{beamer}
+\documentclass[aspectratio=169,11pt]{beamer}
 %\usepackage[ngerman]{babel}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{lmodern}
-\usepackage{tcolorbox}
 \usepackage{amsmath,amssymb,amsfonts}
 
+\usepackage{layout}
 
 % only presentation
 \mode<presentation>
 {
-  \usetheme{default}
-%  \usecolortheme{crane}
-  \setbeamercovered{transparent}
-%  \setlength{\parindent}{0pt}
-%  \setlength{\parskip}{1.35ex plus 0.5ex minus 0.3ex}
-%  \usefonttheme{structuresmallcapsserif}
-  \usefonttheme{structurebold}
-  \setbeamertemplate{theorems}[numbered]
-  \setbeamertemplate{sidebar right}{}
-  \usepackage{amscd}
+  \usepackage[course]{dunestyle-beamer}
 }
 
 % all after
-\usepackage{tikz}
+\usepackage{amscd}
+
 \usepackage{pgfplots,adjustbox}
 \usepackage{eurosym}
 \usepackage{graphicx}
-\graphicspath{{.}{figures/}}
-\usepackage{multimedia}
-\usepackage{psfrag}
-\usepackage{listings}
-% \lstset{language=C++, basicstyle=\ttfamily,
-%   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-%   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
-\lstset{language=C++, basicstyle=\small\ttfamily,
-  keywordstyle=\bfseries, tabsize=4, stringstyle=\ttfamily,morekeywords={decltype},
-  extendedchars=true, escapeinside={/*@}{@*/}}
-\definecolor{darkgray}{gray}{0.4}
-\lstset{keywordstyle=\color{green!40!black},
-  commentstyle=\itshape\color{blue!30!black!40!white},
-  stringstyle=\color{blue!60!black!60!white},
-  emph={bool,int,unsigned,char,true,false,void}, emphstyle=\color{red!80!black},
-  emph={[2]\#include,\#define,\#ifdef,\#endif}, emphstyle={[2]\color{green!60!black}},
-  emph={[3]Dune,Grid,SomeGrid,TheGrid,LeafIterator,LevelIterator,LeafIntersectionIterator,LevelIntersectionIterator,Geometry,GeometryType,QuadraturePoint,QuadratureRule,PDELab,Entity,EntityPointer,Codim,FieldVector,FieldMatrix}, emphstyle={[3]\color{blue!60!black}}
-}
-\usepackage{curves}
-%\usepackage{epic}
-\usepackage{calc}
+\graphicspath{{.}{figures/}{../../latexstyle/layout/}}
 %\usepackage{picinpar}
 %\usepackage{fancybox}
 %\usepackage{xspace}
@@ -76,32 +47,13 @@
 
 \usepackage{svg}
 
-\definecolor{niceblue}{rgb}{0.122,0.396,0.651}   %% 31, 101, 166 or #1F65A6
-\definecolor{niceorange}{RGB}{255,205,86}        %% #FFCD56
-\definecolor{nicered}{RGB}{220,20,60}                      %% rgb(220, 20, 60)
-\definecolor{niceteal}{HTML}{00A9AB}
-\definecolor{niceviolet}{HTML}{820080}
-
-\def\clap#1{\hbox to 0pt{\hss#1\hss}}
-\definecolor{dunedarkblue}{rgb}{0.22, 0.29, 0.49}
-\definecolor{dunemediumblue}{rgb}{0.35, 0.45, 0.71}
-\definecolor{dunelightblue}{rgb}{0.61, 0.68, 0.85}
-\definecolor{duneorange}{rgb}{0.91, 0.56, 0.25}
-
-\definecolor{niceblueLight}{HTML}{91CAFB}
-\definecolor{niceblueVeryLight}{HTML}{DDEFFF}
-
 \usepackage{lmodern}
 \usepackage{inconsolata}
 \usepackage{nimbusmononarrow}
 %\renewcommand*\ttdefault{txtt}
 \usepackage{dsfont}
 
-\mode<presentation>
-{
 \theoremstyle{definition}
-\setbeamertemplate{footline}[frame number]
-}
 % \newtheorem{Def}{Definition}%[section]
 % \newtheorem{Exm}[Def]{Example}
 % \newtheorem{Lem}[Def]{Lemma}
@@ -115,32 +67,6 @@
 % \newtheorem{Alg}[Def]{Algorithm}
 % \newtheorem{Prp}[Def]{Proposition}
 % \newtheorem{Lst}[Def]{Listing}
-
-\newenvironment{codeblock}{%
-  \begin{tcolorbox}[size=small,oversize,boxrule=0pt,opacityframe=0,colback=blue!30!black!5!white]}{%
-  \end{tcolorbox}}
-\usepackage{verbatim}
-\makeatletter
-\newwrite\lstvrb@out
-\newenvironment{cppcode}{%
-  \begingroup
-  \@bsphack
-  \immediate\openout\lstvrb@out\jobname.lst
-  \let\do\@makeother\dospecials\catcode`\^^M\active
-  \def\verbatim@processline{%
-    \immediate\write\lstvrb@out{\the\verbatim@line}}%
-  \verbatim@start}{%
-  \immediate\closeout\lstvrb@out
-  \@esphack
-  \endgroup
-  \begin{codeblock}
-    \vspace*{-1ex}
-    \lstinputlisting[basicstyle=\scriptsize\ttfamily]{\jobname.lst}
-    \vspace*{-1ex}
-  \end{codeblock}}
-\makeatother
-\newcommand{\rightarrownice}{\tikz{%
-    \draw[-latex,line width=2pt, color=structure.fg]   (0pt,0pt) -- +(2em,0) node[thin,right] {};}}
 
 % math symbols
 \newcommand{\C}{\mathbb{C}}
@@ -169,12 +95,12 @@
 }
 
 % Title definition
-\title{The DUNE Grid Interface\\An Introduction}
+\title{The DUNE Grid Interface}
+\subtitle{An Introduction}
 \author{Christian Engwer}
 \institute[]
 {
-  Applied Mathematics, WWU Münster\\
-  Orleans-Ring 10, 48149 Münster
+  Applied Mathematics\\WWU Münster\\
 }
 \date{~}%March 7, 2017}
 
@@ -188,17 +114,37 @@
 
 \begin{document}
 
-\begin{frame}
-    \titlepage
-\end{frame}
+			% \color{\title@fnt@color}%
+			% % title
+			% \LARGE%
+			% \bfseries%
+			% \inserttitle%
+			% \par%
+			% \vskip2mm%
+			% % subtitle
+			% \footnotesize%
+			% \normalfont%
+			% \insertsubtitle%
+			% \smallskip%
+			% % author
+			% \par%
+			% \insertauthor%
+			% \par%
+			% % date
+			% \medskip%
+			% \scriptsize%
+			% \color{\title@date@color}%
+			% \insertdate%
+			% \par%
 
-\part{Dune Course: Design Principles}
+\frame[plain, noframenumbering]{\titlepage}
+
+\part{Design Principles}
 
 \begin{onlyenv}<presentation>
-\begin{frame}
+\begin{frame}[plain, noframenumbering]
    \partpage
    \pause
-  \vfill
   \begin{quote}
     {\normalfont{}[...]} a modular toolbox for solving partial
     differential equations (PDEs) with grid-based
@@ -214,6 +160,7 @@
 \begin{onlyenv}<presentation>
   \begin{frame} \frametitle{Design Principles}
 
+    \framesubtitle{foobar}
     \begin{description}[Legacy Code:]
     \item[Flexibility:]
       {Seperation of data structures and algorithms.}\\[2ex]
@@ -225,6 +172,32 @@
 
   \end{frame}
 \end{onlyenv}
+
+% \begin{frame}
+%   \frametitle{Layout}
+% \vspace*{-3cm}\layout
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Test 1}
+%   \raisebox{-.5\height}{\rule{1mm}{0.2\textheight}}
+%   \raisebox{-.5\height}{\rule{1mm}{0.4\textheight}}
+%   \raisebox{-.5\height}{\rule{1mm}{0.6\textheight}}
+%   \raisebox{-.5\height}{\rule{1mm}{0.8\textheight}}
+%   \raisebox{-.5\height}{\rule{1mm}{\textheight}}
+% \end{frame}
+
+% \begin{frame}[t]
+%   \frametitle{Test 2}
+%   \raisebox{-\height}{\rule{1mm}{0.8\textheight}}
+%   %\raisebox{-\height}{\rule{1mm}{\textheight}}
+% \end{frame}
+
+% \begin{frame}[b]
+%   \frametitle{Test 3}
+%   \raisebox{-\height}{\rule{1mm}{0.8\textheight}}
+%   \raisebox{-\height}{\rule{1mm}{\textheight}}
+% \end{frame}
 
 \begin{frame} \frametitle{Flexibility}
 
@@ -251,7 +224,7 @@
 
   \only<article>{Generic programming techniques:}
 
-  \begin{minipage}{0.35\textwidth}
+  \begin{minipage}{0.32\textwidth}
     \begin{center}
       \includegraphics[width={\textwidth}]{generic}
     \end{center}
@@ -339,10 +312,10 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Some historic remarks}
+  \frametitle{A brief history\ldots}
   \centering
 %  \includesvg[width=0.9\linewidth]{dunetimeline}
-  \includegraphics[width=1.0\linewidth]{dunetimeline}
+  \includegraphics[width=0.9\linewidth]{dunetimeline}
 \end{frame}
 
 \begin{frame} \frametitle{DUNE Release 2.6.0}
@@ -553,11 +526,11 @@
 %   \end{description}
 % \end{frame}
 
-\part{Dune Course: Grid Module}
+\part{Grid Module}
 
 \begin{frame}
   \partpage
-  \vfill
+  \pause
   \begin{quote}
   People think that computer science is the art of geniuses but the
   actual reality is the opposite, just many people doing things that
@@ -670,7 +643,8 @@ Grids are necessary for at least three reasons:
 
 \begin{frame}
   \frametitle<presentation>{Designed to support a wide range of Grids}
-  \includegraphics[width=\linewidth]{grids}
+  \centering
+  \includegraphics[width=0.8\linewidth]{grids}
 \end{frame}
 
 \begin{frame}
@@ -1915,7 +1889,11 @@ Go to code example 4 \ldots
 \begin{frame} \frametitle<presentation>{Further Reading}
     \only<presentation>{\framesubtitle{Literature}}
 
+    TODO: new DUNE Paper
+    
     Cite when using the DUNE grid interface\ldots
+    \begingroup
+    \renewcommand{\section}[2]{}%
     \begin{thebibliography}{}
 
 \bibitem[Bastian et al. (2008)]{dune01}
@@ -1935,6 +1913,7 @@ Scientific Computing.
 \newblock \emph{Computing,} 82(2--3), 2008, pp.~121--138.
 
 \end{thebibliography}
+    \endgroup
 \end{frame}
 
 \end{document}
