@@ -110,8 +110,8 @@ This tutorial extends on tutorial 00 by
 \begin{enumerate}[1)]
 \item Solving a \textbf{nonlinear} stationary PDE
 \item Using conforming finite element spaces of \textbf{arbitrary order}
-\item Using \textbf{different types of (conforming) meshes} (simplicial, cubed and mixed)
-\item Using \textbf{multiple types of boundary conditions}
+\item Using \textbf{different types of (conforming) meshes} (simplicial and cubed)
+\item Using \textbf{different types of boundary conditions}
 \end{enumerate}
 \end{frame}
 
@@ -126,15 +126,17 @@ u &= g &&\text{on $\Gamma_D\subseteq\partial\Omega$},\\
 \end{align}
 \end{subequations}
 \begin{itemize}
-\item $q:\mathbb{R}\to\mathbb{R}$ is possibly
-nonlinear function
+\item $q:\mathbb{R}\to\mathbb{R}$ a nonlinear function
 \item $f: \Omega\to\mathbb{R}$ the source term
-\item $\nu$ unit outer normal to the domain
+\item $g: \Omega\to\mathbb{R}$ a function for Dirichlet boundary conditions on $\Gamma_D$
+\item $j : \Gamma_N\to\mathbb{R}$ a function for Neumann (flux) boundary conditions
+\item $\nu$: unit outer normal to the domain
 \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{Weak Formulation}
+now reads as follows:
 \begin{equation}
 \text{Find $u\in U$ s.t.:} \quad r^{\text{NLP}}(u,v)=0 \quad \forall v\in V,
 \label{Eq:BasicBuildingBlock}
@@ -149,48 +151,50 @@ and the function spaces
 \item $U= \{v\in H^1(\Omega) \,:\, \text{``$v=g$'' on $\Gamma_D$}\}$ (affine space)
 \item $V= \{v\in H^1(\Omega) \,:\, \text{``$v=0$'' on $\Gamma_D$}\}$
 \end{itemize}
-We assume that a unique solution exists
+\medskip
+We \textbf{assume} that this problem has a unique solution
 \end{frame}
 
 \begin{frame}
 \frametitle{Algebraic Problem}
-\rightarrownice Solve weak formulation in finite-dimensional spaces
+\rightarrownice Solve weak formulation in finite-dimensional setting
 \begin{equation*}
-U_h=\text{span}\{\phi_1,\ldots,\phi_n\}, \quad V_h=\text{span}\{\psi_1,\ldots,\psi_m\}
+U_h=\text{span}\{\phi_1,\ldots,\phi_n\} + u_{h,g}, \quad V_h=\text{span}\{\psi_1,\ldots,\psi_n\}
 \end{equation*}
 
-Expanding the solution $u_h=\sum_{j=1}^n (z)_j\phi_j$
+Expanding $u_h=u_{h,g} + \sum_{j=1}^n (z)_j\phi_j$
 results in an algebraic equation for $z\in\mathbb{R}^n$:
 \begin{align*}
 \text{Find $u_h\in U_h$ s.t.:} && r(u_h,v)&=0 && \forall v\in V_h\\
-\Leftrightarrow{} && r\left(\sum_{j=1}^n (z)_j\phi_j,\psi_i\right) &= 0 &&\forall i=1,\ldots,m\\
+\Leftrightarrow{} && r\left(u_{h,g} +\sum_{j=1}^n (z)_j\phi_j,\psi_i\right) &= 0 &&\forall i=1,\ldots,n\\
 \Leftrightarrow{} && R(z) = 0,
 \end{align*}
-where $R: \mathbb{R}^n \to \mathbb{R}^m$ given by
-$R_i(z) = r_h\left(\sum_{j=1}^n (z)_j\phi_j,\psi_i\right)$ is a nonlinear, vector-valued function.
+with $R: \mathbb{R}^n \to \mathbb{R}^n$ and $R_i(z) = r_h\left(u_{h,g} +\sum_{j=1}^n (z)_j\phi_j,\psi_i\right)$ \\
+\medskip
+\textbf{Note:} We remark on the realization of Dirichlet conditions below
 \end{frame}
 
 \begin{frame}
 \frametitle{Solution of Algebraic Problem}
-Use {\em iterative} methods to solve $R(z)=0$, fixed point iteration:
+Use {\em iterative} methods to solve $R(z)=0$. Fixed point iteration reads:
 \begin{equation}
 z^{(k+1)} = G(z^{(k)}) = z^{(k)} - \lambda^{k} W(z^{(k)}) R(z^{(k)}) .
 \end{equation}
 \vspace{-5mm}
 \begin{itemize}
-\item $\lambda^{k}$ is a damping factor
-\item $W(z^{(k)})$ is a preconditioner matrix, e.g. in Newton's method one has
+\item $\lambda^{k}\in\mathbb{R}$ is a damping factor
+\item $W(z^{(k)})$ is a preconditioner matrix, e.g. in Newton's method one uses
 \begin{equation*}
 W(z^{(k)}) = (J(z^{(k)}))^{-1} \quad \text{where $(J(z^{(k)}))_{i,j} = \frac{\partial R_i}{\partial z_j}
 (z^{(k)})$}
 \end{equation*}
-i.e. need to solve $J\left(z^{(k)}\right) w = R(z^{(k)})$
+i.e. one needs to solve $J\left(z^{(k)}\right) w = R(z^{(k)})$ per iteration
 \end{itemize}
 The following algorithmic building blocks are required:
 \begin{enumerate}[i)]
 \item residual evaluation $R(z)$,
 \item Jacobian evaluation $J(z)$ (or an approximation of it),
-\item matrix-free Jacobian application $J(z) w$ (or an approximation).
+\item alternatively: matrix-free Jacobian application $J(z) w$ (or an approximation).
 \end{enumerate}
 \end{frame}
 
@@ -199,20 +203,20 @@ The following algorithmic building blocks are required:
 \textbf{Nonlinear case:}
 \begin{equation*}
 (J(z) w)_i = \sum_{j=1}^n (J(z))_{i,j} (w)_j = \sum_{j=1}^n
-\frac{\partial}{\partial z_j} r_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j .
+\frac{\partial}{\partial z_j} r_h\left(u_{h,g}+\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j .
 \end{equation*}
 \textbf{Linear case:} $r_h(u,v)=a(u,v)-l(v)$, $a$ BLF, $l$ LF
 \begin{equation*}
 \begin{split}
 (J(z) w)_i &= \sum_{j=1}^n
-\frac{\partial}{\partial z_j} r_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j \\
+\frac{\partial}{\partial z_j} r_h\left(u_{h,g}+\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j \\
 &= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left(
-a_h\left(\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) - l_h(\psi_i)\right) (w)_j \\
+a_h\left(u_{h,g}+\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) - l_h(\psi_i)\right) (w)_j \\
 &= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left(
-\sum_{l=1}^n (z)_l a_h(\phi_l,\psi_i) \right)  (w)_j \\
-&= \sum_{j=1}^n a_h(\phi_j,\psi_i) (w)_j =
-a_h\left( \sum_{j=1}^n (w)_j \phi_j,\psi_i\right) =
-(A w)_i
+\sum_{l=1}^n (z)_l a_h(\phi_l,\psi_i) \right)  (w)_j 
+= \sum_{j=1}^n a_h(\phi_j,\psi_i) (w)_j =
+a_h\left( \sum_{j=1}^n (w)_j \phi_j,\psi_i\right) \\
+&= (A w)_i
 \end{split}
 \end{equation*}
 \end{frame}
@@ -244,7 +248,7 @@ with \textbf{polynomial degree} $k$ in \textbf{dimension} $d$ on \textbf{mesh} $
 V_h^{k,d}(\mathcal{T}_h) = \left\{ v\in C^0(\overline{\Omega}) \,:\,
 \forall T\in\mathcal{T}_h : v|_T = \mu_T \circ p_T \wedge p_T\in\mathbb{P}_T^{k,d}\right\}
 \end{equation*}
-where the multivariate polynomials $\mathbb{P}$ depend on element type:
+where the multivariate polynomials $\mathbb{P}_T^{k,d}$ depend on element type:
 {\small\begin{equation*}
 \mathbb{P}_T^{k,d} = \left\{\begin{array}{ll}
 \left\{ p\,:\, p(x_1,\ldots,x_d) = \sum\limits_{0\leq\|\alpha\|_1\leq k} c_\alpha
@@ -295,15 +299,16 @@ n_{\hat S}^{k,d} = \left\{ \begin{array}{ll}
 \fill(1,1) circle (2pt);
 \fill(0,1.5) circle (2pt);
 \fill(0.5,1.5) circle (2pt);
+\node at (6,1) {polynomial degree $4$, $n_{\hat T}^{4,2}=15$};
 \end{tikzpicture}
 \end{center}
-Lagrange points and poynomials (shape functions) on $\hat T$:
+Lagrange points and polynomials (shape functions) on $\hat T$:
 $$L_{\hat T} = \left\{ \hat x^{\hat T}_0,\ldots,\hat x^{\hat T}_{n_{\hat T}^{k,d}-1} \right\}, \quad
 P_{\hat T} = \left\{ p^{\hat T}_0,\ldots,p^{\hat T}_{n_{\hat T}^{k,d}-1}\right\}$$
 such that $$p^{\hat T}_i(\hat x^{\hat T}_j) = \delta_{i,j}$$
 Extend local to global map:
 \begin{equation*}
-g_T : \{0,\ldots,n_{\hat T}^{k,d}-1\} \to \mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right) =
+g_T : \{0,\ldots,n_{\hat T}^{k,d}-1\} \to \mathcal{I}_h^{k,d} =
 \left\{0,\ldots,\text{dim} V_h^{k,d}(\mathcal{T}_h)-1\right\}
 \end{equation*}
 \end{frame}
@@ -363,30 +368,30 @@ g_T : \{0,\ldots,n_{\hat T}^{k,d}-1\} \to \mathcal{I}\left(V_h^{k,d}(\mathcal{T}
 \node[right] at (3.5,0.75) {$C(i)=\{(T_1,m), (T_2,n)\}$};
 \end{tikzpicture}
 \end{center}
-Define inversion of the global map:
+Define inversion of the local-to-global map:
 \begin{equation*}
 C(i) = \{(T,m)\in\mathcal{T}_h\times\mathbb{N} \,:\, g_T(m)=i\}
 \end{equation*}
 then the global Lagrange basis functions are
 \begin{equation*}
 \phi_i(x) = \left\{\begin{array}{ll}
-p^{\hat T}_m(\mu_T^{-1}(x)) & x\in T \wedge (T,m)\in C(i) \\
+p^{\hat T}_m(\mu_T^{-1}(x)) & x\in T \wedge g_T(m)=i \\
 0 & \text{else}
-\end{array}\right. , \quad i\in\mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right) .
+\end{array}\right. , \quad i\in\mathcal{I}_h^{k,d}.
 \end{equation*}
 corresponding to the global Lagrange points
 \begin{equation*}
 \mathcal{X}_h^{k,d} = \left\{ x_i\in\overline{\Omega} \,:\,
-x_i=\mu_T(\hat x^{\hat T}_{m})  \wedge (T,m)\in C(i) \right\}
+x_i=\mu_T(\hat x^{\hat T}_{m})  \wedge g_T(m)=i \right\}
 \end{equation*}
 \end{frame}
 
 \begin{frame}
-\frametitle{Dirichlet Boundary Conditions}
+\frametitle{Dirichlet Boundary Conditions I}
 Indices of Lagrange points on the Dirichlet boundary are:
 \begin{equation*}
-\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right) =
-\left\{ i\in\mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right)  \,:\,
+\mathcal{I}_h^{D,k,d} =
+\left\{ i\in\mathcal{I}_h^{k,d}  \,:\,
 x_i\in\mathcal{X}_h^{k,d} \cap\Gamma_D
 \right\} .
 \end{equation*}
@@ -394,43 +399,69 @@ Then the test space with zero Dirichlet condition is:
 \begin{equation*}
 V_{h,0}^{k,d}(\mathcal{T}_{h}) = \left\{
 v\in V_{h}^{k,d}(\mathcal{T}_{h}) \,:\, v(x_i) = 0
-\quad \forall i\in\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right)
+\quad \forall i\in\mathcal{I}_h^{D,k,d}
  \right\}
 \end{equation*}
 For the trial space choose any extension
 \begin{equation*}
-u_{h,g} = \sum_{i\in \mathcal{I}\left(V_h^{k,d}(\mathcal{T}_h)\right)}
-u_g(x_i) \phi_i \qquad \text{$u_g(x_i)=g(x_i) \ \forall i\in
-\mathcal{I}^D\left(V_h^{k,d}(\mathcal{T}_h)\right)$}
+u_{h,g} = \sum_{i\in \mathcal{I}_h^{k,d}}
+g(x_i) \phi_i, \qquad \text{so $u_{h,g}(x_i)=g(x_i) \ \forall i\in\mathcal{I}_h^{D,k,d}$}
 \end{equation*}
-Then
+Then the trial space is
 \begin{equation*}
 U_{h}^{k,d}(\mathcal{T}_{h}) = \left\{ u\in V_h^{k,d}(\mathcal{T}_h)
-\,:\, u = u_{h,g} + w \wedge w\in V_{h,0}^{k,d}(\mathcal{T}_{h})\right\}
+\,:\, u = u_{h,g} + w \wedge w\in V_{h,0}^{k,d}(\mathcal{T}_{h})\right\} = u_{h,g} + V_{h,0}^{k,d}(\mathcal{T}_{h})
 \end{equation*}
+\end{frame}
+
+\begin{frame}
+\frametitle{Dirichlet Boundary Conditions II}
+There are different options to realize Dirichlet conditions in practice:
+\begin{enumerate}
+\item Elimination of all Dirichlet conditions from the algebraic systems, i.e.
+\begin{equation*}
+R: \mathbb{R}^{n_0} \to \mathbb{R}^{n_0}, \qquad 
+n_0 = \dim\left( V_{h,0}^{k,d}(\mathcal{T}_{h}) \right), \qquad
+R_i(z) = r_h\left(u_{h,g} +\sum_{j=1}^n (z)_j\phi_j,\psi_i\right)
+\end{equation*}
+\item Keep degrees of freedom at Dirichlet boundary in the algebraic system, i.e.
+\begin{equation*}
+R: \mathbb{R}^n \to \mathbb{R}^n, \qquad n = \dim\left( V_{h}^{k,d}(\mathcal{T}_{h}) \right)
+\end{equation*}
+with \textit{additional} equations
+\begin{equation*}
+z_i = g(x_i), \qquad \forall i\in\mathcal{I}_h^{D,k,d}
+\end{equation*}
+\textbf{This approach is used in PDELab}
+\item Nitsche's method: Essential boundary conditions are \textit{not} built into the function space, instead certain terms are added to
+the weak formulation
+\end{enumerate}
 \end{frame}
 
 \begin{frame}
 \frametitle{General Constraints}
-\textbf{Task:} Given $U_h = \text{span}\left\{\phi_j \,:\, j\in J_h=\{1,\ldots,n\}\right\}$
-construct $\tilde{U}_h\subseteq U_h$\\
+Dirichlet boundary conditions are a special case of the following\\
+\bigskip
+\textbf{Task:} Given $V_h = \text{span}\left\{\phi_j \,:\, j\in J_h=\{1,\ldots,n\}\right\}$
+construct a subspace $\tilde{V}_h\subseteq V_h$\\
 \bigskip
 This is how it is done in PDELab:
 \begin{enumerate}[1)]
-\item Assume $U_h=\text{span}\{\phi_i \,:\, i\in J_h\}$
-\item Select a subset of indices $\tilde{J}_h\subset J_h$
-\item Set $\tilde{U}_h = \text{span}\left\{\tilde\phi_j \,:\, j\in \tilde{J}_h\right\}$,
+\item Assume $V_h=\text{span}\{\phi_i \,:\, i\in J_h\}$
+\item Select a subset of indices $\tilde{J}_h\subset J_h$, $\dim(\tilde{J}_h)$ is the dimension of the subspace $\tilde V_h$
+\item Set $\tilde{V}_h = \text{span}\left\{\tilde\phi_j \,:\, j\in \tilde{J}_h\right\}$,
 where the new basis functions have the form
 \begin{equation*}
-\tilde\phi_j = \phi_j + \sum_{l\in J_h\setminus\tilde{J}_h} (B)_{j,l} \phi_l \quad \forall j\in \tilde{J}_h.
+\tilde\phi_j = \phi_j + \sum_{l\in J_h\setminus\tilde{J}_h} (B)_{j,l} \phi_l, \qquad \forall j\in \tilde{J}_h.
 \end{equation*}
 \end{enumerate}
-Any subspace is thus characterized by $C=(\tilde{J}_h,B)$
+Any such subspace is thus characterized by $C=(\tilde{J}_h,B)$\\
+PDELab implements general constraints in this way, e.g. for so-called hanging nodes
 \end{frame}
 
 \begin{frame}
 \frametitle{Element-wise Computations}
-Come back to the residual form which is element-wise
+Now return to the evaluation of the residual form, which is element-wise
 \begin{equation*}
 r^{\text{NLP}}\left(u,v\right) =
 \sum_{T\in\mathcal{T}_h} \alpha_T^V(u,v)
@@ -439,14 +470,14 @@ r^{\text{NLP}}\left(u,v\right) =
 \end{equation*}
 with
 \begin{align*}
-\alpha_T^V(u,v) &= \int_T \nabla u \cdot \nabla v + q(u) v \,dx \\
-\lambda_T^V(v) &= - \int_T f v \,dx \\
+\alpha_T^V(u,v) &= \int_T \nabla u \cdot \nabla v + q(u) v \,dx, &
+\lambda_T^V(v) &= - \int_T f v \,dx, & 
 \lambda_F^B(v) &= \int_{F\cap\Gamma_N} j v\,ds
 \end{align*}
 $\mathcal{F}_h^{\partial\Omega}$: intersections of
 elements with the domain boundary, i.e.
 $$F=T_F^-\cap\partial\Omega$$
-with $T_F^-\in\mathcal{T}_h$ the ``minus'' element associated with $F$
+with $T_F^-\in\mathcal{T}_h$ the ``minus'' element associated with $F$ (see tutorial 2)
 \end{frame}
 
 \begin{frame}
@@ -484,7 +515,7 @@ The integration is more involved here because it is over a face:
 \begin{itemize}
 \item $\mu_F: \hat F \to F$ maps the reference element of the face to the face
 \item $\eta_F: \hat F \to \hat T_F^-$ maps reference
-element of the face to reference element of $T_F^-$
+element of the face to the reference element of $T_F^-$
 \end{itemize}
 Collect all contributions of $F$ in a small vector:
 \begin{equation*}
@@ -509,12 +540,7 @@ For any $(T,m)\in C(i)$ we get
 |\text{det} J_{\mu_T}(\hat x)| \,dx
 \end{split}
 \end{equation*}
-and again collect all contributions from $T$ in a small vector:
-\begin{equation*}
-\begin{split}
-(\mathcal{R}_T^V(R_T z))_m &= \alpha_T^V\left(\sum_n (R_T z)_n p_n^{\hat T},p_m^{\hat T}\right)
-\end{split}
-\end{equation*}
+and again collect all contributions from $T$ in a small vector $\mathcal{R}_T^V(R_T z)$
 \end{frame}
 
 \begin{frame}
