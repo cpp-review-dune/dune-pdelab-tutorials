@@ -1,45 +1,31 @@
-\documentclass[ignorenonframetext,11pt]{beamer}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% A general frame for lecture slides and lecture notes in one file
+% using LaTeX beamer
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[aspectratio=169,11pt]{beamer}
 %\usepackage[ngerman]{babel}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{lmodern}
-\usepackage{tcolorbox}
 \usepackage{amsmath,amssymb,amsfonts}
 
-\usetheme{default}
-%  \usecolortheme{crane}
-\setbeamercovered{transparent}
-%  \setlength{\parindent}{0pt}
-%  \setlength{\parskip}{1.35ex plus 0.5ex minus 0.3ex}
-%  \usefonttheme{structuresmallcapsserif}
-\usefonttheme{structurebold}
-\setbeamertemplate{theorems}[numbered]
-\setbeamertemplate{sidebar right}{}
+
+% only presentation
+\mode<presentation>
+{
+  \usepackage[course]{dunestyle-beamer}
+}
+
+% all after
 \usepackage{amscd}
 
-\usepackage{tikz}
 \usepackage{pgfplots,adjustbox}
 \usepackage{eurosym}
 \usepackage{graphicx}
-\graphicspath{{.}{figures/}}
-\usepackage{multimedia}
-\usepackage{psfrag}
-\usepackage{listings}
-
-\lstset{language=C++, basicstyle=\small\ttfamily,
-  keywordstyle=\bfseries, tabsize=4, stringstyle=\ttfamily,morekeywords={decltype},
-  extendedchars=true, escapeinside={/*@}{@*/}}
-\definecolor{darkgray}{gray}{0.4}
-\lstset{keywordstyle=\color{green!40!black},
-  commentstyle=\itshape\color{blue!30!black!40!white},
-  stringstyle=\color{blue!60!black!60!white},
-  emph={bool,int,unsigned,char,true,false,void}, emphstyle=\color{red!80!black},
-  emph={[2]\#include,\#define,\#ifdef,\#endif}, emphstyle={[2]\color{green!60!black}},
-  emph={[3]Dune,Grid,SomeGrid,TheGrid,LeafIterator,LevelIterator,LeafIntersectionIterator,LevelIntersectionIterator,Geometry,GeometryType,QuadraturePoint,QuadratureRule,PDELab,Entity,EntityPointer,Codim,FieldVector,FieldMatrix}, emphstyle={[3]\color{blue!60!black}}
-}
-\usepackage{curves}
-%\usepackage{epic}
-\usepackage{calc}
+\graphicspath{{.}{figures/}{../../latexstyle/layout/}}
 %\usepackage{picinpar}
 %\usepackage{fancybox}
 %\usepackage{xspace}
@@ -58,21 +44,6 @@
 \usepackage[binary-units]{siunitx}
 \usepackage{xcolor,tabu}
 
-\definecolor{niceblue}{rgb}{0.122,0.396,0.651}   %% 31, 101, 166 or #1F65A6
-\definecolor{niceorange}{RGB}{255,205,86}        %% #FFCD56
-\definecolor{nicered}{RGB}{220,20,60}                      %% rgb(220, 20, 60)
-\definecolor{niceteal}{HTML}{00A9AB}
-\definecolor{niceviolet}{HTML}{820080}
-
-\def\clap#1{\hbox to 0pt{\hss#1\hss}}
-\definecolor{dunedarkblue}{rgb}{0.22, 0.29, 0.49}
-\definecolor{dunemediumblue}{rgb}{0.35, 0.45, 0.71}
-\definecolor{dunelightblue}{rgb}{0.61, 0.68, 0.85}
-\definecolor{duneorange}{rgb}{0.91, 0.56, 0.25}
-
-\definecolor{niceblueLight}{HTML}{91CAFB}
-\definecolor{niceblueVeryLight}{HTML}{DDEFFF}
-
 \usepackage{lmodern}
 \usepackage{inconsolata}
 \usepackage{nimbusmononarrow}
@@ -80,6 +51,17 @@
 \usepackage{dsfont}
 
 \theoremstyle{definition}
+
+% Delete this, if you do not want the table of contents to pop up at
+% the beginning of each subsection:
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{Contents}
+    \tableofcontents[sectionstyle=show/shaded,subsectionstyle=hide/hide/hide]
+%\tableofcontents[currentsection]
+  \end{frame}
+}
 
 \title{Simulation Workflow - Build system, meshes and visualization}
 \author{Dominic Kempf}
@@ -101,7 +83,6 @@
   \item have seen several concepts to construct grids
   \item be able to visualize PDE solutions in ParaView
  \end{itemize}
-
 \end{frame}
 
 
@@ -228,13 +209,13 @@ upperright = 1. 1.
   \item Grouping of keys into sections to arbitrary depth
  \end{itemize}
 
- \begin{lstlisting}
+ \begin{cppcode}
   #include<dune/common/parametertree.hh>
   #include<dune/common/parametertreeparser.hh>
 
   Dune::ParameterTree tree;
   Dune::ParameterTreeParser::readINITree(filename, tree);
- \end{lstlisting}
+ \end{cppcode}
 
 \end{frame}
 
@@ -259,7 +240,9 @@ upperright = 1. 1.
 \end{frame}
 
 \begin{frame}
- \includegraphics[width=\textwidth]{figures/io/grids.pdf}
+ \frametitle{Selecting a grid manager}
+ \centering
+ \includegraphics[width=0.8\textwidth]{figures/io/grids.pdf}
 \end{frame}
 
 
@@ -297,22 +280,27 @@ the cubes.
 \end{itemize}
 These return a \lstinline!unique_ptr! to a grid object.
 
-\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+\begin{cppcode}
 Dune::FieldVector<GridType::ctype, dim> lowerleft(0.0);
 Dune::FieldVector<GridType::ctype, dim> upperright(1.0);
 auto N = Dune::filledArray<dim, unsigned int>(4);
 
 auto grid = Dune::StructuredGridFactory<GridType>::
               createCubeGrid(lowerleft, upperright, N);
-\end{lstlisting}
+\end{cppcode}
 
 \end{frame}
 
 \begin{frame}
  \frametitle{Structured grids}
-
- \includegraphics[width=0.5\textwidth]{figures/io/structure1.png}
- \includegraphics[width=0.5\textwidth]{figures/io/structure2.png}
+ \centering
+ \includegraphics[trim=85 85 85 85,clip=true,
+ width=0.4\textwidth,
+ height=0.4\textwidth]{figures/io/structure1}
+ \hspace*{0.07\linewidth}
+ \includegraphics[trim=85 85 85 85,clip=true,
+ width=0.4\textwidth,
+ height=0.4\textwidth]{figures/io/structure2}
 \end{frame}
 
 \only<article>{\enlargethispage{4ex}}
@@ -337,15 +325,15 @@ boundary segments by the reader.
 
 \begin{frame}[fragile]
 \frametitle{An easy GmshReader Example}
-\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+\begin{cppcode}
 #include<dune/grid/uggrid.hh>
 #include<dune/grid/io/file/gmshreader.hh>
 
 typedef Dune::UGGrid<2> GridType;
 auto grid = Dune::GmshReader<GridType>::read(mshfile);
-\end{lstlisting}
+\end{cppcode}
 \begin{center}
-  \includegraphics[width=.8\textwidth]{figures/io/easygmsh.png}
+  \includegraphics[width=.6\textwidth]{figures/io/easygmsh.png}
 \end{center}
 \end{frame}
 
@@ -356,7 +344,7 @@ GMSH allows you to define physical entities for cells and boundary segments.
 The \lstinline!GmshReader! can read those when parsing the msh file and store
 them in a \lstinline!std::vector<int>!. The user takes responsibility of those
 data structures.
-\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+\begin{cppcode}
 #include<dune/grid/uggrid.hh>
 #include<dune/grid/io/file/gmshreader.hh>
 
@@ -368,7 +356,7 @@ std::vector<int> elementPhysicalEntities;
 auto grid = Dune::GmshReader<GridType>::
     read(mshfile, boundaryPhysicalEntities, elementPhysicalEntities);
 );
-\end{lstlisting}
+\end{cppcode}
 \end{frame}
 
 \subsection{Tensor Product Grid}
@@ -471,12 +459,22 @@ auto grid = Dune::GmshReader<GridType>::
 
 \begin{frame}[fragile]
 \frametitle{VTK-Export - Elementdata}
-\lstinputlisting[basicstyle=\scriptsize\ttfamily]{src_samples/io/vtkexport-elements.cc}
+  \vspace*{-1ex}
+\begin{codeblock}
+  \vspace*{-1ex}
+  \lstinputlisting[basicstyle=\scriptsize\ttfamily]{src_samples/io/vtkexport-elements.cc}
+  \vspace*{-1ex}
+\end{codeblock}
 \end{frame}
 
-\begin{frame}[allowframebreaks]
+\begin{frame}
 \frametitle{VTK-Export - Vertexdata}
-  \lstinputlisting[basicstyle=\scriptsize\ttfamily]{src_samples/io/vtkexport-vertices.cc}
+  \vspace*{-1ex}
+  \begin{codeblock}
+    \vspace*{-1ex}
+    \lstinputlisting[basicstyle=\scriptsize\ttfamily]{src_samples/io/vtkexport-vertices.cc}
+    \vspace*{-1ex}
+  \end{codeblock}
 \end{frame}
 
 
@@ -555,10 +553,10 @@ triangles or tetrahedra), a subsampling VTKWriter is needed.
 
 Necessary Changes:
 
-\begin{lstlisting}[numbers=none,basicstyle=\scriptsize\ttfamily]
+\begin{cppcode}
 #include<dune/grid/io/file/vtk/subsamplingvtkwriter.hh>
 Dune::SubsamplingVTKWriter<GridView> vtkwriter(gv, Dune::RefinementIntervals(2));
-\end{lstlisting}
+\end{cppcode}
 
 This creates a subsampling VTKWriter and tells it to generate 2-times
 subrefined output. %
@@ -580,6 +578,6 @@ This happens ``virtually'', i.e.\ without modifying the grid.
 
 %%% Local Variables:
 %%% mode: latex
-%%% TeX-master: "lectures-beamer"
+%%% TeX-master: t
 %%% TeX-PDF-mode: t
 %%% End:
