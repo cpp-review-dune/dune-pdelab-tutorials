@@ -163,7 +163,7 @@
     r_h^{Poisson}(u_h, v_h) = \int_\Omega \nabla u_h \cdot \nabla v_h \, dx
     - \int_\Omega f \, v_h \, dx = 0 \qquad \forall v_h \in V_h
   \end{equation*}
-  \lstinputlisting[basicstyle=\scriptsize, backgroundcolor=\color{listingbg}]{../src/poisson.ufl}
+  \lstinputlisting[language={}, basicstyle=\scriptsize, backgroundcolor=\color{listingbg}, keywords={}]{../src/poisson.ufl}
 \end{frame}
 
 \begin{frame}
@@ -205,16 +205,12 @@
   \item Research goals of \lstinline{dune-codegen}:
     \begin{itemize}
     \item Generate high performance code
-    \item Do performance optimizations on intermediate representation (in our
-      case Loopy\footnote{https://mathema.tician.de/software/loopy/}),
-      e.g. SIMD vectorization
+    \item Performance optimizations on intermediate representation
     \end{itemize}
   \item Difference to other code generation approaches:
     \begin{itemize}
-    \item Do not generate everything. Instead generate code against a well
-      defined interface of a \CC\ framework.
-    \item The workflow is CMake and \CC\ driven and not controlled through
-      Python.
+    \item Only generate local integration kernels and use framework around it
+    \item The workflow is CMake and \CC\ driven and not controlled by Python
     \item Main focus on generating high performance code
     \end{itemize}
   \end{itemize}
@@ -248,8 +244,7 @@
     - \int_\Omega f \, v_h \, dx = 0 \qquad \forall v_h \in V_h
   \end{equation*}
 
-  UFL file:
-  \lstinputlisting[basicstyle=\scriptsize, backgroundcolor=\color{listingbg},
+  \lstinputlisting[language={},basicstyle=\scriptsize, backgroundcolor=\color{listingbg},
 ]{../src/poisson.ufl}
 \end{frame}
 
@@ -258,7 +253,7 @@
   \begin{itemize}
   \item Domain specific language for describing weak formulations of PDE
     discretizations
-  \item Notation stays close to methematical formulation
+  \item Notation stays close to mathematical formulation
   \item Embedded in Python
   \item Only desribes cell/facet local computations. There is no notion of a
     grid or a description of an element loop
@@ -273,21 +268,34 @@
 
 \begin{frame}
   \frametitle{UFL: AST}
-  \centering
-  \includegraphics[scale=0.4]{figures/ufl_ast.pdf}
+  \begin{minipage}{0.6\textwidth}
+    The weak formulation was:
+    \begin{equation*}
+      r_h^{Poisson}(u,v) = (\nabla u, \nabla v)_{0,\Omega} - (-2\, dim, v)_{0,\Omega}
+    \end{equation*}
+  \end{minipage}%
+  \begin{minipage}{0.3\textwidth}
+       \includegraphics[scale=0.4]{figures/ufl_ast.pdf}
+  \end{minipage}
 \end{frame}
 
 \begin{frame}
   \frametitle{UFL: AST - Preprocessed}
   \centering
-  \includegraphics[scale=0.2]{figures/ufl_ast_preprocessed.pdf}
+  \includegraphics[scale=0.18]{figures/ufl_ast_preprocessed.pdf}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UFL: File}
+  Next step: Break down content of UFL file
+
+  \lstinputlisting[language={},basicstyle=\scriptsize, backgroundcolor=\color{listingbg},
+]{../src/poisson.ufl}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{UFL: \lstinline{FiniteElement}}
-  \begin{lstlisting}
-V = FiniteElement(family, cell, degree)
-  \end{lstlisting}
+  \lstinputlisting[basicstyle=\scriptsize, backgroundcolor=\color{listingbg}, linerange={1-2}]{../src/poisson.ufl}
   \vfill
   \begin{itemize}
   \item family: String representing a finite element family
@@ -308,24 +316,6 @@ V = FiniteElement(family, cell, degree)
   \end{itemize}
 \end{frame}
 
-\begin{frame}
-  \frametitle{UFL: Form}
-  \begin{itemize}
-  \item UFL expresses forms
-    \begin{align*}
-      a: W_1\times\dots\times W_m\times V_1\times\dots\times V_n & \rightarrow \mathbb{R} \\
-      (w_1,\dots ,w_m,v_1,\dots ,v_n) & \mapsto a(w_1,\dots ,w_m;v_1,\dots ,v_n)
-    \end{align*}
-  \item Linear in the arguments $v_1,\dots,v_n$
-  \item Possibly nonlinear in coefficient functions $w_1,\dots,w_m$
-  \item PDELab uses a residual formulation: Find $u\in U$ with
-    \begin{align*}
-      r(u,v) = 0 \qquad \forall v \in V
-    \end{align*}
-  \item $r$ is linear in $v$ but might be nonlinear in $u$
-  \end{itemize}
-\end{frame}
-
 \begin{frame}[fragile]
   \frametitle{UFL: \lstinline{TrialFunction} and \lstinline{TestFunction}}
 
@@ -334,8 +324,7 @@ V = FiniteElement(family, cell, degree)
   \begin{itemize}
   \item \lstinline{TrialFunction} and \lstinline{TestFunction} represent finite element functions.
   \item Take \lstinline{FiniteElement} as argument
-  \item Note: In contrast to other UFL based frameworks our forms need not be
-    linear in the \lstinline{TrialFunction}
+  \item Note: The mathematical residual will always be linear in the test function but might be nonlinear in the ansatz function
   \end{itemize}
 \end{frame}
 
@@ -356,8 +345,27 @@ V = FiniteElement(family, cell, degree)
 \end{frame}
 
 \begin{frame}
+  \frametitle{UFL: Form}
+  \begin{itemize}
+  \item Integrals (and sums of integrals) are called forms
+  \item UFL expresses forms
+    \begin{align*}
+      a: W_1\times\dots\times W_m\times V_1\times\dots\times V_n & \rightarrow \mathbb{R} \\
+      (w_1,\dots ,w_m,v_1,\dots ,v_n) & \mapsto a(w_1,\dots ,w_m;v_1,\dots ,v_n)
+    \end{align*}
+  \item Linear in the arguments $v_1,\dots,v_n$
+  \item Possibly nonlinear in coefficient functions $w_1,\dots,w_m$
+  \item PDELab uses a residual formulation: Find $u\in U$ with
+    \begin{align*}
+      r(u,v) = 0 \qquad \forall v \in V
+    \end{align*}
+  \item $r$ is linear in $v$ but might be nonlinear in $u$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
   \frametitle{UFL: \lstinline{dune-codegen} Specific}
-  \lstinputlisting[basicstyle=\scriptsize, backgroundcolor=\color{listingbg}, linerange={13-16}]{../src/poisson.ufl}
+  \lstinputlisting[language={}, basicstyle=\scriptsize, backgroundcolor=\color{listingbg}, linerange={13-16}]{../src/poisson.ufl}
   \vfill
   \begin{itemize}
   \item Main goal of \lstinline{dune-codegen} is to generate the local integration kernel
@@ -369,12 +377,26 @@ V = FiniteElement(family, cell, degree)
     $1$ if this is a dirichlet boundary condition. This is used only for driver
     generation.
   \item \lstinline{interpolate_expression}: This is used as Dirichlet boundary value
-  \item \lstinline{dune-codegen} imports everything from the UFL module via
-    \lstinline{from UFL import *}
+  %% \item \lstinline{dune-codegen} imports everything from the UFL module via
+  %%   \lstinline{from UFL import *}
   \end{itemize}
 \end{frame}
 
+\begin{frame}
+  \frametitle{UFL: Poisson}
+
+  One last time the complete UFL file:
+
+  \lstinputlisting[language={},basicstyle=\scriptsize, backgroundcolor=\color{listingbg},
+]{../src/poisson.ufl}
+\end{frame}
+
+
+
+%% ======================================
 \section{UFL: Towards More Complex Forms}
+%% ======================================
+
 
 \begin{frame}
   \frametitle{UFL: Towards More Complex Forms}
@@ -395,7 +417,7 @@ V = FiniteElement(family, cell, degree)
     \begin{displaymath}
       \text{\lstinline{conditional(cond, A, B)}} = \left\{
         \begin{array}{lr}
-          \text{\lstinline{A}}\ \ \ \ & \text{\lstinline{cond is True}} \\
+          \text{\lstinline{A}} & \text{\lstinline{cond is True}} \\
           \text{\lstinline{B}} & \text{\lstinline{cond is False}}
         \end{array}
       \right.
@@ -433,6 +455,7 @@ a = as_matrix([[1.0, 2.0],[3.0, 4.0]])
 
 \begin{frame}
   \frametitle{Example: Mixed Boundary Conditions}
+  \small
 
   Strong formulation:
   \begin{align*}
@@ -465,21 +488,23 @@ a = as_matrix([[1.0, 2.0],[3.0, 4.0]])
 
 \begin{frame}
   \frametitle{Example: Mixed Boundary Conditions}
-  \lstinputlisting[basicstyle=\tiny,  backgroundcolor=\color{listingbg}]{../src/nonlinear_poisson.ufl}
+  \lstinputlisting[language={}, basicstyle=\tiny,  backgroundcolor=\color{listingbg}]{../src/nonlinear_poisson.ufl}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{UFL: DG Operators} UFL provides operators for implementation of
   Discontinuous Galerkin (DG) methods. These methods are discontinuous at
-  interior facets. This means you have two values for the 'inside' cell and the
-  'outside' cell.
+  interior facets. This means you have two values there: One for the 'inside'
+  cell and one for the 'outside' cell.
   \begin{itemize}
   \item \lstinline{avg(u)}: Average between those values
     $\frac{1}{2}(u|_{T^+}+u|_{T^-})$
   \item \lstinline{jump(u)}: Difference between the values $u|_{T^+}-u|_{T^-}$
   \item Restriction: Expression can be restricted to the inside or the outside
-    cell by typing \lstinline{u('+')} or \lstinline{u('-')}\footnote{In the
-      literature '-' usually denotes the inside and '+' the outside cell.}
+    cell by typing \lstinline{u('+')} or \lstinline{u('-')}
+  \item \textbf{Note:} UFL denotes the inside cell with ``+'' and the outside
+    cell with ``-'' so we stick to this convention for dune-codegen. In the
+    literature this is usually done the other way round.
   \end{itemize}
 \end{frame}
 
@@ -489,7 +514,7 @@ a = as_matrix([[1.0, 2.0],[3.0, 4.0]])
   \lstinline[basicstyle=\small]{V= VectorElement(family, cell, degree[, size])}
   \begin{itemize}
   \item Combination of a basic element for a vector field
-  \item \lstinline{familty}, lstinline{cell}, \lstinline{degree} like \lstinline{FiniteElement} above
+  \item \lstinline{family}, \lstinline{cell}, \lstinline{degree} like \lstinline{FiniteElement} above
   \item \lstinline{size}: Optional, default equal to dimension
   \end{itemize}
 
@@ -500,7 +525,6 @@ a = as_matrix([[1.0, 2.0],[3.0, 4.0]])
   \item Symmetry can be expressed as Python dictionary
     \lstinline|symmetry={(0,1): (1,0)}|
   \end{itemize}
-
 
   \textbf{MixedElement}\\
   \lstinline[basicstyle=\small]{V = MixedElement(element1, element2[,...])}
@@ -631,7 +655,7 @@ t = get_time(cell)
 
 \begin{frame}
   \frametitle{Example: Heatequation}
-  \lstinputlisting[basicstyle=\tiny, backgroundcolor=\color{listingbg}]{heatequation_gen.ufl}
+  \lstinputlisting[basicstyle=\small, backgroundcolor=\color{listingbg}]{heatequation_gen.ufl}
 \end{frame}
 
 
@@ -667,10 +691,11 @@ t = get_time(cell)
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Ini File: Global Options}
+  \frametitle{Ini File: \lstinline{[formcompiler]} Options}
 
   \begin{itemize}
-  \item \lstinline{operators}: Comma separated list of form names for which
+    \item Put into the \lstinline{[formcompiler]} section
+  \item \lstinline{operators}: Comma separated list of form names for which we
     want to generate operators \lstinline{[default r]}
   \item \lstinline{explicit_time_stepping}: Use explicit time stepping (in
     instationary case) \lstinline{[0/1, default 0]}
@@ -678,7 +703,7 @@ t = get_time(cell)
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Ini File: Form Options}
+  \frametitle{Ini File: Form Options under [formcompiler.formname]}
 
   \begin{itemize}
   \item Options for a form called \lstinline{r} need to be put into the
@@ -689,7 +714,7 @@ t = get_time(cell)
     \lstinline{[str, optional]}
   \item \lstinline{numerical_jacobian}: Use numerical differentiation for
     assembling the Jacobian of the residual \lstinline{[0/1, default 0]}
-  \item \lstinline{quadrature_order}: Order of quadrature \lstinline{[int>0,],optional, guessed by UFL if omitted)}
+  \item \lstinline{quadrature_order}: Order of quadrature \lstinline[language={}]{[int>0,],optional, guessed by UFL if omitted)}
   \item \lstinline{geometry_mixins}: Information about grid properties that can
     lead to simplified gemometry evaluations
     \lstinline{[generic/axiparallel/equidistant]}
