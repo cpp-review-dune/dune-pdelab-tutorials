@@ -8,7 +8,7 @@ void driver (const GV& gv, Dune::ParameterTree& ptree)
 {
   // dimension and important types
   const int dim = GV::dimension;
-  typedef typename GV::Grid::ctype DF; // type for ccordinates
+  typedef typename GV::Grid::ctype DF; // type for coordinates
   typedef double RF;                   // type for computations
 
   // make user functions
