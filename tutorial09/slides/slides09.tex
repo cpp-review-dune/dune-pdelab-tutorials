@@ -540,7 +540,7 @@ a = as_matrix([[1.0, 2.0],[3.0, 4.0]])
   \begin{itemize}
   \item You can get the test- and trialfunctions of these spaces using the
     \lstinline{split} command
-  \begin{lstlisting}[basicstyle=\small, backgroundcolor=\color{listingbg}]
+  \begin{lstlisting}[language={}, basicstyle=\small, backgroundcolor=\color{listingbg}]
 FE_V = VectorElement('CG', triangle, 2)
 FE_P = FiniteElement('CG', triangle, 1)
 TH = FE_V * FE_P
@@ -593,7 +593,7 @@ v, q = TestFunctions(TH)
     &= 0 \quad \forall v_1 \in U_1
   \end{align*}
 
-  \lstinputlisting[basicstyle=\scriptsize, lastline=14, backgroundcolor=\color{listingbg}]{../src/wave_equation.ufl}
+  \lstinputlisting[language={},basicstyle=\scriptsize, lastline=14, backgroundcolor=\color{listingbg}]{../src/wave_equation.ufl}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -608,13 +608,16 @@ v, q = TestFunctions(TH)
     \lstinline{Variables} or \lstinline{Coefficients} (Note: In
     \lstinline{dune-codegen} the \lstinline{TrialFunction} is a
     \lstinline{Coefficient})
-    \begin{lstlisting}[basicstyle=\scriptsize, backgroundcolor=\color{listingbg}]
+    \begin{lstlisting}[language={}, basicstyle=\scriptsize, backgroundcolor=\color{listingbg}]
+# Define arbitrary expression
 u = Coefficient(element)
 w = sin(u**2)
+
+# Annotate expression w as a variable that can be used by 'diff'
 w = variable(w)
-F = w**2
 
 # Derivative of expression F
+F = w**2
 dF_w = diff(F, w)
 dF_u = diff(F, u)
     \end{lstlisting}
@@ -631,6 +634,7 @@ dF_u = diff(F, u)
   \item Your UFL file may contain multiple forms. \lstinline{dune-codegen} will
     generate local operators for all forms listed in the ini file, eg
     \inputminted[fontsize=\small, firstline=12, lastline=13]{ini}{../src/heatequation.ini}
+
   \item See the build system part of this tutorial for more options!
   \end{itemize}
 \end{frame}
@@ -655,7 +659,7 @@ t = get_time(cell)
 
 \begin{frame}
   \frametitle{Example: Heatequation}
-  \lstinputlisting[basicstyle=\small, backgroundcolor=\color{listingbg}]{heatequation_gen.ufl}
+  \lstinputlisting[language={}, basicstyle=\small, backgroundcolor=\color{listingbg}]{heatequation_gen.ufl}
 \end{frame}
 
 
@@ -680,7 +684,7 @@ t = get_time(cell)
   \frametitle{CMake: \lstinline{dune_add_generated_executable}}
 
   \begin{itemize}
-  \item Automated driver generation is mainly developed for automated software
+  \item Automated driver generation was mainly developed for automated software
     tests
   \item For complicated applications handwritten drivers will be
     necessary. This requires control over the file- and classname of the
@@ -696,9 +700,12 @@ t = get_time(cell)
   \begin{itemize}
     \item Put into the \lstinline{[formcompiler]} section
   \item \lstinline{operators}: Comma separated list of form names for which we
-    want to generate operators \lstinline{[default r]}
+    want to generate operators \lstinline{[default r]}. Example:
+    \inputminted[fontsize=\small, firstline=12, lastline=13]{ini}{../src/heatequation.ini}
+
   \item \lstinline{explicit_time_stepping}: Use explicit time stepping (in
-    instationary case) \lstinline{[0/1, default 0]}
+    instationary case) \lstinline{[0/1, default 0]}. Example:
+
   \end{itemize}
 \end{frame}
 
@@ -765,7 +772,7 @@ t = get_time(cell)
 \begin{frame}[fragile]
   \frametitle{CMake: Example Heatequation}
 
-  \lstinputlisting[basicstyle=\tiny, backgroundcolor=\color{listingbg}]{../src/heatequation.ufl}
+  \lstinputlisting[language={}, basicstyle=\tiny, backgroundcolor=\color{listingbg}]{../src/heatequation.ufl}
   \lstinline{CMakeLists.txt}
   \inputminted[fontsize=\tiny, firstline=3, lastline=9]{cmake}{../src/CMakeLists.txt}
 \end{frame}
