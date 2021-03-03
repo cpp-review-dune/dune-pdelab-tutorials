@@ -169,7 +169,7 @@ results in an algebraic equation for $z\in\mathbb{R}^n$:
 \Leftrightarrow{} && r\left(u_{h,g} +\sum_{j=1}^n (z)_j\phi_j,\psi_i\right) &= 0 &&\forall i=1,\ldots,n\\
 \Leftrightarrow{} && R(z) = 0,
 \end{align*}
-with $R: \mathbb{R}^n \to \mathbb{R}^n$ and $R_i(z) = r_h\left(u_{h,g} +\sum_{j=1}^n (z)_j\phi_j,\psi_i\right)$ \\
+with $R: \mathbb{R}^n \to \mathbb{R}^n$ and $R_i(z) = R\left(u_{h,g} +\sum_{j=1}^n (z)_j\phi_j,\psi_i\right)$ \\
 \medskip
 \textbf{Note:} We remark on the realization of Dirichlet conditions below
 \end{frame}
@@ -203,19 +203,19 @@ The following algorithmic building blocks are required:
 \textbf{Nonlinear case:}
 \begin{equation*}
 (J(z) w)_i = \sum_{j=1}^n (J(z))_{i,j} (w)_j = \sum_{j=1}^n
-\frac{\partial}{\partial z_j} r_h\left(u_{h,g}+\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j .
+\frac{\partial}{\partial z_j} r\left(u_{h,g}+\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j .
 \end{equation*}
-\textbf{Linear case:} $r_h(u,v)=a(u,v)-l(v)$, $a$ BLF, $l$ LF
+\textbf{Linear case:} $r(u,v)=a(u,v)-l(v)$, $a$ BLF, $l$ LF
 \begin{equation*}
 \begin{split}
 (J(z) w)_i &= \sum_{j=1}^n
-\frac{\partial}{\partial z_j} r_h\left(u_{h,g}+\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j \\
+\frac{\partial}{\partial z_j} r\left(u_{h,g}+\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) (w)_j \\
 &= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left(
-a_h\left(u_{h,g}+\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) - l_h(\psi_i)\right) (w)_j \\
+a\left(u_{h,g}+\sum_{l=1}^n (z)_l  \phi_l,\psi_i\right) - l(\psi_i)\right) (w)_j \\
 &= \sum_{j=1}^n \frac{\partial}{\partial z_j} \left(
-\sum_{l=1}^n (z)_l a_h(\phi_l,\psi_i) \right)  (w)_j 
-= \sum_{j=1}^n a_h(\phi_j,\psi_i) (w)_j =
-a_h\left( \sum_{j=1}^n (w)_j \phi_j,\psi_i\right) \\
+\sum_{l=1}^n (z)_l a(\phi_l,\psi_i) \right)  (w)_j 
+= \sum_{j=1}^n a(\phi_j,\psi_i) (w)_j =
+a\left( \sum_{j=1}^n (w)_j \phi_j,\psi_i\right) \\
 &= (A w)_i
 \end{split}
 \end{equation*}
@@ -246,7 +246,7 @@ $$\forall i\in\{0,\ldots,n_T-1\} : \mu_T(\hat x_i) = x_{g_T(i)}$$
 with \textbf{polynomial degree} $k$ in \textbf{dimension} $d$ on \textbf{mesh} $\mathcal{T}_h$:
 \begin{equation*}
 V_h^{k,d}(\mathcal{T}_h) = \left\{ v\in C^0(\overline{\Omega}) \,:\,
-\forall T\in\mathcal{T}_h : v|_T = \mu_T \circ p_T \wedge p_T\in\mathbb{P}_T^{k,d}\right\}
+\forall T\in\mathcal{T}_h : v|_T = \hat p_T \circ \mu_T^{-1} \wedge \hat p_T\in\mathbb{P}_T^{k,d}\right\}
 \end{equation*}
 where the multivariate polynomials $\mathbb{P}_T^{k,d}$ depend on element type:
 {\small\begin{equation*}
@@ -304,8 +304,8 @@ n_{\hat S}^{k,d} = \left\{ \begin{array}{ll}
 \end{center}
 Lagrange points and polynomials (shape functions) on $\hat T$:
 $$L_{\hat T} = \left\{ \hat x^{\hat T}_0,\ldots,\hat x^{\hat T}_{n_{\hat T}^{k,d}-1} \right\}, \quad
-P_{\hat T} = \left\{ p^{\hat T}_0,\ldots,p^{\hat T}_{n_{\hat T}^{k,d}-1}\right\}$$
-such that $$p^{\hat T}_i(\hat x^{\hat T}_j) = \delta_{i,j}$$
+P_{\hat T} = \left\{ \hat p^{\hat T}_0,\ldots,\hat p^{\hat T}_{n_{\hat T}^{k,d}-1}\right\}$$
+such that $$\hat p^{\hat T}_i(\hat x^{\hat T}_j) = \delta_{i,j}$$
 Extend local to global map:
 \begin{equation*}
 g_T : \{0,\ldots,n_{\hat T}^{k,d}-1\} \to \mathcal{I}_h^{k,d} =
@@ -375,7 +375,7 @@ C(i) = \{(T,m)\in\mathcal{T}_h\times\mathbb{N} \,:\, g_T(m)=i\}
 then the global Lagrange basis functions are
 \begin{equation*}
 \phi_i(x) = \left\{\begin{array}{ll}
-p^{\hat T}_m(\mu_T^{-1}(x)) & x\in T \wedge g_T(m)=i \\
+\hat p^{\hat T}_m(\mu_T^{-1}(x)) & x\in T \wedge g_T(m)=i \\
 0 & \text{else}
 \end{array}\right. , \quad i\in\mathcal{I}_h^{k,d}.
 \end{equation*}
@@ -422,7 +422,7 @@ There are different options to realize Dirichlet conditions in practice:
 \begin{equation*}
 R: \mathbb{R}^{n_0} \to \mathbb{R}^{n_0}, \qquad 
 n_0 = \dim\left( V_{h,0}^{k,d}(\mathcal{T}_{h}) \right), \qquad
-R_i(z) = r_h\left(u_{h,g} +\sum_{j=1}^n (z)_j\phi_j,\psi_i\right)
+R_i(z) = R\left(u_{h,g} +\sum_{j=1}^n (z)_j\phi_j,\psi_i\right)
 \end{equation*}
 \item Keep degrees of freedom at Dirichlet boundary in the algebraic system, i.e.
 \begin{equation*}
@@ -486,7 +486,7 @@ For any $(T,m)\in C(i)$ we obtain
 \begin{equation*}
 \begin{split}
 \lambda_T^V(\phi_i) &= - \int_T f \phi_i \,dx =
-- \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x) |\text{det} J_{\mu_T}(\hat x)|\, d\hat x .
+- \int_{\hat T} f(\mu_T(\hat x)) \hat p_m^{\hat T}(\hat x) |\text{det} J_{\mu_T}(\hat x)|\, d\hat x .
 \end{split}
 \end{equation*}
 $J_{\mu_T}$ is the Jacobian of the element map $\mu_T$\\
@@ -495,7 +495,7 @@ This integral is computed using numerical quadrature\\
 \medskip
 Collect all contributions of $T$ in a small vector:
 \begin{equation*}
-(\mathcal{L}_T^V)_m = - \int_{\hat T} f(\mu_T(\hat x)) p_m^{\hat T}(\hat x)
+(\mathcal{L}_T^V)_m = - \int_{\hat T} f(\mu_T(\hat x)) \hat p_m^{\hat T}(\hat x)
 |\text{det} J_{\mu_T}(\hat x)|\, d\hat x.
 \end{equation*}
 \end{frame}
@@ -507,7 +507,7 @@ and $(T_F^-,m)\in C(i)$ we obtain
 \begin{equation*}
 \begin{split}
 \lambda_T^B(\phi_i) &= \int_{F} j v\,ds =
-\int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x))
+\int_{\hat F} j(\mu_F(\hat x)) \hat p_m^{\hat T}(\eta_F(\hat x))
 \sqrt{|\text{det} (J^T_{\mu_F}(\hat x)J_{\mu_F}(\hat x))|} \,ds
 \end{split}
 \end{equation*}
@@ -520,7 +520,7 @@ element of the face to the reference element of $T_F^-$
 Collect all contributions of $F$ in a small vector:
 \begin{equation*}
 (\mathcal{L}_T^B)_m =
-\int_{\hat F} j(\mu_F(\hat x)) p_m^{\hat T}(\eta_F(\hat x))
+\int_{\hat F} j(\mu_F(\hat x)) \hat p_m^{\hat T}(\eta_F(\hat x))
 \sqrt{|\text{det} J^T_{\mu_T}(\hat x)J_{\mu_T}(\hat x)|} \,ds .
 \end{equation*}
 Numerical quadrature is applied to compute the integral
@@ -534,9 +534,9 @@ For any $(T,m)\in C(i)$ we get
 \alpha_T^V(u_h,\phi_i) &= \int_T \nabla u \cdot \nabla \phi_i + q(u) \phi_i \,dx, \\
 &= \int_T \sum_j (z)_j \left(\nabla \phi_j \cdot \nabla \phi_i \right)
 + q\left( \sum_j (z)_j \phi_j \right) \phi_i \,dx,\\
-&= \int_{\hat T} \sum_{n} (z)_{g_T(n)} (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_n^{\hat T}(\hat x) )
-\cdot (J_{\mu_T}^{-1}(\hat x) \hat\nabla p_m^{\hat T}(\hat x) ) \\
-&\hspace{10mm}+ q\left( \sum_n (z)_{g_T(n)} p_n^{\hat T}(\hat x) \right) p_m^{\hat T}(\hat x)
+&= \int_{\hat T} \sum_{n} (z)_{g_T(n)} (J_{\mu_T}^{-1}(\hat x) \hat\nabla \hat p_n^{\hat T}(\hat x) )
+\cdot (J_{\mu_T}^{-1}(\hat x) \hat\nabla \hat p_m^{\hat T}(\hat x) ) \\
+&\hspace{10mm}+ q\left( \sum_n (z)_{g_T(n)} \hat p_n^{\hat T}(\hat x) \right) \hat p_m^{\hat T}(\hat x)
 |\text{det} J_{\mu_T}(\hat x)| \,dx
 \end{split}
 \end{equation*}
