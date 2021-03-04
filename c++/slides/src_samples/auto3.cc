@@ -1,7 +1,6 @@
 #include<string>
 
-int main()
-{ 
+int main() { 
   // upper case letters can be used for suffices as well
   auto var1 = 5.0;   // double
   auto var2 = 5.0f;  // float
