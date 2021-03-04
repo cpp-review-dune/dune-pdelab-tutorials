@@ -8,7 +8,8 @@ x = SpatialCoordinate(cell)
 g = x[0]*x[0]+x[1]*x[1]
 f = -2*dim
 
-r = (inner(grad(u), grad(v)) - f*v)*dx
+r = inner(grad(u), grad(v)) * dx \
+  - f*v * dx
 
 # dune-codegen specific
 exact_solution = g
