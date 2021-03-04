@@ -1,29 +1,25 @@
-int main(int argc, char** argv)
-{
-  try{
+int main(int argc, char** argv) {
+  try {
     //Maybe initialize Mpi
     Dune::MPIHelper& helper = Dune::MPIHelper::instance(argc, argv);
     if(Dune::MPIHelper::isFake)
-      std::cout<< "This is a sequential program." << std::endl;
-    else
-	  {
-		if(helper.rank()==0)
-		  std::cout << "parallel run on " << helper.size() << " process(es)" << std::endl;
-	  }
+      std::cout<< "This is a sequential program." << '\n';
+    else {
+      if(helper.rank()==0)
+        std::cout << "parallel run on " << helper.size() << " process(es)" << '\n';
+    }
 
-	if (argc!=2)
-	  {
-		if(helper.rank()==0)
-		  std::cout << "usage: ./example01 <level>" << std::endl;
-		return 1;
-	  }
+    if (argc!=2) {
+      if(helper.rank()==0)
+        std::cout << "usage: ./example01 <level>" << '\n';
+      return 1;
+    }
 
-	int level;
-	sscanf(argv[1],"%d",&level);
+    int level;
+    sscanf(argv[1],"%d",&level);
 
     // sequential version
-    if (helper.size()==1)
-    {
+    if (helper.size()==1) {
       Dune::FieldVector<double,2> L(1.0);
       auto N = Dune::filledArray<2, int>(1);
       std::bitset<2> periodic(false);
@@ -38,12 +34,12 @@ int main(int argc, char** argv)
       example01b_Q2(gv);
     }
   }
-  catch (Dune::Exception &e){
-    std::cerr << "Dune reported error: " << e << std::endl;
-	return 1;
+  catch (Dune::Exception &e) {
+    std::cerr << "Dune reported error: " << e << '\n';
+    return 1;
   }
-  catch (...){
-    std::cerr << "Unknown exception thrown!" << std::endl;
-	return 1;
+  catch (...) {
+    std::cerr << "Unknown exception thrown!" << '\n';
+    return 1;
   }
 }
