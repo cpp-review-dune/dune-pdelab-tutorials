@@ -81,14 +81,28 @@
 \newcommand{\nn}{\mathbf{n}}
 \newcommand{\diffd}{\,d}
 
+\newcommand{\blackframe}{
+  \bgroup
+  \setbeamercolor{background canvas}{bg=black}
+  \begin{frame}[noframenumbering,plain]
+  \end{frame}
+  \egroup
+}
+
+\newcommand{\presentationbreak}{%
+  \blackframe
+  \begin{frame}[noframenumbering,plain]
+    \partpage
+  \end{frame}
+}
+
 % Delete this, if you do not want the table of contents to pop up at
 % the beginning of each subsection:
-\AtBeginSection[]
-{
-  \begin{frame}<beamer>
+\AtBeginSection[]{
+  \begin{frame}[noframenumbering]
     \frametitle{Contents}
     \tableofcontents[sectionstyle=show/shaded,subsectionstyle=hide/hide/hide]
-%\tableofcontents[currentsection]
+    % \tableofcontents[currentsection]
   \end{frame}
 }
 
@@ -157,7 +171,6 @@
 \begin{onlyenv}<presentation>
   \begin{frame} \frametitle{Design Principles}
 
-    \framesubtitle{foobar}
     \begin{description}[Legacy Code:]
     \item[Flexibility:]
       {Seperation of data structures and algorithms.}\\[2ex]
@@ -434,7 +447,7 @@
       \begin{itemize}
       \item[Goals:] allow people to\ldots{}\scriptsize
         \begin{itemize}
-        \item get credit for their innvoations
+        \item get credit for their innovations
         \item experiment without breaking the core
         \item develop at different speeds
         \end{itemize}
@@ -523,9 +536,10 @@
 %   \end{description}
 % \end{frame}
 
+\blackframe
 \part{Grid Module}
 
-\begin{frame}
+\begin{frame}[noframenumbering,plain]
   \partpage
   \pause
   \begin{quote}
@@ -917,6 +931,7 @@ for (const auto& e : entities(gv,Dune::Dim<2>{}))
 % \end{frame}
 
 
+\presentationbreak
 \section{Entities}
 
 \begin{frame}[fragile] \frametitle{Entities}
@@ -1415,8 +1430,7 @@ for (const auto& qp : quad)
 % \end{center}
 % \end{frame}
 
-\subsection{Intersections}
-
+\section{Intersections}
 
 \def\intersections{
         \begin{tikzpicture}[font=\footnotesize,scale=1]
@@ -1603,16 +1617,32 @@ for (const auto& cell : elements(gv))
 \end{cppcode}
 \end{frame}
 
-\begin{frame}[fragile] \frametitle{Example: Elementwise divergence of a vector field}
+
+\begin{frame}[fragile]
+  \frametitle{Sequential finite volume solver}
+\structure{Elementwise divergence} of a vector field:
 \begin{equation*}
-\int_{\Omega_e} \nabla\cdot f(x) \,dx = \int_{\partial \Omega_e} f\cdot n_e \,ds
+\int_{E} \nabla\cdot f(x) \,dx = \int_{\partial E} f\cdot n_E \,ds
 \end{equation*}
+\pause
+\bigskip
+Consider the \structure{first-order linear PDE}
+$$ \partial_t u + \nabla\cdot(vu) = 0$$
+with given vector field $v(x)$ and unknown solution $u(x,t)$.
+
+The structure{explicit cell-centered finite volume method} reads
+$$ \bar{u}_E^{k+1} = \bar{u}_E^{k} - \frac{\Delta t}{|E|} \sum_{(E,E')\in I(E)}
+\Phi(v\cdot n_E,\bar{u}_E^{k},\bar{u}_{E'}^{k}) |I(E,E')|$$
+with the numerical flux function $\Phi$ chosen as upwind flux here.
+
 \bigskip
 \begin{center}
-\rightarrownice keep this in mind for code example 3 \ldots
+  \pause
+\rightarrownice keep this in mind for \emph{code example 3}\ldots
 \end{center}
 \end{frame}
 
+\presentationbreak
 \section{Attaching Data to the Grid}
 
 \begin{frame} \frametitle{Attaching Data to the Grid}
@@ -1691,22 +1721,6 @@ auto edge_lengths = std::vector<double>(index_set.size(1));
 for (const auto& edge : edges(gv))
   lengths[index_set.index(edge)] = edge.geometry().volume();
 \end{cppcode}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Sequential finite volume solver}
-Consider the first-order linear PDE
-$$ \partial_t u + \nabla\cdot(vu) = 0$$
-with given vector field $v(x)$ and unknown solution $u(x,t)$.
-
-The explicit cell-centered finite volume method reads
-$$ \bar{u}_e^{k+1} = \bar{u}_e^{k} - \frac{\Delta t}{|\Omega_e|} \sum_{(e,e')\in I(e)}
-\Phi(v\cdot n_e,\bar{u}_e^{k},\bar{u}_{e'}^{k}) |I(e,e')|$$
-with the numerical flux function $\Phi$ chosen as upwind flux here.
-
-\begin{center}
-Go to code example 4 \ldots
-\end{center}
 \end{frame}
 
 \begin{frame}
@@ -1820,7 +1834,7 @@ Go to code example 4 \ldots
 \end{frame}
 \end{onlyenv}
 
-\section{Further Reading}
+\section{Further Information and Hands-on}
 
 \begin{onlyenv}<presentation>
   \begin{frame}
@@ -1849,7 +1863,22 @@ Go to code example 4 \ldots
 
 \begin{frame}
   \frametitle{Further Reading}
-  TODO doxygen
+
+  \structure{Doxygen} class documentation
+
+  \begin{itemize}
+  \item Stable DUNE Code modules: \url{https://dune-project.org/doxygen/2.7.1}
+    \bigskip
+  \item Overview of different components:
+    \url{https://dune-project.org/doxygen/2.7.1/modules.html}
+    \bigskip
+  \item PDELab class documentation:
+    \url{https://dune-project.org/doxygen/pdelab/master/}
+    \bigskip
+  \item PDELab recipes:
+    \url{https://dune-project.org/doxygen/pdelab/master/group__pdelab__recipes.html}
+  \end{itemize}
+  
 \end{frame}
 
 \begin{frame} \frametitle<presentation>{Further Reading}
@@ -1926,5 +1955,7 @@ Files involved are:
   \structure{Now lets go to the code \ldots}
 \end{uncoverenv}
 \end{frame}
+
+\blackframe
 
 \end{document}
