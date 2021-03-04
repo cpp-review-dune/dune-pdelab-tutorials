@@ -222,8 +222,9 @@
   \item Have a dune module that depends on \lstinline{dune-codegen}
   \item Write a UFL file describing the PDE
   \item Add a target in CMake (see build system part)
-  \item Go to the build directory and type make. CMake will generate the \CC\
-    code and compile the executable.
+  \item Go to the build directory and type make
+  \item dune-codegen will generate the localoperator including the jacobian methods
+  \item After generating the localoperator CMake will compile your executable
   \end{itemize}
 \end{frame}
 
@@ -330,7 +331,7 @@
 
 \begin{frame}
   \frametitle{UFL: Defining Expressions}
-  \lstinputlisting[basicstyle=\scriptsize, backgroundcolor=\color{listingbg}, linerange={6-11}]{../src/poisson.ufl}
+  \lstinputlisting[basicstyle=\scriptsize, backgroundcolor=\color{listingbg}, linerange={6-12}]{../src/poisson.ufl}
   \vfill
   \begin{itemize}
   \item \lstinline{SpatialCoordinate}: Global coordinate
@@ -365,7 +366,7 @@
 
 \begin{frame}
   \frametitle{UFL: \lstinline{dune-codegen} Specific}
-  \lstinputlisting[language={}, basicstyle=\scriptsize, backgroundcolor=\color{listingbg}, linerange={13-16}]{../src/poisson.ufl}
+  \lstinputlisting[language={}, basicstyle=\scriptsize, backgroundcolor=\color{listingbg}, linerange={14-17}]{../src/poisson.ufl}
   \vfill
   \begin{itemize}
   \item Main goal of \lstinline{dune-codegen} is to generate the local integration kernel
@@ -492,10 +493,12 @@ a = as_matrix([[1.0, 2.0],[3.0, 4.0]])
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{UFL: DG Operators} UFL provides operators for implementation of
-  Discontinuous Galerkin (DG) methods. These methods are discontinuous at
-  interior facets. This means you have two values there: One for the 'inside'
-  cell and one for the 'outside' cell.
+  \frametitle{UFL: DG Operators}
+
+  UFL provides operators for implementation of Discontinuous Galerkin (DG)
+  methods. These methods are discontinuous at interior facets. This means you
+  have two values there: One for the 'inside' cell and one for the 'outside'
+  cell.
   \begin{itemize}
   \item \lstinline{avg(u)}: Average between those values
     $\frac{1}{2}(u|_{T^+}+u|_{T^-})$
@@ -505,6 +508,7 @@ a = as_matrix([[1.0, 2.0],[3.0, 4.0]])
   \item \textbf{Note:} UFL denotes the inside cell with ``+'' and the outside
     cell with ``-'' so we stick to this convention for dune-codegen. In the
     literature this is usually done the other way round.
+  \item We will see an example on the exercise sheet.
   \end{itemize}
 \end{frame}
 
