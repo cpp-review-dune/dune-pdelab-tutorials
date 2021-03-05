@@ -114,14 +114,14 @@
 \frametitle<presentation>{Why Parallel Computing?}
 
 \begin{itemize}
-\item The speed of individual computer cores is not increasing essentially since some years due to
+\item The speed of individual computer cores is not increasing essentially since nearly 20 years due to
 \begin{itemize}
 \item Power wall
 \item Memory wall
 \item Instruction level parallelism (ILP) wall
 \end{itemize}
 \item However, the number of cores is increasing. Quad-cores are the rule, up to 260-core processors are available
-\item Several multi-core processors can be used on one mainboard (e.g. two 10-core processors)
+\item Several multi-core processors can be used on one mainboard (e.g. two 32-core processors)
 \item Computer cluster with several multi-core multi-processor servers are affordable even for small companies
 \end{itemize}
 
@@ -131,24 +131,29 @@
 \begin{frame}
 \frametitle<presentation>{Why Parallel Computing?}
 
-The worlds three fastest computers have
+The worlds four fastest computers (November 2020) have
+\begin{itemize} 
+\item Fugaku, Kōbe, Japan: 442.0 PFlop/s\\
+7'630'848 cores:
 \begin{itemize}
+\item 158'976 A64FX48-core processors\\
+\end{itemize}
+\item Summit, Oak Ridge National Laboratory, U.S.A.: 148.6 PFlop/s\\
+202'752 CPU cores + 2'211'840 GPU cores. 4'608 nodes with 
+\begin{itemize}
+\item 2 IBM Power9 22-core processors each
+\item 6 Tesla-Volta 100 80-core accelerator cards each
+\end{itemize}
+\item Sierra, Lawrence Livermore National Laboratory, U.S.A.: 94.6 PFlop/s\\
+190'080 CPU cores + 1'382'400 GPU cores. 4'320 nodes with 
+\begin{itemize}
+\item 2 IBM Power9 22-core processors
+\item 4 Tesla-Volta 100 80-core accelerator cards
+\end{itemize}
 \item Sunway TaihuLight, Wuxi, China: 93.0 PFlop/s\\
 10'649'600 cores:
 \begin{itemize}
-\item 40'960 SW26010 processors, 260 cores\\
-\end{itemize}
-\item Tianhe-2, Guangzhou, China: 33.8 PFlop/s\\
-3'120'000 cores:
-\begin{itemize}
-\item 32'000 Intel Xeon 12-core processors
-\item 48'000 Intel Phi 57-core accelerator cards
-\end{itemize}
-\item Titan, Oak Ridge National Laboratory, U.S.A.: 17.6 PFlop/s\\
-299'008 cores:
-\begin{itemize}
-\item 18'688 AMD Opteron 16-core processors
-\item 18'688 NVIDIA Kepler K20X GPU accelerator cards
+\item 40'960 SW26010 260-core processors\\
 \end{itemize}
 \end{itemize}
 
@@ -218,7 +223,7 @@ between processes with messages send over a network (computer clusters, super co
 \item A packet consists of an envelope and
   the data:
 \begin{center}
-  \includegraphics[width=0.49\textwidth]{paket}
+  \includegraphics[width=0.4\textwidth]{paket}
 \end{center}
 \item Header: Destination, size and kind of data.
 \item Payload: Size ranges from some bytes to kilobytes.
@@ -234,7 +239,7 @@ between processes with messages send over a network (computer clusters, super co
 \item Portable Library with functions for message exchange between processes
 \item Developed 1993-94 by a international board
 \item Available on nearly all computer platforms
-\item Free Implementations also for Linux Clusters: {\bfseries MPICH}
+\item Free Implementations for Linux Clusters: {\bfseries MPICH}
  and {\bfseries OpenMPI} \footnote{\tiny \url{http://www-unix.mcs.anl.gov/mpi/mpich} and \url{http://www.open-mpi.org/}}
 \item Properties of MPI:
 \begin{itemize}
@@ -243,6 +248,8 @@ between processes with messages send over a network (computer clusters, super co
 \item global communication
 \item data conversion for heterogeneous systems
 \item subset formation and topologies possible
+\item parallel I/O, one-sided communication and dynamic process management (MPI-2)
+\item hybrid-parallelism (MPI-3)
 \end{itemize}
 \end{itemize}
 \end{frame}
@@ -251,7 +258,7 @@ between processes with messages send over a network (computer clusters, super co
 \begin{frame}
 \frametitle<presentation>{Strong Scalability of 3D Parallel Computation}
 \begin{center}
-\includegraphics[width=0.9\textwidth]{dnapl-3d-het-iso}\\
+\includegraphics[width=0.8\textwidth]{dnapl-3d-het-iso}\\
 3D DNAPL Infiltration
 \end{center}
 \end{frame}
@@ -310,7 +317,7 @@ Machine  & Cells & Time steps & Newton steps & $T_{total}$ \\
   \end{itemize}
 
   \begin{center}
-    \includegraphics[width=.6\linewidth]{dd}
+    \includegraphics[width=.5\linewidth]{dd}
   \end{center}
 
 \end{frame}
@@ -345,9 +352,9 @@ Machine  & Cells & Time steps & Newton steps & $T_{total}$ \\
     \end{column}
     \begin{column}{0.4\linewidth}
       \begin{onlyenv}<presentation>
-        \includegraphics[width=0.6\linewidth]{konstr_n_uberl_str}
+        \includegraphics[width=0.5\linewidth]{konstr_n_uberl_str}
         \vskip5mm
-        \includegraphics[width=0.9\linewidth]{konstr_n_uberl_unstr}
+        \includegraphics[width=0.8\linewidth]{konstr_n_uberl_unstr}
       \end{onlyenv}
       \begin{onlyenv}<article>
         \includegraphics[width=0.25\linewidth]{konstr_n_uberl_str}
@@ -383,9 +390,9 @@ Machine  & Cells & Time steps & Newton steps & $T_{total}$ \\
     \end{column}
     \begin{column}{0.4\linewidth}
       \begin{onlyenv}<presentation>
-        \includegraphics[width=0.6\linewidth]{konstr_uberl_str}
+        \includegraphics[width=0.5\linewidth]{konstr_uberl_str}
         \vskip5mm
-        \includegraphics[width=0.9\linewidth]{konstr_uberl_unstr}
+        \includegraphics[width=0.8\linewidth]{konstr_uberl_unstr}
       \end{onlyenv}
       \begin{onlyenv}<article>
         \includegraphics[width=.25\linewidth]{konstr_uberl_str}
@@ -410,8 +417,8 @@ Machine  & Cells & Time steps & Newton steps & $T_{total}$ \\
     \end{column}
     \begin{column}{0.5\linewidth-5mm}
       \begin{onlyenv}<presentation>
-        \includegraphics<1-2>[width=\linewidth]{entities}
-        \includegraphics<3->[width=\linewidth]{entities_cd}
+        \includegraphics<1-2>[width=0.8\linewidth]{entities}
+        \includegraphics<3->[width=0.8\linewidth]{entities_cd}
       \end{onlyenv}
       \begin{onlyenv}<article>
         \vspace*{2ex}
@@ -557,7 +564,7 @@ by the method\\
 \begin{columns}[c]
 \begin{column}{0.75\textwidth}
 
-\includegraphics[width=\textwidth]{partitionsingle}
+\includegraphics[width=0.8\textwidth]{partitionsingle}
 \end{column}
 \begin{column}{0.25\textwidth}
 \vskip0.5cm
@@ -588,7 +595,7 @@ by the method\\
   \item<1-> \lstinline!YaspGrid!
       \begin{itemize}
       \item structured
-      \item nD
+      \item n-dimensional
       \item arbitrary overlap
       \end{itemize}
   \item<2-> \lstinline!UGGrid!
@@ -617,7 +624,7 @@ by the method\\
   \frametitle<presentation>{Iterators in a parallel Grid}
   \small
   Dune offers Iterators which only iterate over elements with certain partition types. The partition type can be specified as additional parameter in the range based for loop, e.g.
-\begin{lstlisting}[breaklines=true,basicstyle=\ttfamily\small]
+\begin{lstlisting}[breaklines=true,basicstyle=\ttfamily\footnotesize]
     for (const auto &cell : elements(gv,Dune::Partitions::Interior) {
     ...
     }
@@ -754,12 +761,10 @@ With YaspGrid you can determine how the grid is partitioned (adaptive grid refin
 \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
 \begin{lstlisting}[breaklines=true]
 template<int dim>
-class YaspPartition : public Dune::YLoadBalance<dim>
-{
+class YaspPartition : public Dune::YLoadBalance<dim> {
   public:
-    typedef std::array<int, dim>  iTuple;
-    void loadbalance (const iTuple& size, int P, iTuple& dims) const
-    {
+    using iTuple = std::array<int, dim>;
+    void loadbalance (const iTuple& size, int P, iTuple& dims) const {
       dims[0] = 1;
       dims[1] = P;
     }
@@ -871,8 +876,8 @@ data communicate and only the entities present on both processes are included in
 \begin{frame}[fragile]
   \frametitle<presentation>{Collective Communication}
 The class  \lstinline!Dune::Grid::CollectiveCommunication! provides comfortable access to a lot of MPI methods, e.g.\medskip
-
-    \begin{tabular}{l|p{7cm}}
+\only<presentation>{\small}
+    \begin{tabular}{l|p{10cm}}
       \hline
       Method name & Description\\\hline
       \lstinline!rank! & obtain number (rank) of this process\\
@@ -905,8 +910,8 @@ parallel communication with MPI. It also takes care that the parallel program
 is finished in a defined way. It is called \lstinline!MPIHelper!. It has to be
 created at the very beginning of the program
 using the \lstinline!instance! method of the \lstinline!Dune::MPIHelper! class.
-\only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily,breaklines=true}}
-\lstinputlisting[lastline=12,breaklines=true]{example01_main.hh}
+\only<presentation>{\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true}}
+\lstinputlisting[lastline=10,breaklines=true]{example01_main.hh}
 
 \end{frame}
 
@@ -1046,7 +1051,7 @@ coefficient is applied.
 The linear solvers in this table are preconditioned with an overlapping domain decomposition
 using the respective smoother or with a parallel algebraic multigrid scheme with an SSOR smoother (AMG).\medskip
 
-\resizebox{0.9\textwidth}{!}{
+\resizebox{0.7\textwidth}{!}{
 \begin{tabular}{|l|l|l|}\hline
 solver backend & smoother & linear solver\\\hline
 \lstinline!ISTLBackend_OVLP_CG_SSORk<GFS,CC>! & SSOR & CG\\\hline
@@ -1076,15 +1081,15 @@ auto N = Dune::filledArray<2, int>(16);
 std::bitset<2> periodic (false);
 !\color{red}int overlap=2;!
 Dune::YaspGrid<2> grid(L,N,periodic!\color{red},overlap!);
-typedef Dune::YaspGrid<2>::LeafGridView GV;
+using GV = Dune::YaspGrid<2>::LeafGridView;
 const GV& gv=grid.leafView();
 
 // 2. Create correctly constrained grid function space
-typedef Dune::PDELab::Q1LocalFiniteElementMap<Coord,Real,dim> FEM;
+using FEM = Dune::PDELab::Q1LocalFiniteElementMap<Coord,Real,dim>;
 FEM fem;
-!\color{red}typedef Dune::PDELab::OverlappingConformingDirichletConstraints CON;!
-typedef Dune::PDELab::ISTLVectorBackend<> VBE;
-typedef Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE> GFS;
+!\color{red}using CON = Dune::PDELab::OverlappingConformingDirichletConstraints;!
+using VBE = Dune::PDELab::ISTLVectorBackend<>;
+using GFS = Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE>;
 GFS gfs(gv,fem);
 \end{lstlisting}
 \end{frame}
@@ -1093,22 +1098,22 @@ GFS gfs(gv,fem);
 \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
   \begin{lstlisting}[breaklines=true]
 //  define problem parameters
-typedef ConvectionDiffusionProblem<GV,Real> Param;
+using Param = ConvectionDiffusionProblem<GV,Real>;
 Param param;
-typedef Dune::PDELab::BCTypeParam_CD<Param> B;
+using B = Dune::PDELab::BCTypeParam_CD<Param>;
 B b(gv,param);
-typedef Dune::PDELab::DirichletBoundaryCondition_CD<Param> G;
+using G = Dune::PDELab::DirichletBoundaryCondition_CD<Param>;
 G g(gv,param);
 
 //  Compute constrained space
-typedef typename GFS::template ConstraintsContainer<Real>::Type C;
+using C = typename GFS::template ConstraintsContainer<Real>::Type;
 C cg;
 Dune::PDELab::constraints(b,gfs,cg);
 // Make grid operator
-typedef Dune::PDELab::ConvectionDiffusion<Param> LOP;
+using LOP = Dune::PDELab::ConvectionDiffusion<Param>;
 LOP lop(param,2);
-typedef Dune::PDELab::ISTLMatrixBackend MBE;
-typedef Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,double,double,double,C,C> GO;
+using MBE = Dune::PDELab::ISTLMatrixBackend;
+using GO = Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,double,double,double,C,C>;
 GO go(gfs,cg,gfs,cg,lop);
 \end{lstlisting}
 \end{frame}
@@ -1117,13 +1122,13 @@ GO go(gfs,cg,gfs,cg,lop);
 \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
   \begin{lstlisting}[breaklines=true,escapechar=!]
 //  Compute affine shift
-typedef typename GO::Traits::Domain V;
+using V = typename GO::Traits::Domain;
 V x(gfs,0.0);
 Dune::PDELab::interpolate(g,gfs,x);
 Dune::PDELab::set_nonconstrained_dofs(cg,0.0,x);
 
 // 3. Choose a linear solver
-!\color{red}typedef Dune::PDELab::ISTLBackend\_OVLP\_BCGS\_SuperLU<GFS,C> LS;!
+!\color{red}using LS = Dune::PDELab::ISTLBackend\_OVLP\_BCGS\_SuperLU<GFS,C>;!
 LS ls(gfs,cg,5000,2);
 ...
 \end{lstlisting}
@@ -1134,7 +1139,7 @@ LS ls(gfs,cg,5000,2);
 The linear solvers in this table are preconditioned with a nonoverlapping domain decomposition
 using the respective smoother.\medskip
 
-\resizebox{0.9\textwidth}{!}{
+\resizebox{0.7\textwidth}{!}{
 \begin{tabular}{|l|l|l|}\hline
 nnsolver backend & smoother & linear solver\\\hline
 \lstinline!ISTLBackend_NOVLP_CG_NOPREC<GFS>! & -- & CG\\\hline
@@ -1163,19 +1168,19 @@ auto N = Dune::filledArray<int, 2>(16);
 std::bitset<2> periodic (false);
 !\color{red}int overlap=0; // overlap 0 as overlap elements are not assembled!
 Dune::YaspGrid<2> grid(L,N,periodic!\color{red},overlap!);
-typedef Dune::YaspGrid<2>::LeafGridView GV;
+using GV = Dune::YaspGrid<2>::LeafGridView;
 const GV& gv=grid.leafView();
 
 // 2. Create correctly constrained grid function space
-typedef Dune::PDELab::Q1LocalFiniteElementMap<Coord,Real,dim> FEM;
+using FEM = Dune::PDELab::Q1LocalFiniteElementMap<Coord,Real,dim>;
 FEM fem;
-!\color{red}typedef Dune::PDELab::NonoverlappingConformingDirichletConstraints<GV> CON;!
+!\color{red}using CON = Dune::PDELab::NonoverlappingConformingDirichletConstraints<GV>;!
 !\color{red}CON con(gv)!;
-typedef Dune::PDELab::ISTLVectorBackend<> VBE;
-typedef Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE> GFS;
+using VBE = Dune::PDELab::ISTLVectorBackend<>;
+using GFS = Dune::PDELab::GridFunctionSpace<GV,FEM,CON,VBE>;
 GFS gfs(gv,fem!\color{red},con!);
 !\color{red}con.compute\_ghosts(gfs); // con stores indices of ghost dofs!
-typedef ConvectionDiffusionProblem<GV,Real> Param;
+using Param = ConvectionDiffusionProblem<GV,Real>;
 Param param;
 \end{lstlisting}
 \only<presentation>{\lstset{basicstyle=\normalsize\ttfamily}}
@@ -1184,20 +1189,20 @@ Param param;
 \frametitle<presentation>{Nonoverlapping Example Continued}
 \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
   \begin{lstlisting}[breaklines=true]
-typedef Dune::PDELab::BCTypeParam_CD<Param> B;
+using B = Dune::PDELab::BCTypeParam_CD<Param>;
 B b(gv,param);
-typedef Dune::PDELab::DirichletBoundaryCondition_CD<Param> G;
+using G = Dune::PDELab::DirichletBoundaryCondition_CD<Param>;
 G g(gv,param);
 // Compute constrained space
-typedef typename GFS::template ConstraintsContainer<Real>::Type C;
+using C = typename GFS::template ConstraintsContainer<Real>::Type;
 C cg;
 Dune::PDELab::constraints(b,gfs,cg);
 
 // Make grid operator
-typedef Dune::PDELab::ConvectionDiffusion<Param> LOP;
+using LOP = Dune::PDELab::ConvectionDiffusion<Param>;
 LOP lop(param,2);
-typedef Dune::PDELab::ISTLMatrixBackend MBE;
-typedef Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,double,double,double,C,C,true> GO;
+using MBE = Dune::PDELab::ISTLMatrixBackend;
+using GO = Dune::PDELab::GridOperator<GFS,GFS,LOP,MBE,double,double,double,C,C,true>;
 GO gos(gfs,cg,gfs,cg,lop);
 \end{lstlisting}
 \only<presentation>{\lstset{basicstyle=\normalsize\ttfamily}}
@@ -1207,13 +1212,13 @@ GO gos(gfs,cg,gfs,cg,lop);
 \only<presentation>{\lstset{basicstyle=\scriptsize\ttfamily}}
   \begin{lstlisting}[breaklines=true,escapechar=!]
 // Compute affine shift
-typedef typename GO::Traits::Domain V;
+using V = typename GO::Traits::Domain;
 V x(gfs,0.0);
 Dune::PDELab::interpolate(g,gfs,x);
 Dune::PDELab::set_nonconstrained_dofs(cg,0.0,x);
 
 // 3. Choose a linear solver
-!\color{red}typedef Dune::PDELab::ISTLBackend\_NOVLP\_BCGS\_SSORk<GO> LS;!
+!\color{red}using LS = Dune::PDELab::ISTLBackend\_NOVLP\_BCGS\_SSORk<GO>;!
 LS ls(go,5000,3,2);
 ...
 \end{lstlisting}

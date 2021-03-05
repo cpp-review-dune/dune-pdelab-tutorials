@@ -22,6 +22,7 @@
 % all after
 \usepackage{amscd}
 
+\usepackage{calc}
 \usepackage{pgfplots,adjustbox}
 \usepackage{eurosym}
 \usepackage{graphicx}
@@ -65,6 +66,10 @@
 
 \title{Simulation Workflow - Build system, meshes and visualization}
 \author{Dominic Kempf}
+\institute[]
+{
+  Scientific Software Center\\Heidelberg University\\
+}
 
 \begin{document}
 
@@ -89,6 +94,7 @@
 \section{Modular structure of Dune}
 
 \begin{frame}[fragile]
+ \frametitle{Modular structure of Dune}
  Dune is distributed as a zoo of projects.
  They fall into the following categories:
 
@@ -109,12 +115,31 @@
   \item uses the build system from dune-common
  \end{itemize}
 
- New modules are created with a shell script \lstinline!duneproject!
 \end{frame}
-
 
 \section{Build system}
 
+\begin{frame}[fragile]
+  \frametitle{Managing modules: Two useful scripts}
+
+  \lstinline!dune-common! ships two tools that define a user interface
+  for handling Dune modules:
+  \begin{itemize}
+   \item \lstinline!duneproject! creates new projects interactively
+   \item \lstinline!dunecontrol! executes commands across a stack of modules. This can be used
+     \begin{itemize}
+       \item Run CMake on all modules
+       \item Build the Dune modules
+       \item Install the Dune stack into global paths
+       \item Run arbitrary commands on all source directories (e.g. \lstinline!git! commands)
+       \item Run arbitrary commands on all build directories (e.g. a testing)
+     \end{itemize}
+  \end{itemize}
+
+  \vspace{0.5cm}
+  The course material was built with \lstinline!dunecontrol! as part of the
+  \lstinline!install.sh! script.
+\end{frame}
 
 \begin{frame}[fragile]
  \frametitle{What is CMake anyway?}
@@ -202,7 +227,7 @@ outputfilename = myfile.vtu
 lowerleft = -1. -1.
 upperright = 1. 1.
 \end{lstlisting}
-\vspace{0.5cm}
+\vspace{0.2cm}
  Dune style ini files support:
  \begin{itemize}
   \item Key/value pairs separated with a \verb!=!
@@ -215,6 +240,8 @@ upperright = 1. 1.
 
   Dune::ParameterTree tree;
   Dune::ParameterTreeParser::readINITree(filename, tree);
+
+  std::cout << "Writing to " << tree.get<std::string>("outputfilename");
  \end{cppcode}
 
 \end{frame}
@@ -459,7 +486,7 @@ auto grid = Dune::GmshReader<GridType>::
 
 \begin{frame}[fragile]
 \frametitle{VTK-Export - Elementdata}
-  \vspace*{-1ex}
+  % \vspace*{-1ex}
 \begin{codeblock}
   \vspace*{-1ex}
   \lstinputlisting[basicstyle=\scriptsize\ttfamily]{src_samples/io/vtkexport-elements.cc}

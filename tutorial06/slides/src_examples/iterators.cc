@@ -1,7 +1,6 @@
 #include <dune/grid/somegrid.hh>
 
-void iterate_the_grid()
-{
+void iterate_the_grid() {
     // we have a grid
     Dune::SomeGrid grid(parameters);
 
