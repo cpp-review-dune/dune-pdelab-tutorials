@@ -113,21 +113,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 
-\begin{frame}[fragile]
-  \frametitle{Introduction}
-  \textbf{Introduction}
-  \begin{itemize}
-  \item This tutorial gives a short introduction to using
-    \lstinline{dune-codegen}\footnote{https://gitlab.dune-project.org/extensions/dune-codegen}
-  \item \lstinline{dune-codegen} uses code generation to solve PDEs. This is
-    done by describing the PDE in a domain-specific language (DSL) and
-    generating \CC\ code for the local integration kernels
-  \item We use UFL\footnote{https://bitbucket.org/fenics-project/ufl} as DSL
-  \item The generated code can be used in \lstinline{dune-pdelab}
-  \item This makes it easier to use PDELab for your application
-  \end{itemize}
-\end{frame}
-
 \begin{frame}
   \frametitle{Introduction}
   We will look at a quick example to get some idea how this looks like.
@@ -164,6 +149,22 @@
     - \int_\Omega f \, v_h \, dx = 0 \qquad \forall v_h \in V_h
   \end{equation*}
   \lstinputlisting[language={}, basicstyle=\scriptsize, backgroundcolor=\color{listingbg}, keywords={}]{../src/poisson.ufl}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Introduction}
+  \textbf{Introduction}
+  \begin{itemize}
+    \item \lstinline{dune-codegen}\footnote{https://gitlab.dune-project.org/extensions/dune-codegen} is a seperate module
+  \item This tutorial gives a short introduction to using
+    \lstinline{dune-codegen}
+  \item \lstinline{dune-codegen} uses code generation to solve PDEs. This is
+    done by describing the PDE in a domain-specific language (DSL) and
+    generating \CC\ code for the local integration kernels
+  \item We use UFL\footnote{https://bitbucket.org/fenics-project/ufl} as DSL
+  \item The generated code can be used in \lstinline{dune-pdelab}
+  \item This makes it easier to use PDELab for your application
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
