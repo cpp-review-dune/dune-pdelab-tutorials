@@ -172,11 +172,11 @@ Dune::PDELab::PkLocalFiniteElementMap<GV,DF,double,deg> FEM;
 
   To avoid segfaults you need to change
   \begin{lstlisting}
-Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::fixed> VBE;
+using VBE = Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::fixed>;
   \end{lstlisting}
   to
   \begin{lstlisting}
-Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::none> VBE;
+using VBE = Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::none>;
   \end{lstlisting}
   in  \lstinline!driver.hh!.
 \end{Exercise}
@@ -205,9 +205,9 @@ Dune::PDELab::istl::VectorBackend<Dune::PDELab::istl::Blocking::none> VBE;
   \begin{lstlisting}
 // Make instationary grid operator
 double speedofsound = ptree.get("problem.speedofsound",1.0);
-typedef WaveFEM<FEM> LOP;
+using LOP = WaveFEM<FEM>;
 LOP lop(speedofsound);
-typedef WaveL2<FEM> TLOP;
+using TLOP = WaveL2<FEM>;
 TLOP tlop;
   \end{lstlisting}
   \end{itemize}
