@@ -81,11 +81,11 @@
 
 % Title definition
 \title{DUNE PDELab Tutorial 03}
-\subtitle{Conforming Finite Elements for a Nonlinear Heat Equation}}
-\author{Peter Bastian}
+\subtitle{Conforming Finite Elements for a Nonlinear Heat Equation}
+\author{Dominic Kempf}
 \institute[]
 {
-  IWR\\
+  Scientific Software Center\\
   Heidelberg University
 }
 
@@ -299,7 +299,7 @@ Dz^{k+1} = s^k - \Delta t^k q^k.
 \end{equation*}
 Requires stability condition for $\Delta t^k$.\\
 \smallskip
-Use follwing algorithm:
+Use the following algorithm:
 \begin{enumerate}[i)]
 \item While traversing the mesh assemble the vectors $s^k$ and
 $q^k$ separately and compute the maximum time step $\Delta t^k$.
