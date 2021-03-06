@@ -169,11 +169,11 @@ The worlds four fastest computers (November 2020) have
 \begin{itemize}
 \item Uniform memory access architecture (UMA): \\
  access to every memory location from every process takes the
-same amount of time (some multi-core CPUs)
+same amount of time (few multi-core CPUs)
 \item Non-uniform memory access architecture (NUMA): \\
 memory is associated with a processor or a group of processor cores but address space is
 global. Local memory can be accessed faster than memory attached
-to other processes (some multi-core CPUs, multi-processor servers)
+to other processors or other parts of the same processor (most multi-core CPUs, multi-processor servers)
 \end{itemize}
 \item Message passing architecture (MP): \\
  each process can only access local memory, information is exchanged
@@ -186,10 +186,10 @@ between processes with messages send over a network (computer clusters, super co
 \frametitle{Comparison of Architectures by Example}
 \begin{itemize}
 \item Given vectors $\mathbf{x},\mathbf{y}\in\mathbb{R}^N$, compute scalar product $s =
-  \sum_{i=0}^{N-1} \mathbf{x}_i \, \mathbf{y}_i$:
+  \sum_{i=0}^{N-1} x_i \, y_i$:
 \begin{itemize}
 \item[(1)] Subdivide index set into $P$ pieces.
-\item[(2)] Compute $s_p=\sum_{i=pN/P}^{(p+1)N/P-1} \mathbf{x}_i \, \mathbf{y}_i$ in
+\item[(2)] Compute $s_p=\sum_{i=pN/P}^{(p+1)N/P-1} x_i \, y_i$ in
   parallel.
 \item[(3)] Compute $s = \sum_{i=0}^{P-1} s_i$.
 \end{itemize}
@@ -216,8 +216,8 @@ between processes with messages send over a network (computer clusters, super co
 \frametitle<presentation>{Message Passing}
 
 \begin{itemize}
-\item Users view: Copy (contiguous) memory block from one address space to the
-  other.
+\item Users view: Copy (contiguous) memory block from one address space to 
+  another.
 \item During transmission the message is subdivided into individual packets.
 \item Network is packet-switched.
 \item A packet consists of an envelope and
@@ -258,7 +258,7 @@ between processes with messages send over a network (computer clusters, super co
 \begin{frame}
 \frametitle<presentation>{Strong Scalability of 3D Parallel Computation}
 \begin{center}
-\includegraphics[width=0.8\textwidth]{dnapl-3d-het-iso}\\
+\includegraphics[width=0.7\textwidth]{dnapl-3d-het-iso}\\
 3D DNAPL Infiltration
 \end{center}
 \end{frame}
@@ -285,18 +285,6 @@ P  & \#IT(max) & $T_{it}$ & S & $T_{asm}$ & S & $T_{total}$ & S \\
 \end{tabular}
 \end{center}
 
-Comparison with T3E from 1999
-\begin{center}
-\begin{tabular}{r|rrrr}
-\hline
-Machine  & Cells & Time steps & Newton steps & $T_{total}$ \\
-\hline
-256 T3E        & 2621440 &  50 & 264 & 14719\\
-16 Cores AMD & 2457600 & 50 & 231 & 2500\\
-\hline
-\end{tabular}
-\end{center}
-\vfill
 \end{frame}
 
 
@@ -346,7 +334,7 @@ Machine  & Cells & Time steps & Newton steps & $T_{total}$ \\
         sub-domains:
         \[
         \Omega_i\colon\quad \bigcup_{i=1}^p \overline{\Omega}_i = \overline{\Omega}, \quad
-        \Omega_i\cap\Omega_j=\emptyset \;\forall i\ne j.
+        \Omega_i\cap\Omega_j=\emptyset \ \forall i\ne j.
         \]
       \end{itemize}
     \end{column}
@@ -598,22 +586,20 @@ by the method\\
       \item n-dimensional
       \item arbitrary overlap
       \end{itemize}
+  \item<2-> Unstructured 2D/3D grids with full load-balancing:
+  \begin{itemize}
   \item<2-> \lstinline!UGGrid!
       \begin{itemize}
-      \item unstructured
-      \item 2D/3D
       \item multi-element (e.g. tetrahedrons, pyramids, prisms and hexahedrons simultaneously in 3D)
       \item non-conforming/conforming refinement
       \item ghost cells
       \end{itemize}
   \item<3-> \lstinline!ALUGrid!
       \begin{itemize}
-      \item unstructured
-      \item 2D/3D
       \item either tetrahedral or hexahedral elements
       \item non-conforming refinement, conforming bisection refinement for 3D tetrahedral grid
       \item ghost cells (non-conforming grids only)
-      \item full load-balancing
+      \end{itemize}
       \end{itemize}
   \end{itemize}
 \end{frame}
@@ -741,15 +727,13 @@ neighbor available on the same process (even if it is a ghost).
     same work load\\
     $\Rightarrow$ well balanced grids necessary
   \item adaptation leads to unbalanced work load
-  \item only 3D ALUGrid provides a fully working method to re-balance the work load after grid adaptation
+  \item UGGrid and 3D ALUGrid provide methods to re-balance the work load after grid adaptation
   \begin{description}[123]
   \item[\ttfamily loadBalance(DataHandle \&data)]:\\
     re-balances a parallel grid, optionally sends also user data
   \item[\ttfamily DataHandle]:\\
     works like the data handle for the communicate methods
   \end{description}
-   \item with UGGrid you can initialize a coarse grid and then call \lstinline!loadBalance! before starting the
-         computation.
   \end{itemize}
 \end{frame}
 
@@ -765,8 +749,9 @@ class YaspPartition : public Dune::YLoadBalance<dim> {
   public:
     using iTuple = std::array<int, dim>;
     void loadbalance (const iTuple& size, int P, iTuple& dims) const {
-      dims[0] = 1;
-      dims[1] = P;
+      for (auto& x : dims)
+        x = 1;
+      dims.back() = P;
     }
 };
 \end{lstlisting}
@@ -821,7 +806,7 @@ where
     \begin{itemize}
     \item \lstinline!CommDataHandleIF!\\
       is a user defined class describing what data should be communicated. The class has to provide methods to assemble the data on the
-      source process and write distribute the data on the target process (see exercises).
+      source process and distribute the data on the target process (see exercises).
     \end{itemize}
 \end{frame}
 
@@ -860,9 +845,11 @@ data communicate and only the entities present on both processes are included in
   \frametitle<presentation>{Collective Communication}
   \begin{itemize}
   \item parallel computations require global communication (e.g. sum(defect) or $\min(\Delta t)$
-        and synchronization (e.g. a barrier needed for a timing)
-  \item You can get a collective communicator object by the following method of a \lstinline!GridView!:
-    \lstinline!  const CollectiveCommunication & comm () const;!
+    and synchronization, e.g. a barrier needed for timing)
+  \item You can get a collective communication object by the following method of a \lstinline!GridView!:
+\begin{lstlisting}
+  const CollectiveCommunication & comm () const;
+\end{lstlisting}
   \end{itemize}
 \vfill
 \vfill
@@ -876,7 +863,8 @@ data communicate and only the entities present on both processes are included in
 \begin{frame}[fragile]
   \frametitle<presentation>{Collective Communication}
 The class  \lstinline!Dune::Grid::CollectiveCommunication! provides comfortable access to a lot of MPI methods, e.g.\medskip
-\only<presentation>{\small}
+\only<presentation>{\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true}}
+\only<presentation>{\footnotesize}
     \begin{tabular}{l|p{10cm}}
       \hline
       Method name & Description\\\hline
@@ -1000,10 +988,10 @@ Parallel computing in PDELab is very easy.
 \end{frame}
 
 \subsection{Parallel Solver Backends}
-\begin{frame}
-  \frametitle<presentation>{Building Blocks for Parallel Solvers}
-  \includegraphics[width=\textwidth]{istlsolver}
-\end{frame}
+%\begin{frame}
+%  \frametitle<presentation>{Building Blocks for Parallel Solvers}
+%  \includegraphics[width=\textwidth]{istlsolver}
+%\end{frame}
 
 \begin{frame}
   \frametitle<presentation>{Parallel Solver Backends}
@@ -1141,7 +1129,7 @@ using the respective smoother.\medskip
 
 \resizebox{0.7\textwidth}{!}{
 \begin{tabular}{|l|l|l|}\hline
-nnsolver backend & smoother & linear solver\\\hline
+solver backend & smoother & linear solver\\\hline
 \lstinline!ISTLBackend_NOVLP_CG_NOPREC<GFS>! & -- & CG\\\hline
 \lstinline!ISTLBackend_NOVLP_CG_Jacobi<GFS>! & Jacobi & CG\\\hline
 \lstinline!ISTLBackend_NOVLP_CG_SSORk<GO>! & SSOR & CG\\\hline
