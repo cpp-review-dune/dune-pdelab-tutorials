@@ -37,14 +37,19 @@
 
 \begin{Exercise}{Iterating over a grid}
 
-First, you should start a fresh terminal and switch to the working directory of this exercise:
-\begin{lstlisting}
-  [user@dune-vm ~]$ cd dune-course
-  [user@dune-vm dune-course]$ cd release-build
-  [user@dune-vm release-build]$ cd dune-pdelab-tutorials
-  [user@dune-vm dune-pdelab-tutorials]$ cd gridinterface
-  [user@dune-vm gridinterface]$ cd exercise
-  [user@dune-vm exercise]$ cd task
+For running this exercise, you should start a fresh terminal and install \texttt{gnuplot}:
+\begin{lstlisting}[language=bash,keywordstyle=\color{blue}]
+  dune@dune-course:~$ sudo apt-get install gnuplot
+\end{lstlisting}
+
+Then, switch to the working directory of this exercise:
+\begin{lstlisting}[language=bash,keywordstyle=\color{blue}]
+  dune@dune-course:~$ cd iwr-course-2021
+  dune@dune-course:~iwr-course-2021$ cd release-build
+  dune@dune-course:~release-build$ cd dune-pdelab-tutorials
+  dune@dune-course:~dune-pdelab-tutorials$ cd gridinterface
+  dune@dune-course:~gridinterface$ cd exercise
+  dune@dune-course:~exercise$ cd task
 \end{lstlisting}
 
 This is the build directory, so typing \lstinline!make! will build three executables.
@@ -59,8 +64,8 @@ indices, boundary intersections and such. You can have a look at the
 visualization after a succesful run of the executable \lstinline!grid-exercise1!
 with:
 
-\begin{lstlisting}
-  [user@dune-vm task]$ xdg-open printgrid_0.png
+\begin{lstlisting}[language=bash,keywordstyle=\color{blue}]
+  dune@dune-course:~task$ xdg-open printgrid_0.png
 \end{lstlisting}%$
 
 By default, a 4x4 grid is generated. You can change this to some
@@ -200,7 +205,7 @@ condition $c_\text{in}$, depending on the location of $e$.
   an additional file \lstinline!concentration.pvd! that contains information
   about the whole time series. Open that file by calling
 \begin{lstlisting}
-  [user@dune-vm task]$ paraview --data=concentration.pvd &
+  dune@dune-course:~task$ paraview --data=concentration.pvd &
 \end{lstlisting}
   to load the complete output of the program. ParaView will be explained in more
   detail in the second part of the grid tutorial, but for now just click the
