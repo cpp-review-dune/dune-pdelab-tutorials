@@ -61,8 +61,9 @@ Some remarks regarding parallel programs in DUNE:
   \lstinline{mpirun} command of your MPI implementation. If you want
   to run exercise06-1 with two processes you could use
   \begin{lstlisting}
-mpirun -np 2 ./exercise06-1
+mpirun --oversubscribe -np 2 ./exercise06-1
   \end{lstlisting}
+  Note that \lstinline{--oversubscribe} may be necessary if the number of processes you want to start exceeds the number of your physical processor cores.
 \item VTK output from \lstinline{VTKWriter} does not need any special
   treatment in the parallel case. When applied to a
   \lstinline{GridView} of a parallel grid each process will produce
@@ -161,7 +162,7 @@ gv.communicate(dh,Dune::All_All_Interface,
     \lstinline{InterfaceType} means. Run your program with two
     processes:
     \begin{lstlisting}
-mpirun -np 2 ./exercise06-2
+mpirun --oversubscribe -np 2 ./exercise06-2
     \end{lstlisting}
     Try different communication interfaces by changing the value of
     \lstinline{type} in the ini file:
