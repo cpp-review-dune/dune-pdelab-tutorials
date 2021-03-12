@@ -171,7 +171,7 @@ public:
           geo.integrationElement(ip.position());
         auto q = param.q(u);
         for (size_t i=0; i<lfsu.size(); i++)
-          r.accumulate(lfsu,i,(gradu*gradphi[i][0]+
+          r.accumulate(lfsv,i,(gradu*gradphi[i][0]+
                                q*phihat[i])*factor);
       }
   }
