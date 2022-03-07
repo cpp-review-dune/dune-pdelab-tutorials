@@ -105,7 +105,7 @@ void driver (const GV& gv, const FEMDG& femdg, NUMFLUX& numflux, Dune::Parameter
   //LS ls(false);
 
   // time-stepping
-  Dune::PDELab::ExplicitOneStepMethod<RF,IGO,LS,V,V> osm(*method,igo,ls);
+  Dune::PDELab::ExplicitOneStepMethod<RF,IGO,LS,V,V> osm(*method,igo,ls,0.99);
   osm.setVerbosityLevel(2);
   /// tex: lsosm
 
