@@ -122,7 +122,7 @@ public:
     // store in result
     for (int i=0; i<n; i++)
       for (int j=0; j<n; j++)
-        mat.accumulate(lfsu,i,lfsu,j,A[i][j]*factor);
+        mat.accumulate(lfsv,i,lfsu,j,A[i][j]*factor);
   }
 
   // volume integral depending on test and ansatz functions

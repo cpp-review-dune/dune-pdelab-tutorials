@@ -101,8 +101,8 @@ public:
         RF factor = ip.weight()*
           geo.integrationElement(ip.position());
         for (std::size_t i=0; i<lfsu0.size(); i++) {
-          r.accumulate(lfsu0,i,c*c*(gradu0*gradphi[i][0])*factor);
-          r.accumulate(lfsu1,i,-u1*phihat[i]*factor);
+          r.accumulate(lfsv.child(_0),i,c*c*(gradu0*gradphi[i][0])*factor);
+          r.accumulate(lfsv.child(_1),i,-u1*phihat[i]*factor);
         }
       }
   }
@@ -142,9 +142,9 @@ public:
           geo.integrationElement(ip.position());
         for (std::size_t j=0; j<lfsu0.size(); j++)
           for (std::size_t i=0; i<lfsu0.size(); i++) {
-            mat.accumulate(lfsu0,i,lfsu0,j,
+            mat.accumulate(lfsv.child(_0),i,lfsu0,j,
                      c*c*(gradphi[j][0]*gradphi[i][0])*factor);
-            mat.accumulate(lfsu1,i,lfsu1,j,
+            mat.accumulate(lfsv.child(_1),i,lfsu1,j,
                     -phihat[j]*phihat[i]*factor);
           }
       }
@@ -232,8 +232,8 @@ public:
         // accumulate residuals
         RF factor=ip.weight()*geo.integrationElement(ip.position());
         for (std::size_t i=0; i<lfsu0.size(); i++) {
-          r.accumulate(lfsu0,i,u1*phihat[i]*factor);
-          r.accumulate(lfsu1,i,u0*phihat[i]*factor);
+          r.accumulate(lfsv.child(_0),i,u1*phihat[i]*factor);
+          r.accumulate(lfsv.child(_1),i,u0*phihat[i]*factor);
         }
       }
   }
@@ -265,9 +265,9 @@ public:
         RF factor=ip.weight()*geo.integrationElement(ip.position());
         for (std::size_t j=0; j<lfsu0.size(); j++)
           for (std::size_t i=0; i<lfsu0.size(); i++) {
-            mat.accumulate(lfsu0,i,lfsu1,j,
+            mat.accumulate(lfsv.child(_0),i,lfsu1,j,
                            phihat[j]*phihat[i]*factor);
-            mat.accumulate(lfsu1,i,lfsu0,j,
+            mat.accumulate(lfsv.child(_1),i,lfsu0,j,
                            phihat[j]*phihat[i]*factor);
           }
       }

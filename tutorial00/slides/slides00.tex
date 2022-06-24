@@ -6,42 +6,26 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[ignorenonframetext,11pt]{beamer}
+\documentclass[aspectratio=169,11pt]{beamer}
 %\usepackage[ngerman]{babel}
-%\usepackage[T1]{fontenc}
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{lmodern}
 \usepackage{amsmath,amssymb,amsfonts}
 
 
 % only presentation
 \mode<presentation>
 {
-  \usetheme{default}
-%  \usecolortheme{crane}
-  \setbeamercovered{transparent}
-%  \setlength{\parindent}{0pt}
-%  \setlength{\parskip}{1.35ex plus 0.5ex minus 0.3ex}
-%  \usefonttheme{structuresmallcapsserif}
-  \usefonttheme{structurebold}
-  \setbeamertemplate{theorems}[numbered]
-  \usepackage{amscd}
+  \usepackage[course]{dunestyle-beamer}
 }
 
 % all after
-\usepackage{tikz}
+\usepackage{amscd}
+
 \usepackage{pgfplots,adjustbox}
 \usepackage{eurosym}
 \usepackage{graphicx}
-\usepackage{multimedia}
-\usepackage{psfrag}
-\usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily,
-  keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-  commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
-\usepackage{curves}
-%\usepackage{epic}
-\usepackage{calc}
+\graphicspath{{.}{figures/}{../../latexstyle/layout/}}
 %\usepackage{picinpar}
 %\usepackage{fancybox}
 %\usepackage{xspace}
@@ -60,32 +44,11 @@
 \usepackage[binary-units]{siunitx}
 \usepackage{xcolor,tabu}
 
-\definecolor{niceblue}{rgb}{0.122,0.396,0.651}   %% 31, 101, 166 or #1F65A6
-\definecolor{niceorange}{RGB}{255,205,86}        %% #FFCD56
-\definecolor{nicered}{RGB}{220,20,60}                      %% rgb(220, 20, 60)
-\definecolor{niceteal}{HTML}{00A9AB}
-\definecolor{niceviolet}{HTML}{820080}
-
-\definecolor{niceblueLight}{HTML}{91CAFB}
-\definecolor{niceblueVeryLight}{HTML}{DDEFFF}
-
+\usepackage{lmodern}
+\usepackage{inconsolata}
+\usepackage{nimbusmononarrow}
+%\renewcommand*\ttdefault{txtt}
 \usepackage{dsfont}
-
-%\newcommand{\hlineabove}{\rule{0pt}{2.6ex}}
-%\newcommand{\hlinebelow}{\rule[-1.2ex]{0pt}{0pt}}
-
-%\usecolortheme[RGB={37,75,123}]{structure}
-% \definecolor{structurecolor}{rgb}{0.905,0.318,0.071}
-
-% \setbeamercolor{frametitle}{fg=black,bg=}
-% \setbeamercolor{sidebar left}{fg=,bg=}
-
-% \setbeamertemplate{headline}{\vskip4em}
-% \setbeamersize{sidebar width left=.9cm}
-
-% \setbeamertemplate{navigation symbols}{}
-%\setbeamertemplate{blocks}[rounded][shadow=true]
-%\setbeamertemplate{itemize items}[square]
 
 \mode<presentation>
 {
@@ -117,45 +80,13 @@
 }
 
 % Title definition
-\mode<presentation>
+\title{DUNE PDELab Tutorial 00}
+\subtitle{An Introduction to the Finite Element Method}
+\author{Peter Bastian}
+\institute[]
 {
-  \title{DUNE PDELab Tutorial 00\\
-  {\small  An Introduction to the Finite Element Method}}
-  \author{Peter Bastian}
-  \institute[]
-  {
-   Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
-   Im Neuenheimer Feld 205, D-69120 Heidelberg \\[6pt]
-  }
-  \date[\today]{\today}
-}
-
-
-% logo nach oben
-\mode<presentation>
-{
-% No navigation symbols and no lower logo
-\setbeamertemplate{sidebar right}{}
-
-% logo
-\newsavebox{\logobox}
-\sbox{\logobox}{%
-    \hskip\paperwidth%
-    \rlap{%
-      % putting the logo should not change the vertical possition
-      \vbox to 0pt{%
-        \vskip-\paperheight%
-        \vskip0.35cm%
-        \llap{\insertlogo\hskip0.1cm}%
-        % avoid overfull \vbox messages
-        \vss%
-      }%
-    }%
-}
-
-\addtobeamertemplate{footline}{}{%
-    \usebox{\logobox}%
-}
+ IWR\\
+ Heidelberg University
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -168,7 +99,7 @@
 
 \begin{document}
 
-\frame{\titlepage}
+\frame[plain, noframenumbering]{\titlepage}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -178,9 +109,10 @@
 \begin{itemize}
 \item Start with an introduction to the finite element method (FEM) for solving Poisson's equation
 with piecewise linear ``P$_1$'' finite elements
+\item In particular the weak formulation of PDEs is the key abstraction
 \item ``Hello World!'' for any numerical partial differential equation (PDE) solver framework!
-\item Gives necessary background for \lstinline{dune-grid} module
-\item Implement the method in PDELab (Wednesday)
+\item Gives necessary background for \lstinline{dune-grid} and \lstinline{dune-pdelab} module
+\item We will implement the P$_1$ FEM in PDELab on Wednesday \ldots
 \end{itemize}
 \end{frame}
 
@@ -192,11 +124,11 @@ with piecewise linear ``P$_1$'' finite elements
 \item Multi-physics
 \item Multi-scale
 \item Inverse modeling: parameter estimation, optimal control
-\item Uncertainty quantification
+\item Uncertainty quantification, data assimilation, \ldots
 \end{itemize}
 \item \textbf{Many different numerical solution methods}
 \begin{itemize}
-\item No single method to solve all equations!
+\item No single method to solve all PDEs!
 \item Different mesh types,  mesh generation, mesh refinement
 \item Higher-order approximations (polynomial degree)
 \item Error control and adaptive mesh/degree refinement
@@ -204,25 +136,26 @@ with piecewise linear ``P$_1$'' finite elements
 \end{itemize}
 \item \textbf{High-performance Computing}
 \begin{itemize}
-\item Single core performance: Often bandwidth limited
+\item Single core performance: bandwidth vs. compute-bound
 \item Parallelization through domain decomposition
 \item Robustness w.r.t. to mesh size, model parameters,  processors
 \item Dynamic load balancing
 \end{itemize}
 \end{itemize}
-$\Rightarrow$ \textbf{One software to do it all!}
+\rightarrownice \textbf{One flexible software to do it all!}
 \end{frame}
 
 \begin{frame}
 \frametitle{Flexibility Requires Abstraction!}
 \begin{itemize}
-\item DUNE/PDELab is based on an abstract formulation of the numerical scheme
-based on \textbf{residual forms}
+\item DUNE/PDELab is based on formulating numerical schemes
+as \textbf{residual forms}
 \item In order to implement a scheme it requires to put it to that form!
 \item Although you might be familiar with the FEM, you might not
 be familiar to the notation used here
 \item When you have mastered the abstraction you can solve complex problems with
 reasonable effort
+\item Still, there will be some learning curve \ldots
 \item Important feature: Orthogonality of concepts:
 \begin{itemize}
 \item Dimension $d=1,2,3,\ldots$
@@ -232,14 +165,13 @@ reasonable effort
 \item Uniform and adaptive mesh refinement of different types
 \item Sequential and parallel
 \end{itemize}
-All that will be handled in the course!
 \end{itemize}
+\rightarrownice Introduce one feature at a time!
 \end{frame}
 
-\begin{frame}
-\begin{center}
-\Large\textbf{Introduction to the Finite Element Method}
-\end{center}
+\part{Freshup of the Finite Element Method}
+\begin{frame}[plain,noframenumbering]
+  \partpage
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -256,6 +188,7 @@ u &= g \qquad\text{on $\partial\Omega$},\label{eq:1b}
 \end{subequations}
 \begin{itemize}
 \item $\Omega\subset\mathbb{R}^d$ is a polygonal domain in $d$-dimensional space
+\item Domains are open and connected sets of points
 \item A function $u\in C^2(\Omega)\cap C^0(\overline\Omega)$ solving \eqref{eq:1a}, \eqref{eq:1b}
 is called {\em strong solution}
 \item Inhomogeneous Dirichlet boundary conditions could be
@@ -268,12 +201,13 @@ requires quite restrictive conditions on $f$ and $g$
 \begin{frame}
 \frametitle{Weak Formulation of the PDE Problem}
 
-Suppose $u$ is a strong solution and take  {\em any test function}
-$v\in C^1(\Omega)\cap C^0(\overline\Omega)$ with $v=0$ on $\partial\Omega$ then:
+Let $u$ be a strong solution, take  {\em a test function}
+$v\in C^1(\Omega)\cap C^0(\overline\Omega)$, $v=0$ on $\partial\Omega$, then:
 \begin{equation*}
-\int_\Omega (-\Delta u) v \,dx =
-\underbrace{\int_\Omega \nabla u \cdot \nabla v \,dx}_{=: a(u,v)}=
-\underbrace{\int_\Omega fv \,dx}_{=: l(v)}.
+\int_\Omega (-\Delta u) v \,dx = \int_\Omega (-\nabla \cdot \nabla u) v \,dx =
+\underbrace{\int_\Omega \nabla u \cdot \nabla v \,dx}_{=: a(u,v)}
++ \underbrace{\int_{\partial\Omega} (-\nabla u)\cdot \nu \ v \,ds }_{= 0 (v|_{\partial\Omega}=0)}
+= \underbrace{\int_\Omega fv \,dx}_{=: l(v)}.
 \end{equation*}
 {\em Question}:  Is there a vector space of functions $V$ with $V_g=\{v\in V :
 \text{$v=g$ on $\partial\Omega$}\}$ and $V_0=\{v\in V :
@@ -292,13 +226,12 @@ Advantage: Weak solutions do exist under less restrictive conditions on the data
 \begin{frame}
 \frametitle{The Finite Element Method}
 \begin{itemize}
-\item The finite element method (FEM) is one method for the numerical solution of
-PDEs
+\item The finite element method (FEM) is one class of methods for the numerical solution of PDEs
 \item Others are the finite volume method (FVM) or the finite difference method (FDM)
-\item The FEM is based on the weak formulation derived above
-\item Its basic idea is to replace the space $V$ by a {\em finite-dimensional space} $V_h$!
-\item The construction of these finite-dimensional spaces
-needs some preparations \ldots
+\item FEMs are based on a weak formulation of the PDE
+\item In this lecture we will focus on the \textit{conforming} finite element method
+\item Its basic idea is to replace the space (infinite dimensional) space $V$ by a {\em finite-dimensional space} $V_h\subset V$
+\item The construction of these finite-dimensional spaces needs some preparations \ldots
 \end{itemize}
 \end{frame}
 
@@ -333,7 +266,7 @@ needs some preparations \ldots
 \node at (8,3) {$1$};
 \node at (3.9,3.5) {$2$};
 \node at (4.5,3.5) {$2$};
-\node at (10,0) {$%
+\node at (14,2.5) {$%
 \scriptsize
 \begin{array}{lll}
 g_{T_1}(0) = 2, & g_{T_1}(1) = 3, & g_{T_1}(2) = 1, \\
@@ -341,18 +274,17 @@ g_{T_2}(0) = 2, & g_{T_2}(1) = 1, & g_{T_2}(2) = 4, \\
 g_{T_3}(0) = 1, & g_{T_3}(1) = 3, & g_{T_3}(2) = 5, \\
 g_{T_4}(0) = 1, & g_{T_4}(1) = 5, & g_{T_4}(2) = 4.
 \end{array}$};
-\node at (11,2) {$\mathcal{I}_h^{int}=\{1\}, \mathcal{I}_h^{\partial\Omega}=\{2,3,4,5\}$};
+\node at (10,0.5) {$\mathcal{I}_h^{int}=\{1\}, \mathcal{I}_h^{\partial\Omega}=\{2,3,4,5\}$};
 \end{tikzpicture}
 \end{center}
-\vspace{-3mm}
 \begin{itemize}
-\item A mesh consists of ordered sets of vertices and elements:
+\item A mesh consists of \textit{ordered} sets of vertices and elements:
 \begin{equation*}
 \mathcal{X}_h = \{x_1,\ldots,x_N\} \subset \mathbb{R}^d, \quad
 \mathcal{T}_h = \{T_1, \ldots, T_M\}
 \end{equation*}
-\item {\em Simplicial element}: $T=\text{convex\_hull}(x_{T,0},\ldots,x_{T,d})$
-\item {\em Conforming}: Intersection is subentity
+\item {\em Simplicial element}: $T=\text{interior}(\text{convex\_hull}(x_{T,0},\ldots,x_{T,d}))$
+\item {\em Conforming}: Intersection of boundary is subentity
 \item {\em Local to global map} : $g_T : \{0,\ldots,d\}\to\mathcal{N}$
 \begin{equation*}
 \forall T\in\mathcal{T}_h, 0\leq i \leq d: g_T(i) = j \Leftrightarrow x_{T,i} = x_{j} .
@@ -404,7 +336,7 @@ $\mathcal{I}_h^{int} = \{i\in \mathcal{I}_h\,:\, x_i\in\Omega\},
 \item The mesh $\mathcal{T}_h$ is called {\em affine} if for every
 $T\in\mathcal{T}_h$ there is an affine linear map $\mu_T : \hat T \to T$,
 \begin{equation*}
-\mu_T(\hat x) = B_T \hat x + a_T
+\mu_T(\hat x) = B_T \hat x + b_T
 \end{equation*}
 with
 $$\forall i\in\{0,\ldots,d\} : \mu_T(\hat x_i) = x_{T,i}$$
@@ -415,7 +347,7 @@ $$\forall i\in\{0,\ldots,d\} : \mu_T(\hat x_i) = x_{T,i}$$
 \frametitle{Piecewise Linear Finite Element Space}
 \begin{itemize}
 \item The idea of the {\em conforming} FEM is to solve the weak problem
-in {\em finite-dimensional} function spaces:
+in a {\em finite-dimensional} function space $V_h\subset V$ used in the weak form:
 \begin{equation*}
 u_h\in V_{h,g} : \quad a(u_h,v) = l(v) \quad \forall v\in V_{h,0} .
 \end{equation*}
@@ -425,15 +357,16 @@ V_h(\mathcal{T}_h) = \{ v\in C^0(\overline{\Omega}) \,:\,
 \forall T\in\mathcal{T}_h : v|_T\in\mathbb{P}_1^d\}
 \end{equation*}
 where $\mathbb{P}_1^d = \{ p : \mathbb{R}^d \to \mathbb{R}
-\,:\, p(x) = a^Tx+ b, a\in\mathbb{R}^d, b\in\mathbb{R}\}$
+\,:\, p(x) = q^Tx+ r, q\in\mathbb{R}^d, r\in\mathbb{R}\}$
 \item One can show $\text{dim} V_h = N = \text{dim} \mathcal{X}_h$ and $V_h\subset H^1(\Omega)$
 \item {\em Lagrange} basis functions:
 $$\Phi_h=\{\phi_1,\ldots,\phi_N\}, \quad
 \forall i,j\in\mathcal{I}_h \,:\, \phi_i(x_j) = \delta_{i,j}$$
 \item {\em Test and Ansatz spaces}:
 \begin{align*}
-V_{h,0} &= \{v\in V_h \,:\, \forall i\in\mathcal{I}_h^{\partial\Omega} : v(x_i)=0\}, \\
+V_{h,0} &= \{v\in V_h \,:\, \forall i\in\mathcal{I}_h^{\partial\Omega} : v(x_i)=0\}, &&\text{(vector space)}\\
 V_{h,g} &= \{v\in V_h : \forall i\in\mathcal{I}_h^{\partial\Omega} : v(x_i)=g(x_i)\} = v_{h,g} + V_{h,0}
+&&\text{(affine shifted space)}
 \end{align*}
 \end{itemize}
 \end{frame}
@@ -449,7 +382,7 @@ Due to their shape they are often called {\em hat functions}
 \end{frame}
 
 \begin{frame}
-\frametitle{Finite Element Solution}
+\frametitle{Computing the Finite Element Solution}
 Inserting a {\em basis representation} $u_h = \sum_{j=1}^N (z)_j \phi_j$ results in
 \begin{align*}
 a(u_h,v) &= l(v) \quad \forall v\in V_{h,0} &&\text{(discrete weak problem)},\nonumber \\
@@ -466,9 +399,8 @@ u_h(x_i) = z_i = g(x_i) \quad\forall i\in\mathcal{I}_h^{\partial\Omega}
 \label{eq:linear2}
 \end{equation*}
 this forms a system of linear equations
-$$Ax=b$$
-where
 \begin{equation*}
+Az=b, \qquad
 (A)_{i,j} = \left\{\begin{array}{ll}
 a(\phi_j,\phi_i) & i\in\mathcal{I}_h^{int}\\
 \delta_{i,j} & i\in\mathcal{I}_h^{\partial\Omega}
@@ -489,10 +421,10 @@ g(x_i) & i\in\mathcal{I}_h^{\partial\Omega}
 \item {\em Iterative} methods (hopefully) produce a convergent sequence
 $$\lim_{k\to\infty} z^k = z$$
 \item A very simple example is {\em Richardson's} iteration:
-$$ z^{k+1} = z^{k} + \omega (b-Az^{k})$$
+$$ z^{k+1} = z^{k} + \omega (b-Az^{k}), \qquad \mathbb{R}\ni \omega > 0,$$
 requiring only {\em matrix-vector products}
-\item Another well known class of iterative solvers are Krylov methods requiring
-also only matrix-vector products
+\item Krylov methods require also only matrix-vector products
+\item Larger and/or difficult problems require efficient \textit{preconditioners}
 \end{itemize}
 %\begin{algorithmic}
 %\State Given $A, b, \epsilon$ and $z$ \Comment{input data}
@@ -509,18 +441,18 @@ also only matrix-vector products
 \begin{frame}
 \frametitle{Three Steps to Solve the FE Problem}
 \begin{enumerate}
-\item Assembling the matrix $A$. This mainly involves the computation of the matrix
-elements $a(\phi_j,\phi_i)$ and storing them in an appropriate data structure.
-\item Assembling the right hand side vector $b$. This mainly involves evaluations of
-the right hand side functional $l(\phi_i)$.
-\item {\em Alternatively:} Perform a matrix free operator evaluation $y=Az$. This involves evaluations
-of $a(u_h,\phi_i)$ for all test functions $\phi_i$ and a given function $u_h$ due to:
+\item Assembling the matrix $A$. This means the computation of the matrix
+entries $a(\phi_j,\phi_i)$ and storing them in an appropriate data structure
+\item Assembling the right hand side vector $b$. This means evaluating
+the right hand side functional $l(\phi_i)$
+\item Solve the linear system $Az=b$ using direct or iterative methods
+\item {\em Variant:} Perform a matrix free operator evaluation $y=Az$ within an iterative solver. This involves evaluations
+of $a(u_h,\phi_i)$ for all test functions $\phi_i$:
 \begin{align*}
-(Az)_i &= \sum_{j=1}^N (A)_{i,j} (z)_j = \sum_{j=1}^N a(\phi_j,\phi_i) (z)_j \\
-&= a\left(\sum_{j=1}^N (z)_j\phi_j,\phi_i\right) = a(u_h,\phi_i)
+(Ax)_i &= \sum_{j=1}^N (A)_{i,j} (x)_j = \sum_{j=1}^N a(\phi_j,\phi_i) (x)_j = a\left(\sum_{j=1}^N (x)_j\phi_j,\phi_i\right) = a(v_h,\phi_i)
 \end{align*}
 \end{enumerate}
-We now discuss {\em how} these steps may be implemented
+We now discuss {\em how} these steps are implemented
 \end{frame}
 
 \begin{frame}
@@ -528,11 +460,11 @@ We now discuss {\em how} these steps may be implemented
 \begin{enumerate}
 \item Transformation formula for integrals. For $T\in\mathcal{T}_h$:
 \begin{equation*}
-\int_T y(x)\,dx = \int_{\hat T} y(\mu_T(\hat x)) |\det B_T| \,dx .
+\int_T y(x)\,dx = \int_{\hat T} y(\mu_T(\hat x)) |\det B_T| \,dx, \quad \text{where $x=\mu_T(\hat x) = B_T \hat x + b_T$}
 \end{equation*}
 \item Midpoint rule on the reference element:
 \begin{equation*}
-\int_{\hat T} q(\hat x) \,dx \approx q(\hat S_d) w_d
+\int_{\hat T} q(\hat x) \,dx \approx q(\hat S_d) w_d, \qquad \text{($\hat S_d$: center of $d$-simplex)}
 \end{equation*}
 (More accurate formulas are used later)
 \item Basis functions via shape function transformation:
@@ -667,7 +599,7 @@ except (3) which needs to be supplied by the implementor of a FEM
 \begin{frame}
 \frametitle{Residual Forms}
 \begin{itemize}
-\item The FEM based on the weak formulation formulation may equivalently
+\item The FEM based on the weak formulation may equivalently
 be written as
 \begin{equation*}
 \text{Find $u_h\in U_h$ s.t.:} \quad r_h^\text{Poisson}(u_h,v)=0 \quad \forall v\in V_h.
@@ -676,6 +608,7 @@ where $r^\text{Poisson}(u_h,v) = a(u_h,v) - l(v)$ is the \textbf{residual form}
 \item This residual form is {\em affine linear} in $u_h$ and {\em linear} in $v$
 \item A {\em nonlinear} PDE results in a residual form $r(u,v)$ that is {\em nonlinear}
 in its first argument
+\item In that sense a linear problem is only a special case
 \item Residual forms are always linear in the second argument due
 to linearity of the integral
 \item \textbf{PDELab uses the concept of a residual form as its main abstraction!}
@@ -709,11 +642,25 @@ r_h(u_h,v)=0
 \end{itemize}
 \end{frame}
 
-
 \begin{frame}
-\begin{center}
-\Large\textbf{Implementation in DUNE/PDELab}
-\end{center}
+\frametitle{Literature}
+\begin{enumerate}
+\item Bastian, P., Blatt, M., Dedner, A. et al. \textit{A generic grid interface for parallel and adaptive scientific computing. Part I: abstract framework. }Computing 82, 103–119 (2008). \url{https://doi.org/10.1007/s00607-008-0003-x}
+\item Bastian, P., Blatt, M., Dedner, A. et al. \textit{A generic grid interface for parallel and adaptive scientific computing. Part II: implementation and tests in DUNE.} Computing 82, 121–138 (2008). \url{https://doi.org/10.1007/s00607-008-0004-9}
+\item Peter Bastian, Markus Blatt, Andreas Dedner, Nils-Arne Dreier, Christian Engwer, René Fritze, Carsten Gräser, Christoph Grüninger, Dominic Kempf, Robert Klöfkorn, Mario Ohlberger, Oliver Sander,
+\textit{The Dune framework: Basic concepts and recent developments},
+Computers \& Mathematics with Applications,
+Volume 81,
+2021,
+Pages 75-112,
+\url{https://doi.org/10.1016/j.camwa.2020.06.007}.
+\item Oliver Sander, \textit{DUNE — The Distributed and Unified Numerics Environment},  Lecture Notes in Computational Science and Engineering, 140, Springer-Verlag, 2020, \url{https://doi.org/10.1007/978-3-030-59702-3}
+\end{enumerate}
+\end{frame}
+
+\part{Implementation in DUNE/PDELab}
+\begin{frame}[plain,noframenumbering]
+  \partpage
 \end{frame}
 
 \begin{frame}
@@ -737,15 +684,15 @@ r_h(u_h,v)=0
 \node at (4.5,5) {\lstinline{dune-localfunctions}};
 \draw[thick,->] (4,4.5) -- (4,4);
 \node at (10,5) {Dune core modules};
-\filldraw[thick,fill=red!30!white] (2,6.5)  rectangle (7,7.5);
+\filldraw[thick,fill=duneorange] (2,6.5)  rectangle (7,7.5);
 \node at (4.5,7) {\lstinline{dune-pdelab}};
-\filldraw[thick,fill=red!30!white] (1.5,8)  rectangle (7.5,9);
+\filldraw[thick,fill=duneorange] (1.5,8)  rectangle (7.5,9);
 \node at (4.5,8.5) {\lstinline{dune-pdelab-tutorials}};
 \draw[thick,->] (4,6.5) -- (4,5.5);
 \draw[thick,->] (4,8) -- (4,7.5);
 \draw[thick,->] (7,7) -- (7.5,7) -- (7.5,3.5) -- (8,3.5);
-\filldraw[thick,fill=blue!20!white] (10,7.5)  rectangle (14,8.5);
-\node at (12,8.25) {\lstinline{dune-dumux}};
+\filldraw[thick,fill=dunelightblue] (10,7.5)  rectangle (14,8.5);
+\node at (12,8.25) {\lstinline{dumux}};
 \filldraw[thick,fill=green!20!white] (9.5,7)  rectangle (13.5,8);
 \node at (11.5,7.75) {\lstinline{dune-fufem}};
 \filldraw[thick,fill=yellow!20!white] (9,6.5)  rectangle (13,7.5);

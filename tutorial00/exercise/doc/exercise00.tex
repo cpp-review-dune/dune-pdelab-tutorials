@@ -72,10 +72,10 @@ In this exercise you will:
   First of all check that $u(x) = \sum_{i=1}^d (x)_i^2$ is a solution
   for any dimension $d$.
 
-  This program solves this equation for $d=2$. The executable can be
+  \item This program solves this equation for $d=2$. The executable can be
   found in the build directory of this exercise:
   \begin{lstlisting}
-cd dune-course/release-build/dune-pdelab-tutorials/tutorial00/exercise/task
+cd iwr-course-2021/release-build/dune-pdelab-tutorials/tutorial00/exercise/task
   \end{lstlisting}
   You can run the program with \lstinline{./exercise00}.  Some
   parameters of the program are controlled by the ini file
@@ -104,7 +104,7 @@ cd dune-course/release-build/dune-pdelab-tutorials/tutorial00/exercise/task
   the maximum error on each level.  If you want you can also try to
   calculate the L2-norm of the error in ParaView and determine the
   convergence rate by hand. In a later exercise you will see how to
-  calculate the L2-norm directly in the c++ source.
+  calculate the L2-norm directly in the C++ source.
 
 \item {\sc Use a different solver}:\\
   You may also try to exchange the iterative linear solver by
@@ -153,7 +153,7 @@ with scalar functions $k(x)$, $a(x)$.
     the function $a(x)$ to be \emph{constant} on mesh elements.
   \end{itemize}
 \item Plug in your new local operator in the driver code and test it.
-  In the solution the code is tested for $k(x)=2(x)_1$,
+  In the solution the code is tested for $k(x)=(x)_1$,
   $a(x)=\sum_{i=1}^{d}(x)_i$ and $g=\sum_{i=1}^d (x)_i^3$ by choosing
   the right hand side $f(x)$ in such a way that $u(x)=\sum_{i=1}^d
   (x)_i^3$ solves the PDE.

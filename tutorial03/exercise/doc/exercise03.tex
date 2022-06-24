@@ -114,14 +114,15 @@
   \lstinline!StationaryLinearProblemSolver!. Search in the driver for
   the lines starting with
   \begin{lstlisting}
-    typedef Dune::PDELab::Newton<IGO,LS> PDESOLVER;
+    typedef Dune::PDELab::NewtonMethod<IGO,LS> PDESOLVER;
     PDESOLVER pdesolver(igo,ls);
     ...
   \end{lstlisting}
   and change to the \lstinline!StationaryLinearProblemSolver!.
 
-  It has the same template arguments as the Newton solver. Give the
-  instance of the class \lstinline!StationaryLinearProblemSolver! also
+  Beware that it requires one extra tempate parameter, and its
+  constructor expects additional parameters too. Give the instance
+  of the class \mbox{\lstinline!StationaryLinearProblemSolver!} also
   the name \lstinline!pdesolver!. If you have problems with the
   construction of this solver consider for example the code in the
   driver of \lstinline!tutorial00!. Compile and run again. The program
@@ -208,14 +209,7 @@ Dune::PDELab::FractionalStepParameter<RF> pmethod;
   time step to the next.
 
   Please implement the initial and boundary conditions
-  (\ref{ch2:first})--(\ref{ch2:last}). When implementing $u_0$
-  you may be tempted to use the function \lstinline!abs()!. This is
-  wrong, \lstinline!abs()! is a function from the C-library to compute
-  absolute values for \emph{integers}. If a floating point value is
-  plugged in, it is truncated to an integer. The correct way is to use
-  \lstinline!std::abs()! instead.
-
-  Compile and run your program.
+  (\ref{ch2:first})--(\ref{ch2:last}). Compile and run your program.
   Remember that the grid needs $16\times16$ elements for the
   $\mathcal{Q}_1$/$\mathcal{Q}_2$ elements to resolve the initial
   condition exactly.  What happens to the interpolated initial condition

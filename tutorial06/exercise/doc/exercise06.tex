@@ -81,7 +81,7 @@ mpirun -np 2 ./exercise06-1
   \item Right now the program calculates the squared L2 error separately on
     every process without communicating. Use
     \lstinline{CollectiveCommunication}
-    \footnote{\href{https://www.dune-project.org/doxygen/pdelab/master/classDune\_1\_1CollectiveCommunication.html}{https://www.dune-project.org/doxygen/pdelab/master/classDune\_1\_1CollectiveCommunication.html}}
+    \footnote{\url{https://www.dune-project.org/doxygen/pdelab/master/classDune_1_1Communication.html}}
     to calculate the sum over the local L2 errors (squared).
   \item You could also try different solver backends.
   \end{enumerate}
@@ -132,8 +132,7 @@ gv.communicate(dh,Dune::All_All_Interface,
     This methods needs a \lstinline{DataHandle}, a communication
     \lstinline{InterfaceType} and a
     \lstinline{CommunicationDirection}. More information about these
-    can be found in the documentation
-    \footnote{\href{http://www.dune-project.org/doc-pdelab-master/doxygen/html/group\_\_GIRelatedTypes.html}{http://www.dune-project.org/doc-pdelab-master/doxygen/html/group\_\_GIRelatedTypes.html}}
+    can be found in the documentation \footnote{\url{https://www.dune-project.org/doxygen/pdelab/master/group__GIRelatedTypes.html}}
     but we don't need that for completing the exercise.
   \end{itemize}
   Our goal is to communicate the rank stored in the data vector to the
@@ -155,7 +154,7 @@ gv.communicate(dh,Dune::All_All_Interface,
   \item All methods the \lstinline{DataHandle} needs are already there
     but the implementations are missing.  With the comments from the
     source code it shouldn't be too hard to fill in the missing
-    peaces.
+    pieces.
   \item After implementing the missing parts or copying from the
     solution try to figure out what the communication
     \lstinline{InterfaceType} means. Run your program with two

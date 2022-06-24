@@ -6,42 +6,26 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[ignorenonframetext,11pt]{beamer}
+\documentclass[aspectratio=169,11pt]{beamer}
 %\usepackage[ngerman]{babel}
-%\usepackage[T1]{fontenc}
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{lmodern}
 \usepackage{amsmath,amssymb,amsfonts}
 
 
 % only presentation 
 \mode<presentation>
 {
-  \usetheme{default}
-%  \usecolortheme{crane}
-  \setbeamercovered{transparent}
-%  \setlength{\parindent}{0pt}
-%  \setlength{\parskip}{1.35ex plus 0.5ex minus 0.3ex}
-%  \usefonttheme{structuresmallcapsserif}
-  \usefonttheme{structurebold}
-  \setbeamertemplate{theorems}[numbered]
-  \usepackage{amscd}
+  \usepackage[course]{dunestyle-beamer}
 }
 
 % all after
-\usepackage{tikz} 
+\usepackage{amscd}
+
 \usepackage{pgfplots,adjustbox}
 \usepackage{eurosym} 
 \usepackage{graphicx}
-\usepackage{multimedia}
-\usepackage{psfrag}
-\usepackage{listings}
-\lstset{language=C++, basicstyle=\ttfamily, 
-  keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-  commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
-\usepackage{curves}
-%\usepackage{epic}
-\usepackage{calc}
+\graphicspath{{.}{figures/}{../../latexstyle/layout/}}
 %\usepackage{picinpar}
 %\usepackage{fancybox}
 %\usepackage{xspace}
@@ -60,32 +44,11 @@
 \usepackage[binary-units]{siunitx}
 \usepackage{xcolor,tabu}
 
-\definecolor{niceblue}{rgb}{0.122,0.396,0.651}   %% 31, 101, 166 or #1F65A6
-\definecolor{niceorange}{RGB}{255,205,86}        %% #FFCD56
-\definecolor{nicered}{RGB}{220,20,60}                      %% rgb(220, 20, 60)
-\definecolor{niceteal}{HTML}{00A9AB}
-\definecolor{niceviolet}{HTML}{820080}
-
-\definecolor{niceblueLight}{HTML}{91CAFB}
-\definecolor{niceblueVeryLight}{HTML}{DDEFFF}
-
+\usepackage{lmodern}
+\usepackage{inconsolata}
+\usepackage{nimbusmononarrow}
+%\renewcommand*\ttdefault{txtt}
 \usepackage{dsfont}
-
-%\newcommand{\hlineabove}{\rule{0pt}{2.6ex}}
-%\newcommand{\hlinebelow}{\rule[-1.2ex]{0pt}{0pt}}
-
-%\usecolortheme[RGB={37,75,123}]{structure}
-% \definecolor{structurecolor}{rgb}{0.905,0.318,0.071}
-
-% \setbeamercolor{frametitle}{fg=black,bg=}
-% \setbeamercolor{sidebar left}{fg=,bg=}
-
-% \setbeamertemplate{headline}{\vskip4em}
-% \setbeamersize{sidebar width left=.9cm}
-
-% \setbeamertemplate{navigation symbols}{}
-%\setbeamertemplate{blocks}[rounded][shadow=true]
-%\setbeamertemplate{itemize items}[square]
 
 \mode<presentation> 
 {
@@ -117,45 +80,13 @@
 }
 
 % Title definition
-\mode<presentation>
+\title{DUNE PDELab Tutorial 05}
+\subtitle{Adaptivity in PDELab}
+\author{Ole Klein}
+\institute[]
 {
-  \title{DUNE PDELab Tutorial 05\\
-  {\small  Adaptivity in PDELab}}
-  \author{Ole Klein}
-  \institute[]
-  {
-   Interdisziplinäres Zentrum für Wissenschaftliches Rechnen\\
-   Im Neuenheimer Feld 205, D-69120 Heidelberg \\[6pt]
-  }
-  \date[\today]{\today}
-}
-
-
-% logo nach oben
-\mode<presentation>
-{
-% No navigation symbols and no lower logo
-\setbeamertemplate{sidebar right}{}
-
-% logo
-\newsavebox{\logobox}
-\sbox{\logobox}{%
-    \hskip\paperwidth%
-    \rlap{%
-      % putting the logo should not change the vertical possition
-      \vbox to 0pt{%
-        \vskip-\paperheight%
-        \vskip0.35cm%
-        \llap{\insertlogo\hskip0.1cm}%
-        % avoid overfull \vbox messages
-        \vss%
-      }%
-    }%
-}
-
-\addtobeamertemplate{footline}{}{%
-    \usebox{\logobox}%
-}
+  IWR\\
+  Heidelberg University
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -168,7 +99,7 @@
 
 \begin{document}
 
-\frame{\titlepage}
+\frame[plain, noframenumbering]{\titlepage}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -176,10 +107,9 @@
 \begin{frame}
 \frametitle{Motivation}
 \begin{itemize}
-  \item Provide a comparatively simple example of adaptive mesh refinement in
-    PDELab
-  \item Build upon problem definition that is already familiar (tutorial 01)
-  \item Integrate central steps into framework that was introduced for the
+  \item Provide a comparatively simple example of \structure{adaptive mesh refinement}
+  \item Build upon \structure{problem definition that is already familiar} (tutorial 01)
+  \item Integrate central steps into framework that was introduced for
     solution of PDEs
   \item Show where the approach could be extended and modified to suit other PDEs,
     error norms or performance functionals
@@ -189,8 +119,8 @@
 \begin{frame}
 \frametitle{Discretization Error}
 \begin{itemize}
-  \item FEM approach replaces solution space $V$, e.g. $V=H^1(\Omega)$ plus
-    constraints, with \emph{finite-dimensional} space $V_h$
+  \item FEM approach replaces solution space $V$, e.g., $V=H^1(\Omega)$ plus
+    constraints, with \structure{finite-dimensional space} $V_h$
   \item FEM solution $u_h \in V_h$ is approximation of solution $u \in V$
   \item Finite approximation leads to discretization error, which should be small:
     \begin{equation*}
@@ -209,14 +139,14 @@
       \item Directly translates to memory requirements
       \item Determines computation time (together with mesh geometry)
     \end{itemize}
-  \item Keep number of dofs as small as possible while fulfilling requirements for
+  \item \structure{Keep number of dofs as small as possible} while fulfilling requirements for
     error norm $\| u - u_h \|$
-  \item Discretization error $u - u_h$ is generally not known (else there would be
-    no need for FEM!)
-  \item A-priori error estimates are for worst case, i.e. may be overly pessimistic,
-    don't provide spatially resolved information and contain unknown constant
+  \item Discretization error $u - u_h$ is generally not known (else we wouldn't need
+    FEM!)
+  \item A-priori error estimates are for worst case, i.e., may be overly pessimistic,
+    don't provide spatially resolved information, and contain unknown constant
 \end{itemize}
-$\Rightarrow$ \emph{A-posteriori error estimates} and iterative procedure required
+$\Rightarrow$ \structure{A-posteriori error estimates} and iterative procedure required
 \end{frame}
 
 \begin{frame}
@@ -231,7 +161,7 @@ $\Rightarrow$ \emph{A-posteriori error estimates} and iterative procedure requir
 \begin{frame}
 \frametitle{PDE Problem}
 We consider the problem
-\begin{subequations} \label{eq:ProblemStrong}
+\begin{subequations}\label{eq:ProblemStrong}
 \begin{align*}
 -\Delta u + q(u) &= f &&\text{in $\Omega$},\\
 u &= g &&\text{on $\Gamma_D\subseteq\partial\Omega$},\\
@@ -276,12 +206,12 @@ with the continuous residual form
   r^{\text{LP}}(u,v) = \int_\Omega \nabla u \cdot \nabla v + (cu-\tilde{f})v\,dx + \int_{\Gamma_N} jv\,ds
 \end{equation*}
 i.e. $q(u) = c u$ with a constant $c \in \mathbb{R}$ and a different right hand
-side $\tilde{f}$, and later return to the original nonlinear PDE.
+side $\tilde{f}$, and later return to the original nonlinear PDE.\@
 \end{frame}
 
 \begin{frame}
 \frametitle{Discretization Error Identity}
-Define \emph{discretization error} $e = u - u_h \in V$ and bilinear form
+Define \structure{discretization error} $e = u - u_h \in V$ and bilinear form
 \begin{equation*}
   a(u,v) = \int_\Omega \nabla u \cdot \nabla v + c u v \,dx
 \end{equation*}
@@ -291,7 +221,7 @@ Then we have, due to linearity of the PDE,
   &= r^{LP}(u,v) - r^{LP}(u_h,v) \\
   &= - r^{LP}(u_h,v)
 \end{align*}
-This provides an expression that does not depend on $u$ and therefore can be
+  This provides an \structure{expression that does not depend on $u$} and therefore can be
 evaluated using the finite element solution $u_h$!
 \end{frame}
 
@@ -303,7 +233,7 @@ evaluated using the finite element solution $u_h$!
   &= - \sum_{T \in \mathcal{T}_h} \left\{ \int_T \nabla u_h \cdot \nabla v + (c u_h - \tilde{f})\,dx - \int_{\partial T \cap \Gamma_N} jv\,ds \right\} \\
   &= \sum_{T \in \mathcal{T}_h} \left\{ \int_T R_T v \,dx + \int_{\partial T} R_{\partial T} v \,ds \right\}
 \end{align*}
-with \emph{element residuals} $R_T$ and \emph{element boundary residuals} $R_{\partial T}$ given by
+with \structure{element residuals $R_T$} and \structure{element boundary residuals $R_{\partial T}$} given by
 \begin{align*}
   R_T &= \Delta u_h + \tilde{f} - c u_h \\
   R_{\partial T} &= \begin{cases} - (\nabla u_h) \cdot \nu & \text{on } \partial T \setminus \Gamma_N \\
@@ -315,20 +245,19 @@ with \emph{element residuals} $R_T$ and \emph{element boundary residuals} $R_{\p
 \frametitle{Face Residuals}
 There are three types of faces $F \in \mathcal{F}_h$ that contribute to $\partial T$:
 \begin{itemize}
-  \item Interior faces $F \in \mathcal{F}_h^i$, these appear twice in the summation with changing orientation
+  \item Interior faces $F \in \mathcal{F}_h^i$, appearing twice in the summation with changing orientation
   \item Neumann boundary faces $F \in \mathcal{F}_h^N$, these appear once
   \item Dirichlet boundary faces $F \in \mathcal{F}_h^D$, here $v$ is zero
 \end{itemize}
 
-Define the \emph{face residuals} $R_F$ for faces $F \in \mathcal{F}$ by setting
+\bigskip
+
+  Define the \structure{face residuals $R_F$} for faces $F \in \mathcal{F}$ by setting
 \begin{equation*}
   R_F = \begin{cases} R_{\partial T}(T^-) + R_{\partial T}(T^+) = [- (\nabla u_h) \cdot \nu_F] & F \in \mathcal{F}_h^i \\
     R_{\partial T}(T^-) = - (\nabla u_h) \cdot \nu_F - j & F \in \mathcal{F}_h^N \end{cases}
 \end{equation*}
-where $T^-$ and $T^+$ are the elements next to $F$, $\nu_F$ points from $T^-$ to $T^+$ and $[\cdot]$ is the jump operator for tw-valued functions on $F$, i.e.
-\begin{equation*}
-  [v] = v(T^-) - v(T^+)
-\end{equation*}
+where $T^-$ and $T^+$ are the elements next to $F$, $\nu_F$ points from $T^-$ to $T^+$, and $[\cdot]$ is the jump operator for two-valued functions on $F$, i.e., $[v] = v(T^-) - v(T^+)$.
 \end{frame}
 
 \begin{frame}
@@ -337,7 +266,6 @@ Using the element residuals $R_T$ and face residuals $R_F$, we have
 \begin{equation*}
   a(e,v) = \sum_{T \in \mathcal{T}_h} \int_T R_T v \,dx + \sum_{F \in \mathcal{F}_h^i \cup \mathcal{F}_h^N} \int_F R_F v \,ds
 \end{equation*}
-
 For any interpolation operator $\mathcal{I} \colon V \to V_h$ we also have
 \begin{equation*}
   a(e,\mathcal{I}v) = \sum_{T \in \mathcal{T}_h} \int_T R_T \mathcal{I} v \,dx + \sum_{F \in \mathcal{F}_h^i \cup \mathcal{F}_h^N} \int_F R_F \mathcal{I} v \,ds = 0
@@ -352,14 +280,14 @@ For any interpolation operator $\mathcal{I} \colon V \to V_h$ we also have
 \frametitle{Discretization Error Identity (cont.)}
 Using
 \begin{itemize}
-  \item A specific choice of interpolation operator
+  \item A \structure{specific choice of interpolation operator}
   \item Matching interpolation error estimates (independent of problem definition!)
-  \item Shape regularity of the finite element mesh
+  \item \structure{Shape regularity} of the finite element mesh
 \end{itemize}
 one can show that
 \begin{align*}
   a(e,v) &= \sum_{T \in \mathcal{T}_h} \int_T R_T (v - \mathcal{I} v) \,dx + \sum_{F \in \mathcal{F}_h^i \cup \mathcal{F}_h^N} R_F (v - \mathcal{I} v) \,ds \\
-  &\leq C \| v \|_{1,\Omega} \left\{ \sum_{T \in \mathcal{T}_h} h_T^2 \|R_T\|_{0,T}^2 + \sum_{F \in \mathcal{F}_h^i \cup \mathcal{F}_h^N} h_F \| R_F \|_{0,F}^2 \right\}^{1/2}
+  &\leq C \| v \|_{1,\Omega} {\left\{ \sum_{T \in \mathcal{T}_h} h_T^2 \|R_T\|_{0,T}^2 + \sum_{F \in \mathcal{F}_h^i \cup \mathcal{F}_h^N} h_F \| R_F \|_{0,F}^2 \right\}}^{1/2}
 \end{align*}
 \end{frame}
 
@@ -367,10 +295,10 @@ one can show that
 \frametitle{Error Estimate}
 Set $v = e \in V$ and exploit coercivity $\|e\|_{1,\Omega}^2 \leq C a(e,e)$, then
 \begin{align*}
-  \|e\|_{1,\Omega} &\leq C \left\{ \sum_{T \in \mathcal{T}_h} h_T^2 \|R_T\|_{0,T}^2 + \sum_{F \in \mathcal{F}_h^i \cup \mathcal{F}_h^N} h_F \|R_F\|_{0,F}^2 \right\}^{1/2} \\
-  &\leq C \left\{ \sum_{T \in \mathcal{T}_h} \gamma_T^2 \right\}^{1/2}
+  \|e\|_{1,\Omega} &\leq C {\left\{ \sum_{T \in \mathcal{T}_h} h_T^2 \|R_T\|_{0,T}^2 + \sum_{F \in \mathcal{F}_h^i \cup \mathcal{F}_h^N} h_F \|R_F\|_{0,F}^2 \right\}}^{1/2} \\
+  &\leq C {\left\{ \sum_{T \in \mathcal{T}_h} \gamma_T^2 \right\}}^{1/2}
 \end{align*}
-with the \emph{local error indicators}
+with the \structure{local error indicators}
 \begin{equation*}
   \gamma_T^2 = h_T^2 \|R_T\|_{0,T}^2 + \sum_{F \in \partial T \cap \mathcal{F}_h^N} h_T \|R_F\|_{0,F}^2 + \sum_{F \in \partial T \cap \mathcal{F}_h^i} \frac{h_T}{2} \|R_F\|_{0,F}^2
 \end{equation*}
@@ -401,9 +329,9 @@ holds if $u_h$ is sufficiently close to $u$!
 The basic algorithm works as follows:
 \begin{enumerate}
   \item Choose sufficiently fine starting mesh $\mathcal{T}_0$
-  \item Compute finite element solution $u_h$ on current mesh $\mathcal{T}_h$
-  \item Compute error estimate $\gamma(u_h)$, stop if $\gamma(u_h) \leq \text{TOL}$
-  \item Else refine mesh according to the local error indicators $\gamma_T$
+  \item \structure{Compute finite element solution $u_h$} on current mesh $\mathcal{T}_h$
+  \item \structure{Compute error estimate $\gamma(u_h)$}, stop if $\gamma(u_h) \leq \text{TOL}$
+  \item Else \structure{refine mesh according to the local error indicators $\gamma_T$}
   \item Transfer current solution $u_h$ and use as initial guess
   \item Go to step 2)
 \end{enumerate}
@@ -418,7 +346,7 @@ The basic algorithm works as follows:
     problems)
   \item Sort elements according to increasing error contribution:
     \begin{equation*}
-      \gamma_{T_1}^2 \leq \gamma_{T_2}^2 \leq \dots \leq \gamma_{T_N}^2
+      \gamma_{T_1}^2 \leq \gamma_{T_2}^2 \leq \cdots \leq \gamma_{T_N}^2
     \end{equation*}
   \item For given $\rho \in (0,1]$, determine
     \begin{equation*}
@@ -477,8 +405,8 @@ The basic algorithm works as follows:
 
 \begin{itemize}
   \item Refine by cutting element in two (use newest edge)
-  \item Is simple ($\ast$), but may lead to substantial
-    non-local changes of the mesh ($\mathcal{T}_2 \to \mathcal{T}_3$,$\square$)
+  \item Is simple ($\ast$), but may lead to \structure{substantial
+    non-local changes of the mesh} ($\mathcal{T}_2 \to \mathcal{T}_3$, $\square$)
 \end{itemize}
 \end{frame}
 
@@ -527,8 +455,8 @@ The basic algorithm works as follows:
 
 \begin{itemize}
   \item Refine by dividing local mesh width $h_T$ by two,
-    produces smaller copies of original element
-  \item Requires bisection on the fringe to keep mesh
+    produces smaller copies of original element as result
+  \item \structure{Requires bisection on the fringe} to keep mesh
     conforming
   \item Shape regularity requires removal of bisection
     refinement in subsequent iterations
@@ -587,7 +515,7 @@ The basic algorithm works as follows:
   \item Regular refinement with conforming closure can be
     used with quadrilaterals
   \item Requires using triangular elements for the closure
-  \item Hybrid mesh, no longer one universal reference element
+  \item \structure{Hybrid mesh, no longer one universal reference element}
 \end{itemize}
 \end{frame}
 
@@ -639,11 +567,11 @@ The basic algorithm works as follows:
 \hfill
 
 \begin{itemize}
-  \item Omitting closure keeps refinement local
+  \item \structure{Omitting closure keeps refinement local}
   \item Straightforward and can also be used with triangles
   \item Resulting hanging nodes add constraints to the
-    finite element space, i.e. algorithmic complexity is
-    shifted from mesh generation to assembly procedure
+    finite element space, i.e., \structure{complexity is
+    shifted from mesh generation to assembly procedure}
 \end{itemize}
 \end{frame}
 
@@ -658,33 +586,32 @@ The basic algorithm works as follows:
 \frametitle{Overview DUNE/PDELab Implementation}
 Files involved are:
 \begin{enumerate}[1)]
-\item File \lstinline{tutorial05.cc} 
+\item \structure{File \lstinline{tutorial05.cc}}
 \begin{itemize}
 \item Includes C++, DUNE and PDELab header files 
 \item Contains the \lstinline{main} function
 \item Creates a finite element mesh and calls the \lstinline{driver}
 \end{itemize}
-\item File \lstinline{tutorial05.ini} 
+\item \structure{File \lstinline{tutorial05.ini}}
 \begin{itemize}
-\item Contains parameters controlling the execution
+\item Contains parameters controlling the program execution
 \end{itemize}
-\item File \lstinline{driver.hh}
+\item \structure{File \lstinline{driver.hh}}
 \begin{itemize}
-\item Function \lstinline{driver} iteratively solving the finite element problem
+\item Function \lstinline{driver}, iteratively solving the finite element problem
   and refining the mesh based on the calculated error estimate
 \end{itemize}
-\item File \lstinline{nonlinearpoissonfem.hh} 
+\item \structure{File \lstinline{nonlinearpoissonfem.hh}}
 \begin{itemize}
-\item Class \lstinline{NonlinearPoissonFEM} 
-realizing the necessary element-local computations for the PDE
+\item Class \lstinline{NonlinearPoissonFEM},
+  realizing the necessary element-local computations for the PDE (compare tutorial 01)
 \end{itemize}
-\item File \lstinline{nonlinearpoissonfemestimator.hh} 
+\item \structure{File \lstinline{nonlinearpoissonfemestimator.hh}}
 \begin{itemize}
-\item Class \lstinline{NonlinearPoissonFEMEstimator} 
-realizing the necessary element-local computations for the error estimate
+\item Class \lstinline{NonlinearPoissonFEMEstimator},
+  realizing the necessary element-local computations for the error estimate (implemented as local operator)
 \end{itemize}
 \end{enumerate}
-Now lets go to the code \ldots
 \end{frame}
 
 \end{document}

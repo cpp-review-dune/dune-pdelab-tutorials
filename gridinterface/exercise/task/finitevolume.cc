@@ -90,7 +90,7 @@ int main(int argc, char** argv)
     initialize(grid_view, c);
 
     using Parameters = SimpleTransport<double,GridView::dimension,ScalarField>;
-    Parameters params;;
+    Parameters params;
 
     FiniteVolume<GridView,Parameters,ScalarField> fv(grid_view, params);
 

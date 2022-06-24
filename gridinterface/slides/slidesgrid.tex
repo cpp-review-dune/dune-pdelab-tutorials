@@ -6,56 +6,27 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[11pt]{beamer}
+\documentclass[aspectratio=169,11pt]{beamer}
 %\usepackage[ngerman]{babel}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{lmodern}
-\usepackage{tcolorbox}
 \usepackage{amsmath,amssymb,amsfonts}
 
+\usepackage{layout}
 
 % only presentation
 \mode<presentation>
 {
-  \usetheme{default}
-%  \usecolortheme{crane}
-  \setbeamercovered{transparent}
-%  \setlength{\parindent}{0pt}
-%  \setlength{\parskip}{1.35ex plus 0.5ex minus 0.3ex}
-%  \usefonttheme{structuresmallcapsserif}
-  \usefonttheme{structurebold}
-  \setbeamertemplate{theorems}[numbered]
-  \setbeamertemplate{sidebar right}{}
-  \usepackage{amscd}
+  \usepackage[course]{dunestyle-beamer}
 }
 
 % all after
-\usepackage{tikz}
+\usepackage{amscd}
+
 \usepackage{pgfplots,adjustbox}
 \usepackage{eurosym}
 \usepackage{graphicx}
-\graphicspath{{.}{figures/}}
-\usepackage{multimedia}
-\usepackage{psfrag}
-\usepackage{listings}
-% \lstset{language=C++, basicstyle=\ttfamily,
-%   keywordstyle=\color{black}\bfseries, tabsize=4, stringstyle=\ttfamily,
-%   commentstyle=\it, extendedchars=true, escapeinside={/*@}{@*/}}
-\lstset{language=C++, basicstyle=\small\ttfamily,
-  keywordstyle=\bfseries, tabsize=4, stringstyle=\ttfamily,morekeywords={decltype},
-  extendedchars=true, escapeinside={/*@}{@*/}}
-\definecolor{darkgray}{gray}{0.4}
-\lstset{keywordstyle=\color{green!40!black},
-  commentstyle=\itshape\color{blue!30!black!40!white},
-  stringstyle=\color{blue!60!black!60!white},
-  emph={bool,int,unsigned,char,true,false,void}, emphstyle=\color{red!80!black},
-  emph={[2]\#include,\#define,\#ifdef,\#endif}, emphstyle={[2]\color{green!60!black}},
-  emph={[3]Dune,Grid,SomeGrid,TheGrid,LeafIterator,LevelIterator,LeafIntersectionIterator,LevelIntersectionIterator,Geometry,GeometryType,QuadraturePoint,QuadratureRule,PDELab,Entity,EntityPointer,Codim,FieldVector,FieldMatrix}, emphstyle={[3]\color{blue!60!black}}
-}
-\usepackage{curves}
-%\usepackage{epic}
-\usepackage{calc}
+\graphicspath{{.}{figures/}{../../latexstyle/layout/}}
 %\usepackage{picinpar}
 %\usepackage{fancybox}
 %\usepackage{xspace}
@@ -74,34 +45,13 @@
 \usepackage[binary-units]{siunitx}
 \usepackage{xcolor,tabu}
 
-\usepackage{svg}
-
-\definecolor{niceblue}{rgb}{0.122,0.396,0.651}   %% 31, 101, 166 or #1F65A6
-\definecolor{niceorange}{RGB}{255,205,86}        %% #FFCD56
-\definecolor{nicered}{RGB}{220,20,60}                      %% rgb(220, 20, 60)
-\definecolor{niceteal}{HTML}{00A9AB}
-\definecolor{niceviolet}{HTML}{820080}
-
-\def\clap#1{\hbox to 0pt{\hss#1\hss}}
-\definecolor{dunedarkblue}{rgb}{0.22, 0.29, 0.49}
-\definecolor{dunemediumblue}{rgb}{0.35, 0.45, 0.71}
-\definecolor{dunelightblue}{rgb}{0.61, 0.68, 0.85}
-\definecolor{duneorange}{rgb}{0.91, 0.56, 0.25}
-
-\definecolor{niceblueLight}{HTML}{91CAFB}
-\definecolor{niceblueVeryLight}{HTML}{DDEFFF}
-
 \usepackage{lmodern}
 \usepackage{inconsolata}
 \usepackage{nimbusmononarrow}
 %\renewcommand*\ttdefault{txtt}
 \usepackage{dsfont}
 
-\mode<presentation>
-{
 \theoremstyle{definition}
-\setbeamertemplate{footline}[frame number]
-}
 % \newtheorem{Def}{Definition}%[section]
 % \newtheorem{Exm}[Def]{Example}
 % \newtheorem{Lem}[Def]{Lemma}
@@ -115,32 +65,6 @@
 % \newtheorem{Alg}[Def]{Algorithm}
 % \newtheorem{Prp}[Def]{Proposition}
 % \newtheorem{Lst}[Def]{Listing}
-
-\newenvironment{codeblock}{%
-  \begin{tcolorbox}[size=small,oversize,boxrule=0pt,opacityframe=0,colback=blue!30!black!5!white]}{%
-  \end{tcolorbox}}
-\usepackage{verbatim}
-\makeatletter
-\newwrite\lstvrb@out
-\newenvironment{cppcode}{%
-  \begingroup
-  \@bsphack
-  \immediate\openout\lstvrb@out\jobname.lst
-  \let\do\@makeother\dospecials\catcode`\^^M\active
-  \def\verbatim@processline{%
-    \immediate\write\lstvrb@out{\the\verbatim@line}}%
-  \verbatim@start}{%
-  \immediate\closeout\lstvrb@out
-  \@esphack
-  \endgroup
-  \begin{codeblock}
-    \vspace*{-1ex}
-    \lstinputlisting[basicstyle=\scriptsize\ttfamily]{\jobname.lst}
-    \vspace*{-1ex}
-  \end{codeblock}}
-\makeatother
-\newcommand{\rightarrownice}{\tikz{%
-    \draw[-latex,line width=2pt, color=structure.fg]   (0pt,0pt) -- +(2em,0) node[thin,right] {};}}
 
 % math symbols
 \newcommand{\C}{\mathbb{C}}
@@ -157,26 +81,39 @@
 \newcommand{\nn}{\mathbf{n}}
 \newcommand{\diffd}{\,d}
 
+\newcommand{\blackframe}{
+  % \bgroup
+  % \setbeamercolor{background canvas}{bg=black}
+  % \begin{frame}[noframenumbering,plain]
+  % \end{frame}
+  % \egroup
+}
+
+\newcommand{\presentationbreak}{%
+  \blackframe
+  \begin{frame}[noframenumbering,plain]
+    \partpage
+  \end{frame}
+}
+
 % Delete this, if you do not want the table of contents to pop up at
 % the beginning of each subsection:
-\AtBeginSection[]
-{
-  \begin{frame}<beamer>
+\AtBeginSection[]{
+  \begin{frame}[noframenumbering]
     \frametitle{Contents}
     \tableofcontents[sectionstyle=show/shaded,subsectionstyle=hide/hide/hide]
-%\tableofcontents[currentsection]
+    % \tableofcontents[currentsection]
   \end{frame}
 }
 
 % Title definition
-\title{The DUNE Grid Interface\\An Introduction}
+\title{The DUNE Grid Interface}
+\subtitle{An Introduction}
 \author{Christian Engwer}
 \institute[]
 {
-  Applied Mathematics, WWU Münster\\
-  Orleans-Ring 10, 48149 Münster
+  Applied Mathematics\\WWU Münster\\
 }
-\date{~}%March 7, 2017}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -188,17 +125,37 @@
 
 \begin{document}
 
-\begin{frame}
-    \titlepage
-\end{frame}
+			% \color{\title@fnt@color}%
+			% % title
+			% \LARGE%
+			% \bfseries%
+			% \inserttitle%
+			% \par%
+			% \vskip2mm%
+			% % subtitle
+			% \footnotesize%
+			% \normalfont%
+			% \insertsubtitle%
+			% \smallskip%
+			% % author
+			% \par%
+			% \insertauthor%
+			% \par%
+			% % date
+			% \medskip%
+			% \scriptsize%
+			% \color{\title@date@color}%
+			% \insertdate%
+			% \par%
 
-\part{Dune Course: Design Principles}
+\frame[plain, noframenumbering]{\titlepage}
+
+\part{Design Principles}
 
 \begin{onlyenv}<presentation>
-\begin{frame}
+\begin{frame}[plain, noframenumbering]
    \partpage
    \pause
-  \vfill
   \begin{quote}
     {\normalfont{}[...]} a modular toolbox for solving partial
     differential equations (PDEs) with grid-based
@@ -226,6 +183,32 @@
   \end{frame}
 \end{onlyenv}
 
+% \begin{frame}
+%   \frametitle{Layout}
+% \vspace*{-3cm}\layout
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Test 1}
+%   \raisebox{-.5\height}{\rule{1mm}{0.2\textheight}}
+%   \raisebox{-.5\height}{\rule{1mm}{0.4\textheight}}
+%   \raisebox{-.5\height}{\rule{1mm}{0.6\textheight}}
+%   \raisebox{-.5\height}{\rule{1mm}{0.8\textheight}}
+%   \raisebox{-.5\height}{\rule{1mm}{\textheight}}
+% \end{frame}
+
+% \begin{frame}[t]
+%   \frametitle{Test 2}
+%   \raisebox{-\height}{\rule{1mm}{0.8\textheight}}
+%   %\raisebox{-\height}{\rule{1mm}{\textheight}}
+% \end{frame}
+
+% \begin{frame}[b]
+%   \frametitle{Test 3}
+%   \raisebox{-\height}{\rule{1mm}{0.8\textheight}}
+%   \raisebox{-\height}{\rule{1mm}{\textheight}}
+% \end{frame}
+
 \begin{frame} \frametitle{Flexibility}
 
   \framesubtitle<presentation>{Seperate data structures and algorithms.}
@@ -251,7 +234,7 @@
 
   \only<article>{Generic programming techniques:}
 
-  \begin{minipage}{0.35\textwidth}
+  \begin{minipage}{0.32\textwidth}
     \begin{center}
       \includegraphics[width={\textwidth}]{generic}
     \end{center}
@@ -339,17 +322,13 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Some historic remarks}
+  \frametitle{A brief history\ldots}
   \centering
 %  \includesvg[width=0.9\linewidth]{dunetimeline}
-  \includegraphics[width=1.0\linewidth]{dunetimeline}
+  \includegraphics[width=0.9\linewidth]{dunetimeline}
 \end{frame}
 
-\begin{frame} \frametitle{DUNE Release 2.6.0}
-  % Upcoming stable version is 2.6.0,
-  % \only<presentation>{  \\ \scriptsize
-  %   \hspace*{4mm}}
-  % currently available as release candidate.
+\begin{frame} \frametitle{DUNE Release 2.7.1}
   \footnotesize
   \begin{columns}[t]
     \begin{column}{0.5\textwidth}
@@ -464,7 +443,7 @@
       \begin{itemize}
       \item[Goals:] allow people to\ldots{}\scriptsize
         \begin{itemize}
-        \item get credit for their innvoations
+        \item get credit for their innovations
         \item experiment without breaking the core
         \item develop at different speeds
         \end{itemize}
@@ -553,11 +532,12 @@
 %   \end{description}
 % \end{frame}
 
-\part{Dune Course: Grid Module}
+\blackframe
+\part{Grid Module}
 
-\begin{frame}
+\begin{frame}[noframenumbering,plain]
   \partpage
-  \vfill
+  \pause
   \begin{quote}
   People think that computer science is the art of geniuses but the
   actual reality is the opposite, just many people doing things that
@@ -670,7 +650,8 @@ Grids are necessary for at least three reasons:
 
 \begin{frame}
   \frametitle<presentation>{Designed to support a wide range of Grids}
-  \includegraphics[width=\linewidth]{grids}
+  \centering
+  \includegraphics[width=0.8\linewidth]{grids}
 \end{frame}
 
 \begin{frame}
@@ -735,14 +716,14 @@ implementations (YaspGrid, FoamGrid).
   In the DUNE sense a \emph{Grid} is a container of entities:
 
   \medskip
-  \begin{overlayarea}{\linewidth}{0.4\textheight}
+  \begin{overlayarea}{\linewidth}{0.5\textheight}
     \begin{columns}
       \begin{column}{5mm}
       \end{column}
       \begin{column}{0.5\linewidth-3mm}
-        \includegraphics<1-2>[width=1\linewidth]{entities}
-        \includegraphics<3->[width=1\linewidth]{entities_cd}
-      \end{column}\hfill
+        \centering\includegraphics<1-2>[width=.8\linewidth]{entities}%
+        \includegraphics<3->[width=.8\linewidth]{entities_cd}
+      \end{column}
       \begin{column}{0.5\linewidth}
         \begin{itemize}
         \item vertices \only<3->{\emph{(Entity codim = $d$)}},
@@ -827,7 +808,7 @@ for (const auto& cell : elements(gv)) {
   \only<presentation>{\vspace*{5mm}}
   \begin{columns}
     \begin{column}{0.5\linewidth}
-      \includegraphics<1-2>[width=\linewidth]{views}
+      \includegraphics<1-2>[width=\linewidth]{views}%
       \includegraphics<3->[width=\linewidth]{views2}
     \end{column}
     \begin{column}{0.5\linewidth}
@@ -901,8 +882,9 @@ for (const auto& cell : elements(gv)) {
 for (const auto& cell : elements(gv)) {
   // do some work with cell
 }
-  \end{cppcode}
-  Depending on the entities you are interested in, you can use one of the following functions:
+\end{cppcode}
+\pause
+  You can do similar calls for other entity types:
   \begin{cppcode}
 // Iterates over cells   (codim = 0)
 for (const auto& c : elements(gv))
@@ -945,6 +927,7 @@ for (const auto& e : entities(gv,Dune::Dim<2>{}))
 % \end{frame}
 
 
+\presentationbreak
 \section{Entities}
 
 \begin{frame}[fragile] \frametitle{Entities}
@@ -1203,8 +1186,7 @@ auto ref_el = Dune::referenceElement(entity.geometry());
     When using this function, you don't have to figure out the template parameters.
     \item \lstinline!ReferenceElement!s are cheap, always store and pass around copies (don't use references)
     \end{itemize}
-    For more information see the documentation on reference elements
-    (\url{https://dune-project.org/doxygen/master/group__GeometryReferenceElements.html})
+    For more information see the documentation on reference elements\footnote{\url{https://dune-project.org/doxygen/master/group__GeometryReferenceElements.html}}
 \end{frame}
 
 
@@ -1397,7 +1379,7 @@ point coordinates are local to the reference element and need to be transformed 
   \frametitle{Quadrature Rule Access in PDELab}
 
   Most of the time, you want a quadrature rule for an entity geometry\\[.5em]
-  $\Longrightarrow$ no need to specify template types\\[1em]
+  $\rightarrownice$ no need to specify template types\\[1em]
 
   PDELab extension to simplify access:
 \begin{cppcode}
@@ -1444,23 +1426,22 @@ for (const auto& qp : quad)
 % \end{center}
 % \end{frame}
 
-\subsection{Intersections}
-
+\section{Intersections}
 
 \def\intersections{
-        \begin{tikzpicture}[font=\footnotesize,scale=0.9]
-\draw(2,0) -- (3,0) -- (2,1) -- cycle;
+        \begin{tikzpicture}[font=\footnotesize,scale=1]
+\draw[thick] (2,0) -- (3,0) -- (2,1) -- cycle;
 
-\draw[thick,red] (1.5,0) -- (1.5,1);
+\draw[line width=1pt,red] (1.5,0) -- (1.5,1);
 
-\draw (0,0) rectangle (1,1);
+\draw[thick] (0,0) rectangle (1,1);
 
-\draw[black!20!white] (1.3,4) -- (2.5,4.2) -- (2,5.2) -- (0.8,5) -- cycle;
-\draw (1.8,3) -- (1.3,4) -- (2.5,4.2) -- cycle;
-\draw (1.8,3) -- (0.8,5) -- (0,4.7) -- (0.3,2.8) -- cycle;
-\draw (0.95,0.5) -- (1.05,0.5);
+\draw[thick,black!20!white] (1.3,4) -- (2.5,4.2) -- (2,5.2) -- (0.8,5) -- cycle;
+\draw[thick] (1.8,3) -- (1.3,4) -- (2.5,4.2) -- cycle;
+\draw[thick] (1.8,3) -- (0.8,5) -- (0,4.7) -- (0.3,2.8) -- cycle;
+\draw[thick] (0.95,0.5) -- (1.05,0.5);
 
-\draw[thick,red]
+\draw[line width=1pt,red]
   (1,0) -- (1,0.5)
   (2,1) -- (3,0)
   (1.8,3) -- (1.3,4);
@@ -1605,57 +1586,8 @@ auto integration_outer_normal =
       \end{itemize}
     \end{column}
  \begin{column}{0.25\linewidth}
-      \begin{center}
-        \begin{tikzpicture}[font=\footnotesize,scale=0.9]
-\draw(2,0) -- (3,0) -- (2,1) -- cycle;
-
-\draw[thick,red] (1.5,0) -- (1.5,1);
-
-\draw (0,0) rectangle (1,1);
-
-\draw[black!20!white] (1.3,4) -- (2.5,4.2) -- (2,5.2) -- (0.8,5) -- cycle;
-\draw (1.8,3) -- (1.3,4) -- (2.5,4.2) -- cycle;
-\draw (1.8,3) -- (0.8,5) -- (0,4.7) -- (0.3,2.8) -- cycle;
-\draw (0.95,0.5) -- (1.05,0.5);
-
-\draw[thick,red]
-  (1,0) -- (1,0.5)
-  (2,1) -- (3,0)
-  (1.8,3) -- (1.3,4);
-
-
-\path
-  (0.5,0.5) coordinate(e1r)
-  (2.3,0.3) coordinate(e2r)
-  (1.5,0.5) coordinate(ir)
-  (0.725,3.875) coordinate(e1w)
-  (1.867,3.733) coordinate(e2w)
-  (1.55,3.5) coordinate(iw)
-  (1,0.25) coordinate(ie1)
-  (2.5,0.5) coordinate(ie2);
-
-\draw[dashed]
-  (ir)  edge[->,bend left]  node[right] {$T_I$}       (iw)
-  (e1r) edge[->,bend left]  node[right] {$T_{E_i}$}   (e1w)
-  (e2r) edge[->,bend right] node[right]  {$T_{E_o}$}   (e2w)
-  (ir)  edge[->,bend left]  coordinate(ie1c)  (ie1)
-  (ir)  edge[->,bend right] node(ie2c) [near start] {}  (ie2);
-
-\node (ie1label) at(1.1,-0.8) {$T_{I,\hat{E}_i}$};
-\node (ie2label) at(1.9,-0.8) {$T_{I,\hat{E}_o}$};
-\node (ilabel) at (1.7,2.6) {$I$};
-
-\draw[densely dotted]
-  (ie1label)+(0,+1ex) edge (ie1c)
-  (ie2label)+(0,+1ex) edge (ie2c.center)
-  (ilabel)+(0,+1ex) edge (iw);
-
-\node at(1.5,-0.3) {$\hat{I}$};
-\node at(0.5,-0.3) {$\hat{E}_i$};
-\node at(2.5,-0.3) {$\hat{E}_o$};
-\node at(0.7,4.25) {$E_i$};
-\node at(2.5,3.7) {$E_o$};
-        \end{tikzpicture}
+   \begin{center}
+     \intersections{}
       \end{center}
     \end{column}
   \end{columns}
@@ -1681,23 +1613,39 @@ for (const auto& cell : elements(gv))
 \end{cppcode}
 \end{frame}
 
-\begin{frame}[fragile] \frametitle{Example: Elementwise divergence of a vector field}
+
+\begin{frame}[fragile]
+  \frametitle{Sequential finite volume solver}
+\structure{Elementwise divergence} of a vector field:
 \begin{equation*}
-\int_{\Omega_e} \nabla\cdot f(x) \,dx = \int_{\partial \Omega_e} f\cdot n_e \,ds
+\int_{E} \nabla\cdot f(x) \,dx = \int_{\partial E} f\cdot n_E \,ds
 \end{equation*}
+\pause
+\bigskip
+Consider the \structure{first-order linear PDE}
+$$ \partial_t u + \nabla\cdot(vu) = 0$$
+with given vector field $v(x)$ and unknown solution $u(x,t)$.
+
+The structure{explicit cell-centered finite volume method} reads
+$$ \bar{u}_E^{k+1} = \bar{u}_E^{k} - \frac{\Delta t}{|E|} \sum_{(E,E')\in I(E)}
+\Phi(v\cdot n_E,\bar{u}_E^{k},\bar{u}_{E'}^{k}) |I(E,E')|$$
+with the numerical flux function $\Phi$ chosen as upwind flux here.
+
 \bigskip
 \begin{center}
-Go to code example 3 \ldots
+  \pause
+\rightarrownice keep this in mind for \emph{code example 3}\ldots
 \end{center}
 \end{frame}
 
+\presentationbreak
 \section{Attaching Data to the Grid}
 
 \begin{frame} \frametitle{Attaching Data to the Grid}
 
   For computations we need to associate data with grid entities:
 
-  \begin{onlyenv}<1>
+  \begin{uncoverenv}<1->
   \begin{itemize}
   \item spatially varying parameters,
   \item entries in the solution vector or the stiffness matrix,
@@ -1705,17 +1653,20 @@ Go to code example 3 \ldots
   \item status information during assembling
   \item \ldots
   \end{itemize}
-  \end{onlyenv}
+  \end{uncoverenv}
 
-  \begin{onlyenv}<2>
+  \pause
+  \ldots meaning we want to
+  
+  \begin{uncoverenv}<2>
   \begin{itemize}
-  \item Allow association of FE computations data with subsets of entities.
+  \item associate data with subsets of entities.
   \item Subsets could be ``vertices of level $l$'', ``faces of leaf
     elements'', \ldots
   \item Data should be stored in arrays for efficiency.
   \item Associate index/id with each entity.
   \end{itemize}
-  \end{onlyenv}
+  \end{uncoverenv}
 
 \end{frame}
 
@@ -1735,6 +1686,7 @@ Go to code example 3 \ldots
   \item distinct leaf and a level index.
   \end{itemize}
 
+  \medskip
   \pause
   \only<presentation>{\vfill}
   \structure{Id Set:}
@@ -1765,22 +1717,6 @@ auto edge_lengths = std::vector<double>(index_set.size(1));
 for (const auto& edge : edges(gv))
   lengths[index_set.index(edge)] = edge.geometry().volume();
 \end{cppcode}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Sequential finite volume solver}
-Consider the first-order linear PDE
-$$ \partial_t u + \nabla\cdot(vu) = 0$$
-with given vector field $v(x)$ and unknown solution $u(x,t)$.
-
-The explicit cell-centered finite volume method reads
-$$ \bar{u}_e^{k+1} = \bar{u}_e^{k} - \frac{\Delta t}{|\Omega_e|} \sum_{(e,e')\in I(e)}
-\Phi(v\cdot n_e,\bar{u}_e^{k},\bar{u}_{e'}^{k}) |I(e,e')|$$
-with the numerical flux function $\Phi$ chosen as upwind flux here.
-
-\begin{center}
-Go to code example 4 \ldots
-\end{center}
 \end{frame}
 
 \begin{frame}
@@ -1871,9 +1807,11 @@ Go to code example 4 \ldots
   \pause \medskip
   You will be using the
 
+  \begin{codeblock}
   \centering
   %\footnotesize
   \lstinline!Dune::MultipleCodimMultipleGeomTypeMapper<GridView>!.
+  \end{codeblock}
 \end{frame}
 
 \begin{frame} \frametitle{Example: Mapper (I)}
@@ -1892,31 +1830,65 @@ Go to code example 4 \ldots
 \end{frame}
 \end{onlyenv}
 
-\section{Further Reading}
+\section{Further Information and Hands-on}
 
 \begin{onlyenv}<presentation>
   \begin{frame}
     \frametitle{Further Reading}
     \only<presentation>{\framesubtitle{What we didn't discuss\dots{}}}
     \begin{itemize}
-%    \item grid creation
+    \item grid creation and I/O\\
+      \medskip
+      \uncover<2->{\rightarrownice \emph{2nd lecture today.}}
 %      \medskip
 %    \item I/O
 %      \medskip
+      \pause\pause
+      \bigskip
     \item grid adaptation
       \medskip
     \item parallelization, load balancing
       \medskip
-    \item further specialized methods (e.g. related to grid hierarchy)
+    \item further specialized methods (e.g. related to grid hierarchy)\\
+      \pause
+      \medskip
+      \rightarrownice \emph{special topics lectures on thursday and friday}
     \end{itemize}
   \end{frame}
 \end{onlyenv}
 
+\begin{frame}
+  \frametitle{Further Reading}
+
+  \structure{Doxygen} class documentation
+
+  \begin{itemize}
+  \item Stable DUNE Code modules:\\ \url{https://dune-project.org/doxygen/2.7.1}
+    \bigskip
+  \item Overview of different components:\\
+    \url{https://dune-project.org/doxygen/2.7.1/modules.html}
+    \bigskip
+  \item PDELab class documentation:\\
+    \url{https://dune-project.org/doxygen/pdelab/master/}
+    \bigskip
+  \item PDELab recipes:\\
+    \url{https://dune-project.org/doxygen/pdelab/master/group__pdelab__recipes.html}
+  \end{itemize}
+  
+\end{frame}
+
 \begin{frame} \frametitle<presentation>{Further Reading}
     \only<presentation>{\framesubtitle{Literature}}
-
+    \small
     Cite when using the DUNE grid interface\ldots
+    \begingroup
+    \renewcommand{\section}[2]{}%
     \begin{thebibliography}{}
+
+    \bibitem[Bastian et al. (2021)]{dune2021}
+      P. Bastian, M. Blatt, Markus, A. Dedner, N. Dreier, C. Engwer, R. Fritze, C. Gr{\"a}ser, C. Gr{\"u}ninger, D. Kempf, R. Kl{\"o}fkorn, M. Ohlberger, O. Sander.
+      \newblock The DUNE framework: basic concepts and recent developments.
+      \newblock \emph{Computers \& Mathematics with Applications,} 81, 2021, pp.~75--112.
 
 \bibitem[Bastian et al. (2008)]{dune01}
 P. Bastian, M. Blatt, A. Dedner, C. Engwer, R. Klöfkorn, M. Ohlberger,
@@ -1935,6 +1907,51 @@ Scientific Computing.
 \newblock \emph{Computing,} 82(2--3), 2008, pp.~121--138.
 
 \end{thebibliography}
+    \endgroup
 \end{frame}
+
+\begin{frame}
+\frametitle{First steps with the DUNE grid interface}
+Files involved are:
+% finitevolume.cc  fv.hh  grid-exercise1.cc  integration.cc
+\begin{enumerate}[1)]
+\item First example: \lstinline{grid-exercise1.cc}
+  \begin{uncoverenv}<1->
+    \begin{itemize}
+    \item Iterate over the grid
+    \item \emph{Add evaluation of different geometry information}
+    \end{itemize}
+  \end{uncoverenv}
+\item Second example: \lstinline{integration.cc}
+  \begin{uncoverenv}<2->
+    \begin{itemize}
+    \item Evaluate an integral over the domain
+    \item \emph{Add loop over all elements and local integration}
+    \end{itemize}
+  \end{uncoverenv}
+\item Third example: Simulate a simple transport problem using a
+  Finite Volume discertization\\
+  \begin{itemize}
+  \item \lstinline{finitevolume.cc}
+  \begin{uncoverenv}<3>
+    \begin{itemize}
+    \item Main code to run a simple finite volume discretization (no
+      changes required)
+    \end{itemize}
+  \end{uncoverenv}
+\item \lstinline{fv.hh}
+  \begin{uncoverenv}<3>
+    \begin{itemize}
+    \item \emph{Add evaluation of face terms inside the element loop}
+    \end{itemize}
+  \end{uncoverenv}
+  \end{itemize}
+\end{enumerate}
+\begin{uncoverenv}<4>
+  \structure{Now lets go to the code \ldots}
+\end{uncoverenv}
+\end{frame}
+
+\blackframe
 
 \end{document}

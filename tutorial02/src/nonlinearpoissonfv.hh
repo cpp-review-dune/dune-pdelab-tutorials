@@ -215,10 +215,10 @@ public:
     auto face_volume = facegeo.volume();
 
     // contribution to jacobian entries
-    mat_ii.accumulate(lfsv_i,0,lfsv_i,0, face_volume/distance);
-    mat_io.accumulate(lfsv_i,0,lfsv_o,0,-face_volume/distance);
-    mat_oi.accumulate(lfsv_o,0,lfsv_i,0,-face_volume/distance);
-    mat_oo.accumulate(lfsv_o,0,lfsv_o,0, face_volume/distance);
+    mat_ii.accumulate(lfsv_i,0,lfsu_i,0, face_volume/distance);
+    mat_io.accumulate(lfsv_i,0,lfsu_o,0,-face_volume/distance);
+    mat_oi.accumulate(lfsv_o,0,lfsu_i,0,-face_volume/distance);
+    mat_oo.accumulate(lfsv_o,0,lfsu_o,0, face_volume/distance);
   }
 
   //! apply local jacobian of the skeleton term
@@ -295,7 +295,7 @@ public:
     auto face_volume = facegeo.volume();
 
     // contribution to matrix
-    mat_ii.accumulate(lfsv_i,0,lfsv_i,0,face_volume/distance);
+    mat_ii.accumulate(lfsv_i,0,lfsu_i,0,face_volume/distance);
   }
 
   //! apply local jacobian of the boundaryterm
