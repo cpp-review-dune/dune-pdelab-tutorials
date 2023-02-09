@@ -21,7 +21,7 @@
 #include<dune/grid/onedgrid.hh>
 #include<dune/grid/io/file/vtk/vtkwriter.hh>
 #include<dune/grid/io/file/gmshreader.hh>
-#if HAVE_UG
+#if HAVE_DUNE_UGGRID
 #include<dune/grid/uggrid.hh>
 #endif
 #if HAVE_DUNE_ALUGRID
@@ -105,12 +105,12 @@ int main(int argc, char** argv)
 #if HAVE_DUNE_ALUGRID
   typedef Dune::ALUGrid<2,2,Dune::simplex,
                         Dune::nonconforming> Grid;
-#elif HAVE_UG
+#elif HAVE_DUNE_UGGRID
   typedef Dune::UGGrid<2> Grid;
-#else  // ! (HAVE_UG || HAVE_DUNE_ALUGRID)
+#else  // ! (HAVE_DUNE_UGGRID || HAVE_DUNE_ALUGRID)
   std::cout << "Example requires a simplex grid!" << std::endl;
 #endif
-#if (HAVE_UG || HAVE_DUNE_ALUGRID)
+#if (HAVE_DUNE_UGGRID || HAVE_DUNE_ALUGRID)
   std::string filename = ptree.get("grid.twod.filename",
                                    "unitsquare.msh");
   Dune::GridFactory<Grid> factory;
@@ -127,12 +127,12 @@ int main(int argc, char** argv)
       {
 #if HAVE_DUNE_ALUGRID
         typedef Dune::ALUGrid<3,3,Dune::simplex,Dune::nonconforming> Grid;
-#elif HAVE_UG
+#elif HAVE_DUNE_UGGRID
         typedef Dune::UGGrid<3> Grid;
-#else  // ! (HAVE_UG || HAVE_DUNE_ALUGRID)
+#else  // ! (HAVE_DUNE_UGGRID || HAVE_DUNE_ALUGRID)
         std::cout << "This example requires a simplex grid!" << std::endl;
 #endif
-#if (HAVE_UG || HAVE_DUNE_ALUGRID)
+#if (HAVE_DUNE_UGGRID || HAVE_DUNE_ALUGRID)
         std::string filename = ptree.get("grid.threed.filename","unitcube.msh");
         Dune::GridFactory<Grid> factory;
         Dune::GmshReader<Grid>::read(factory,filename,true,true);

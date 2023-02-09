@@ -24,7 +24,7 @@
 #include<dune/grid/io/file/vtk/vtkwriter.hh>
 #include<dune/grid/io/file/vtk/subsamplingvtkwriter.hh>
 #include<dune/grid/io/file/gmshreader.hh>
-#if HAVE_UG
+#if HAVE_DUNE_UGGRID
 #include<dune/grid/uggrid.hh>
 #endif
 #if HAVE_DUNE_ALUGRID
@@ -97,7 +97,7 @@ int main(int argc, char** argv)
     // use UG grid if available and selected
     if (dim==2 && gridmanager=="ug")
       {
-#if HAVE_UG
+#if HAVE_DUNE_UGGRID
         typedef Dune::UGGrid<2> Grid;
         std::string filename = ptree.get("grid.twod.filename",
                                          "ldomain.msh");

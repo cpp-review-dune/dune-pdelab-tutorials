@@ -21,7 +21,7 @@
 #include<dune/grid/io/file/vtk/subsamplingvtkwriter.hh>
 #include<dune/grid/io/file/gmshreader.hh>
 #include<dune/grid/yaspgrid.hh>
-#if HAVE_UG
+#if HAVE_DUNE_UGGRID
 #include<dune/grid/uggrid.hh>
 #endif
 #include<dune/istl/bvector.hh>
@@ -103,12 +103,12 @@ int main(int argc, char** argv)
     // construct grid
     std::string filename = ptree.get<std::string>("grid.meshfile");
     const int refinement = ptree.get<int>("grid.refinement");
-#if HAVE_UG // see if we have UG
+#if HAVE_DUNE_UGGRID // see if we have UG
     typedef Dune::UGGrid<2> Grid;
 #else 
     std::cout << "Example requires UG grid!" << std::endl;
 #endif
-#if HAVE_UG
+#if HAVE_DUNE_UGGRID
 #ifdef STRUCTURED
     Dune::StructuredGridFactory<Grid> factory;
     Dune::FieldVector<double,2> lowerLeft(0.0);

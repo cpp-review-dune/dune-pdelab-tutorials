@@ -23,7 +23,7 @@
 #include<dune/grid/io/file/gmshreader.hh>
 #include<dune/grid/yaspgrid.hh>
 #include<dune/grid/onedgrid.hh>
-#if HAVE_UG
+#if HAVE_DUNE_UGGRID
 #include<dune/grid/uggrid.hh>
 #endif
 #include<dune/istl/bvector.hh>

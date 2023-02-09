@@ -26,7 +26,7 @@
 #include<dune/grid/utility/structuredgridfactory.hh>
 #include<dune/grid/io/file/vtk.hh>
 #include<dune/grid/io/file/gmshreader.hh>
-#if HAVE_UG
+#if HAVE_DUNE_UGGRID
 #include<dune/grid/uggrid.hh>
 #endif
 #if HAVE_DUNE_ALUGRID
